@@ -1,0 +1,26 @@
+name: Task
+description: 리팩터링, 문서 작성, 테스트, 프로젝트 설정 등의 작업을 정리해요.
+title: "[Task] "
+body:
+  - type: textarea
+    id: purpose
+    attributes:
+      label: 작업 목적
+      description: 어떤 작업이 필요하고, 왜 필요한가요?
+    validations:
+      required: true
+  - type: textarea
+    id: tasks
+    attributes:
+      label: 작업 내용 및 완료 기준
+      description: 작업 범위와 완료 여부를 확인할 수 있는 기준을 적어주세요.
+      placeholder: |
+        - [ ] ... 수정
+        - [ ] ... 확인
+    validations:
+      required: true
+  - type: textarea
+    id: references
+    attributes:
+      label: 참고 자료
+      description: 관련 문서, 이슈 링크나 주의할 점을 적어주세요. (선택)
