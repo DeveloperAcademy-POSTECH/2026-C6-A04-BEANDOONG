@@ -11,7 +11,7 @@ import SwiftUI
 struct beandoongApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            HomeFlow()
         }
     }
 }
