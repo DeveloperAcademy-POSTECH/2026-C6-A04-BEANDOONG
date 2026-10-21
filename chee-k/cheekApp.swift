@@ -8,7 +8,7 @@
 import SwiftUI
 
 @main
-struct PuffinApp: App {
+struct cheekApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
