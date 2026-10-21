@@ -10,10 +10,8 @@ import SwiftUI
 struct ContentView: View {
     var body: some View {
         VStack {
-            Image("Puffin_logo")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 200)
+            Image(systemName: "globe")
+                .imageScale(.large)
         }
     }
 }
