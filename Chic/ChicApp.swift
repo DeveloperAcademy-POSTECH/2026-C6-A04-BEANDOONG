@@ -8,7 +8,7 @@
 import SwiftUI
 
 @main
-struct cheekApp: App {
+struct CHiCApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
