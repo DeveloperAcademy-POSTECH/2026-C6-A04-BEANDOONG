@@ -23,10 +23,11 @@
 - `Shared/PulseInputView.swift`: iPhone 입력 화면, 측정값 확인과 기준값 조절.
 - `Shared/PuffinStyle.swift`: 공통 색상과 고역 크기 변화 표시.
 - `Checks/Pulse/main.swift`: 현재 분석기의 독립 실행 검사. 앱에는 포함되지 않습니다.
+- `Checks/Pulse/replay.swift`: 녹음 파일을 같은 DSP로 재생하고 구간별 감지·미감지 근거를 CSV로 남기는 도구. 앱에는 포함되지 않습니다.
 
 ## 현재 동작
 
-기본 공기음 조건은 4–12kHz 크기 ≥ −48dBFS, 200Hz–16kHz 대비 4–12kHz 에너지 비율 ≥ 0.12, 2–12kHz 평탄도 ≥ 0.12입니다. 세 조건을 120ms 연속 충족하면 진입하고 조건 미달이 220ms 지속되면 해제합니다. 별도로 상단 고역 감소에 따른 차단·복귀 규칙이 적용됩니다. 반복 진동에는 최소 350ms 간격과 고역 진폭 상승 조건이 있습니다.
+기본 공기음 조건은 4–12kHz 크기 ≥ −48dBFS, 200Hz–16kHz 대비 4–12kHz 에너지 비율 ≥ 0.12, 2–12kHz 평탄도 ≥ 0.12입니다. 세 조건을 120ms 연속 충족하면 진입합니다. 짧은 소리에는 주변 고역보다 10dB 이상 크고, 최근 80ms 고역 상승이 6dB 이상이며, 주파수별 변화량이 0.18 이상인 경우 43ms짜리 빠른 경로를 적용합니다. 빠른 경로의 크기 하한은 기본 고역 기준보다 최대 6dB 낮되 −62dBFS보다 낮아지지 않습니다. 조건 미달이 220ms 지속되면 해제합니다. 별도로 상단 고역 감소에 따른 차단·복귀 규칙이 적용됩니다. 반복 진동에는 최소 350ms 간격과 고역 진폭 상승 조건이 있습니다. 이 새 수치 역시 검증 전 실험값입니다.
 
 세 기준값과 DSP 판정은 iPhone에만 있습니다. 원음은 저장하거나 전송하지 않고 `running`·`active`·`pulse`만 Watch로 보냅니다. iPhone 앱이 백그라운드로 가면 분석을 종료합니다. iPhone 그래프는 원음 파형이 아니라 최근 고역 크기 이력입니다.
 
@@ -42,6 +43,19 @@ xcrun swiftc -module-cache-path /tmp/puffin-module-cache \
 
 잡음·무음 판정, 비정상 입력, 입력 분할 방식에 따른 결과 일치, 실행 중 기준값 변경을 검사합니다. 기본 검사는 외부 녹음 없이 실행됩니다. 선택적으로 48kHz mono Float32 PCM 파일 경로를 실행 인자로 전달할 수 있으며, 개인 녹음 파일은 저장소에 포함하지 않았습니다.
 
+실제 녹음은 `ffmpeg`가 설치된 macOS에서 아래처럼 재생할 수 있습니다. `--positive`는 공기 주입이 **확실한** 구간, `--negative`는 공기 주입이 **확실히 아닌** 구간을 초 단위로 입력합니다. 불확실한 구간에는 `--ignore`를 사용합니다. `--legacy`를 붙여 같은 파일을 기존 120ms 규칙으로도 돌리면 빠른 경로의 이득과 오탐을 비교할 수 있습니다. CSV의 `reason`은 기본 조건에 걸린 항목이고, `fastCandidate`는 빠른 경로가 열린 프레임입니다.
+
+```sh
+xcrun swiftc -module-cache-path /tmp/puffin-module-cache-replay \
+  Shared/PulseDSP.swift Checks/Pulse/replay.swift -o /tmp/puffin-dsp-replay
+/tmp/puffin-dsp-replay "녹음파일.m4a" --source live \
+  --positive 3:10 --csv /tmp/puffin-replay.csv
+/tmp/puffin-dsp-replay "녹음파일.m4a" --source live \
+  --positive 3:10 --legacy
+```
+
+녹음 10은 사용자가 **10초까지 공기 주입**이라고 확인했지만 시작점은 정확히 표시하지 않았으므로 위 `3:10`은 실행 형식의 예시입니다. 실제 시작점을 확인한 뒤 바꿔야 합니다. 녹음 15에는 말소리와 빠른 롤링이 섞여 있어 정답 공기음으로 넣지 않습니다. 유튜브 소리는 스피커로 재생해 iPhone 마이크로 다시 녹음한 파일을 `--source speaker`로 따로 검사합니다. 현재 앱은 같은 iPhone 내부의 유튜브 재생 오디오를 직접 받지 않습니다.
+
 ```sh
 xcodebuild -project chee-k.xcodeproj -scheme chee-k \
   -configuration Debug -destination 'generic/platform=iOS Simulator' \
@@ -53,6 +67,7 @@ xcodebuild -project chee-k.xcodeproj -scheme chee-k \
 ## 알려진 한계
 
 현재 기준은 실험용이며, 특히 상단 대역 감소 규칙은 녹음 9·18을 바탕으로 조정되었습니다. 다양한 마이크와 스티밍 환경의 정확도 검증은 필요합니다.
+짧은 경로는 합성 70ms 광대역 잡음과 1kHz 단일음으로만 회귀 검사했습니다. 실제 스티밍의 미탐 감소나 카페 소음의 오탐 증가는 확인되지 않았습니다. `--source`는 평가 기록용 구분이며 DSP 수치를 자동으로 바꾸지 않습니다.
 
 이전 Watch 자체 마이크 방식에서 소리 입력·진동 지연이 보고되어 Watch는 iPhone 판정을 받는 방식으로 바꿨습니다. 두 실기기 사이 실제 지연과 감지 정확도는 아직 측정하지 않았습니다. Watch 앱이 연결되지 않으면 실시간 메시지가 도착하지 않으며, 마지막 메시지 이후 3초가 지나면 이전 감지 표시를 지웁니다. 동기식 오디오 세션 활성화·비활성화가 메인 스레드에서 실행되는 경고도 해결 전입니다.
 

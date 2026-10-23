@@ -15,6 +15,9 @@ struct PulseResult {
     var active = false, suppressed = false, pulse = false
     // 직전 소리보다 상단 대역과 대역 간 기울기가 얼마나 줄었는지입니다.
     var upperDrop = 0.0, tiltDrop = 0.0
+    // 주변 소음 대비 고역 상승, 최근 고역 상승, 스펙트럼 변화와 후보 경로를 진단합니다.
+    var relativeHighDB = 0.0, onsetRiseDB = 0.0, highFlux = 0.0
+    var baseCandidate = false, fastCandidate = false
     #if os(iOS)
     // iPhone 진단 화면에 실제 적용 기준을 보여 주어 슬라이더 값과 비교합니다.
     var appliedHighDB = -48.0, appliedRatio = 0.12, appliedFlatness = 0.12
@@ -49,10 +52,17 @@ final class PulseDSP {
     // 진동은 고역 크기의 상승과 마지막 진동 시각을 함께 보고 제한합니다.
     // -무한대는 첫 진동의 350ms 간격 검사를 통과시키기 위한 초기값입니다.
     private var envelope = 0.0, lastPulse = -Double.infinity
+    // 빠른 경로는 직전 80ms의 고역 상승과 최근 주변 고역을 비교합니다.
+    private var recentHigh: [(time: Double, db: Double)] = []
+    private var ambientHighDB: Double?
+    private var previousHighSpectrum: [Double]?
+    private var fastWindowUntil = -Double.infinity, fastOn = 0.0
     // 아래 세 값은 공기음 후보가 되기 위한 최소 조건이며 iPhone에서 조절할 수 있습니다.
     var minimumHighDB = -48.0
     var minimumRatio = 0.12
     var minimumFlatness = 0.12
+    // 검사에서 이전 120ms 규칙과 비교할 수 있도록 빠른 경로만 끌 수 있습니다.
+    var enableFastOnset = true
     // Accelerate가 할당한 FFT 준비 객체를 사용 종료 시 반납합니다.
     deinit { vDSP_DFT_DestroySetupD(setup) }
 
@@ -80,13 +90,20 @@ final class PulseDSP {
             // total은 고역 비율의 분모, high는 공기음 후보의 주된 대역입니다.
             // lower/upper는 이후 '상단 대역 감소'를 비교하는 데 사용합니다.
             var total = 0.0, high = 0.0, lower = 0.0, upper = 0.0, sum = 0.0, logSum = 0.0, count = 0.0
+            // 고역의 주파수별 크기를 직전 창과 비교해 새로 생긴 성분의 비율을 봅니다.
+            var highSpectrum: [Double] = [], positiveChange = 0.0, highMagnitude = 0.0
             for k in 1..<(n/2) {
                 // FFT 칸 번호를 Hz로 바꾸고 복소 성분 제곱합을 에너지로 사용합니다.
                 let hz = Double(k)*rate/Double(n), p = re[k]*re[k]+im[k]*im[k]
                 // 전체 기준 대역은 고역 비율의 분모입니다.
                 if hz >= 200 && hz < 16000 { total += p }
                 // 4–12kHz는 공기음 후보의 주 대역입니다.
-                if hz >= 4000 && hz < 12000 { high += p }
+                if hz >= 4000 && hz < 12000 {
+                    high += p
+                    let magnitude = sqrt(p)
+                    if let previousHighSpectrum { positiveChange += max(0, magnitude-previousHighSpectrum[highSpectrum.count]) }
+                    highMagnitude += magnitude; highSpectrum.append(magnitude)
+                }
                 // 4–8kHz는 상단 주파수 감소를 비교할 때의 하단 기준입니다.
                 if hz >= 4000 && hz < 8000 { lower += p }
                 // 12–16kHz는 전환 시 특히 줄어드는지를 살펴봅니다.
@@ -104,6 +121,9 @@ final class PulseDSP {
                 db: 10*log10(max(frame.reduce(0) { $0+$1*$1 }/Double(n), 1e-16)),
                 highDB: db(high), ratio: high/max(total, 1e-30), flatness: sum > 1e-25 ? exp(logSum/count)/(sum/count) : 0,
                 lowerDB: db(lower), upperDB: db(upper))
+            // 0은 직전 창이 아직 없을 때의 변화량입니다. 다음 창 비교용 배열만 보관합니다.
+            r.highFlux = previousHighSpectrum == nil ? 0 : positiveChange/max(highMagnitude, 1e-12)
+            previousHighSpectrum = highSpectrum
             // 측정값에 시간 누적 판정을 적용한 뒤 이 창을 결과에 추가합니다.
             update(&r, dt: Double(hop)/rate); output.append(r); cursor += hop
         }
@@ -116,6 +136,28 @@ final class PulseDSP {
     private func update(_ r: inout PulseResult, dt: Double) {
         // 사용자가 조절하는 세 입력 조건은 모두 충족해야 합니다.
         let base = r.highDB >= minimumHighDB && r.ratio >= minimumRatio && r.flatness >= minimumFlatness
+        r.baseCandidate = base
+        // 주변 기준은 미감지 구간에서만 천천히 올라갑니다. 공기음 자체를 주변 소음으로 학습하지 않기 위함입니다.
+        if ambientHighDB == nil { ambientHighDB = r.highDB }
+        let ambient = max(-75, ambientHighDB!)
+        r.relativeHighDB = r.highDB-ambient
+        if !base && !active && !suppressed {
+            let alpha = r.highDB < ambientHighDB! ? 0.12 : 0.006
+            ambientHighDB! += alpha*(r.highDB-ambientHighDB!)
+        }
+        // 80ms 전후의 고역 크기를 비교하되, 입력 창 개수 대신 실제 시각을 사용합니다.
+        recentHigh.removeAll { r.time-$0.time > 0.08 }
+        r.onsetRiseDB = recentHigh.isEmpty ? 0 : r.highDB-recentHigh.map(\.db).min()!
+        recentHigh.append((r.time, r.highDB))
+        // 짧은 공기 주입용 경로: 기본 경로보다 약간 작은 소리도 주변보다 뚜렷하게 상승해야 합니다.
+        // 비율·평탄도는 그대로 요구하고, 상승과 주파수 변화가 함께 일어난 시점만 열어 둡니다.
+        let fastShape = r.highDB >= max(-62, minimumHighDB-6)
+            && r.ratio >= minimumRatio && r.flatness >= minimumFlatness
+            && r.relativeHighDB >= 10
+        if fastShape && r.onsetRiseDB >= 6 && r.highFlux >= 0.18 { fastWindowUntil = r.time+0.10 }
+        let fast = enableFastOnset && fastShape && r.time <= fastWindowUntil
+        r.fastCandidate = fast
+        fastOn = fast && !suppressed ? fastOn+dt : 0
         // dt가 달라도 약 50ms의 평활 시간 특성이 유지되도록 계수를 계산합니다.
         let alpha = 1-exp(-dt/0.05)
         // 고·저 대역의 순간 튐을 줄이고, 최근 1.2초를 전환 비교 기준으로 보관합니다.
@@ -140,7 +182,7 @@ final class PulseDSP {
         // 감소 조건이 끊기면 누적 시간을 다시 0으로 돌려 단발성 잡음을 제외합니다.
         transition = dropping ? transition+dt : 0
         // 120ms 지속되면 표시를 즉시 끄고 비교 기준을 고정합니다.
-        if !suppressed && transition >= 0.12 { suppressed = true; reference = ref; active = false; on = 0 }
+        if !suppressed && transition >= 0.12 { suppressed = true; reference = ref; active = false; on = 0; fastOn = 0 }
         // 차단 전에 비슷했던 대역 모양이 회복되어야 다시 공기음 후보를 받아들입니다.
         // suppressed가 참일 때만 reference!에 도달하며, 차단 시 ref를 저장합니다.
         let returning = suppressed && base && upper >= reference!.upper-6 && tilt >= reference!.tilt-6
@@ -152,7 +194,8 @@ final class PulseDSP {
         let hit = base && !suppressed, previous = active
         // 연속 통과 시간과 연속 미통과 시간을 별도로 셉니다.
         on = hit ? on+dt : 0; off = hit ? 0 : off+dt
-        if !active && on >= 0.12 { active = true }; if active && off >= 0.22 { active = false }
+        if !active && (on >= 0.12 || fastOn >= 0.04) { active = true }
+        if active && off >= 0.22 && !fast { active = false }
         let amp = pow(10, r.highDB/20), peak = amp > envelope*1.28 && amp > pow(10, minimumHighDB/20)
         // 최근 고역 크기의 지수 평균은 재상승(peak)의 비교 기준입니다.
         envelope = 0.86*envelope+0.14*amp

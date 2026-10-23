@@ -26,14 +26,14 @@ iPhone: PulseInputView → PulseMonitor → PulseCapture → PulseDSP
 | 6 | `chee-k/PulseSender.swift`, `PuffinWatch/PulseReceiver.swift` | 판정 상태를 전송하고 Watch에서 받아 표시·진동합니다. |
 | 7 | `PuffinWatch/PuffinWatchApp.swift` | iPhone에서 받은 판정을 보여 주는 Watch 화면입니다. |
 | 8 | `PuffinComplication/PuffinComplication.swift` | 시계 화면의 정적 앱 진입점입니다. |
-| 9 | `Checks/Pulse/main.swift` | 앱 없이 DSP 규칙을 검사하는 명령행 코드입니다. |
+| 9 | `Checks/Pulse/main.swift`, `Checks/Pulse/replay.swift` | 합성 소리 회귀 검사와 실제 녹음 구간별 재생·CSV 진단을 합니다. 앱에는 포함되지 않습니다. |
 
 ## 한 번의 연습 흐름
 
 1. iPhone 화면에서 **연습 시작**을 누르면 `PulseMonitor.start()`가 마이크 권한을 확인합니다.
 2. `PulseCapture`가 마이크를 열고 음성 샘플을 직렬 분석 큐로 넘깁니다.
 3. `PulseDSP.consume()`이 샘플을 약 43ms 크기의 창으로 나눠 FFT로 분석합니다. 약 11ms마다 새 결과를 만듭니다(48kHz 기준).
-4. `PulseDSP.update()`가 고역 크기·비율·평탄도와 지속 시간을 보고 공기음 표시(`active`)를 켜거나 끕니다. 상단 주파수 감소가 감지되면 일시 차단(`suppressed`)할 수 있습니다.
+4. `PulseDSP.update()`가 고역 크기·비율·평탄도와 지속 시간을 보고 공기음 표시(`active`)를 켜거나 끕니다. 고역이 갑자기 올라오는 짧은 구간에는 빠른 경로도 확인합니다. 상단 주파수 감소가 감지되면 일시 차단(`suppressed`)할 수 있습니다.
 5. `PulseMonitor.accept()`가 iPhone 화면을 갱신하고 `PulseSender`에 판정을 전달합니다. `PulseReceiver`는 Watch 화면을 갱신하고 `pulse`에서 진동합니다.
 6. iPhone 연습 종료, 화면 이탈, 백그라운드 이동 또는 오디오 중단 시 `stop()`이 입력을 정리하고 종료 상태를 Watch에 보냅니다.
 
@@ -70,12 +70,15 @@ iPhone: PulseInputView → PulseMonitor → PulseCapture → PulseDSP
 | `ratio` | 4–12kHz ÷ 200Hz–16kHz 에너지 | 전체 소리 중 고역의 몫을 봅니다. |
 | `flatness` | 2–12kHz | 에너지가 여러 주파수에 퍼진 정도를 봅니다. |
 | `lowerDB`, `upperDB` | 4–8kHz, 12–16kHz | 앞선 후보 소리와 비교해 상단 대역이 줄었는지 봅니다. |
+| `highFlux` | 4–12kHz의 연속 FFT 창 | 직전 창에 비해 새로 강해진 주파수 성분의 비율을 봅니다. |
 
 여기서 `highDB`는 마이크의 **디지털 입력 기준 dBFS**입니다. 소음계가 측정하는 실제 공간 음압(dB SPL)이 아니므로 기기·거리·입력 설정에 따라 값이 달라집니다.
 
 ### 4. 한 번의 숫자를 감지 상태로 바꾸기
 
 `PulseDSP.update()`는 기본적으로 `highDB ≥ -48`, `ratio ≥ 0.12`, `flatness ≥ 0.12`를 **동시에** 요구합니다. iPhone 진단 화면에서는 이 세 기준을 바꿀 수 있습니다. 조건이 연속 약 120ms 유지되면 `active`가 켜지고, 연속 약 220ms 실패하면 꺼집니다. 매 분석 결과마다 즉시 상태를 뒤집지 않아 순간 잡음과 짧은 끊김을 줄이는 방식입니다.
+
+짧은 공기 주입을 위해 별도 빠른 경로도 있습니다. 고역 비율·평탄도는 같은 기준을 쓰고, 고역 크기는 기본값보다 최대 6dB 낮은 값까지 허용하되 −62dBFS보다 낮지 않아야 합니다. 주변 고역보다 10dB 이상 크고 최근 약 80ms에 6dB 이상 상승했으며 `highFlux ≥ 0.18`이면 100ms 동안 빠른 후보 창을 엽니다. 이 후보가 약 43ms 이어지면 `active`를 켭니다. 주변 기준은 공기음으로 판정되지 않은 구간에서 천천히 갱신해 현재 공기음을 기준에 섞지 않습니다. 수치는 현재 실험값이며 실제 녹음에서 오탐과 시작 지연을 함께 확인해야 합니다.
 
 최근 후보의 상단 대역(12–16kHz) 및 상·하단 차이와 현재 소리를 비교합니다. 상단 대역과 차이가 충분히 줄어든 상태가 약 120ms 이어지면 `suppressed`로 표시를 차단합니다. 이는 녹음에 맞춘 **실험적 전환 규칙**으로, 모든 스티밍 상황의 정답으로 검증된 기준은 아닙니다. `pulse`는 `active`가 처음 켜지거나 고역이 다시 크게 상승한 결과에만 붙고, 진동 요청 사이에는 최소 350ms를 둡니다.
 
@@ -97,10 +100,12 @@ iPhone에서 연습을 끝내거나 화면을 떠나면 `stop()`이 입력 탭�
 - `active`: 현재 규칙이 공기음 후보로 표시하는 상태입니다. 실제 공기량이나 우유 온도를 측정한 결과는 아닙니다.
 - `suppressed`: 앞선 후보 소리와 비교해 상단 대역이 줄어 표시를 차단한 상태입니다.
 - `pulse`: 이번 결과에서 진동을 요청할지 나타냅니다. `active`인 동안 매번 진동시키지는 않습니다.
+- `relativeHighDB`, `onsetRiseDB`, `highFlux`: 주변 대비 크기·최근 80ms 상승·주파수별 변화량입니다. `baseCandidate`, `fastCandidate`는 어느 후보 경로를 통과했는지 보여 줍니다. 이 값들은 오프라인 CSV에서 확인할 수 있습니다.
 
 ## 무엇을 바꾸려면 어디를 볼까?
 
 - 감지 기준·지속 시간·진동 요청 규칙: `Shared/PulseDSP.swift`
+- 녹음에 실제 시작·끝을 표시하고 놓친 이유 확인: `Checks/Pulse/replay.swift` (`README.md`의 검사 명령 참고)
 - iPhone 마이크 수명, 오류 문구, iPhone 진동: `Shared/PulseMonitor.swift`
 - Watch 전송과 수신: `chee-k/PulseSender.swift`, `PuffinWatch/PulseReceiver.swift`
 - iPhone 문구·화면·진단 패널: `Shared/PulseInputView.swift`

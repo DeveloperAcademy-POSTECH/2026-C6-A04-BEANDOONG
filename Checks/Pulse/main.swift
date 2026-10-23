@@ -59,3 +59,19 @@ assert((try! tuning.consume(noise,sampleRate:48000)).last?.active == false)
 tuning.minimumRatio = 0.12
 assert((try! tuning.consume(noise,sampleRate:48000)).contains { $0.active })
 print("PASS live energy, ratio and flatness threshold changes")
+
+// 70ms 고역 잡음은 기존 120ms 진입보다 짧아 빠른 경로의 실제 이득을 확인합니다.
+let background = (0..<48000).map { _ in random()*0.001 }
+let burst = (0..<3360).map { _ in random() }
+let shortSound = background + burst + [Float](repeating: 0, count: 24000)
+let quick = try PulseDSP().consume(shortSound, sampleRate: 48000)
+let old = PulseDSP(); old.enableFastOnset = false
+let slow = try old.consume(shortSound, sampleRate: 48000)
+assert(quick.contains { $0.active && $0.fastCandidate })
+assert(!slow.contains { $0.active })
+// 큰 저역 단일음은 소리 크기만으로 공기음이 되지 않아야 합니다.
+let tone = (0..<3360).map { Float(0.1*sin(2*Double.pi*1000*Double($0)/48000)) }
+let lowSound = background + tone + [Float](repeating: 0, count: 24000)
+let lowResult = try PulseDSP().consume(lowSound, sampleRate: 48000)
+assert(!lowResult.contains { $0.active })
+print("PASS short onset and low tone rejection")
