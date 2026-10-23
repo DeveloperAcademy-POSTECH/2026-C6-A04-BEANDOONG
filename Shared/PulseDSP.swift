@@ -1,5 +1,5 @@
 // 마이크 PCM을 받아 공기 주입 소리의 특징과 상태를 계산하는 공통 분석기입니다.
-// iPhone과 Watch가 각각 이 파일을 사용하므로, 여기에는 화면이나 진동 코드가 없습니다.
+// iPhone에서 분석하고 판정만 Watch에 전송하므로, 여기에는 화면이나 진동 코드가 없습니다.
 import Foundation // 수학 함수·오류 객체를 사용합니다.
 import Accelerate // Apple의 최적화된 FFT(vDSP)로 주파수 에너지를 계산합니다.
 

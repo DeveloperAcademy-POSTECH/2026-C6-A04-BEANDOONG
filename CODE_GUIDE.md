@@ -5,14 +5,14 @@
 ## 먼저 알아둘 구조
 
 ```text
-iPhone: PulseInputView ─┐
-                        ├→ PulseMonitor → PulseCapture → PulseDSP
-Watch:  WatchInputView ──┘        ↑                         ↓
-                              화면 상태 ← PulseResult(측정·판정)
-                                   └→ 기기별 진동
+iPhone: PulseInputView → PulseMonitor → PulseCapture → PulseDSP
+                            │             ↑                 │
+                            └← PulseResult(측정·판정) ←───────┘
+                                  │
+                                  └→ PulseSender → WCSession → PulseReceiver → Watch 화면·진동
 ```
 
-iPhone과 Watch는 **각자 마이크로 같은 분석 코드를 실행**합니다. iPhone의 판정 결과를 Watch에 보내는 구조가 아닙니다. Watch의 컴플리케이션은 앱 진입용 표시이며 실시간 분석을 하지 않습니다.
+**iPhone만 마이크와 DSP를 실행**하고 판정 상태를 Watch에 보냅니다. Watch의 컴플리케이션은 앱 진입용 표시이며 실시간 분석을 하지 않습니다.
 
 ## 파일별 역할
 
@@ -20,21 +20,22 @@ iPhone과 Watch는 **각자 마이크로 같은 분석 코드를 실행**합니�
 | --- | --- | --- |
 | 1 | `chee-k/cheekApp.swift`, `chee-k/ContentView.swift` | iPhone 앱을 시작하고 연습 화면을 엽니다. |
 | 2 | `Shared/PulseInputView.swift` | iPhone의 상태 문구·고역 그래프·시작/종료 버튼·진단 패널을 그립니다. |
-| 3 | `Shared/PulseMonitor.swift` | 마이크 권한과 시작/종료, 화면 상태, 오류 처리, 기기별 진동을 관리합니다. 내부 `PulseCapture`가 오디오를 분석 큐로 보냅니다. |
+| 3 | `Shared/PulseMonitor.swift` | iPhone의 마이크 권한과 시작/종료, 화면 상태, 오류 처리, iPhone 진동과 Watch 전송 호출을 관리합니다. |
 | 4 | `Shared/PulseDSP.swift` | 음성을 주파수별 에너지로 바꾸고 규칙으로 공기음 상태를 판정합니다. 화면 코드는 없습니다. |
 | 5 | `Shared/PuffinStyle.swift` | 공통 색상과 최근 고역 크기 그래프를 정의합니다. |
-| 6 | `PuffinWatch/PuffinWatchApp.swift` | Watch 연습 화면입니다. Watch 자체 `PulseMonitor`를 사용합니다. |
-| 7 | `PuffinComplication/PuffinComplication.swift` | 시계 화면의 정적 앱 진입점입니다. |
-| 8 | `Checks/Pulse/main.swift` | 앱 없이 DSP 규칙을 검사하는 명령행 코드입니다. |
+| 6 | `chee-k/PulseSender.swift`, `PuffinWatch/PulseReceiver.swift` | 판정 상태를 전송하고 Watch에서 받아 표시·진동합니다. |
+| 7 | `PuffinWatch/PuffinWatchApp.swift` | iPhone에서 받은 판정을 보여 주는 Watch 화면입니다. |
+| 8 | `PuffinComplication/PuffinComplication.swift` | 시계 화면의 정적 앱 진입점입니다. |
+| 9 | `Checks/Pulse/main.swift` | 앱 없이 DSP 규칙을 검사하는 명령행 코드입니다. |
 
 ## 한 번의 연습 흐름
 
-1. 화면에서 **연습 시작**을 누르면 `PulseMonitor.start()`가 마이크 권한을 확인합니다.
+1. iPhone 화면에서 **연습 시작**을 누르면 `PulseMonitor.start()`가 마이크 권한을 확인합니다.
 2. `PulseCapture`가 마이크를 열고 음성 샘플을 직렬 분석 큐로 넘깁니다.
 3. `PulseDSP.consume()`이 샘플을 약 43ms 크기의 창으로 나눠 FFT로 분석합니다. 약 11ms마다 새 결과를 만듭니다(48kHz 기준).
 4. `PulseDSP.update()`가 고역 크기·비율·평탄도와 지속 시간을 보고 공기음 표시(`active`)를 켜거나 끕니다. 상단 주파수 감소가 감지되면 일시 차단(`suppressed`)할 수 있습니다.
-5. `PulseMonitor.accept()`가 결과를 화면 상태와 최근 고역 그래프로 옮깁니다. `pulse`가 참인 결과에서는 해당 기기의 진동을 요청합니다.
-6. 연습 종료, 화면 이탈, 백그라운드 이동 또는 오디오 중단 시 `stop()`이 입력과 분석을 정리합니다.
+5. `PulseMonitor.accept()`가 iPhone 화면을 갱신하고 `PulseSender`에 판정을 전달합니다. `PulseReceiver`는 Watch 화면을 갱신하고 `pulse`에서 진동합니다.
+6. iPhone 연습 종료, 화면 이탈, 백그라운드 이동 또는 오디오 중단 시 `stop()`이 입력을 정리하고 종료 상태를 Watch에 보냅니다.
 
 ## 여섯 단계를 조금 더 자세히
 
@@ -80,13 +81,13 @@ iPhone과 Watch는 **각자 마이크로 같은 분석 코드를 실행**합니�
 
 ### 5. 화면과 진동으로 전달하기
 
-`PulseCapture`는 분석 결과를 약 40ms 간격으로 화면 쪽에 보내며, 그 사이 생긴 `pulse`는 기억해 전달합니다. `PulseMonitor.accept()`는 `active`를 화면의 공기음 표시로 옮기고, `highDB`를 0–1 범위의 높이로 바꿔 최근 31개 막대에 넣습니다. 이 그래프는 **원본 파형이나 FFT 전체가 아니라 최근 고역 크기**입니다. `pulse`가 참이면 실행 중인 기기에서 햅틱을 요청합니다. iPhone과 Watch는 각각 자기 마이크로 분석하므로 iPhone의 판정이 Watch로 전송되지는 않습니다.
+`PulseCapture`는 분석 결과를 약 40ms 간격으로 화면 쪽에 보내며, 그 사이 생긴 `pulse`는 기억해 전달합니다. `PulseMonitor.accept()`는 `active`를 화면의 공기음 표시로 옮기고, `highDB`를 0–1 범위의 높이로 바꿔 최근 31개 막대에 넣습니다. 이 그래프는 **원본 파형이나 FFT 전체가 아니라 최근 고역 크기**입니다. `pulse`가 참이면 iPhone에서 햅틱을 요청하고, Watch로 보낸 메시지를 받은 `PulseReceiver`도 진동합니다. Watch는 자체 마이크를 사용하지 않습니다.
 
-첫 2048개가 모이는 시간, 약 120ms의 진입 판정, 버퍼 전달·분석·화면/햅틱 처리가 모두 반응 시간에 들어갑니다. 단순히 `43ms + 120ms`를 실제 진동 지연으로 보장할 수는 없습니다. 특히 Watch의 실제 지연은 기기에서 별도로 측정해야 합니다.
+첫 2048개가 모이는 시간, 약 120ms의 진입 판정, 버퍼 전달·분석·화면/햅틱 처리가 모두 반응 시간에 들어갑니다. 단순히 `43ms + 120ms`를 실제 진동 지연으로 보장할 수는 없습니다. 특히 iPhone→Watch 전송과 진동 지연은 페어링한 실기기에서 별도로 측정해야 합니다.
 
 ### 6. 종료와 중단 처리
 
-연습을 끝내거나 화면을 떠나면 `stop()`이 입력 탭과 오디오 엔진을 닫고 대기 중인 분석 작업을 정리합니다. `generation` 표식을 바꿔 종료 후 늦게 도착한 결과가 새 화면에 적용되지 않게 합니다. 앱이 백그라운드로 가거나 통화 등으로 오디오가 중단되었을 때도 같은 경로를 사용합니다.
+iPhone에서 연습을 끝내거나 화면을 떠나면 `stop()`이 입력 탭과 오디오 엔진을 닫고 대기 중인 분석 작업을 정리하며 종료 상태를 Watch로 보냅니다. `generation` 표식을 바꿔 종료 후 늦게 도착한 결과가 새 화면에 적용되지 않게 합니다. 앱이 백그라운드로 가거나 통화 등으로 오디오가 중단되었을 때도 같은 경로를 사용합니다.
 
 ## 결과값을 읽는 법
 
@@ -100,12 +101,13 @@ iPhone과 Watch는 **각자 마이크로 같은 분석 코드를 실행**합니�
 ## 무엇을 바꾸려면 어디를 볼까?
 
 - 감지 기준·지속 시간·진동 요청 규칙: `Shared/PulseDSP.swift`
-- 마이크 수명, 오류 문구, 진동 호출: `Shared/PulseMonitor.swift`
+- iPhone 마이크 수명, 오류 문구, iPhone 진동: `Shared/PulseMonitor.swift`
+- Watch 전송과 수신: `chee-k/PulseSender.swift`, `PuffinWatch/PulseReceiver.swift`
 - iPhone 문구·화면·진단 패널: `Shared/PulseInputView.swift`
 - Watch 화면: `PuffinWatch/PuffinWatchApp.swift`
 - 색상·고역 그래프: `Shared/PuffinStyle.swift`
 
-iPhone 화면의 세 기준값은 **iPhone에만 저장**됩니다. Watch와 자동 동기화되지 않습니다. 현재 수치는 실험용이므로 판정 정확도는 실제 공기주입 시작·끝을 표시한 녹음과 다양한 기기·카페 환경으로 확인해야 합니다.
+iPhone 화면의 세 기준값은 **iPhone에만 저장**되며, Watch는 iPhone의 최종 판정만 받습니다. 현재 수치는 실험용이므로 판정 정확도는 실제 공기주입 시작·끝을 표시한 녹음과 다양한 기기·카페 환경으로 확인해야 합니다.
 
 ## 주석을 읽을 때 알아두면 좋은 문법
 
@@ -116,7 +118,7 @@ iPhone 화면의 세 기준값은 **iPhone에만 저장**됩니다. Watch와 자
 | `DispatchQueue(label: "puffin.dsp")` | 마이크 콜백과 별도의 순서 있는 작업 공간에서 FFT와 판정기를 실행합니다. |
 | `Task { ... }` | 권한 응답·화면 갱신처럼 기다리거나 실행 흐름을 전환해야 하는 일을 처리합니다. |
 | `generation = UUID()` | 종료된 연습에서 늦게 도착한 분석 결과가 새 연습 화면에 섞이지 않게 합니다. |
-| `#if os(iOS)` / `#if os(watchOS)` | 같은 공유 파일 안에서 기기별 화면 진단값과 햅틱 API를 선택합니다. |
+| `#if os(iOS)` | iPhone 진단값과 Watch 전송 호출을 iOS 빌드에만 포함합니다. |
 | `#if DEBUG` | 실기기 감지 기능과 별개인 화면 시험용 코드를 Debug 빌드에만 넣습니다. |
 | `try` / `catch` | 마이크 설정·입력 분석이 실패하면 화면에 원인을 알리고 자원을 정리합니다. |
 
@@ -127,3 +129,7 @@ iPhone 화면의 세 기준값은 **iPhone에만 저장**됩니다. Watch와 자
 3. **왜 `on`과 `off` 시간을 따로 세는가?** 한 번 튄 소리에 즉시 켜지거나 한 번 끊긴 소리에 즉시 꺼지는 일을 줄입니다.
 4. **왜 `history`와 `reference`가 있는가?** 현재 소리를 최근 후보 소리와 비교해 상단 대역이 줄어드는 전환을 감지합니다.
 5. **왜 `pulse`가 `active`와 별도인가?** 화면은 감지 중 계속 켜져도 진동은 시작·재상승 시점에만 제한적으로 발생해야 하기 때문입니다.
+
+## Watch 연결에서 중요한 점
+
+`PulseSender`는 `WCSession`을 활성화하고 Watch가 실시간 메시지를 받을 수 있을 때만 `running`·`active`·`pulse`를 보냅니다. 상태 변화와 진동 요청은 즉시, 변하지 않는 상태는 약 1초마다 보냅니다. Watch의 `PulseReceiver`는 마지막 수신 후 3초가 지나면 연결과 감지 표시를 지웁니다. iPhone 앱을 백그라운드로 보내면 현재 코드가 마이크 분석을 종료합니다.

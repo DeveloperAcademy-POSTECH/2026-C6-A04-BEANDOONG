@@ -1,12 +1,8 @@
-// 마이크의 시작·종료, DSP 실행, 화면 상태 갱신, 기기별 진동을 연결합니다.
-// iPhone과 Watch는 이 파일을 각자 실행하며 서로 분석 결과를 주고받지 않습니다.
+// iPhone 마이크의 시작·종료, DSP 실행, 화면 상태 갱신, Watch 전송을 연결합니다.
+// iPhone이 이 분석 결과를 Watch로 전달하며 Watch는 자체 마이크를 사용하지 않습니다.
 import AVFoundation // AVAudioSession/AVAudioEngine로 마이크 입력을 관리합니다.
 import Observation // @Observable 상태를 SwiftUI 화면에 자동 반영합니다.
-#if os(watchOS)
-import WatchKit // Watch 고유 햅틱을 호출합니다.
-#else
 import UIKit // iPhone 햅틱과 화면 자동 잠금 설정을 사용합니다.
-#endif
 
 #if os(iOS)
 // iPhone 진단 화면에서 조절하는 세 기준값입니다. 이 기기의 UserDefaults에만 저장됩니다.
@@ -69,7 +65,7 @@ private final class PulseCapture: @unchecked Sendable {
     }
     #endif
     func start() throws {
-        // measurement 모드에서 각 기기의 마이크를 열고 PCM 입력 탭을 설치합니다.
+        // measurement 모드에서 iPhone 마이크를 열고 PCM 입력 탭을 설치합니다.
         let session = AVAudioSession.sharedInstance()
         // 녹음 용도로 오디오 세션을 정하고 시스템의 입력 신호 처리를 줄입니다.
         try session.setCategory(.record, mode: .measurement)
@@ -134,6 +130,10 @@ private final class PulseCapture: @unchecked Sendable {
     var error: String?
     // 마이크를 소유하는 객체를 보관해야 분석 중에 해제되지 않습니다.
     private var capture: PulseCapture?
+    #if os(iOS)
+    // 판정 상태만 Watch로 전송하고 다시 연결되면 최신 상태를 보냅니다.
+    private let sender = PulseSender()
+    #endif
     // 비동기 권한 응답이나 이전 분석 결과가 새 연습 세션을 덮어쓰지 못하게 하는 표식입니다.
     private var generation = UUID()
     // 입력 부재 감시와 Debug 화면 시험을 중지할 때 취소하기 위한 작업 핸들입니다.
@@ -169,7 +169,12 @@ private final class PulseCapture: @unchecked Sendable {
                 // 인터럽트가 '시작'된 경우만 중단하고 '끝' 알림은 무시합니다.
                 if name == AVAudioSession.interruptionNotification, (note.userInfo?[AVAudioSessionInterruptionTypeKey] as? UInt) != AVAudioSession.InterruptionType.began.rawValue { return }
                 // 화면 상태는 MainActor에서만 바꾸고 사용자에게 재시작 이유를 알립니다.
-                Task { @MainActor in guard let self,self.running else{return}; self.stop(); self.error = "오디오 연결이 바뀌었어요. 입력을 확인하고 다시 시작해 주세요." }
+                guard let self else { return }
+                Task { @MainActor in
+                    guard self.running else { return }
+                    self.stop()
+                    self.error = "오디오 연결이 바뀌었어요. 입력을 확인하고 다시 시작해 주세요."
+                }
             })
         }
     }
@@ -195,11 +200,20 @@ private final class PulseCapture: @unchecked Sendable {
             // 캡처의 백그라운드 콜백을 MainActor로 보내 화면 상태와 연결합니다.
             // token 비교로 이전 세션에서 늦게 온 결과/오류를 버립니다.
             // weak self는 Monitor가 사라진 뒤 콜백이 객체를 계속 붙잡지 않게 합니다.
-            let input = PulseCapture(result: { [weak self] r in Task { @MainActor in
-                guard let self,self.generation == token else{return}; self.accept(r)
-            } },failure: { [weak self] message in Task { @MainActor in
-                guard let self,self.generation == token else{return};self.stop();self.error = message
-            } })
+            let input = PulseCapture(result: { [weak self] r in
+                guard let self else { return }
+                Task { @MainActor in
+                    guard self.generation == token else { return }
+                    self.accept(r)
+                }
+            }, failure: { [weak self] message in
+                guard let self else { return }
+                Task { @MainActor in
+                    guard self.generation == token else { return }
+                    self.stop()
+                    self.error = message
+                }
+            })
             #if os(iOS)
             // 저장된 iPhone 기준값을 실제 분석기에 먼저 적용합니다.
             input.apply(thresholds)
@@ -207,6 +221,8 @@ private final class PulseCapture: @unchecked Sendable {
             // 캡처를 보관하고 시작에 성공한 뒤에만 running을 켭니다.
             capture = input; try input.start(); starting = false; running = true
             #if os(iOS)
+            // Watch가 이미 열려 있으면 연습 시작 상태를 즉시 알립니다.
+            sender.publish(running: true, active: false)
             // 실제 선택된 입력 장치·샘플레이트·모드를 진단 화면에 표시합니다.
             let audio = AVAudioSession.sharedInstance()
             inputDescription = "\(audio.currentRoute.inputs.map(\.portName).joined(separator: ", ")) · \(Int(audio.sampleRate)) Hz · \(audio.mode.rawValue)"
@@ -228,16 +244,16 @@ private final class PulseCapture: @unchecked Sendable {
         #endif
         // 화면이 자주 읽는 핵심 수치와 판정 상태만 별도 속성으로 옮깁니다.
         elapsed = r.time; db = r.db; highDB = r.highDB; air = r.active; suppressed = r.suppressed
+        #if os(iOS)
+        // 화면과 동일한 판정을 전송하며, pulse가 있는 결과는 즉시 보냅니다.
+        if !previewing { sender.publish(running: true, active: r.active, pulse: r.pulse) }
+        #endif
         // 고역 dBFS를 0~1 화면 높이로 바꾸고, 화면에 필요한 최근 31개만 유지합니다.
         levels.append(Float(max(0,min(1,(r.highDB+70)/45))))
         if levels.count > 31 { levels.removeFirst(levels.count-31) }
         if r.pulse {
-            // 워치는 자체 햅틱, iPhone은 가벼운 터치 피드백을 사용합니다.
-            #if os(watchOS)
-            WKInterfaceDevice.current().play(.click)
-            #else
+            // iPhone의 로컬 피드백이며 Watch 진동은 수신 파일에서 재생합니다.
             UIImpactFeedbackGenerator(style:.light).impactOccurred()
-            #endif
         }
     }
     // 화면을 닫거나 앱이 백그라운드로 갈 때도 같은 정리 경로를 사용합니다.
@@ -247,6 +263,8 @@ private final class PulseCapture: @unchecked Sendable {
         // 오디오 탭·엔진을 닫고 화면의 실행/감지 상태를 초기화합니다.
         capture?.stop();capture = nil;running = false;starting = false;air = false;suppressed = false
         #if os(iOS)
+        // 종료를 알려 Watch에 이전 공기음 표시가 남지 않게 합니다.
+        sender.publish(running: false, active: false)
         if let previousIdle { UIApplication.shared.isIdleTimerDisabled = previousIdle; self.previousIdle = nil }
         #endif
         // 다른 앱이 오디오를 다시 사용할 수 있도록 녹음 세션을 비활성화합니다.
