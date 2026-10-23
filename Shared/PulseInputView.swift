@@ -1,9 +1,12 @@
+// iPhone 연습 화면입니다. PulseMonitor가 가진 상태를 읽어 안내·시각 피드백을 그립니다.
+// 아래 진단 패널은 기준값을 조절하는 프로토타입 도구이며 판정 계산은 하지 않습니다.
 import SwiftUI
 
 // 임시 iPhone 화면으로 분석 상태와 기준값을 확인한다.
 struct PulseInputView: View {
     @State private var monitor = PulseMonitor()
     @Environment(\.scenePhase) private var scenePhase
+    // 공기음 감지 여부 하나가 배경색·문구·고역 이력 표시를 함께 바꿉니다.
     private var background: Color { monitor.air ? PuffinStyle.mint : Color.white }
     private var ink: Color { monitor.air ? PuffinStyle.greenInk : PuffinStyle.ink }
     private var title: String { monitor.starting ? "마이크 연결 중" : !monitor.running ? "소리를 확인해요" : monitor.air ? "공기 주입 소리" : "공기음 미감지" }
@@ -34,7 +37,9 @@ struct PulseInputView: View {
         .alert("입력을 확인해 주세요",isPresented:Binding(get:{monitor.error != nil},set:{if !$0{monitor.error = nil}})) {
             Button("확인"){monitor.error = nil}
         } message:{Text(monitor.error ?? "")}
+        // 기준값 변경은 저장하고 실행 중인 분석기에도 적용합니다.
         .onChange(of:monitor.thresholds) { _,_ in monitor.applyThresholds() }
+        // 백그라운드에서는 마이크 분석을 유지하지 않습니다.
         .onChange(of:scenePhase) { _,phase in if phase == .background { monitor.stop() } }
         .onDisappear { monitor.stop() }
         .task {
@@ -43,6 +48,7 @@ struct PulseInputView: View {
             #endif
         }
     }
+    // 시작/종료 버튼은 화면 상태를 직접 바꾸지 않고 Monitor의 수명주기를 호출합니다.
     private var action: some View {
         Button {
             if monitor.running || monitor.starting {monitor.stop()} else {Task{await monitor.start()}}
@@ -55,7 +61,8 @@ struct PulseInputView: View {
     }
 }
 
-// 임시 측정 패널로 분석 결과와 기준값을 조절한다.
+// 임시 측정 패널: '측정값', '현재 적용된 기준', '전환 차단 상태'를 구분해 보여 줍니다.
+// 숫자를 조절하면 PulseMonitor → PulseCapture → PulseDSP 순서로 전달됩니다.
 private struct PulseMonitoringPanel: View {
     @Bindable var monitor: PulseMonitor
     private var reading: PulseResult? { monitor.reading }
@@ -94,6 +101,7 @@ private struct PulseMonitoringPanel: View {
                 .font(.subheadline).frame(minHeight:44).accessibilityIdentifier("pulse.resetThresholds")
             Divider()
             Text("추가 해제 조건 · 기존 고정값").font(.headline)
+            // 아래 값은 상단 주파수 감소에 따른 차단 규칙을 설명하는 진단 항목입니다.
             Text(reading == nil ? "측정 대기" : monitor.suppressed ? "상단 대역 감소로 공기음 표시 차단 중" : "상단 감소 차단 없음")
                 .font(.subheadline.weight(.semibold))
             measurement("4–8kHz",number(reading?.lowerDB))
@@ -112,6 +120,7 @@ private struct PulseMonitoringPanel: View {
     private func measurement(_ name: String,_ value: String) -> some View {
         LabeledContent(name) { Text(value).monospacedDigit().foregroundStyle(PuffinStyle.ink) }.font(.caption)
     }
+    // 세 기준값에 공통으로 쓰는 조절 UI. 사용자가 만지는 값과 DSP에 적용된 값을 함께 표시합니다.
     private func threshold(_ title: String,measurement: Double?,value: Binding<Double>,range: ClosedRange<Double>,step: Double,percent: Bool,applied: Double?) -> some View {
         let factor = percent ? 100.0 : 1.0, unit = percent ? "%" : "dBFS"
         return VStack(alignment:.leading,spacing:8) {

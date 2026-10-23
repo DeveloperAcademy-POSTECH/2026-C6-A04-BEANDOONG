@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+// iPhone 앱 진입점: 창을 만들고 ContentView를 표시합니다.
 @main
 struct cheekApp: App {
     var body: some Scene {

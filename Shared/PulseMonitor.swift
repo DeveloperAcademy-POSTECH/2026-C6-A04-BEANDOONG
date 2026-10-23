@@ -1,3 +1,5 @@
+// 마이크의 시작·종료, DSP 실행, 화면 상태 갱신, 기기별 진동을 연결합니다.
+// iPhone과 Watch는 이 파일을 각자 실행하며 서로 분석 결과를 주고받지 않습니다.
 import AVFoundation
 import Observation
 #if os(watchOS)
@@ -7,6 +9,7 @@ import UIKit
 #endif
 
 #if os(iOS)
+// iPhone 진단 화면에서 조절하는 세 기준값입니다. 이 기기의 UserDefaults에만 저장됩니다.
 struct PulseThresholds: Equatable, Sendable {
     var highDB = -48.0
     var ratio = 0.12
@@ -30,6 +33,7 @@ struct PulseThresholds: Equatable, Sendable {
 #endif
 
 // 오디오 분석은 직렬 큐에서 처리하고 결과 값만 화면으로 전달한다.
+// 오디오 콜백에서는 샘플을 복사해 큐로 넘겨 화면 갱신·FFT가 입력을 막지 않게 합니다.
 private final class PulseCapture: @unchecked Sendable {
     private let engine = AVAudioEngine()
     private let queue = DispatchQueue(label: "puffin.dsp", qos: .userInitiated)
@@ -42,6 +46,7 @@ private final class PulseCapture: @unchecked Sendable {
         self.result = result; self.failure = failure
     }
     #if os(iOS)
+    // 슬라이더 변경도 분석 큐에서 적용해 consume()과 값 변경이 겹치지 않게 합니다.
     func apply(_ thresholds: PulseThresholds) {
         queue.async { [self] in
             dsp.minimumHighDB = thresholds.highDB
@@ -51,6 +56,7 @@ private final class PulseCapture: @unchecked Sendable {
     }
     #endif
     func start() throws {
+        // measurement 모드에서 각 기기의 마이크를 열고 PCM 입력 탭을 설치합니다.
         let session = AVAudioSession.sharedInstance()
         try session.setCategory(.record, mode: .measurement)
         try session.setAllowHapticsAndSystemSoundsDuringRecording(true)
@@ -65,6 +71,7 @@ private final class PulseCapture: @unchecked Sendable {
             self.queue.async { [self, values] in
                 do {
                     for var r in try self.dsp.consume(values,sampleRate:rate) {
+                        // 화면은 약 40ms 간격으로 갱신하되, 그 사이의 진동 요청은 보존합니다.
                         self.pendingPulse = self.pendingPulse || r.pulse
                         if r.time-self.lastDisplay >= 0.04 || r.pulse {
                             r.pulse = self.pendingPulse; self.pendingPulse = false; self.lastDisplay = r.time; self.result(r)
@@ -76,9 +83,11 @@ private final class PulseCapture: @unchecked Sendable {
         tapInstalled = true
         engine.prepare(); try engine.start()
     }
+    // 탭을 먼저 제거하고 이미 큐에 들어온 분석 작업이 끝나기를 기다립니다.
     func stop() { if tapInstalled { engine.inputNode.removeTap(onBus:0); tapInstalled = false }; engine.stop(); queue.sync {} }
 }
 
+// SwiftUI가 관찰하는 상태의 주인입니다. 화면에 필요한 값만 MainActor에서 바꿉니다.
 @MainActor @Observable final class PulseMonitor {
     private(set) var previewing = false
     private(set) var running = false
@@ -91,6 +100,7 @@ private final class PulseCapture: @unchecked Sendable {
     private(set) var levels: [Float] = []
     var error: String?
     private var capture: PulseCapture?
+    // 비동기 권한 응답이나 이전 분석 결과가 새 연습 세션을 덮어쓰지 못하게 하는 표식입니다.
     private var generation = UUID()
     private var watchdog: Task<Void,Never>?
     private var previewTask: Task<Void,Never>?
@@ -106,6 +116,7 @@ private final class PulseCapture: @unchecked Sendable {
 
     #endif
     init() {
+        // 통화 등으로 녹음이 중단되거나 입력 장치가 바뀌면 이전 분석을 종료합니다.
         for name in [AVAudioSession.interruptionNotification,AVAudioSession.routeChangeNotification,AVAudioSession.mediaServicesWereResetNotification] {
             observers.append(NotificationCenter.default.addObserver(forName:name,object:nil,queue:.main) { [weak self] note in
                 if name == AVAudioSession.routeChangeNotification {
@@ -119,6 +130,7 @@ private final class PulseCapture: @unchecked Sendable {
     }
     deinit { observers.forEach(NotificationCenter.default.removeObserver) }
     func start() async {
+        // 권한 확인 → 새 캡처 생성 → 기준값 적용 → 마이크 시작 → 입력 확인 순서입니다.
         guard !running && !starting else{return}
         stop(); error = nil; starting = true; let token = generation
         let allowed = await withCheckedContinuation { continuation in AVAudioApplication.requestRecordPermission { continuation.resume(returning:$0) } }
@@ -143,12 +155,14 @@ private final class PulseCapture: @unchecked Sendable {
             inputDescription = "\(audio.currentRoute.inputs.map(\.portName).joined(separator: ", ")) · \(Int(audio.sampleRate)) Hz · \(audio.mode.rawValue)"
             previousIdle = UIApplication.shared.isIdleTimerDisabled; UIApplication.shared.isIdleTimerDisabled = true
             #endif
+            // 4초 동안 분석 결과가 없으면 연결만 된 상태로 방치하지 않고 오류를 보여 줍니다.
             watchdog = Task { [weak self] in
                 try? await Task.sleep(for:.seconds(4)); guard !Task.isCancelled,let self,self.generation == token,self.levels.isEmpty else{return}
                 self.stop(); self.error = "마이크 데이터가 들어오지 않아요. 입력을 확인해 주세요."
             }
         } catch { stop(); self.error = error.localizedDescription }
     }
+    // DSP 결과 하나를 화면 수치·최근 고역 이력·햅틱 동작으로 변환합니다.
     private func accept(_ r: PulseResult) {
         #if os(iOS)
         reading = r
@@ -157,6 +171,7 @@ private final class PulseCapture: @unchecked Sendable {
         levels.append(Float(max(0,min(1,(r.highDB+70)/45))))
         if levels.count > 31 { levels.removeFirst(levels.count-31) }
         if r.pulse {
+            // 워치는 자체 햅틱, iPhone은 가벼운 터치 피드백을 사용합니다.
             #if os(watchOS)
             WKInterfaceDevice.current().play(.click)
             #else
@@ -164,6 +179,7 @@ private final class PulseCapture: @unchecked Sendable {
             #endif
         }
     }
+    // 화면을 닫거나 앱이 백그라운드로 갈 때도 같은 정리 경로를 사용합니다.
     func stop() {
         previewing = false; generation = UUID(); watchdog?.cancel();watchdog = nil;previewTask?.cancel();previewTask = nil
         capture?.stop();capture = nil;running = false;starting = false;air = false;suppressed = false
@@ -173,7 +189,7 @@ private final class PulseCapture: @unchecked Sendable {
         try? AVAudioSession.sharedInstance().setActive(false,options:.notifyOthersOnDeactivation)
     }
     #if DEBUG
-    // 마이크 입력과 정확도 검사에 사용하지 않는 화면 확인용 데이터다.
+    // 마이크 입력과 정확도 검사에 사용하지 않는 화면 확인용 가짜 데이터입니다.
     func preview() {
         stop();running = true;previewing = true
         previewTask = Task { [weak self] in

@@ -1,3 +1,5 @@
+// 앱과 분리해 PulseDSP의 기본 동작을 검사하는 명령행 코드입니다.
+// 임의 잡음·무음, 입력 조각 크기, 잘못된 입력, 기준값 변경을 확인합니다.
 import Foundation
 
 let dsp = PulseDSP()
@@ -9,6 +11,7 @@ assert(result.contains { $0.active })
 assert(result.allSatisfy { $0.db.isFinite && $0.upperDB.isFinite && $0.flatness.isFinite })
 let silence = try dsp.consume([Float](repeating:0,count:48000),sampleRate:48000)
 assert(silence.last?.active == false)
+// 선택적으로 전달한 Float32 PCM 파일은 시간 순서대로 재생해 판정 구간을 확인합니다.
 let arguments = CommandLine.arguments.dropFirst()
 for path in arguments {
     let data = try Data(contentsOf:URL(fileURLWithPath:path))
@@ -24,6 +27,7 @@ for path in arguments {
     print("PASS replay",path,"frames",all.count)
 }
 let one = PulseDSP(), split = PulseDSP()
+// 같은 소리를 한 번에 주거나 잘게 나눠 주어도 결과가 같은지 검사합니다.
 let a = try one.consume(noise,sampleRate:48000)
 var b: [PulseResult] = []
 for i in stride(from:0,to:noise.count,by:113) { b += try split.consume(Array(noise[i..<min(i+113,noise.count)]),sampleRate:48000) }

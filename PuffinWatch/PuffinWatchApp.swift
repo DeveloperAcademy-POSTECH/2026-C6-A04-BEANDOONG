@@ -1,8 +1,10 @@
+// Watch 앱 진입점과 연습 화면입니다. Watch도 자체 마이크로 PulseMonitor를 실행합니다.
 import SwiftUI
 @main struct PuffinWatchApp: App {
     var body: some Scene { WindowGroup { WatchInputView() } }
 }
-// 임시 워치 화면으로 독립 마이크 분석과 진동을 확인한다.
+// 임시 워치 화면: Monitor의 판정을 읽고 상태·고역 이력을 표시합니다.
+// 햅틱을 직접 계산하지 않으며, PulseMonitor.accept()가 DSP의 pulse를 받아 재생합니다.
 private struct WatchInputView: View {
     @State private var monitor = PulseMonitor()
     @Environment(\.scenePhase) private var phase
@@ -25,6 +27,7 @@ private struct WatchInputView: View {
         .background((monitor.air ? PuffinStyle.mint : PuffinStyle.night).ignoresSafeArea()).foregroundStyle(ink)
         .preferredColorScheme(monitor.air ? .light : .dark)
         .alert("입력을 확인해 주세요",isPresented:Binding(get:{monitor.error != nil},set:{if !$0{monitor.error = nil}})){Button("확인"){monitor.error = nil}} message:{Text(monitor.error ?? "")}
+        // 화면이 사라지거나 앱이 백그라운드로 가면 마이크와 분석을 중지합니다.
         .onChange(of:phase) { _,state in if state == .background {monitor.stop()} }
         .onDisappear{monitor.stop()}
         .task {

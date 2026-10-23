@@ -1,5 +1,7 @@
+// iPhone과 Watch가 공유하는 색상과 최근 고역 크기 그래프입니다.
 import SwiftUI
 
+// 색을 한곳에서 관리해 공기음 감지 전후의 화면 의미를 일관되게 유지합니다.
 enum PuffinStyle {
     static let blue = Color(red: 0.098, green: 0.42, blue: 0.58)
     static let ink = Color(red: 0.09, green: 0.204, blue: 0.27)
@@ -8,7 +10,7 @@ enum PuffinStyle {
     static let greenInk = Color(red: 0.082, green: 0.361, blue: 0.278)
     static let night = Color(red: 0.063, green: 0.102, blue: 0.137)
 }
-// 임시 파형 화면으로 최근 고역 크기의 변화를 표시한다.
+// 최근 31개 고역 크기를 막대로 표시합니다. 원본 음성 파형이나 공기량은 아닙니다.
 struct SoundEnvelope: View {
     var levels: [Float]
     var color: Color
