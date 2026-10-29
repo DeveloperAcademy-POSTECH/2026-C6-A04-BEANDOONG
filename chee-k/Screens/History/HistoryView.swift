@@ -6,11 +6,54 @@ import SwiftUI
 ///     ┌ 상단 네비게이션 바: 히스토리
 ///     ├ 타이틀 + 설명
 ///     ├ 기간 필터 칩: [오늘] 일주일 이번 달 올해 전체
-///     └ 연습 기록 카드 x 4
+///     └ 연습 기록 카드 목록
 struct HistoryView: View {
-    private let filters = ["오늘", "일주일", "이번 달", "올해", "전체"]
-    private let selectedFilter = "오늘"
-    private let records = Array(repeating: HistoryRecord.sample, count: 4)
+    @State private var selectedFilter: HistoryFilter = .today
+
+    // MARK: - 임시 목 데이터
+    // TODO: 엔티티 설계 후 아래 records 생성 코드를 삭제하고 실제 연습 기록으로 교체합니다.
+    // 실행 날짜 기준으로 오늘 / 최근 7일 / 이번 달 / 이전 달 / 작년 기록을 구성합니다.
+    private let records: [HistoryRecord] = {
+        let calendar = Calendar.current
+        let now = Date()
+        let recentDate = calendar.date(byAdding: .day, value: -3, to: now) ?? now
+        let earlierThisMonth = calendar.date(byAdding: .day, value: -10, to: now) ?? now
+        let lastMonth = calendar.date(byAdding: .month, value: -1, to: now) ?? now
+        let earlierThisYear = calendar.date(byAdding: .month, value: -3, to: now) ?? now
+        let lastYear = calendar.date(byAdding: .year, value: -1, to: now) ?? now
+        let earlierLastYear = calendar.date(byAdding: .month, value: -2, to: lastYear) ?? lastYear
+
+        return [
+            HistoryRecord(date: now, badge: "보통", duration: "32초"),
+            HistoryRecord(date: recentDate, badge: "좋음", duration: "28초"),
+            HistoryRecord(date: earlierThisMonth, badge: "보통", duration: "35초"),
+            HistoryRecord(date: lastMonth, badge: "좋음", duration: "30초"),
+            HistoryRecord(date: earlierThisYear, badge: "보통", duration: "38초"),
+            HistoryRecord(date: lastYear, badge: "좋음", duration: "33초"),
+            HistoryRecord(date: earlierLastYear, badge: "보통", duration: "40초")
+        ]
+    }()
+
+    private var filteredRecords: [HistoryRecord] {
+        let calendar = Calendar.current
+        let now = Date()
+
+        return records.filter { record in
+            switch selectedFilter {
+            case .today:
+                return calendar.isDate(record.date, inSameDayAs: now)
+            case .week:
+                let start = calendar.date(byAdding: .day, value: -6, to: calendar.startOfDay(for: now)) ?? now
+                return record.date >= start && record.date <= now
+            case .month:
+                return calendar.isDate(record.date, equalTo: now, toGranularity: .month)
+            case .year:
+                return calendar.isDate(record.date, equalTo: now, toGranularity: .year)
+            case .all:
+                return true
+            }
+        }
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
@@ -32,14 +75,16 @@ struct HistoryView: View {
                     .padding(.top, Layout.subtitleTop)
 
                 // MARK: 기간 필터 칩 (y=246...279)
-                HistoryFilterBar(filters: filters, selectedFilter: selectedFilter)
+                HistoryFilterBar(selectedFilter: $selectedFilter)
                     .padding(.top, Layout.filterTop)
                     .padding(.bottom, Layout.filterBottom)
 
                 // MARK: 연습 기록 카드 목록
-                VStack(spacing: Layout.cardSpacing) {
-                    ForEach(records.indices, id: \.self) { index in
-                        HistoryRecordCard(record: records[index])
+                ScrollView {
+                    VStack(spacing: Layout.cardSpacing) {
+                        ForEach(filteredRecords.indices, id: \.self) { index in
+                            HistoryRecordCard(record: filteredRecords[index])
+                        }
                     }
                 }
 
@@ -54,32 +99,45 @@ struct HistoryView: View {
 
 // MARK: - 기간 필터 칩
 
+private enum HistoryFilter: String, CaseIterable {
+    case today = "오늘"
+    case week = "일주일"
+    case month = "이번 달"
+    case year = "올해"
+    case all = "전체"
+}
+
 /// 가로로 균등하게 나뉜 캡슐 칩 (높이 34, 간격 9). 선택된 칩만 하늘색 + Bold
 private struct HistoryFilterBar: View {
-    let filters: [String]
-    let selectedFilter: String
+    @Binding var selectedFilter: HistoryFilter
 
     var body: some View {
         HStack(spacing: 9) {
-            ForEach(filters, id: \.self) { filter in
+            ForEach(HistoryFilter.allCases, id: \.self) { filter in
                 let isSelected = (filter == selectedFilter)
-                Text(filter)
-                    .font(.pretendard(isSelected ? .bold : .medium, size: 15))
-                    .foregroundStyle(
-                        isSelected
-                            ? AppColors.darkChipTextSelected
-                            : AppColors.darkChipTextUnselected
-                    )
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 34)
-                    .background(
-                        Capsule()
-                            .fill(
-                                isSelected
-                                    ? AppColors.darkChipSelected
-                                    : AppColors.darkChipUnselected
-                            )
-                    )
+                Button {
+                    selectedFilter = filter
+                } label: {
+                    Text(filter.rawValue)
+                        .font(.pretendard(isSelected ? .bold : .medium, size: 15))
+                        .foregroundStyle(
+                            isSelected
+                                ? AppColors.darkChipTextSelected
+                                : AppColors.darkChipTextUnselected
+                        )
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 34)
+                        .background(
+                            Capsule()
+                                .fill(
+                                    isSelected
+                                        ? AppColors.darkChipSelected
+                                        : AppColors.darkChipUnselected
+                                )
+                        )
+                }
+                .buttonStyle(.plain)
+                .accessibilityAddTraits(isSelected ? .isSelected : [])
             }
         }
     }
@@ -87,13 +145,19 @@ private struct HistoryFilterBar: View {
 
 // MARK: - 연습 기록 카드
 
-/// 카드에 표시할 연습 기록 (현재는 디자인용 고정 데이터)
+/// 카드에 표시할 임시 연습 기록
+// TODO: 엔티티 설계 후 이 임시 타입을 실제 모델로 교체합니다.
 private struct HistoryRecord {
+    let date: Date
     let badge: String
-    let title: String
     let duration: String
 
-    static let sample = HistoryRecord(badge: "보통", title: "9월 28일 - 1차", duration: "32초")
+    var title: String {
+        let calendar = Calendar.current
+        let isThisYear = calendar.isDate(date, equalTo: Date(), toGranularity: .year)
+        let yearPrefix = isThisYear ? "" : "\(calendar.component(.year, from: date))년 "
+        return "\(yearPrefix)\(calendar.component(.month, from: date))월 \(calendar.component(.day, from: date))일 - 1차"
+    }
 }
 
 /// 연습 기록 한 줄 카드 (361 x 101)
