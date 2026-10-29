@@ -67,7 +67,7 @@ enum AppColors {
     static let pageIndicatorActive = Color(hex: 0x48637E)
     static let pageIndicatorInactive = Color(hex: 0xA5ACB8)
 
-    // MARK: 스티밍 피드백 (공기 주입 = 파랑, 날카로운 소리 = 분홍)
+    // MARK: 스티밍 피드백 (공기 주입 = 파랑, 날카로운 소리 = 분홍, 큰 기포 = 주황, 공기 추가 = 보라, 우유 흐름 = 초록)
 
     static let aerationBlue = Color(hex: 0x5A82FC)
     static let aerationGradient: [Color] = [
@@ -84,4 +84,8 @@ enum AppColors {
         Color(hex: 0xFF5978)
     ]
     static let sharpSoundStopSquare = Color(hex: 0xFF4F70)
+
+    static let bubbleWarningOrange = Color(hex: 0xFFA615)
+    static let moreAirPurple = Color(hex: 0x784AD6)
+    static let milkFlowGreen = Color(hex: 0x1ABC6B)
 }
