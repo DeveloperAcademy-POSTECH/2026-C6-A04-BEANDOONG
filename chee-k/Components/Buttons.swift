@@ -1,15 +1,16 @@
 import SwiftUI
 
-// 모든 화면은 서로 연결되지 않은 독립 화면이므로 버튼 action은 비어 있습니다.
+// 화면에서 필요한 동작을 전달합니다. 아직 연결하지 않은 화면은 기본 빈 동작을 사용합니다.
 
 // MARK: - 다크 화면 버튼 (363 x 52)
 
 /// 다크 화면 주요 버튼: 하늘색 캡슐 + 검정 텍스트
 struct DarkPrimaryButton: View {
     let title: String
+    var action: () -> Void = {}
 
     var body: some View {
-        Button(action: {}) {
+        Button(action: action) {
             Text(title)
                 .font(.pretendard(.bold, size: 16))
                 .foregroundStyle(AppColors.darkChipTextSelected)
@@ -26,9 +27,10 @@ struct DarkPrimaryButton: View {
 /// 다크 화면 보조 버튼: 아주 옅은 하늘색 캡슐 + 검정 텍스트
 struct DarkSecondaryButton: View {
     let title: String
+    var action: () -> Void = {}
 
     var body: some View {
-        Button(action: {}) {
+        Button(action: action) {
             Text(title)
                 .font(.pretendard(.bold, size: 16))
                 .foregroundStyle(AppColors.darkChipTextSelected)
@@ -46,11 +48,13 @@ struct DarkSecondaryButton: View {
 struct DarkButtonPair: View {
     let primaryTitle: String
     let secondaryTitle: String
+    var primaryAction: () -> Void = {}
+    var secondaryAction: () -> Void = {}
 
     var body: some View {
         VStack(spacing: 11) {
-            DarkPrimaryButton(title: primaryTitle)
-            DarkSecondaryButton(title: secondaryTitle)
+            DarkPrimaryButton(title: primaryTitle, action: primaryAction)
+            DarkSecondaryButton(title: secondaryTitle, action: secondaryAction)
         }
     }
 }

@@ -8,7 +8,36 @@ import SwiftUI
 ///     ├ 메인 히어로 카드 (피처 이미지)
 ///     └ 하단 2열 카드: [연습 가이드] [최근 연습]
 struct HomeView: View {
+    @State private var path: [PracticeDestination] = []
+
+    private enum PracticeDestination: Hashable {
+        case microphone
+        case watchSetup
+    }
+
     var body: some View {
+        NavigationStack(path: $path) {
+            content
+                .toolbar(.hidden, for: .navigationBar)
+                .navigationDestination(for: PracticeDestination.self) { destination in
+                    Group {
+                        switch destination {
+                        case .microphone:
+                            MicrophoneAlertView {
+                                guard path.last == .microphone else { return }
+                                // 완료한 권한 화면은 뒤로가기 경로에 남기지 않습니다.
+                                path[path.count - 1] = .watchSetup
+                            }
+                        case .watchSetup:
+                            WatchSetupView()
+                        }
+                    }
+                    .toolbar(.hidden, for: .navigationBar)
+                }
+        }
+    }
+
+    private var content: some View {
         VStack(alignment: .leading, spacing: 0) {
             // MARK: 로고
             AssetImageView(name: "ChicLogo", width: 84, height: 31)
@@ -24,9 +53,15 @@ struct HomeView: View {
                 .padding(.top, Layout.subtitleTop)
 
             // MARK: 메인 히어로 카드 (362 x 262)
-            AssetImageView(name: "HeroPitcherCard", width: 362, height: 262)
-                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-                .padding(.top, Layout.heroCardTop)
+            Button {
+                path.append(MicrophonePermission.isGranted ? .watchSetup : .microphone)
+            } label: {
+                AssetImageView(name: "HeroPitcherCard", width: 362, height: 262)
+                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("스티밍 연습하기")
+            .padding(.top, Layout.heroCardTop)
 
             // MARK: 하단 2열 카드 (연습 가이드 / 최근 연습)
             HStack(spacing: 14) {
