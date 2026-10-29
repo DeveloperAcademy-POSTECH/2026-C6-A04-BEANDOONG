@@ -8,6 +8,8 @@ import SwiftUI
 ///     ├ 타이틀 + 설명
 ///     └ 하단 버튼: [스팀 연습 시작]
 struct WatchReadyView: View {
+    @State private var showsChecklist = false
+
     var body: some View {
         VStack(spacing: 0) {
             // MARK: 상단 네비게이션 바
@@ -28,10 +30,16 @@ struct WatchReadyView: View {
             Spacer(minLength: 0)
 
             // MARK: 하단 버튼
-            DarkPrimaryButton(title: "스팀 연습 시작")
+            DarkPrimaryButton(title: "스팀 연습 시작") {
+                showsChecklist = true
+            }
                 .padding(.bottom, Layout.buttonBottom)
         }
         .darkScreenBackground()
+        .navigationDestination(isPresented: $showsChecklist) {
+            SessionChecklistView()
+                .toolbar(.hidden, for: .navigationBar)
+        }
     }
 }
 
@@ -47,6 +55,9 @@ private enum Layout {
 
 struct WatchReadyView_Previews: PreviewProvider {
     static var previews: some View {
-        WatchReadyView()
+        NavigationStack {
+            WatchReadyView()
+                .toolbar(.hidden, for: .navigationBar)
+        }
     }
 }

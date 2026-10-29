@@ -247,6 +247,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "chee-k";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "우유 스티밍 소리를 실시간으로 분석하고, 현재 상태를 화면 색상으로 안내하기 위해 마이크를 사용합니다.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -280,6 +281,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "chee-k";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "우유 스티밍 소리를 실시간으로 분석하고, 현재 상태를 화면 색상으로 안내하기 위해 마이크를 사용합니다.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;

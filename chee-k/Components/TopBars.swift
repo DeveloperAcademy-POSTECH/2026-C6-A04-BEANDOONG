@@ -6,6 +6,8 @@ import SwiftUI
 ///
 ///     [ <          제목          ]
 struct TopNavigationHeader: View {
+    @Environment(\.dismiss) private var dismiss
+
     let title: String
     /// true: 흰색 아이콘/제목 (다크 화면), false: 검정 아이콘/제목 (라이트 화면)
     var isDark: Bool = false
@@ -17,9 +19,15 @@ struct TopNavigationHeader: View {
     var body: some View {
         ZStack {
             HStack {
-                Image(systemName: "chevron.left")
-                    .font(.system(size: 17, weight: .semibold))
-                    .foregroundStyle(foregroundColor)
+                Button {
+                    dismiss()
+                } label: {
+                    Image(systemName: "chevron.left")
+                        .font(.system(size: 17, weight: .semibold))
+                        .foregroundStyle(foregroundColor)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("뒤로가기")
                 Spacer()
             }
             Text(title)
@@ -61,12 +69,17 @@ struct SteamingPracticeTopBar: View {
 ///
 ///     [                   건너뛰기 ]
 struct OnboardingSkipTopBar: View {
+    var action: () -> Void = {}
+
     var body: some View {
         HStack {
             Spacer()
-            Text("건너뛰기")
-                .font(.pretendard(.medium, size: 16))
-                .foregroundStyle(AppColors.onboardingSkipText)
+            Button(action: action) {
+                Text("건너뛰기")
+                    .font(.pretendard(.medium, size: 16))
+                    .foregroundStyle(AppColors.onboardingSkipText)
+            }
+            .buttonStyle(.plain)
         }
         .frame(height: 20)
         .padding(.trailing, 22)

@@ -8,6 +8,8 @@ import SwiftUI
 ///     ├ 타이틀 + 설명
 ///     └ 하단 버튼: [다시 연결 확인하기] [휴대폰만 사용하기]
 struct WatchAppInstallView: View {
+    @State private var showsChecklist = false
+
     var body: some View {
         VStack(spacing: 0) {
             // MARK: 상단 네비게이션 바
@@ -29,10 +31,18 @@ struct WatchAppInstallView: View {
             Spacer(minLength: 0)
 
             // MARK: 하단 버튼
-            DarkButtonPair(primaryTitle: "다시 연결 확인하기", secondaryTitle: "휴대폰만 사용하기")
+            DarkButtonPair(
+                primaryTitle: "다시 연결 확인하기",
+                secondaryTitle: "휴대폰만 사용하기",
+                secondaryAction: { showsChecklist = true }
+            )
                 .padding(.bottom, Layout.buttonsBottom)
         }
         .darkScreenBackground()
+        .navigationDestination(isPresented: $showsChecklist) {
+            SessionChecklistView()
+                .toolbar(.hidden, for: .navigationBar)
+        }
     }
 }
 
@@ -49,6 +59,9 @@ private enum Layout {
 
 struct WatchAppInstallView_Previews: PreviewProvider {
     static var previews: some View {
-        WatchAppInstallView()
+        NavigationStack {
+            WatchAppInstallView()
+                .toolbar(.hidden, for: .navigationBar)
+        }
     }
 }

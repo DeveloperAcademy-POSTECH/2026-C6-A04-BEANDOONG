@@ -6,8 +6,10 @@ import SwiftUI
 ///     ┌ 상단 네비게이션 바: 마이크 설정
 ///     ├ 마이크 일러스트
 ///     ├ 타이틀 + 설명
-///     └ 하단 버튼: [설정 열기] [다시 확인]
+///     └ 하단 버튼: [설정 열기]
 struct MicrophoneAccessView: View {
+    var onOpenSettings: () -> Void = {}
+
     var body: some View {
         VStack(spacing: 0) {
             // MARK: 상단 네비게이션 바
@@ -28,7 +30,7 @@ struct MicrophoneAccessView: View {
             Spacer(minLength: 0)
 
             // MARK: 하단 버튼
-            DarkButtonPair(primaryTitle: "설정 열기", secondaryTitle: "다시 확인")
+            DarkPrimaryButton(title: "설정 열기", action: onOpenSettings)
                 .padding(.bottom, Layout.buttonsBottom)
         }
         .darkScreenBackground()
