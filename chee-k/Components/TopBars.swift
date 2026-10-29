@@ -69,12 +69,17 @@ struct SteamingPracticeTopBar: View {
 ///
 ///     [                   건너뛰기 ]
 struct OnboardingSkipTopBar: View {
+    var action: () -> Void = {}
+
     var body: some View {
         HStack {
             Spacer()
-            Text("건너뛰기")
-                .font(.pretendard(.medium, size: 16))
-                .foregroundStyle(AppColors.onboardingSkipText)
+            Button(action: action) {
+                Text("건너뛰기")
+                    .font(.pretendard(.medium, size: 16))
+                    .foregroundStyle(AppColors.onboardingSkipText)
+            }
+            .buttonStyle(.plain)
         }
         .frame(height: 20)
         .padding(.trailing, 22)

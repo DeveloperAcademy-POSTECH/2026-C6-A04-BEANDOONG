@@ -8,18 +8,19 @@ import SwiftUI
 ///     ├ 메인 히어로 카드 (피처 이미지)
 ///     └ 하단 2열 카드: [연습 가이드] [최근 연습]
 struct HomeView: View {
-    @State private var path: [PracticeDestination] = []
+    @State private var path: [Destination] = []
 
-    private enum PracticeDestination: Hashable {
+    private enum Destination: Hashable {
         case microphone
         case watchSetup
+        case history
     }
 
     var body: some View {
         NavigationStack(path: $path) {
             content
                 .toolbar(.hidden, for: .navigationBar)
-                .navigationDestination(for: PracticeDestination.self) { destination in
+                .navigationDestination(for: Destination.self) { destination in
                     Group {
                         switch destination {
                         case .microphone:
@@ -30,6 +31,8 @@ struct HomeView: View {
                             }
                         case .watchSetup:
                             WatchSetupView()
+                        case .history:
+                            HistoryView()
                         }
                     }
                     .toolbar(.hidden, for: .navigationBar)
@@ -66,7 +69,12 @@ struct HomeView: View {
             // MARK: 하단 2열 카드 (연습 가이드 / 최근 연습)
             HStack(spacing: 14) {
                 HomeSubCard(title: "연습 가이드", colors: AppColors.homeGuideCardGradient)
-                HomeSubCard(title: "최근 연습", colors: AppColors.homeRecentCardGradient)
+                Button {
+                    path.append(.history)
+                } label: {
+                    HomeSubCard(title: "최근 연습", colors: AppColors.homeRecentCardGradient)
+                }
+                .buttonStyle(.plain)
             }
             .padding(.top, Layout.subCardsTop)
 

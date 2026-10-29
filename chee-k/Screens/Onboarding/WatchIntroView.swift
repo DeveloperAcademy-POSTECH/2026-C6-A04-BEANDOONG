@@ -9,10 +9,13 @@ import SwiftUI
 ///     ├ 페이지 인디케이터 (● 두 번째)
 ///     └ 하단 버튼: 다음
 struct WatchIntroView: View {
+    var onNext: () -> Void = {}
+    var onSkip: () -> Void = {}
+
     var body: some View {
         VStack(spacing: 0) {
             // MARK: 상단 바
-            OnboardingSkipTopBar()
+            OnboardingSkipTopBar(action: onSkip)
                 .padding(.top, Layout.topBarTop)
 
             // MARK: 일러스트
@@ -32,7 +35,7 @@ struct WatchIntroView: View {
             OnboardingPageIndicator(activeIndex: 1)
                 .padding(.bottom, Layout.indicatorBottom)
 
-            DarkPrimaryButton(title: "다음")
+            DarkPrimaryButton(title: "다음", action: onNext)
                 .padding(.bottom, Layout.buttonBottom)
         }
         .darkScreenBackground()

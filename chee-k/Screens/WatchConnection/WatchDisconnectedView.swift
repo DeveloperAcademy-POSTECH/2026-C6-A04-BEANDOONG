@@ -8,6 +8,8 @@ import SwiftUI
 ///     ├ 타이틀 + 설명
 ///     └ 하단 버튼: [워치 연결 다시 확인] [워치 없이 연습하기]
 struct WatchDisconnectedView: View {
+    @State private var showsChecklist = false
+
     var body: some View {
         VStack(spacing: 0) {
             // MARK: 상단 네비게이션 바
@@ -28,10 +30,18 @@ struct WatchDisconnectedView: View {
             Spacer(minLength: 0)
 
             // MARK: 하단 버튼
-            DarkButtonPair(primaryTitle: "워치 연결 다시 확인", secondaryTitle: "워치 없이 연습하기")
+            DarkButtonPair(
+                primaryTitle: "워치 연결 다시 확인",
+                secondaryTitle: "워치 없이 연습하기",
+                secondaryAction: { showsChecklist = true }
+            )
                 .padding(.bottom, Layout.buttonsBottom)
         }
         .darkScreenBackground()
+        .navigationDestination(isPresented: $showsChecklist) {
+            SessionChecklistView()
+                .toolbar(.hidden, for: .navigationBar)
+        }
     }
 }
 
@@ -47,6 +57,9 @@ private enum Layout {
 
 struct WatchDisconnectedView_Previews: PreviewProvider {
     static var previews: some View {
-        WatchDisconnectedView()
+        NavigationStack {
+            WatchDisconnectedView()
+                .toolbar(.hidden, for: .navigationBar)
+        }
     }
 }
