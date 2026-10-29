@@ -15,16 +15,11 @@ struct LaunchView: View {
             LaunchGlow.bottomTrailing
 
             // MARK: 로고 (화면 중앙에서 37pt 위)
-            ZStack {
-                ChicVectorLogo()
-                    .frame(width: 150, height: 52)
-
-                Image("ChicLogo")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 162, height: 60)
-            }
-            .offset(y: -37)
+            Image("ChicLogo")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 162, height: 60)
+                .offset(y: -37)
         }
         .preferredColorScheme(.dark)
     }
@@ -60,41 +55,6 @@ private enum LaunchGlow {
             endRadius: 360
         )
         .ignoresSafeArea()
-    }
-}
-
-// MARK: - 벡터 로고
-
-/// 이미지 로고 뒤에 깔리는 벡터 로고: 사운드 웨이브 바 3개 + "chic" 텍스트 (그라데이션)
-private struct ChicVectorLogo: View {
-    var body: some View {
-        HStack(alignment: .bottom, spacing: 5) {
-            // 좌측 3개 사운드 웨이브 바 (점점 길어짐)
-            HStack(alignment: .center, spacing: 4) {
-                Capsule()
-                    .frame(width: 4, height: 14)
-                Capsule()
-                    .frame(width: 5, height: 24)
-                Capsule()
-                    .frame(width: 6, height: 34)
-            }
-            .padding(.bottom, 2)
-
-            Text("chic")
-                .font(.system(size: 52, weight: .bold, design: .rounded))
-                .tracking(-2)
-        }
-        .foregroundStyle(
-            LinearGradient(
-                colors: [
-                    Color(hex: 0x4E6D8C),
-                    Color(hex: 0x8EB2D6),
-                    Color(hex: 0xA9CAEB)
-                ],
-                startPoint: .leading,
-                endPoint: .trailing
-            )
-        )
     }
 }
 
