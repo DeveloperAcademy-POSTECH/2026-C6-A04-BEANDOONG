@@ -10,6 +10,7 @@ import SwiftUI
 ///     └ 하단 중앙: 정지 버튼
 struct SteamingFeedbackView: View {
     let feedback: SteamingFeedback
+    var onStop: () -> Void = {}
 
     var body: some View {
         ZStack {
@@ -20,7 +21,7 @@ struct SteamingFeedbackView: View {
 
             VStack(spacing: 0) {
                 // MARK: 상단 바
-                SteamingPracticeTopBar()
+                SteamingPracticeTopBar(onClose: onStop)
                     .padding(.top, Layout.topBarTop)
 
                 // MARK: 상태 아이콘 + 타이틀 + 설명
@@ -42,7 +43,7 @@ struct SteamingFeedbackView: View {
                 Spacer(minLength: 0)
 
                 // MARK: 정지 버튼
-                SteamingStopButton(squareColor: feedback.stopSquareColor)
+                SteamingStopButton(squareColor: feedback.stopSquareColor, action: onStop)
                     .padding(.bottom, Layout.stopButtonBottom)
             }
         }

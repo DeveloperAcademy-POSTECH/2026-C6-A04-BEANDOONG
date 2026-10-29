@@ -8,10 +8,11 @@ import SwiftUI
 ///     ├ 마이크 일러스트
 ///     └ 하단 중앙: 정지 버튼
 struct NoiseWarningView: View {
+    var onStop: () -> Void = {}
     var body: some View {
         VStack(spacing: 0) {
             // MARK: 상단 바
-            SteamingPracticeTopBar()
+            SteamingPracticeTopBar(onClose: onStop)
                 .padding(.top, Layout.topBarTop)
 
             // MARK: 타이틀 + 설명
@@ -28,7 +29,7 @@ struct NoiseWarningView: View {
             Spacer(minLength: 0)
 
             // MARK: 정지 버튼
-            SteamingStopButton(squareColor: AppColors.darkBackground)
+            SteamingStopButton(squareColor: AppColors.darkBackground, action: onStop)
                 .padding(.bottom, Layout.stopButtonBottom)
         }
         .darkScreenBackground()

@@ -8,6 +8,8 @@ import SwiftUI
 ///     ├ 타이틀 + 설명
 ///     └ 하단 버튼: [연결 확인하기] [휴대폰만 사용하기]
 struct WatchSetupView: View {
+    var onCheck: () -> Void = {}
+    var onContinue: (() -> Void)? = nil
     @State private var showsChecklist = false
 
     var body: some View {
@@ -33,13 +35,16 @@ struct WatchSetupView: View {
             DarkButtonPair(
                 primaryTitle: "연결 확인하기",
                 secondaryTitle: "휴대폰만 사용하기",
-                secondaryAction: { showsChecklist = true }
+                primaryAction: onCheck,
+                secondaryAction: {
+                    if let onContinue { onContinue() } else { showsChecklist = true }
+                }
             )
                 .padding(.bottom, Layout.buttonsBottom)
         }
         .darkScreenBackground()
         .navigationDestination(isPresented: $showsChecklist) {
-            SessionChecklistView()
+            SessionChecklistView(usesWatch: false)
                 .toolbar(.hidden, for: .navigationBar)
         }
     }

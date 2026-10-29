@@ -8,6 +8,7 @@ import SwiftUI
 ///     ├ 타이틀 + 설명
 ///     └ 하단 버튼: [스팀 연습 시작]
 struct WatchReadyView: View {
+    var onContinue: (() -> Void)? = nil
     @State private var showsChecklist = false
 
     var body: some View {
@@ -31,7 +32,7 @@ struct WatchReadyView: View {
 
             // MARK: 하단 버튼
             DarkPrimaryButton(title: "스팀 연습 시작") {
-                showsChecklist = true
+                if let onContinue { onContinue() } else { showsChecklist = true }
             }
                 .padding(.bottom, Layout.buttonBottom)
         }

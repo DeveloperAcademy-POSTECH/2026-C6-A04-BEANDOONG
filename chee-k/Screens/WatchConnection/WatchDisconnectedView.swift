@@ -8,7 +8,8 @@ import SwiftUI
 ///     ├ 타이틀 + 설명
 ///     └ 하단 버튼: [워치 연결 다시 확인] [워치 없이 연습하기]
 struct WatchDisconnectedView: View {
-    @State private var showsChecklist = false
+    var onCheck: () -> Void = {}
+    var onContinue: () -> Void = {}
 
     var body: some View {
         VStack(spacing: 0) {
@@ -33,15 +34,13 @@ struct WatchDisconnectedView: View {
             DarkButtonPair(
                 primaryTitle: "워치 연결 다시 확인",
                 secondaryTitle: "워치 없이 연습하기",
-                secondaryAction: { showsChecklist = true }
+                primaryAction: onCheck,
+                secondaryAction: onContinue
             )
                 .padding(.bottom, Layout.buttonsBottom)
         }
         .darkScreenBackground()
-        .navigationDestination(isPresented: $showsChecklist) {
-            SessionChecklistView()
-                .toolbar(.hidden, for: .navigationBar)
-        }
+
     }
 }
 
