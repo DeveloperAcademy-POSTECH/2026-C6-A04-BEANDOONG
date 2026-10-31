@@ -12,6 +12,8 @@ import SwiftUI
 
 /// 소리 확인 대기 화면
 /// - 디자인: hifi/watch11.png (소리 확인 중), hifi/watch11-1.png (구분 어려움)
+///
+///     ┌ 상태 문구
 struct SoundCheckingView: View {
     /// 대기 상태 종류
     /// - case 이름은 Shared/PracticeState.swift 의 PracticePhase 연습 단계 이름과 같게 맞췄습니다.
@@ -34,8 +36,33 @@ struct SoundCheckingView: View {
     let checkingStatus: CheckingStatus
 
     var body: some View {
-        Text(checkingStatus.statusText)
+        WatchFullScreenStack {
+            // MARK: 상태 문구
+            Text(checkingStatus.statusText)
+                .font(.watchScaled(18))
+                .lineLimit(1)
+                .minimumScaleFactor(0.8)
+                .watchCenterY(Metrics.statusTextCenterY)
+        }
+        .foregroundStyle(.white)
+        .background(AppColors.watchSoundCheckingBackground)
     }
+}
+
+// MARK: - Metrics
+
+/// Hi-Fi(46mm, 248pt 높이) 기준 수치입니다.
+/// - ~CenterY: 요소 중심의 세로 위치 (화면 맨 위 = 0, 맨 아래 = 1)
+private enum Metrics {
+    static let statusTextCenterY: CGFloat = 0.269       // 상태 문구 중심
+}
+
+// MARK: - Colors
+
+private extension AppColors {
+    /// 소리 확인 대기 화면 배경 (회색)
+    /// - Hi-Fi 파일에는 반투명 검정으로 저장되어 있어, 화면에 보이는 색상 기준으로 정했습니다. 디자이너 확인 필요.
+    static let watchSoundCheckingBackground = Color(hex: 0x6E6E6E)
 }
 
 #Preview("소리 확인 중") {
