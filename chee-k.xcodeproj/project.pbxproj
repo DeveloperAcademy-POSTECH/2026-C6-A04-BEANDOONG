@@ -41,6 +41,7 @@
 		A1000000000000000000000F /* Exceptions for "chee-k" folder in "chee-k" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				DesignSystem/WatchDesignSize.swift,
 				Info.plist,
 			);
 			target = 936A3CD3307802AD00F6FB73 /* chee-k */;
@@ -49,6 +50,7 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				DesignSystem/AppColors.swift,
+				DesignSystem/WatchDesignSize.swift,
 			);
 			target = A10000000000000000000007 /* chee-k-watch */;
 		};
