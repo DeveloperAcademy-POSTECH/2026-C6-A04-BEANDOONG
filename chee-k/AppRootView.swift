@@ -14,6 +14,7 @@ struct AppRootView: View {
     var body: some View {
         ZStack {
             ContentView()
+                .opacity(practice.state.phase == .idle ? 1 : 0)
                 .allowsHitTesting(practice.state.phase == .idle)
                 .accessibilityHidden(practice.state.phase != .idle)
 
