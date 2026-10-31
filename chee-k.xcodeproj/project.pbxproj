@@ -41,6 +41,7 @@
 		A1000000000000000000000F /* Exceptions for "chee-k" folder in "chee-k" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				Components/WatchFullScreenStack.swift,
 				DesignSystem/WatchDesignSize.swift,
 				Info.plist,
 			);
@@ -49,6 +50,7 @@
 		A10000000000000000000010 /* Exceptions for "chee-k" folder in "chee-k-watch" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				Components/WatchFullScreenStack.swift,
 				DesignSystem/AppColors.swift,
 				DesignSystem/WatchDesignSize.swift,
 			);
