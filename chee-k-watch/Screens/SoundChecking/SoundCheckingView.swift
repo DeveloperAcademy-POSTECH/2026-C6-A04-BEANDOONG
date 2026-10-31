@@ -5,7 +5,7 @@
 //  - 소리 확인 중: 연습을 시작한 직후 소리를 분석하는 동안
 //  - 구분 어려움: 주변 소음 등으로 스티밍 소리를 구분하기 어려울 때
 //
-//  화면만 그립니다.
+//  화면만 그립니다. 닫기 버튼을 눌렀을 때의 동작은 화면을 사용하는 쪽에서 `onCloseTap`으로 전달합니다.
 //
 
 import SwiftUI
@@ -13,7 +13,8 @@ import SwiftUI
 /// 소리 확인 대기 화면
 /// - 디자인: hifi/watch11.png (소리 확인 중), hifi/watch11-1.png (구분 어려움)
 ///
-///     ┌ 상태 문구
+///     ┌ 좌측 상단 닫기(X) 버튼
+///     ├ 상태 문구
 ///     └ 로딩 인디케이터 (화면 정중앙)
 struct SoundCheckingView: View {
     /// 대기 상태 종류
@@ -35,6 +36,8 @@ struct SoundCheckingView: View {
 
     /// 화면에 보여줄 대기 상태
     let checkingStatus: CheckingStatus
+    /// 좌측 상단 닫기(X) 버튼을 눌렀을 때 실행할 동작
+    var onCloseTap: () -> Void = {}
 
     var body: some View {
         WatchFullScreenStack {
@@ -54,6 +57,7 @@ struct SoundCheckingView: View {
         }
         .foregroundStyle(.white)
         .background(AppColors.watchSoundCheckingBackground)
+        .watchCloseButton(onClose: onCloseTap)
     }
 }
 
@@ -76,9 +80,13 @@ private extension AppColors {
 }
 
 #Preview("소리 확인 중") {
-    SoundCheckingView(checkingStatus: .listening)
+    NavigationStack {
+        SoundCheckingView(checkingStatus: .listening)
+    }
 }
 
 #Preview("구분 어려움") {
-    SoundCheckingView(checkingStatus: .noiseWarning)
+    NavigationStack {
+        SoundCheckingView(checkingStatus: .noiseWarning)
+    }
 }
