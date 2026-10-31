@@ -3,7 +3,7 @@
 //
 //  연습 중 실시간으로 스티밍 상태를 보여주는 피드백 화면입니다.
 //  사용자가 스티밍 중 손목을 잠깐 보는 것만으로 상태를 알 수 있도록,
-//  글자를 읽지 않아도 일러스트로 구분되게 디자인되어 있습니다.
+//  글자를 읽지 않아도 화면 전체 색상과 일러스트로 구분되게 디자인되어 있습니다.
 //
 //  화면만 그립니다. 어떤 피드백을 보여줄지는 화면을 사용하는 쪽에서 `feedback`으로 전달합니다.
 //
@@ -46,9 +46,30 @@ struct SteamingFeedbackView: View {
                 .watchCenterY(feedback.illustrationCenterY)
         }
         .foregroundStyle(.white)
+        .background(FeedbackBackground(gradient: feedback.backgroundGradient))
         // 피드백 화면은 버튼이 없는 디자인이라 상단 내비게이션 바를 숨깁니다.
         // (시간 표시는 watchOS가 항상 보여주므로 숨길 수 없습니다.)
         .toolbar(.hidden, for: .navigationBar)
+    }
+}
+
+/// 피드백 화면 배경: 위 → 아래 그라데이션 + 화면 가장자리의 은은한 빛 번짐
+private struct FeedbackBackground: View {
+    /// 피드백 종류별 배경 그라데이션 (SteamingFeedback.backgroundGradient)
+    let gradient: Gradient
+
+    var body: some View {
+        LinearGradient(gradient: gradient, startPoint: .top, endPoint: .bottom)
+            .overlay {
+                // 화면 테두리를 따라 흰 선을 그린 뒤 흐리게 퍼뜨려, Hi-Fi의 가장자리가 밝게 빛나는 효과를 냅니다.
+                Rectangle()
+                    .strokeBorder(.white.opacity(Metrics.edgeGlowOpacity),
+                                  lineWidth: WatchDesignSize.scaled(Metrics.edgeGlowLineWidth))
+                    .blur(radius: WatchDesignSize.scaled(Metrics.edgeGlowBlurRadius))
+            }
+            // 배경을 View로 넣으면 기본적으로 안전 영역(시간 표시 · 화면 모서리) 안쪽만 채웁니다.
+            // 피드백 화면은 색상 자체가 정보이므로, 화면 끝까지 꽉 채웁니다.
+            .ignoresSafeArea()
     }
 }
 
@@ -61,6 +82,9 @@ private enum Metrics {
     static let actionTitleCenterY: CGFloat = 0.255       // 안내 문구 중심
     static let soundStatusTextCenterY: CGFloat = 0.343   // 소리 상태 문구 중심
     static let actionTitleScreenEdgeInset: CGFloat = 10  // 화면 좌우 끝 ↔ 안내 문구 사이 최소 여백
+    static let edgeGlowOpacity: Double = 0.15            // 가장자리 빛 번짐의 불투명도 (0 ~ 1)
+    static let edgeGlowLineWidth: CGFloat = 10           // 가장자리 빛 번짐의 두께
+    static let edgeGlowBlurRadius: CGFloat = 8           // 가장자리 빛 번짐을 흐리게 퍼뜨리는 정도
 }
 
 #Preview("파랑 · 공기 주입 소리") { SteamingFeedbackView(feedback: .aeration) }
