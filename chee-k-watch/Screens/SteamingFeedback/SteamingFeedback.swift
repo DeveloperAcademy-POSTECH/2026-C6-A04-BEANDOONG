@@ -2,7 +2,7 @@
 //  SteamingFeedback.swift
 //
 //  실시간 피드백 화면(SteamingFeedbackView)에 표시할 피드백 종류입니다.
-//  피드백 종류마다 안내 문구 · 소리 상태 문구가 정해져 있습니다.
+//  피드백 종류마다 안내 문구 · 소리 상태 · 일러스트가 정해져 있습니다.
 //
 //  [이름 규칙]
 //  case 이름은 Shared/PracticeState.swift 의 PracticePhase 연습 단계 이름과 같게 맞췄습니다.
@@ -45,6 +45,31 @@ enum SteamingFeedback: CaseIterable {
         case .bubble: "노즐 높음"
         case .moreAir: "공기 부족"
         case .milkFlow: "롤링 소리"
+        }
+    }
+
+    // MARK: 일러스트
+
+    /// 화면 아래쪽 일러스트의 에셋 이름 (chee-k-watch/Assets.xcassets)
+    var illustrationAssetName: String {
+        switch self {
+        case .aeration: "WatchIllustAeration"
+        case .sharpSound: "WatchIllustSharpSound"
+        case .bubble: "WatchIllustBubble"
+        case .moreAir: "WatchIllustMoreAir"
+        case .milkFlow: "WatchIllustMilkFlow"
+        }
+    }
+
+    /// 일러스트 중심의 세로 위치 (화면 맨 위 = 0, 맨 아래 = 1)
+    /// - 일러스트마다 모양과 크기가 달라 Hi-Fi에서 각각 측정했습니다.
+    var illustrationCenterY: CGFloat {
+        switch self {
+        case .aeration: 0.608
+        case .sharpSound: 0.643
+        case .bubble: 0.62
+        case .moreAir: 0.638
+        case .milkFlow: 0.643
         }
     }
 }
