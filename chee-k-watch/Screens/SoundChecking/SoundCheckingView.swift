@@ -14,6 +14,7 @@ import SwiftUI
 /// - 디자인: hifi/watch11.png (소리 확인 중), hifi/watch11-1.png (구분 어려움)
 ///
 ///     ┌ 상태 문구
+///     └ 로딩 인디케이터 (화면 정중앙)
 struct SoundCheckingView: View {
     /// 대기 상태 종류
     /// - case 이름은 Shared/PracticeState.swift 의 PracticePhase 연습 단계 이름과 같게 맞췄습니다.
@@ -43,6 +44,13 @@ struct SoundCheckingView: View {
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
                 .watchCenterY(Metrics.statusTextCenterY)
+
+            // MARK: 로딩 인디케이터
+            // watchOS 기본 로딩 인디케이터는 Hi-Fi보다 작아서, 지름이 약 31pt가 되도록 키웁니다.
+            ProgressView()
+                .tint(.white)
+                .scaleEffect(WatchDesignSize.scaled(Metrics.loadingIndicatorScale))
+                .watchCenterY(Metrics.loadingIndicatorCenterY)
         }
         .foregroundStyle(.white)
         .background(AppColors.watchSoundCheckingBackground)
@@ -55,6 +63,8 @@ struct SoundCheckingView: View {
 /// - ~CenterY: 요소 중심의 세로 위치 (화면 맨 위 = 0, 맨 아래 = 1)
 private enum Metrics {
     static let statusTextCenterY: CGFloat = 0.269       // 상태 문구 중심
+    static let loadingIndicatorCenterY: CGFloat = 0.5   // 로딩 인디케이터 중심 (화면 정중앙)
+    static let loadingIndicatorScale: CGFloat = 1.9     // 로딩 인디케이터 확대 배율 (watchOS 기본 크기 = 1)
 }
 
 // MARK: - Colors
