@@ -91,13 +91,4 @@ enum AppColors {
     static let bubbleWarningOrange = Color(hex: 0xFFA615)
     static let moreAirPurple = Color(hex: 0x784AD6)
     static let milkFlowGreen = Color(hex: 0x1ABC6B)
-
-    // MARK: 워치
-
-    /// 워치 어두운 화면 배경 (시작 요청 화면, 종료 확인 화면)
-    static let watchDarkScreenBackground = Color(hex: 0x01030C)
-    /// 워치 하늘색 캡슐 버튼 배경 ([스티밍 연습 시작], [완료])
-    static let watchCapsuleButtonBackground = Color(hex: 0x76CAF2)
-    /// 워치 하늘색 캡슐 버튼 글자
-    static let watchCapsuleButtonTitle = Color.black
 }
