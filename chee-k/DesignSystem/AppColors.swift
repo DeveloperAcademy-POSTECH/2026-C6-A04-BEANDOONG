@@ -1,3 +1,6 @@
+// 이 파일은 iPhone(chee-k) 타깃과 워치(chee-k-watch) 타깃에 함께 포함되어 있습니다.
+// 워치에서 빌드되지 않는 iPhone 전용 코드(UIKit 등)는 이 파일에 넣지 마세요.
+
 import SwiftUI
 
 // MARK: - Hex 색상 초기화
