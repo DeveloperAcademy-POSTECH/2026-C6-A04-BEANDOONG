@@ -23,6 +23,8 @@ final class PracticeSession: NSObject, ObservableObject, AVAudioRecorderDelegate
     let connection: WatchConnection
     // 현재 녹음 중인 녹음기를 보관합니다. 연습이 끝나면 nil로 비웁니다.
     private var recorder: AVAudioRecorder?
+    // 마이크 소리를 모델로 분석하는 담당이며 연습과 함께 시작·종료합니다.
+    private var soundAnalyzer: SteamingAudioAnalyzer?
     // 마이크 권한을 기다리는 동안 시작 버튼을 다시 눌러도 요청이 겹치지 않게 합니다.
     private var isStarting = false
     // 전화 등으로 오디오 사용이 중단되는 알림의 구독을 보관합니다.
@@ -108,6 +110,7 @@ final class PracticeSession: NSObject, ObservableObject, AVAudioRecorderDelegate
         guard UIApplication.shared.applicationState == .active else {
             throw ConnectionError.message("녹음을 시작하려면 iPhone에서 chic 앱을 열어주세요.")
         }
+        let analyzer = try SteamingAudioAnalyzer()
         // 앱이 마이크 입력을 사용할 수 있도록 오디오 세션을 준비합니다.
         let audio = AVAudioSession.sharedInstance()
         try audio.setCategory(.record, mode: .measurement)
@@ -125,7 +128,24 @@ final class PracticeSession: NSObject, ObservableObject, AVAudioRecorderDelegate
             recorder.delegate = self
             guard recorder.record() else { throw ConnectionError.message("녹음을 시작할 수 없어요.") }
             self.recorder = recorder // 녹음 중 녹음기가 사라지지 않도록 관리자가 보관합니다.
+            try analyzer.start(onResult: { [weak self] phase in
+                Task { @MainActor [weak self] in
+                    guard let self, self.state.sessionID == id else { return }
+                    self.updateFeedback(phase)
+                }
+            }, onError: { [weak self] message in
+                Task { @MainActor [weak self] in
+                    guard let self, self.state.sessionID == id, self.state.phase.isRunning else { return }
+                    self.stop()
+                    self.errorMessage = message
+                }
+            })
+            soundAnalyzer = analyzer
         } catch {
+            analyzer.stop()
+            recorder?.stop()
+            recorder = nil
+            try? FileManager.default.removeItem(at: url)
             // 녹음 시작에 실패하면 사용하려던 오디오 세션을 정리하고 오류를 호출자에게 전달합니다.
             try? audio.setActive(false)
             throw error
@@ -146,6 +166,8 @@ final class PracticeSession: NSObject, ObservableObject, AVAudioRecorderDelegate
         guard state.phase.isRunning, let recorder, let id = state.sessionID,
               let startedAt = state.startedAt else { return }
         let endedAt = Date()
+        soundAnalyzer?.stop()
+        soundAnalyzer = nil
         recorder.stop()
         self.recorder = nil // 녹음기만 정리합니다. PracticeSession 객체는 계속 유지됩니다.
         try? AVAudioSession.sharedInstance().setActive(false)
@@ -161,11 +183,11 @@ final class PracticeSession: NSObject, ObservableObject, AVAudioRecorderDelegate
         publish()
     }
 
-    /// 실제 소리 분석 결과를 연결할 지점입니다. 이 함수 자체가 소리를 분석하지는 않습니다.
+    /// 모델 분석 결과나 디버그 메뉴에서 받은 상태를 적용합니다.
     /// 상태를 바꾸면 iPhone 화면이 갱신되고 같은 상태를 워치에도 전달합니다.
     func updateFeedback(_ phase: PracticePhase) {
         // 종료 후 늦게 도착한 분석 결과로 연습 화면이 다시 열리지 않게 합니다.
-        guard state.phase.isRunning, phase.isRunning else { return }
+        guard state.phase.isRunning, phase.isRunning, state.phase != phase else { return }
         state.phase = phase
         publish()
     }
