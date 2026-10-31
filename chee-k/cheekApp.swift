@@ -9,9 +9,20 @@ import SwiftUI
 
 @main
 struct cheekApp: App {
+    @StateObject private var connection: WatchConnection
+    @StateObject private var practice: PracticeSession
+
+    init() {
+        let connection = WatchConnection()
+        _connection = StateObject(wrappedValue: connection)
+        _practice = StateObject(wrappedValue: PracticeSession(connection: connection))
+    }
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            AppRootView()
+                .environmentObject(connection)
+                .environmentObject(practice)
         }
     }
 }

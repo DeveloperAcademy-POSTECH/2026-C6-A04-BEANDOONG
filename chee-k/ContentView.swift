@@ -43,5 +43,8 @@ struct ContentView: View {
 }
 
 #Preview {
+    let connection = WatchConnection()
     ContentView()
+        .environmentObject(PracticeSession(connection: connection))
+        .environmentObject(connection)
 }

@@ -118,9 +118,10 @@ struct LightButtonPair: View {
 struct SteamingStopButton: View {
     /// 가운데 정사각형 색상 (화면 배경색에 맞춤)
     let squareColor: Color
+    var action: () -> Void = {}
 
     var body: some View {
-        Button(action: {}) {
+        Button(action: action) {
             ZStack {
                 Circle()
                     .fill(Color.white)

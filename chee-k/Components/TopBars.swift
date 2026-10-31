@@ -46,6 +46,7 @@ struct TopNavigationHeader: View {
 ///     [ 스티밍 연습              X ]
 struct SteamingPracticeTopBar: View {
     var title: String = "스티밍 연습"
+    var onClose: () -> Void = {}
 
     var body: some View {
         HStack {
@@ -53,9 +54,13 @@ struct SteamingPracticeTopBar: View {
                 .font(.pretendard(.medium, size: 16))
                 .foregroundStyle(Color.white)
             Spacer()
-            Image(systemName: "xmark")
-                .font(.system(size: 17, weight: .regular))
-                .foregroundStyle(Color.white)
+            Button(action: onClose) {
+                Image(systemName: "xmark")
+                    .font(.system(size: 17, weight: .regular))
+                    .foregroundStyle(Color.white)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("연습 종료")
         }
         .frame(height: 20)
         .padding(.leading, 20)

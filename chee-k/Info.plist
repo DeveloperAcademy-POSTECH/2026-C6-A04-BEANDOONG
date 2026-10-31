@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    iPhone 앱의 추가 실행 설정입니다.
+    시작된 연습 녹음이 화면 잠금이나 백그라운드 전환 후에도 계속되도록 audio 모드를 선언합니다.
+    앱 이름·마이크 권한 안내 등 나머지 정보는 Xcode 빌드 설정에서 생성합니다.
+-->
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>UIBackgroundModes</key>
+    <array><string>audio</string></array>
+</dict>
+</plist>

@@ -6,20 +6,75 @@
 	objectVersion = 110;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		A1000000000000000000000B /* chee-k-watch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = A10000000000000000000001 /* chee-k-watch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		A1000000000000000000000D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 936A3CCC307802AD00F6FB73 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A10000000000000000000007;
+			remoteInfo = "chee-k-watch";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		A1000000000000000000000C /* Embed Watch Content */ = {
+			isa = PBXCopyFilesBuildPhase;
+			dstPath = "$(CONTENTS_FOLDER_PATH)/Watch";
+			dstSubfolder = Product;
+			files = (
+				A1000000000000000000000B /* chee-k-watch.app in Embed Watch Content */,
+			);
+			name = "Embed Watch Content";
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		936A3CD4307802AD00F6FB73 /* chee-k.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "chee-k.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		A10000000000000000000001 /* chee-k-watch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; path = "chee-k-watch.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		A1000000000000000000000F /* Exceptions for "chee-k" folder in "chee-k" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 936A3CD3307802AD00F6FB73 /* chee-k */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		936A3CD6307802AD00F6FB73 /* chee-k */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				A1000000000000000000000F /* Exceptions for "chee-k" folder in "chee-k" target */,
+			);
 			path = "chee-k";
+			sourceTree = "<group>";
+		};
+		A10000000000000000000002 /* chee-k-watch */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "chee-k-watch";
+			sourceTree = "<group>";
+		};
+		A10000000000000000000003 /* Shared */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Shared;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		936A3CD1307802AD00F6FB73 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			files = (
+			);
+		};
+		A10000000000000000000006 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			files = (
 			);
@@ -31,6 +86,8 @@
 			isa = PBXGroup;
 			children = (
 				936A3CD6307802AD00F6FB73 /* chee-k */,
+				A10000000000000000000002 /* chee-k-watch */,
+				A10000000000000000000003 /* Shared */,
 				936A3CD5307802AD00F6FB73 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -39,6 +96,7 @@
 			isa = PBXGroup;
 			children = (
 				936A3CD4307802AD00F6FB73 /* chee-k.app */,
+				A10000000000000000000001 /* chee-k-watch.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -53,15 +111,39 @@
 				936A3CD0307802AD00F6FB73 /* Sources */,
 				936A3CD1307802AD00F6FB73 /* Frameworks */,
 				936A3CD2307802AD00F6FB73 /* Resources */,
+				A1000000000000000000000C /* Embed Watch Content */,
 			);
 			buildRules = (
 			);
+			dependencies = (
+				A1000000000000000000000E /* PBXTargetDependency */,
+			);
 			fileSystemSynchronizedGroups = (
 				936A3CD6307802AD00F6FB73 /* chee-k */,
+				A10000000000000000000003 /* Shared */,
 			);
 			name = "chee-k";
 			productName = beandoong;
 			productReference = 936A3CD4307802AD00F6FB73 /* chee-k.app */;
+			productType = "com.apple.product-type.application";
+		};
+		A10000000000000000000007 /* chee-k-watch */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A10000000000000000000008 /* Build configuration list for PBXNativeTarget "chee-k-watch" */;
+			buildPhases = (
+				A10000000000000000000004 /* Sources */,
+				A10000000000000000000006 /* Frameworks */,
+				A10000000000000000000005 /* Resources */,
+			);
+			buildRules = (
+			);
+			fileSystemSynchronizedGroups = (
+				A10000000000000000000002 /* chee-k-watch */,
+				A10000000000000000000003 /* Shared */,
+			);
+			name = "chee-k-watch";
+			productName = "chee-k-watch";
+			productReference = A10000000000000000000001 /* chee-k-watch.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -93,6 +175,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
+				A10000000000000000000007 /* chee-k-watch */,
 				936A3CD3307802AD00F6FB73 /* chee-k */,
 			);
 		};
@@ -100,6 +183,11 @@
 
 /* Begin PBXResourcesBuildPhase section */
 		936A3CD2307802AD00F6FB73 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			files = (
+			);
+		};
+		A10000000000000000000005 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			files = (
 			);
@@ -112,7 +200,20 @@
 			files = (
 			);
 		};
+		A10000000000000000000004 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			files = (
+			);
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		A1000000000000000000000E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A10000000000000000000007 /* chee-k-watch */;
+			targetProxy = A1000000000000000000000D /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		936A3CDD307802AF00F6FB73 /* Debug configuration for PBXProject "chee-k" */ = {
@@ -246,6 +347,7 @@
 				DEVELOPMENT_TEAM = B5N39V8625;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "chee-k/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "chee-k";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "우유 스티밍 소리를 실시간으로 분석하고, 현재 상태를 화면 색상으로 안내하기 위해 마이크를 사용합니다.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -280,6 +382,7 @@
 				DEVELOPMENT_TEAM = B5N39V8625;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "chee-k/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "chee-k";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "우유 스티밍 소리를 실시간으로 분석하고, 현재 상태를 화면 색상으로 안내하기 위해 마이크를 사용합니다.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -304,6 +407,52 @@
 			};
 			name = Release;
 		};
+		A10000000000000000000009 /* Debug configuration for PBXNativeTarget "chee-k-watch" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = chic;
+				INFOPLIST_KEY_WKApplication = YES;
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.beandoong.cheek;
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.beandoong.cheek.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 27.0;
+			};
+			name = Debug;
+		};
+		A1000000000000000000000A /* Release configuration for PBXNativeTarget "chee-k-watch" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = chic;
+				INFOPLIST_KEY_WKApplication = YES;
+				INFOPLIST_KEY_WKCompanionAppBundleIdentifier = com.beandoong.cheek;
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.beandoong.cheek.watchkitapp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = watchos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "watchos watchsimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = 4;
+				WATCHOS_DEPLOYMENT_TARGET = 27.0;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -320,6 +469,14 @@
 			buildConfigurations = (
 				936A3CE0307802AF00F6FB73 /* Debug configuration for PBXNativeTarget "chee-k" */,
 				936A3CE1307802AF00F6FB73 /* Release configuration for PBXNativeTarget "chee-k" */,
+			);
+			defaultConfigurationName = Release;
+		};
+		A10000000000000000000008 /* Build configuration list for PBXNativeTarget "chee-k-watch" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A10000000000000000000009 /* Debug configuration for PBXNativeTarget "chee-k-watch" */,
+				A1000000000000000000000A /* Release configuration for PBXNativeTarget "chee-k-watch" */,
 			);
 			defaultConfigurationName = Release;
 		};

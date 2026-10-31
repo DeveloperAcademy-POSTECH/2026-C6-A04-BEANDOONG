@@ -12,6 +12,8 @@ import SwiftUI
 ///     │   └ [워치·분홍]   날카로운 소리
 ///     └ 하단 버튼: [연습 시작하기] [워치 없이 연습하기]
 struct SessionChecklistView: View {
+    @EnvironmentObject private var practice: PracticeSession
+    var usesWatch = true
     var body: some View {
         VStack(spacing: 0) {
             // MARK: 상단 네비게이션 바
@@ -49,7 +51,12 @@ struct SessionChecklistView: View {
             Spacer(minLength: 0)
 
             // MARK: 하단 버튼
-            DarkButtonPair(primaryTitle: "연습 시작하기", secondaryTitle: "워치 없이 연습하기")
+            DarkButtonPair(
+                primaryTitle: "연습 시작하기", secondaryTitle: "워치 없이 연습하기",
+                primaryAction: { Task { await practice.start(usingWatch: usesWatch) } },
+                // 추후 제거될 보조 버튼은 녹음이나 화면 이동을 실행하지 않습니다.
+                secondaryAction: {}
+            )
                 .padding(.bottom, Layout.buttonsBottom)
         }
         .darkScreenBackground()

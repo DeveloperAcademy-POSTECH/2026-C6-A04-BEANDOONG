@@ -8,10 +8,12 @@ import SwiftUI
 ///     ├ 메인 히어로 카드 (피처 이미지)
 ///     └ 하단 2열 카드: [연습 가이드] [최근 연습]
 struct HomeView: View {
+    @EnvironmentObject private var practice: PracticeSession
     @State private var path: [Destination] = []
 
     private enum Destination: Hashable {
         case microphone
+        case checklist
         case watchSetup
         case history
     }
@@ -29,14 +31,22 @@ struct HomeView: View {
                                 // 완료한 권한 화면은 뒤로가기 경로에 남기지 않습니다.
                                 path[path.count - 1] = .watchSetup
                             }
+                        case .checklist:
+                            SessionChecklistView()
                         case .watchSetup:
-                            WatchSetupView()
+                            WatchConnectionFlow()
                         case .history:
                             HistoryView()
                         }
                     }
                     .toolbar(.hidden, for: .navigationBar)
                 }
+        }
+        .onChange(of: practice.state.phase) { previous, current in
+            // 결과 화면의 '다시 연습'으로 종료 상태를 벗어날 때만 준비 화면으로 이동합니다.
+            // 최초 연습을 어느 화면에서 시작했든 준비 화면을 목적지로 명시합니다.
+            guard previous == .finished, current == .idle else { return }
+            path = [.checklist]
         }
     }
 
@@ -179,6 +189,9 @@ private extension AppColors {
 
 struct HomeView_Previews: PreviewProvider {
     static var previews: some View {
+        let connection = WatchConnection()
         HomeView()
+            .environmentObject(PracticeSession(connection: connection))
+            .environmentObject(connection)
     }
 }
