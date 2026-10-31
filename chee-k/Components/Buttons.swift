@@ -134,3 +134,28 @@ struct SteamingStopButton: View {
         .buttonStyle(.plain)
     }
 }
+
+// MARK: - 홈 연습 버튼
+
+/// 홈 카드 우측 하단에서 연습 준비 화면으로 이동하는 캡슐 버튼
+struct HomePracticeButton: View {
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            Text("스티밍 연습하기")
+                .font(.pretendard(.bold, size: 16))
+                .foregroundStyle(AppColors.homePracticeButtonText)
+                .frame(width: 167, height: 44)
+                .background(Capsule().fill(AppColors.homePracticeButton))
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+// MARK: - 홈 연습 버튼 색상
+
+private extension AppColors {
+    static let homePracticeButton = Color(hex: 0xDBECFF)
+    static let homePracticeButtonText = Color(hex: 0x01030C)
+}
