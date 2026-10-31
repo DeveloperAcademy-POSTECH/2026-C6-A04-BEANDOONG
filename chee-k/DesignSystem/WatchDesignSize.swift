@@ -12,7 +12,7 @@
 //
 //  [어떻게 쓰나요?]
 //  1. 코드에는 Hi-Fi(46mm)에서 측정한 수치를 그대로 적습니다.
-//  2. `WatchDesignSize.scaled(수치)`로 감싸면
+//  2. `WatchDesignSize.scaled(수치)` 또는 `.font(.watchScaled(글자 크기))`로 감싸면
 //     현재 기기 너비 비율만큼 자동으로 줄어들거나 늘어납니다.
 //     예) 46mm에서 52pt인 버튼 높이 → 40mm에서는 52 × (162 ÷ 208) ≈ 40.5pt
 //
@@ -34,5 +34,15 @@ enum WatchDesignSize {
     /// - Returns: 현재 기기에서 사용할 수치 (pt)
     static func scaled(_ designValue: CGFloat) -> CGFloat {
         designValue * screenWidthRatio
+    }
+}
+
+extension Font {
+    /// Hi-Fi(46mm) 기준 글자 크기를 현재 기기 크기에 맞게 변환한 시스템 폰트
+    /// - Parameters:
+    ///   - designSize: Hi-Fi 기준 글자 크기 (pt)
+    ///   - weight: 글자 굵기 (기본값: regular)
+    static func watchScaled(_ designSize: CGFloat, weight: Font.Weight = .regular) -> Font {
+        .system(size: WatchDesignSize.scaled(designSize), weight: weight)
     }
 }
