@@ -1,8 +1,6 @@
 //
 //  WatchFullScreenStack.swift
 //
-//  [타깃] 워치(chee-k-watch) 전용 파일입니다. chee-k 폴더에 있지만 iPhone 타깃에는 포함되지 않습니다.
-//
 //  워치 화면 전체를 기준으로 요소를 배치하는 컨테이너입니다.
 //
 //  [왜 VStack이 아닌가요?]
