@@ -45,12 +45,20 @@
 			);
 			target = 936A3CD3307802AD00F6FB73 /* chee-k */;
 		};
+		A10000000000000000000010 /* Exceptions for "chee-k" folder in "chee-k-watch" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				DesignSystem/AppColors.swift,
+			);
+			target = A10000000000000000000007 /* chee-k-watch */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		936A3CD6307802AD00F6FB73 /* chee-k */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
+				A10000000000000000000010 /* Exceptions for "chee-k" folder in "chee-k-watch" target */,
 				A1000000000000000000000F /* Exceptions for "chee-k" folder in "chee-k" target */,
 			);
 			path = "chee-k";
