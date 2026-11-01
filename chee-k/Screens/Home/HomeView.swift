@@ -65,24 +65,17 @@ struct HomeView: View {
                 .foregroundStyle(AppColors.darkSubtitle)
                 .padding(.top, Layout.subtitleTop)
 
-            // MARK: 메인 히어로 카드 (362 x 262)
-            Button {
-                path.append(MicrophonePermission.isGranted ? .watchSetup : .microphone)
-            } label: {
-                AssetImageView(name: "HeroPitcherCard", width: 362, height: 262)
-                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel("스티밍 연습하기")
-            .padding(.top, Layout.heroCardTop)
+            // MARK: 메인 연습 카드
+            practiceCard
+                .padding(.top, Layout.heroCardTop)
 
             // MARK: 하단 2열 카드 (연습 가이드 / 최근 연습)
-            HStack(spacing: 14) {
-                HomeSubCard(title: "연습 가이드", colors: AppColors.homeGuideCardGradient)
+            HStack(spacing: 15) {
+                HomeSubCard(title: "연습 가이드", color: AppColors.homeGuideCard)
                 Button {
                     path.append(.history)
                 } label: {
-                    HomeSubCard(title: "최근 연습", colors: AppColors.homeRecentCardGradient)
+                    HomeSubCard(title: "최근 연습", color: AppColors.homeRecentCard, width: 173)
                 }
                 .buttonStyle(.plain)
             }
@@ -101,6 +94,44 @@ struct HomeView: View {
             .ignoresSafeArea()
         )
         .preferredColorScheme(.dark)
+    }
+
+    /// 피처 이미지와 안내 문구 위에 독립된 연습 버튼을 배치한 홈 카드
+    private var practiceCard: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text("실시간 피드백과 함께")
+                Text("함께 스티밍을 연습해요")
+            }
+            .font(.pretendard(.semibold, size: 20))
+            .foregroundStyle(Color.white)
+
+            Spacer()
+
+            HomePracticeButton {
+                path.append(MicrophonePermission.isGranted ? .watchSetup : .microphone)
+            }
+            .frame(maxWidth: .infinity, alignment: .trailing)
+        }
+        .padding(.horizontal, 15)
+        .padding(.vertical, 17)
+        .frame(width: 362, height: 262)
+        .background {
+            LinearGradient(
+                colors: AppColors.homePracticeCardGradient,
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .overlay(alignment: .trailing) {
+                Image("HomePitcher")
+                    .resizable()
+                    .frame(width: 342, height: 385)
+                    .opacity(0.82)
+                    .accessibilityHidden(true)
+            }
+            .allowsHitTesting(false)
+        }
+        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
     }
 
     /// "다음 **한잔**을 / 위한 작은 연습" — '한잔'만 강조색
@@ -123,43 +154,29 @@ struct HomeView: View {
 
 // MARK: - 하단 서브 카드
 
-/// 우측 상단 ↗ 화살표 + 좌측 하단 제목이 있는 그라데이션 카드 (174 x 171)
+/// 우측 상단 화살표와 좌측 하단 제목이 있는 홈 카드
 private struct HomeSubCard: View {
     let title: String
-    /// 위 → 아래 그라데이션 색상
-    let colors: [Color]
+    let color: Color
+    var width: CGFloat = 174
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            // 우측 상단 화살표
-            HStack {
-                Spacer()
-                Image(systemName: "arrow.up.right")
-                    .font(.system(size: 20, weight: .bold))
-                    .foregroundStyle(Color.white)
-            }
-            .padding(.top, 20)
-            .padding(.trailing, 20)
+            AssetImageView(name: "HomeArrowUpRight", width: 33, height: 33)
+                .frame(maxWidth: .infinity, alignment: .trailing)
+                .accessibilityHidden(true)
 
             Spacer()
 
-            // 좌측 하단 제목
             Text(title)
-                .font(.pretendard(.bold, size: 20))
+                .font(.pretendard(.semibold, size: 20))
                 .foregroundStyle(Color.white)
-                .padding(.leading, 16)
-                .padding(.bottom, 18)
         }
-        .frame(width: 174, height: 171)
+        .padding(15)
+        .frame(width: width, height: 171)
         .background(
-            RoundedRectangle(cornerRadius: 14, style: .continuous)
-                .fill(
-                    LinearGradient(
-                        colors: colors,
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                )
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .fill(color)
         )
     }
 }
@@ -183,8 +200,9 @@ private extension AppColors {
         Color(hex: 0x111721),
         Color(hex: 0x0E131D)
     ]
-    static let homeGuideCardGradient: [Color] = [Color(hex: 0x476480), Color(hex: 0x5B7895)]
-    static let homeRecentCardGradient: [Color] = [Color(hex: 0x163248), Color(hex: 0x163248)]
+    static let homePracticeCardGradient: [Color] = [Color(hex: 0xDBECFF), Color(hex: 0x76CAF2)]
+    static let homeGuideCard = Color(hex: 0x476480)
+    static let homeRecentCard = Color(hex: 0x163248)
 }
 
 struct HomeView_Previews: PreviewProvider {
