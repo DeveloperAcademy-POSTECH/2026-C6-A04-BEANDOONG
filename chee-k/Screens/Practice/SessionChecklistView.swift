@@ -54,8 +54,7 @@ struct SessionChecklistView: View {
             DarkButtonPair(
                 primaryTitle: "연습 시작하기", secondaryTitle: "워치 없이 연습하기",
                 primaryAction: { Task { await practice.start(usingWatch: usesWatch) } },
-                // 추후 제거될 보조 버튼은 녹음이나 화면 이동을 실행하지 않습니다.
-                secondaryAction: {}
+                secondaryAction: { Task { await practice.start(usingWatch: false) } }
             )
                 .padding(.bottom, Layout.buttonsBottom)
         }
