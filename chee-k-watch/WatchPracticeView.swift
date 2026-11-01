@@ -2,7 +2,7 @@
 //  WatchPracticeView.swift
 //
 //  iPhone에서 받은 연습 상태에 맞춰 기존 워치 화면을 연결합니다.
-//  시작·종료는 iPhone에 요청하고, 완료 화면 닫기는 워치에서만 처리합니다.
+//  시작·결과 확인 완료는 iPhone에 요청하고, 연습 종료는 iPhone의 상태를 따릅니다.
 //
 
 import SwiftUI
@@ -10,7 +10,6 @@ import SwiftUI
 struct WatchPracticeView: View {
     @EnvironmentObject private var connection: WatchConnection
     @Environment(\.scenePhase) private var scenePhase
-    @State private var dismissedSessionID: UUID?
 
     var body: some View {
         NavigationStack {
@@ -42,9 +41,9 @@ struct WatchPracticeView: View {
         case .idle:
             StartRequestView(onStartTap: start)
         case .listening:
-            SoundCheckingView(checkingStatus: .listening, onCloseTap: stop)
+            SoundCheckingView(checkingStatus: .listening)
         case .noiseWarning:
-            SoundCheckingView(checkingStatus: .noiseWarning, onCloseTap: stop)
+            SoundCheckingView(checkingStatus: .noiseWarning)
         case .aeration:
             SteamingFeedbackView(feedback: .aeration)
         case .sharpSound:
@@ -56,15 +55,11 @@ struct WatchPracticeView: View {
         case .milkFlow:
             SteamingFeedbackView(feedback: .milkFlow)
         case .finished:
-            if dismissedSessionID == connection.state.sessionID {
-                StartRequestView(onStartTap: start)
-            } else {
-                PracticeFinishedView(
-                    practiceDurationText: connection.state.durationText,
-                    onCloseTap: dismissFinished,
-                    onDoneTap: dismissFinished
-                )
-            }
+            PracticeFinishedView(
+                practiceDurationText: connection.state.durationText,
+                onCloseTap: finishReview,
+                onDoneTap: finishReview
+            )
         }
     }
 
@@ -72,12 +67,7 @@ struct WatchPracticeView: View {
         Task { await connection.send(.start) }
     }
 
-    private func stop() {
-        Task { await connection.send(.stop) }
-    }
-
-    private func dismissFinished() {
-        // iPhone의 결과 화면은 유지하고, 같은 종료 상태가 다시 와도 워치에서 재표시하지 않습니다.
-        dismissedSessionID = connection.state.sessionID
+    private func finishReview() {
+        Task { await connection.send(.finishReview) }
     }
 }

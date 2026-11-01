@@ -73,7 +73,7 @@ nonisolated struct PracticeState: Codable, Equatable {
 }
 
 nonisolated enum WatchCommand: String, Codable {
-    case sync, start, stop
+    case sync, start, finishReview
 }
 
 nonisolated struct WatchRequest: Codable {

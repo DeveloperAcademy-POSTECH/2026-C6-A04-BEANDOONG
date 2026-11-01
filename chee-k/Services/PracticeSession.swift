@@ -2,7 +2,7 @@
 //  PracticeSession.swift
 //
 //  iPhone에서 연습 상태와 녹음을 관리하는 파일입니다.
-//  iPhone 버튼과 워치 요청이 같은 시작·종료 로직을 사용하며, 녹음 파일과 기록을 iPhone에 저장합니다.
+//  iPhone 버튼과 워치 요청이 같은 시작·결과 확인 완료 로직을 사용하며, 녹음 파일과 기록을 iPhone에 저장합니다.
 //  변경된 상태는 WatchConnection으로 전달합니다. 소리 분석 결과는 updateFeedback(_:)에 연결합니다.
 //
 
@@ -50,7 +50,7 @@ final class PracticeSession: NSObject, ObservableObject, AVAudioRecorderDelegate
         // [weak self]는 두 객체가 서로를 계속 붙잡아 해제되지 않는 것을 방지합니다.
         connection.onCommand = { [weak self] request in
             guard let self else { throw ConnectionError.message("iPhone 앱을 열어주세요.") }
-            // 동기화 요청에는 중단 안내만 응답하고, 워치의 시작·종료 요청은 거절합니다.
+            // 워치 없이 연습 중이면 동기화 요청에만 응답합니다.
             guard request.command == .sync || self.state.isWatchEnabled else {
                 throw ConnectionError.message("iPhone에서 워치 없이 연습 중이에요.")
             }
@@ -65,12 +65,12 @@ final class PracticeSession: NSObject, ObservableObject, AVAudioRecorderDelegate
                     throw ConnectionError.message("iPhone에서 마이크 권한을 허용해주세요.")
                 }
                 try self.startRecording() // iPhone 버튼과 같은 녹음 함수를 사용합니다.
-            case .stop:
-                // 이전 연습에 대한 종료 요청이 뒤늦게 와서 새 연습을 종료하지 않도록 확인합니다.
+            case .finishReview:
+                // 이전 결과 화면의 완료 요청이 새 연습에 적용되지 않도록 확인합니다.
                 guard request.sessionID == self.state.sessionID else {
                     throw ConnectionError.message("연습 상태가 변경되었어요. 다시 확인해주세요.")
                 }
-                self.stop()
+                self.finishReview()
             }
             return self.state.watchSnapshot // 재연결·상태 요청도 이번 연습의 워치 사용 설정을 따릅니다.
         }
@@ -159,7 +159,7 @@ final class PracticeSession: NSObject, ObservableObject, AVAudioRecorderDelegate
         publish()
     }
 
-    /// iPhone 정지 버튼/X 또는 워치 종료 요청에서 호출합니다.
+    /// iPhone 정지 버튼/X 또는 오디오 중단·오류 시 호출합니다.
     /// 녹음을 끝내고 기록을 저장하며, .finished로 바꿔 결과 화면을 표시하게 합니다.
     func stop() {
         // 이미 종료된 연습이면 다시 저장하지 않습니다.
@@ -192,7 +192,7 @@ final class PracticeSession: NSObject, ObservableObject, AVAudioRecorderDelegate
         publish()
     }
 
-    /// 결과 화면에서 '다시 연습'을 눌렀을 때 호출합니다.
+    /// iPhone의 '다시 연습' 또는 워치 결과 화면의 '완료'/X에서 호출합니다.
     /// .idle로 돌아가 연습 화면을 닫으며, 저장된 파일과 기록은 삭제하지 않습니다.
     func finishReview() {
         guard state.phase == .finished else { return }
