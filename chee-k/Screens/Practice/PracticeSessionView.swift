@@ -3,7 +3,7 @@
 //
 //  iPhone의 현재 연습 상태에 맞는 화면을 표시하는 컨테이너입니다.
 //  기존 ListeningView, NoiseWarningView, SteamingFeedbackView에 종료 동작을 연결합니다.
-//  연결 끊김·재확인과 임시 종료 화면을 표시하며, Debug 빌드에는 동기화 테스트 메뉴를 제공합니다.
+//  연결 끊김 배너와 임시 종료 화면을 표시하며, Debug 빌드에는 동기화 테스트 메뉴를 제공합니다.
 //
 
 import SwiftUI
@@ -12,10 +12,9 @@ struct PracticeSessionView: View {
     @EnvironmentObject private var practice: PracticeSession
     @EnvironmentObject private var connection: WatchConnection
     @State private var showsDisconnection = false
-    @State private var showsRecheck = false
 
     var body: some View {
-        Group {
+        ZStack {
             switch practice.state.phase {
             case .idle, .listening:
                 ListeningView(onStop: practice.stop)
@@ -36,34 +35,32 @@ struct PracticeSessionView: View {
             }
         }
         .onChange(of: connection.isReachable) { wasReachable, reachable in
+            if reachable { showsDisconnection = false }
             if wasReachable && !reachable && practice.state.phase.isRunning && practice.state.isWatchEnabled {
                 showsDisconnection = true
             }
         }
-        .onChange(of: practice.state.phase) { _, phase in
-            if !phase.isRunning { showsDisconnection = false; showsRecheck = false }
+        .onChange(of: practice.state.phase.isRunning) { _, isRunning in
+            if !isRunning { showsDisconnection = false }
         }
-        .sheet(isPresented: $showsDisconnection) {
-            WatchDisconnectedView(onCheck: {
-                showsRecheck = true
-            }, onContinue: {
-                practice.continueWithoutWatch()
-                showsDisconnection = false
-            })
-            .sheet(isPresented: $showsRecheck) {
-                NavigationStack {
-                    WatchConnectionFlow(startsWithCheck: true, onReady: {
-                        showsRecheck = false
-                        showsDisconnection = false
-                    }, onContinueWithoutWatch: {
-                        practice.continueWithoutWatch()
-                        showsRecheck = false
-                        showsDisconnection = false
-                    })
-                    .toolbar(.hidden, for: .navigationBar)
-                }
+        .onChange(of: practice.state.isWatchEnabled) { _, isEnabled in
+            if !isEnabled { showsDisconnection = false }
+        }
+        .task(id: showsDisconnection) {
+            guard showsDisconnection else { return }
+            do { try await Task.sleep(for: .seconds(3)) }
+            catch { return }
+            showsDisconnection = false
+        }
+        .overlay(alignment: .top) {
+            if showsDisconnection {
+                disconnectionBanner
+                    .padding(.horizontal, 20)
+                    .padding(.top, 48)
+                    .transition(.move(edge: .top).combined(with: .opacity))
             }
         }
+        .animation(.easeInOut(duration: 0.2), value: showsDisconnection)
         .alert("연습 안내", isPresented: Binding(
             get: { practice.errorMessage != nil },
             set: { if !$0 { practice.errorMessage = nil } }
@@ -74,16 +71,41 @@ struct PracticeSessionView: View {
         }
         #if DEBUG
         .overlay(alignment: .topLeading) {
-            Menu("동기화 테스트") {
-                ForEach(PracticePhase.allCases.filter(\.isRunning), id: \.self) { phase in
-                    Button(phase.title) { practice.updateFeedback(phase) }
+            if !showsDisconnection {
+                Menu("동기화 테스트") {
+                    ForEach(PracticePhase.allCases.filter(\.isRunning), id: \.self) { phase in
+                        Button(phase.title) { practice.updateFeedback(phase) }
+                    }
                 }
+                .font(.caption)
+                .padding(.top, 42)
+                .padding(.leading)
             }
-            .font(.caption)
-            .padding(.top, 42)
-            .padding(.leading)
         }
         #endif
+    }
+
+    private var disconnectionBanner: some View {
+        HStack(spacing: 10) {
+            Image(systemName: "applewatch")
+                .font(.system(size: 20))
+                .accessibilityHidden(true)
+
+            VStack(alignment: .leading, spacing: 3) {
+                Text("워치 연결이 잠시 끊겼어요")
+                    .font(.pretendard(.semibold, size: 14))
+                Text("iPhone에서 연습은 계속 진행돼요")
+                    .font(.pretendard(.regular, size: 12))
+                    .foregroundStyle(.white.opacity(0.85))
+            }
+            .frame(maxWidth: .infinity, alignment: .leading)
+        }
+        .padding(14)
+        .foregroundStyle(.white)
+        .background(AppColors.darkCard, in: RoundedRectangle(cornerRadius: 14))
+        .shadow(color: .black.opacity(0.2), radius: 8, y: 4)
+        .accessibilityElement(children: .combine)
+        .allowsHitTesting(false)
     }
 
     private var feedback: SteamingFeedback {
