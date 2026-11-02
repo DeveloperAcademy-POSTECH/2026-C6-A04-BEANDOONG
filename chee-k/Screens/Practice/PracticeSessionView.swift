@@ -3,7 +3,7 @@
 //
 //  iPhone의 현재 연습 상태에 맞는 화면을 표시하는 컨테이너입니다.
 //  기존 ListeningView, NoiseWarningView, SteamingFeedbackView에 종료 동작을 연결합니다.
-//  연결 끊김 배너와 임시 종료 화면을 표시하며, Debug 빌드에는 동기화 테스트 메뉴를 제공합니다.
+//  연결 끊김 배너와 임시 종료 화면을 표시합니다.
 //
 
 import SwiftUI
@@ -69,20 +69,6 @@ struct PracticeSessionView: View {
         } message: {
             Text(practice.errorMessage ?? "")
         }
-        #if DEBUG
-        .overlay(alignment: .topLeading) {
-            if !showsDisconnection {
-                Menu("동기화 테스트") {
-                    ForEach(PracticePhase.allCases.filter(\.isRunning), id: \.self) { phase in
-                        Button(phase.title) { practice.updateFeedback(phase) }
-                    }
-                }
-                .font(.caption)
-                .padding(.top, 42)
-                .padding(.leading)
-            }
-        }
-        #endif
     }
 
     private var disconnectionBanner: some View {
