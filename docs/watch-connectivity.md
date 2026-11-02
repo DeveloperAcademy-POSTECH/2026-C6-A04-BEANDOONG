@@ -38,15 +38,11 @@ SessionChecklistView의 “워치 없이 연습하기”와 연결 안내의 “
 - 종료 화면은 iPhone이 전달한 시작·종료 시각으로 총 연습 시간을 표시합니다. Figma의 종료 화면에 맞춰 X는 표시하지 않고 “완료”만 `.finishReview`를 요청합니다. iPhone은 세션 ID를 확인한 뒤 기존 `finishReview()`로 `.finished` → `.idle` 전환을 처리합니다. iPhone은 “시작 전, 잠깐 확인해요” 준비 화면으로, 워치는 시작 화면으로 돌아갑니다.
 - 전송 중에는 버튼의 중복 입력을 막고, 실패 시 안내창을 표시합니다. 실패한 요청만으로 화면을 다음 단계로 넘기지 않습니다.
 
-## 워치 상태 변경 알림
+## 공기주입 진동
 
-워치 앱에서 알림 권한을 요청하고, `WatchFeedbackNotifications`가 같은 연습의 상태 변화를 워치 로컬 시스템 알림으로 전달합니다. 앱이 화면을 표시 중일 때는 배너를 생략하고 알림 소리·햅틱을 요청합니다. 화면이 꺼진 상태에서는 시스템이 알림을 표시하며, 실제 소리·진동은 알림 권한과 워치의 햅틱·집중 모드 설정을 따릅니다. 진동만 강제하거나 화면이 꺼진 동안 직접 진동 API를 반복 호출하는 방식은 사용하지 않습니다.
+워치 앱이 활성일 때 같은 연습에서 다른 상태 → 공기주입으로 바뀌면 `WatchFeedbackHaptics`가 `WKInterfaceDevice.play(.notification)`을 한 번 호출합니다. 시스템 알림을 등록하거나 권한을 요청하지 않습니다. 첫 동기화, 중복·역순 수신, 8초 이상 차이 나는 상태, 다른 연습과 워치 없이 진행하는 연습은 제외합니다. 롤링·큰 기포·쇳소리·종료에도 진동하지 않습니다.
 
-초기 동기화, 같은 상태의 중복 수신, 다른 세션, 워치 제외 상태, 대기 화면 복귀에는 알림을 만들지 않습니다. 8초 이상 지연된 상태도 알리지 않으며, 알림 센터에는 최신 피드백 하나만 유지합니다. 연습 종료 상태는 한 번 알리고 “완료”를 누르면 피드백 알림을 정리합니다.
-
-알림 처리는 뷰의 `onChange`가 아닌 `WatchConnection`의 상태 수신 경로에 연결합니다. `.backgroundTask(.watchConnectivity)`는 시스템이 백그라운드 실행 시간을 제공했을 때 최신 상태와 알림 등록을 처리합니다. 이 설정이 실시간 수신이나 앱의 연속 실행을 보장하지는 않습니다. 워치가 중단된 동안 `applicationContext` 전달이 지연되거나 중간 상태가 최신 상태로 교체될 수 있습니다.
-
-실기기에서는 알림을 허용한 뒤 상태를 바꿔 한 번씩 알리는지, 같은 상태를 다시 보내도 중복되지 않는지, 손목을 내렸을 때의 전달 지연과 진동을 확인합니다. 알림을 거부해도 화면 전환과 X 종료는 계속 동작해야 합니다.
+실기기에서 워치 앱을 열고 iPhone의 동기화 테스트 메뉴로 롤링 → 공기주입 → 공기주입 → 롤링 → 공기주입 순으로 바꿉니다. 공기주입에 새로 진입한 두 번만 울려야 합니다. Debug에서는 워치 화면의 빈 곳을 1초간 길게 눌러 최근 수신과 진동 호출을 확인할 수 있습니다. 호출 기록은 실제 손목에서 진동을 느꼈다는 뜻은 아닙니다.
 
 ## 녹음과 기록
 
@@ -54,7 +50,7 @@ SessionChecklistView의 “워치 없이 연습하기”와 연결 안내의 “
 
 녹음은 iPhone 앱 Documents/PracticeRecordings의 `.m4a`, 기록 목록은 `records.json`에 저장합니다. 워치에는 최근 20건의 ID·시작/종료 시간·파일명 메타데이터를 전달하며 녹음 파일 자체는 전송하지 않습니다. 기존 HistoryView / SessionSummaryView의 샘플 그래프·기록 UI는 이번 작업에서 실제 저장 데이터로 교체하지 않았습니다.
 
-녹음 시작 시 Listening을 표시하고, 소리 분석 결과를 `PracticeSession.updateFeedback(_:)`로 전달해 iOS·워치 화면에 함께 반영합니다. 모델 연결은 [steaming-sound-model.md](steaming-sound-model.md)를 참고하세요. Debug 빌드의 연습 화면에 있는 **동기화 테스트** 메뉴로 Listening / NoiseWarning / 5종 피드백 전송을 확인할 수 있습니다. 이 메뉴는 Release에는 포함되지 않습니다. 진동은 상태별 사용자 정의 패턴 대신 시스템 알림의 햅틱을 사용합니다.
+녹음 시작 시 Listening을 표시하고, 소리 분석 결과를 `PracticeSession.updateFeedback(_:)`로 전달해 iOS·워치 화면에 함께 반영합니다. 모델 연결은 [steaming-sound-model.md](steaming-sound-model.md)를 참고하세요. Debug 빌드의 연습 화면에 있는 **동기화 테스트** 메뉴로 Listening / NoiseWarning / 5종 피드백 전송을 확인할 수 있습니다. 이 메뉴는 Release에는 포함되지 않습니다.
 
 ## 실행 및 실제 기기 확인
 
@@ -93,8 +89,8 @@ DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcrun swiftc \
 
 DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcrun swiftc \
   -module-cache-path /tmp/beandoong-watch-feedback-cache \
-  Shared/PracticeState.swift chee-k-watch/Services/WatchFeedbackNotifications.swift \
-  Tests/WatchFeedbackNotificationsTests.swift -o /tmp/beandoong-watch-feedback-tests
+  Shared/PracticeState.swift chee-k-watch/Services/WatchFeedbackHaptics.swift \
+  Tests/WatchFeedbackHapticsTests.swift -o /tmp/beandoong-watch-feedback-tests
 /tmp/beandoong-watch-feedback-tests
 ```
 
