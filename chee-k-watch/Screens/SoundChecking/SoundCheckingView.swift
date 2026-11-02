@@ -35,7 +35,7 @@ struct SoundCheckingView: View {
 
     /// 화면에 보여줄 대기 상태
     let checkingStatus: CheckingStatus
-    /// X 버튼에서 호출할 연습 종료 동작
+    /// 뷰 작업자가 추가할 X 버튼에서 호출할 연습 종료 동작
     var onCloseTap: () -> Void = {}
 
     var body: some View {
