@@ -1,37 +1,36 @@
 # 스티밍 소리 모델 연결
 
-연습 시작 시 `PracticeSession`이 녹음과 `SteamingAudioAnalyzer`를 시작합니다. 분석 결과는 기존 `updateFeedback(_:)`를 통해 iPhone 화면과 워치 상태에 반영합니다. 정지·오디오 중단·분석 오류가 발생하면 분석도 종료합니다. 이전 연습에서 늦게 온 결과는 세션 ID로 무시합니다.
+연습 시작 시 `PracticeSession`이 녹음과 `SteamingAudioAnalyzer`를 시작합니다. 분석 결과는 기존 `updateFeedback(_:)`를 통해 iPhone 화면과 워치에 전달합니다. 정지·오디오 중단·분석 오류가 발생하면 분석도 종료하고, 늦게 도착한 이전 연습 결과는 세션 ID로 무시합니다.
 
-- `chee-k/Models/CheekModelV1.mlmodel`: 앱에 번들로 포함하는 모델
-- `Services/SoundAnalysis/SteamingFeatureExtractor.swift`: 2048 샘플 창, 512 샘플 간격의 FFT
-- `Services/SoundAnalysis/SteamingSpectralFeatures.swift`: 학습 당시 `relative-nozzle-v2`의 특징 273개와 시간 이력 계산
-- `Services/SoundAnalysis/SteamingSoundClassifier.swift`: Core ML 추론 및 상태 매핑
-- `Services/SoundAnalysis/SteamingAudioAnalyzer.swift`: 마이크 입력 및 별도 큐에서의 분석
+## 모델과 분석 흐름
 
-| 모델 출력 | 기존 상태 | 화면 |
+- `chee-k/Models/ChicModelV2Gate.mlmodel`: 공기주입 계열 여부를 판단하는 1단계 모델. 지곡로 4–8의 541개 표본을 휘파람·숨소리 라벨로 추가했고, 정정된 정상 공기주입 라벨을 사용합니다.
+- `chee-k/Models/ChicModelV2Air.mlmodel`: 공기주입 계열의 정상/파바박을 구분하는 2단계 모델
+- `chee-k/Models/ChicModelV2Metallic.mlmodel`: 그 밖의 소리에서 쇳소리를 구분하는 2단계 모델
+- `Services/SoundAnalysis/ChicV2Input48k.swift`: 마이크 PCM을 48 kHz 모노로 변환
+- `Services/SoundAnalysis/ChicV2Filter.swift`: 1단계에만 11–12 kHz를 7 dB 강조
+- `Services/SoundAnalysis/ChicV2FeatureExtractor.swift`, `ChicV2SpectralFeatures.swift`: 원음·강조음의 특징 273개를 각각 계산
+- `Services/SoundAnalysis/ChicModelV2.swift`: 두 단계 분기와 모델 추론
+- `Services/SoundAnalysis/SteamingAudioAnalyzer.swift`: 마이크 입력을 분석 큐에 전달하고 결과를 화면 상태로 변환
+
+원음과 강조음은 같은 마이크 버퍼에서 만들어집니다. 1단계는 강조음, 2단계는 같은 시점의 원음 특징을 사용합니다. 공기주입 갈래는 파바박 점수가 `0.7543236034777003` 이상일 때만 `sputter`입니다. 1단계의 `breath_whistle`은 바로 `other`로 처리합니다. 2048샘플 창·512샘플 간격과 필터·특징 이력은 연습이 끝날 때까지 유지됩니다.
+
+| 최종 출력 | 기존 상태 | 화면 |
 | --- | --- | --- |
-| air | aeration | 공기 주입 |
-| metallic | sharpSound | 쇳소리 |
-| sputter | bubble | 큰 기포 |
-| other | milkFlow | 롤링 |
+| `air` | `aeration` | 정상 공기주입 |
+| `sputter` | `bubble` | 큰 기포 주의 |
+| `metallic` | `sharpSound` | 쇳소리 |
+| `other` | `milkFlow` | 기본 롤링 |
 
-모델의 실제 라벨은 `metalic`이 아닌 `metallic`입니다. 네 클래스 중 확률이 가장 높은 결과를 사용합니다. 끓는 소리 규칙, 추가 임계값, 상태 유지 시간은 적용하지 않습니다. 따라서 무음·주변 소리도 모델이 other로 분류하면 롤링으로 표시됩니다. 입력·추론 오류는 롤링으로 처리하지 않고 연습을 종료하며 안내합니다.
-
-학습과 동일하게 32kHz 이상인 고정 샘플레이트의 모노 PCM 특징을 사용합니다. 마이크 입력의 첫 채널을 분석하며, 다른 샘플레이트로 바뀌면 재시작이 필요합니다. 녹음 파일은 기존 AVAudioRecorder의 AAC 저장 방식을 유지합니다.
+화면과 워치에는 `ChicDisplayFilter`가 확인한 상태를 보냅니다. 48 kHz 오디오의 100 ms 구간마다 마지막 모델 판정을 한 표로 사용합니다. 현재 정상 공기주입이고 최근 4표 중 3표 이상이 공기주입 계열이면 정상으로 표시합니다. 쇳소리·파바박·기본 롤링은 현재도 해당 상태이고 최근 3표 중 2표 이상일 때 전환합니다. 확인 전에는 직전 표시를 유지하며, 새 연습은 기본 롤링에서 시작합니다. 피드백 화면 전체 전환에는 애니메이션을 쓰지 않습니다. `other`에는 일반 롤링 외의 비스티밍 소리도 포함될 수 있습니다. 분석 오류는 롤링으로 숨기지 않고 연습을 종료하며 안내합니다.
 
 ## 자동 검증
 
 ```sh
-DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcrun swiftc \
-  -module-cache-path /tmp/beandoong-model-test-cache \
-  Shared/PracticeState.swift chee-k/Services/SoundAnalysis/SteamingSpectralFeatures.swift \
-  chee-k/Services/SoundAnalysis/SteamingFeatureExtractor.swift \
-  chee-k/Services/SoundAnalysis/SteamingSoundClassifier.swift \
-  Tests/SteamingSoundTests.swift -o /tmp/beandoong-model-tests
-/tmp/beandoong-model-tests chee-k/Models/CheekModelV1.mlmodel
+sh Tests/verify-chic-v2.sh
 ```
 
-선택적으로 세 번째·네 번째 인자에 학습용 48kHz float32 PCM 파일과 float64 특징 캐시 파일을 전달하면, 첫 2초의 특징을 수치 오차 1e-5 이내에서 비교합니다. 모델 추론, 네 상태 매핑, 무음 입력, 청크 경계, 잘못된 입력 거부도 검증합니다.
+검증 파일은 제공된 48 kHz PCM과 예상 출력입니다. 817개 프레임의 새 게이트의 라벨·최종 상태·공기 갈래 점수와 100 ms 표시 시점을 일정/불규칙 버퍼 크기에서 비교하고, 44.1/48/96 kHz 입력 변환도 확인합니다. 검증 녹음은 새 정확도 평가 자료가 아니며 앱 번들에는 포함되지 않습니다.
 
 ## 실기기 확인
 

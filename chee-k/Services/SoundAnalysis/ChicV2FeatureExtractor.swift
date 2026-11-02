@@ -2,16 +2,16 @@ import Accelerate
 import Foundation
 
 /// 학습 당시 특징 계산에 필요한 주파수 대역별 측정값입니다.
-nonisolated struct SteamingSpectralReading {
+nonisolated struct ChicV2SpectralReading {
     let db, highDB, ratio, flatness, lowerDB, upperDB: Double
 }
 
 /// 학습과 동일한 2048 샘플 창·512 샘플 간격으로 특징을 추출합니다.
-nonisolated final class SteamingFeatureExtractor {
+nonisolated final class ChicV2FeatureExtractor {
     private let n = 2048, hop = 512
     private let setup: vDSP_DFT_SetupD
     private let window = (0..<2048).map { 0.5 - 0.5 * cos(2 * Double.pi * Double($0) / 2047) }
-    private let spectral = SteamingSpectralFeatures()
+    private let spectral = ChicV2SpectralFeatures()
     private var pending: [Float] = []
     private var rate = 0.0
 
@@ -55,7 +55,7 @@ nonisolated final class SteamingFeatureExtractor {
             }
             let normalization = 2 / (Double(n) * window.reduce(0) { $0 + $1 * $1 })
             func db(_ power: Double) -> Double { 10 * log10(max(power * normalization, 1e-16)) }
-            let reading = SteamingSpectralReading(
+            let reading = ChicV2SpectralReading(
                 db: 10 * log10(max(frame.reduce(0) { $0 + $1 * $1 } / Double(n), 1e-16)),
                 highDB: db(high), ratio: high / max(total, 1e-30),
                 flatness: sum > 1e-25 ? exp(logSum / count) / (sum / count) : 0,

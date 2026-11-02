@@ -47,7 +47,6 @@ struct SteamingFeedbackView: View {
                     .padding(.bottom, Layout.stopButtonBottom)
             }
         }
-        .animation(.easeInOut, value: feedback)
         .preferredColorScheme(.dark)
     }
 
