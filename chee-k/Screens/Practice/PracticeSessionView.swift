@@ -2,7 +2,7 @@
 //  PracticeSessionView.swift
 //
 //  iPhone의 현재 연습 상태에 맞는 화면을 표시하는 컨테이너입니다.
-//  기존 ListeningView, NoiseWarningView, SteamingFeedbackView에 종료 동작을 연결합니다.
+//  기존 ListeningView, SteamingFeedbackView에 종료 동작을 연결합니다.
 //  연결 끊김 배너와 임시 종료 화면을 표시합니다.
 //
 
@@ -18,8 +18,6 @@ struct PracticeSessionView: View {
             switch practice.state.phase {
             case .idle, .listening:
                 ListeningView(onStop: practice.stop)
-            case .noiseWarning:
-                NoiseWarningView(onStop: practice.stop)
             case .finished:
                 VStack(spacing: 24) {
                     Text("연습을 마쳤어요").font(.title2)

@@ -9,7 +9,7 @@
 - `chee-k/Services/PracticeSession.swift`: iPhone의 녹음 시작/종료, 파일·기록 저장, 상태 발행.
 - `WatchConnectionFlow`: 기존 연결 화면을 전환하는 컨테이너. 기존 화면은 버튼 콜백만 추가.
 - `AppRootView`: 연습 상태를 관찰해 연습·결과 화면을 표시합니다. cheekApp은 공유 객체 생성과 전달만 담당합니다.
-- `PracticeSessionView`: 기존 ListeningView / NoiseWarningView / SteamingFeedbackView를 연습 상태에 따라 표시. 종료 화면은 임시 UI.
+- `PracticeSessionView`: 기존 ListeningView / SteamingFeedbackView를 연습 상태에 따라 표시. 종료 화면은 임시 UI.
 - `chee-k-watch/WatchPracticeView.swift`: 기존 워치 뷰를 연결하는 컨테이너. StartRequestView → SoundCheckingView / SteamingFeedbackView → PracticeFinishedView를 iPhone의 연습 상태에 따라 표시합니다. 최신 상태 확인은 앱 활성화·재연결 시 자동 처리합니다.
 
 연습 화면은 AppRootView의 ZStack에서 상태에 따라 표시합니다. 녹음 종료 후 `.finished`에서는 임시 결과 화면을 유지합니다. iPhone 결과 화면의 “다시 연습”이나 워치 결과 화면의 “완료”/X가 `finishReview()`를 호출해 `.idle`로 바뀌면 HomeView가 이동 경로를 준비 화면으로 교체합니다. 최초 연습을 연결 완료 화면이나 워치에서 시작했어도 이전 화면을 그대로 드러내지 않습니다. 연습 중에는 뒤의 기본 화면에 터치와 접근성 포커스가 전달되지 않게 합니다.
@@ -33,7 +33,7 @@ SessionChecklistView의 “워치 없이 연습하기”와 연결 안내의 “
 ## 워치 화면 동작
 
 - 대기 화면의 “스티밍 연습 시작”은 iPhone에 시작을 요청합니다. 성공 응답이나 상태 전송을 받은 뒤 소리 확인 화면으로 전환합니다.
-- SoundCheckingView(소리 확인·구분 어려움)와 SteamingFeedbackView(피드백 5종)에 `onCloseTap` 종료 콜백을 연결했습니다. 호출하면 `.stop`을 전송하고, iPhone이 전달한 `.finished` 상태에 따라 양쪽이 종료 화면을 표시합니다. iPhone에서 종료해도 같은 상태가 워치에 반영됩니다.
+- SoundCheckingView(소리 확인)와 SteamingFeedbackView(피드백 5종)에 `onCloseTap` 종료 콜백을 연결했습니다. 호출하면 `.stop`을 전송하고, iPhone이 전달한 `.finished` 상태에 따라 양쪽이 종료 화면을 표시합니다. iPhone에서 종료해도 같은 상태가 워치에 반영됩니다.
 - X 버튼 UI는 뷰 작업자가 별도로 추가할 예정이며 현재는 표시되지 않습니다. 두 뷰의 X 버튼 액션에 `onCloseTap`을 연결하면 됩니다. SteamingFeedbackView는 현재 내비게이션 바를 숨기므로, 시스템 툴바에 X를 추가할 경우 `.toolbar(.hidden, for: .navigationBar)`도 제거해야 합니다.
 - 종료 화면은 iPhone이 전달한 시작·종료 시각으로 총 연습 시간을 표시합니다. X 또는 “완료”는 `.finishReview`를 요청합니다. iPhone은 세션 ID를 확인한 뒤 기존 `finishReview()`로 `.finished` → `.idle` 전환을 처리합니다. iPhone은 “시작 전, 잠깐 확인해요” 준비 화면으로, 워치는 시작 화면으로 돌아갑니다. 워치만 화면을 닫던 로컬 상태는 제거했습니다.
 - 전송 중에는 버튼의 중복 입력을 막고, 실패 시 안내창을 표시합니다. 실패한 요청만으로 화면을 다음 단계로 넘기지 않습니다.
@@ -53,7 +53,7 @@ SessionChecklistView의 “워치 없이 연습하기”와 연결 안내의 “
 1. iPhone에 `chee-k`, 페어링된 Apple Watch에 `chee-k-watch`를 설치하고 양쪽 앱을 엽니다.
 2. iPhone에서 마이크를 허용하고 연결 확인하기를 누릅니다. Connecting → Ready, 워치에 StartRequestView가 표시되는지 확인합니다.
 3. 미페어링 기기에서 NotFound, 워치 앱 삭제 후 AppInstall, 워치 앱을 닫은 상태에서 앱을 열라는 안내를 확인합니다. 다시 연결 확인하기로 복구합니다.
-4. iPhone의 연습 시작하기 → 워치 SoundCheckingView. iPhone에서 종료한 뒤 워치 PracticeFinishedView의 총 연습 시간과 iPhone의 녹음 파일·기록 목록 저장을 확인합니다. X 버튼 UI 추가 후에는 소리 확인·구분 어려움·피드백 5종 각각에서 워치 X로 종료해 양쪽이 종료 화면으로 전환되고 기록이 한 번만 저장되는지도 확인합니다.
+4. iPhone의 연습 시작하기 → 워치 SoundCheckingView. iPhone에서 종료한 뒤 워치 PracticeFinishedView의 총 연습 시간과 iPhone의 녹음 파일·기록 목록 저장을 확인합니다. X 버튼 UI 추가 후에는 소리 확인·피드백 5종 각각에서 워치 X로 종료해 양쪽이 종료 화면으로 전환되고 기록이 한 번만 저장되는지도 확인합니다.
 5. 다시 워치의 스티밍 연습 시작 → iPhone 녹음과 화면 표시. iPhone 정지 버튼/X → 워치 종료 표시를 확인합니다. 빠르게 두 번 시작해도 하나의 녹음만 생성되어야 합니다.
 6. 소리 분석으로 전달된 상태에 맞게 iPhone과 워치의 피드백 화면이 함께 바뀌는지 확인합니다. iPhone에서 종료한 뒤 워치 “완료”와 X로 StartRequestView에 돌아오는지, iPhone이 “시작 전, 잠깐 확인해요”로 이동하는지 각각 확인합니다. 통신 실패 시에는 완료 화면과 오류 안내를 유지해야 합니다. iPhone에서 먼저 “다시 연습”을 눌러도 양쪽이 대기 상태로 돌아와야 하며, 새 연습의 종료 화면은 정상적으로 표시되어야 합니다.
 7. 연습 중 워치 앱을 닫거나 통신을 끊습니다. 모달 대신 상단 배너가 나타났다가 약 3초 뒤 자동으로 사라지고, iPhone 녹음·분석과 정지 버튼은 계속 동작해야 합니다. 3초 안에 재연결하거나 연습을 종료하면 배너가 즉시 사라지는지 확인합니다. 재연결 후 다시 끊으면 배너가 새로 표시되어야 합니다. 워치 없이 시작한 연습에서는 표시되지 않아야 합니다.
