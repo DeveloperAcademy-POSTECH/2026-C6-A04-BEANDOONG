@@ -227,7 +227,7 @@ struct PracticeSummaryRow: View {
 /// Hi-Fi(402pt 폭) 기준 수치입니다.
 private enum Metrics {
     static let horizontalPadding: CGFloat = 20
-    static let titleTop: CGFloat = 50
+    static let titleTop: CGFloat = 34
     static let titleLineSpacing: CGFloat = 4
     static let donutTop: CGFloat = 52
     static let outerRingDiameter: CGFloat = 188

@@ -23,6 +23,7 @@ struct HistoryDetailView: View {
             // MARK: 상단 네비게이션 바 (스크롤해도 고정)
             TopNavigationHeader(title: result.title, isDark: true)
                 .padding(.top, PracticeResultMetrics.headerTop)
+                .padding(.bottom, PracticeResultMetrics.headerBottom)
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {

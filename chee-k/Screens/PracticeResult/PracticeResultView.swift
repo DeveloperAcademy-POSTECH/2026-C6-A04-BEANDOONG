@@ -29,6 +29,7 @@ struct PracticeResultView: View {
             // MARK: 상단 네비게이션 바 (스크롤해도 고정)
             TopNavigationHeader(title: result.title, isDark: true)
                 .padding(.top, PracticeResultMetrics.headerTop)
+                .padding(.bottom, PracticeResultMetrics.headerBottom)
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
@@ -177,6 +178,7 @@ enum PracticeResultColors {
 enum PracticeResultMetrics {
     static let horizontalPadding: CGFloat = 20
     static let headerTop: CGFloat = 22
+    static let headerBottom: CGFloat = 16
     static let firstSectionTitleTop: CGFloat = 52
     static let sectionContentTop: CGFloat = 18
     static let cardSpacing: CGFloat = 16
