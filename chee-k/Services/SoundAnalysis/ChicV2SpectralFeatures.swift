@@ -1,7 +1,7 @@
 import Foundation
 
 /// 모델 학습과 동일한 상대 주파수·시간 이력 특징 273개를 계산합니다.
-nonisolated final class SteamingSpectralFeatures {
+nonisolated final class ChicV2SpectralFeatures {
     private let edges = [200.0,500,1000,2000,3000,4000,5000,6000,7000,8000,9000,10000,11000,12000,13000,14000,15000,16000]
     private let indices = [0,1,2,3,4,5,6,7,8,29]+Array(12..<29)
     private var rmsHistory: [Double] = []
@@ -9,7 +9,7 @@ nonisolated final class SteamingSpectralFeatures {
     private var history: [[Double]] = []
 
     /// 현재 프레임과 과거 프레임만 사용해 모델 입력 순서대로 특징을 반환합니다.
-    func consume(frame: [Double], power: [Double], sampleRate: Double, reading: SteamingSpectralReading) -> [Double] {
+    func consume(frame: [Double], power: [Double], sampleRate: Double, reading: ChicV2SpectralReading) -> [Double] {
         let n = frame.count
         var total = 0.0, bands = [Double](repeating:0,count:17), weighted = 0.0, maximum = 0.0
         for k in power.indices {

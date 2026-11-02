@@ -7,19 +7,15 @@ nonisolated final class SteamingAudioAnalyzer: @unchecked Sendable {
     private let engine = AVAudioEngine()
     private let queue = DispatchQueue(label: "com.beandoong.cheek.sound-analysis")
     private let pendingBuffer = DispatchSemaphore(value: 8)
-    private let extractor: SteamingFeatureExtractor
-    private let classifier: SteamingSoundClassifier
+    private let input48k = ChicV2Input48k()
+    private var displayFilter = ChicDisplayFilter()
+    private let classifier: ChicModelV2
     private var isStopped = false
     private var hasTap = false
 
     @MainActor
     init() throws {
-        guard let url = Bundle.main.url(forResource: "CheekModelV1", withExtension: "mlmodelc") else {
-            throw NSError(domain: "SteamingAnalysis", code: 4,
-                          userInfo: [NSLocalizedDescriptionKey: "스티밍 분석 모델을 찾을 수 없어요."])
-        }
-        classifier = try SteamingSoundClassifier(modelURL: url)
-        extractor = try SteamingFeatureExtractor()
+        classifier = try ChicModelV2()
     }
 
     /// 오디오 세션은 연습 관리자가 활성화한 뒤 호출합니다.
@@ -55,8 +51,15 @@ nonisolated final class SteamingAudioAnalyzer: @unchecked Sendable {
                 guard !self.isStopped else { return }
                 do {
                     var phase: PracticePhase?
-                    try self.extractor.consume(samples, sampleRate: rate) { features in
-                        phase = try self.classifier.predict(features).phase
+                    let pcm48 = try self.input48k.convert(samples, sampleRate: rate)
+                    try self.classifier.consume(pcm48, sampleRate: 48_000) { frame in
+                        guard let display = self.displayFilter.consume(frame.state) else { return }
+                        switch display {
+                        case .air: phase = .aeration
+                        case .sputter: phase = .bubble
+                        case .metallic: phase = .sharpSound
+                        case .other: phase = .milkFlow
+                        }
                     }
                     if let phase { onResult(phase) }
                 } catch {
