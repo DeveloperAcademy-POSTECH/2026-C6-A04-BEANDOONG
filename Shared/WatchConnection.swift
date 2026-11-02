@@ -2,7 +2,7 @@
 //  WatchConnection.swift
 //
 //  iPhone과 Apple Watch 사이의 WatchConnectivity 통신을 담당합니다.
-//  연결 확인, 시작·결과 확인 완료 요청과 응답, 최신 연습 상태의 전송 및 재연결 시 동기화를 처리합니다.
+//  연결 확인, 시작·종료·결과 확인 완료 요청과 응답, 최신 연습 상태의 전송 및 재연결 시 동기화를 처리합니다.
 //  실제 녹음은 iPhone의 PracticeSession에 위임하고, 화면에서는 공개된 연결·연습 상태를 사용합니다.
 //
 

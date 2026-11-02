@@ -2,7 +2,7 @@
 //  WatchPracticeView.swift
 //
 //  iPhone에서 받은 연습 상태에 맞춰 기존 워치 화면을 연결합니다.
-//  시작·결과 확인 완료는 iPhone에 요청하고, 연습 종료는 iPhone의 상태를 따릅니다.
+//  시작·종료·결과 확인 완료를 iPhone에 요청하고, 응답받은 연습 상태를 표시합니다.
 //
 
 import SwiftUI
@@ -41,19 +41,19 @@ struct WatchPracticeView: View {
         case .idle:
             StartRequestView(onStartTap: start)
         case .listening:
-            SoundCheckingView(checkingStatus: .listening)
+            SoundCheckingView(checkingStatus: .listening, onCloseTap: stop)
         case .noiseWarning:
-            SoundCheckingView(checkingStatus: .noiseWarning)
+            SoundCheckingView(checkingStatus: .noiseWarning, onCloseTap: stop)
         case .aeration:
-            SteamingFeedbackView(feedback: .aeration)
+            SteamingFeedbackView(feedback: .aeration, onCloseTap: stop)
         case .sharpSound:
-            SteamingFeedbackView(feedback: .sharpSound)
+            SteamingFeedbackView(feedback: .sharpSound, onCloseTap: stop)
         case .bubble:
-            SteamingFeedbackView(feedback: .bubble)
+            SteamingFeedbackView(feedback: .bubble, onCloseTap: stop)
         case .moreAir:
-            SteamingFeedbackView(feedback: .moreAir)
+            SteamingFeedbackView(feedback: .moreAir, onCloseTap: stop)
         case .milkFlow:
-            SteamingFeedbackView(feedback: .milkFlow)
+            SteamingFeedbackView(feedback: .milkFlow, onCloseTap: stop)
         case .finished:
             PracticeFinishedView(
                 practiceDurationText: connection.state.durationText,
@@ -65,6 +65,10 @@ struct WatchPracticeView: View {
 
     private func start() {
         Task { await connection.send(.start) }
+    }
+
+    private func stop() {
+        Task { await connection.send(.stop) }
     }
 
     private func finishReview() {

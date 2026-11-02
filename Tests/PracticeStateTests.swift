@@ -2,7 +2,7 @@
 //  PracticeStateTests.swift
 //
 //  기기 없이 실행할 수 있는 연습 동기화 데이터 검증 코드입니다.
-//  상태·기록의 JSON 변환, 시간 계산, 완료 요청의 세션 ID 보존과 손상된 데이터 거부를 확인합니다.
+//  상태·기록의 JSON 변환, 시간 계산, 종료·완료 요청의 세션 ID 보존과 손상된 데이터 거부를 확인합니다.
 //  실제 WatchConnectivity 통신이나 녹음을 검증하는 테스트는 아닙니다. 실행 방법은 docs/watch-connectivity.md에 있습니다.
 //
 
@@ -37,15 +37,12 @@ struct PracticeStateTests {
         precondition(!PracticePhase.idle.isRunning && !PracticePhase.finished.isRunning)
         precondition(PracticePhase.listening.isRunning && PracticePhase.noiseWarning.isRunning)
 
-        // 완료 요청은 세션 ID를 보존해야 다른 연습의 결과 화면을 닫지 않습니다.
-        let request = WatchRequest(command: .finishReview, sessionID: id, expiresAt: end)
-        let restored = try JSONDecoder().decode(WatchRequest.self, from: JSONEncoder().encode(request))
-        precondition(restored.command == .finishReview && restored.sessionID == id && restored.expiresAt == end)
-        // 제거된 워치 종료 명령은 더 이상 수신할 수 없습니다.
-        do {
-            _ = try JSONDecoder().decode(WatchCommand.self, from: Data("\"stop\"".utf8))
-            preconditionFailure("워치 종료 명령을 허용하면 안 됩니다.")
-        } catch is DecodingError {}
+        // 종료·완료 요청은 세션 ID를 보존해야 다른 연습에 적용되지 않습니다.
+        for command: WatchCommand in [.stop, .finishReview] {
+            let request = WatchRequest(command: command, sessionID: id, expiresAt: end)
+            let restored = try JSONDecoder().decode(WatchRequest.self, from: JSONEncoder().encode(request))
+            precondition(restored.command == command && restored.sessionID == id && restored.expiresAt == end)
+        }
 
         // 워치 없이 시작하면 소리 확인·피드백·종료 어느 상태에서도 연습 정보를 보내지 않습니다.
         // 재연결 시 .sync 응답에도 동일한 스냅샷을 사용합니다.

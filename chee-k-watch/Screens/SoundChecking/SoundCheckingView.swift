@@ -5,7 +5,7 @@
 //  - 소리 확인 중: 연습을 시작한 직후 소리를 분석하는 동안
 //  - 구분 어려움: 주변 소음 등으로 스티밍 소리를 구분하기 어려울 때
 //
-//  화면만 그리며, 연습 종료는 iPhone에서 처리합니다.
+//  화면만 그립니다. 추가 예정인 X 버튼은 전달받은 `onCloseTap`을 호출합니다.
 //
 
 import SwiftUI
@@ -35,6 +35,8 @@ struct SoundCheckingView: View {
 
     /// 화면에 보여줄 대기 상태
     let checkingStatus: CheckingStatus
+    /// 뷰 작업자가 추가할 X 버튼에서 호출할 연습 종료 동작
+    var onCloseTap: () -> Void = {}
 
     var body: some View {
         WatchFullScreenStack {
