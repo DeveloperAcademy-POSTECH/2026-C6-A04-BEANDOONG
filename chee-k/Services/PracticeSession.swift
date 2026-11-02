@@ -19,6 +19,10 @@ final class PracticeSession: NSObject, ObservableObject, AVAudioRecorderDelegate
     @Published private(set) var state = PracticeState()
     // 화면에서 안내창으로 보여줄 오류 메시지입니다.
     @Published var errorMessage: String?
+    @Published private(set) var history: [PracticeRecordEntity] = []
+    @Published private(set) var result: PracticeResult?
+    private var historyStore: PracticeHistoryStore?
+    private var timeline = PracticeTimeline()
     // 워치와 메시지를 주고받는 통신 담당입니다. 실제 녹음은 이 클래스가 처리합니다.
     let connection: WatchConnection
     // 현재 녹음 중인 녹음기를 보관합니다. 연습이 끝나면 nil로 비웁니다.
@@ -36,16 +40,17 @@ final class PracticeSession: NSObject, ObservableObject, AVAudioRecorderDelegate
     /// 여기서는 녹음을 시작하지 않습니다.
     init(connection: WatchConnection) {
         self.connection = connection
-        directory = URL.documentsDirectory.appending(path: "PracticeRecordings", directoryHint: .isDirectory)
+        directory = PracticeHistoryStore.directory
         super.init()
-        // 객체가 새로 생성되어도 이전에 파일로 저장한 연습 기록은 다시 불러옵니다.
+        // 기존 JSON 기록·녹음을 옮긴 뒤 SwiftData에서 불러옵니다.
         do {
-            try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
-            let index = directory.appending(path: "records.json")
-            if FileManager.default.fileExists(atPath: index.path) {
-                state.records = try JSONDecoder().decode([PracticeRecord].self, from: Data(contentsOf: index))
-            }
-        } catch { errorMessage = error.localizedDescription }
+            let store = try PracticeHistoryStore(
+                legacyDirectory: URL.documentsDirectory.appending(path: "PracticeRecordings", directoryHint: .isDirectory)
+            )
+            history = try store.records()
+            state.records = history.map(\.record)
+            historyStore = store
+        } catch { errorMessage = "연습 기록 저장소를 열 수 없어요. 앱을 다시 실행해 주세요." }
         // WatchConnection이 워치 요청을 받으면 이 클로저를 실행합니다.
         // [weak self]는 두 객체가 서로를 계속 붙잡아 해제되지 않는 것을 방지합니다.
         connection.onCommand = { [weak self] request in
@@ -112,6 +117,9 @@ final class PracticeSession: NSObject, ObservableObject, AVAudioRecorderDelegate
     private func startRecording(usingWatch: Bool = true) throws {
         // 어느 기기에서 요청하든 이미 연습 중이라면 중복 녹음을 시작하지 않습니다.
         guard !state.phase.isRunning else { return }
+        guard historyStore != nil else {
+            throw ConnectionError.message("연습 기록 저장소를 열 수 없어 녹음을 시작하지 못했어요. 앱을 다시 실행해 주세요.")
+        }
         // 워치 요청으로 백그라운드 앱이 깨어나도 iOS는 새 마이크 녹음을 허용하지 않습니다.
         guard UIApplication.shared.applicationState == .active else {
             throw ConnectionError.message("녹음을 시작하려면 iPhone에서 chic 앱을 열어주세요.")
@@ -131,6 +139,10 @@ final class PracticeSession: NSObject, ObservableObject, AVAudioRecorderDelegate
                 AVNumberOfChannelsKey: 1,
                 AVEncoderAudioQualityKey: AVAudioQuality.high.rawValue
             ])
+            guard recorder.prepareToRecord() else { throw ConnectionError.message("녹음 파일을 준비할 수 없어요.") }
+            // 열린 녹음은 잠금 후에도 계속 쓰고, 닫힌 파일은 잠금 중 접근을 제한합니다.
+            try FileManager.default.setAttributes([.protectionKey: FileProtectionType.completeUnlessOpen],
+                                                  ofItemAtPath: url.path)
             recorder.delegate = self
             guard recorder.record() else { throw ConnectionError.message("녹음을 시작할 수 없어요.") }
             self.recorder = recorder // 녹음 중 녹음기가 사라지지 않도록 관리자가 보관합니다.
@@ -158,6 +170,8 @@ final class PracticeSession: NSObject, ObservableObject, AVAudioRecorderDelegate
         }
         // 녹음 시작에 성공한 뒤에만 새 연습 상태로 바꿉니다. 이전 기록 목록은 유지합니다.
         state.isWatchEnabled = usingWatch
+        timeline = PracticeTimeline()
+        result = nil
         state.sessionID = id
         state.startedAt = Date()
         state.endedAt = nil // 이전 연습의 종료 시간이 새 연습에 남지 않게 합니다.
@@ -178,15 +192,30 @@ final class PracticeSession: NSObject, ObservableObject, AVAudioRecorderDelegate
         self.recorder = nil // 녹음기만 정리합니다. PracticeSession 객체는 계속 유지됩니다.
         try? AVAudioSession.sharedInstance().setActive(false)
         state.endedAt = endedAt
+        timeline.finish(at: max(0, endedAt.timeIntervalSince(startedAt)))
         state.phase = .finished
-        // 녹음 파일 자체와 별도로, 시간·파일명 등의 기록 정보를 최신순으로 보관합니다.
-        state.records.insert(PracticeRecord(id: id, startedAt: startedAt, endedAt: endedAt,
-                                           audioFilename: recorder.url.lastPathComponent), at: 0)
-        // 앱을 다시 실행해도 기록이 남도록 목록을 JSON 파일로 저장합니다.
-        do {
-            try JSONEncoder().encode(state.records).write(to: directory.appending(path: "records.json"), options: .atomic)
-        } catch { errorMessage = "녹음은 남아 있지만 기록 목록 저장에 실패했어요: \(error.localizedDescription)" }
+        let record = PracticeRecord(id: id, startedAt: startedAt, endedAt: endedAt,
+                                    audioFilename: recorder.url.lastPathComponent)
+        let segments = timeline.segments
+        let dailyOrder = (history.filter { Calendar.current.isDate($0.startedAt, inSameDayAs: startedAt) }
+            .map(\.dailyOrder).max() ?? 0) + 1
+        let completedResult = PracticeResult(practicedAt: startedAt, dailyOrder: dailyOrder,
+                                              segments: segments, duration: record.duration)
         publish()
+        // 종료 상태를 먼저 표시해 로딩 화면을 연 뒤 저장합니다. 워치에서 닫아도 저장은 완료합니다.
+        Task {
+            await Task.yield()
+            do {
+                guard let historyStore else { throw ConnectionError.message("저장소를 열 수 없어요.") }
+                try historyStore.save(record: record, dailyOrder: dailyOrder, segments: segments)
+                history = try historyStore.records()
+                state.records = history.map(\.record)
+                publish()
+            } catch {
+                errorMessage = "녹음 파일은 기기에 남아 있지만 연습 결과 저장에 실패했어요."
+            }
+            if state.sessionID == id, state.phase == .finished { result = completedResult }
+        }
     }
 
     /// 모델 분석 결과나 디버그 메뉴에서 받은 상태를 적용합니다.
@@ -194,11 +223,14 @@ final class PracticeSession: NSObject, ObservableObject, AVAudioRecorderDelegate
     func updateFeedback(_ phase: PracticePhase) {
         // 종료 후 늦게 도착한 분석 결과로 연습 화면이 다시 열리지 않게 합니다.
         guard state.phase.isRunning, phase.isRunning, state.phase != phase else { return }
+        if let startedAt = state.startedAt {
+            timeline.update(phase: phase, at: max(0, Date().timeIntervalSince(startedAt)))
+        }
         state.phase = phase
         publish()
     }
 
-    /// iPhone의 '다시 연습' 또는 워치 결과 화면의 '완료'/X에서 호출합니다.
+    /// iPhone 결과의 뒤로가기 또는 워치 결과 화면의 '완료'에서 호출합니다.
     /// .idle로 돌아가 연습 화면을 닫으며, 저장된 파일과 기록은 삭제하지 않습니다.
     func finishReview() {
         guard state.phase == .finished else { return }

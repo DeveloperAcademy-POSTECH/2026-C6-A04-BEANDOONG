@@ -23,11 +23,12 @@ import SwiftUI
 ///     └ 하단 안내 문구
 struct PracticeResultView: View {
     let result: PracticeResult
+    var onClose: (() -> Void)? = nil
 
     var body: some View {
         VStack(spacing: 0) {
             // MARK: 상단 네비게이션 바 (스크롤해도 고정)
-            TopNavigationHeader(title: result.title, isDark: true)
+            TopNavigationHeader(title: result.title, isDark: true, onBack: onClose)
                 .padding(.top, PracticeResultMetrics.headerTop)
                 .padding(.bottom, PracticeResultMetrics.headerBottom)
 

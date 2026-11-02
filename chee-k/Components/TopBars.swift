@@ -11,6 +11,7 @@ struct TopNavigationHeader: View {
     let title: String
     /// true: 흰색 아이콘/제목 (다크 화면), false: 검정 아이콘/제목 (라이트 화면)
     var isDark: Bool = false
+    var onBack: (() -> Void)? = nil
 
     private var foregroundColor: Color {
         isDark ? Color.white : AppColors.lightHeaderText
@@ -20,7 +21,7 @@ struct TopNavigationHeader: View {
         ZStack {
             HStack {
                 Button {
-                    dismiss()
+                    if let onBack { onBack() } else { dismiss() }
                 } label: {
                     Image(systemName: "chevron.left")
                         .font(.system(size: 17, weight: .semibold))
