@@ -53,16 +53,20 @@ enum AppColors {
 
     // MARK: 다크 테마 (대부분의 화면)
 
-    static let darkBackground = Color(hex: 0x02040D)
-    static let darkCard = Color(hex: 0x151D34)
-    static let darkChipUnselected = Color(hex: 0x151D34)
+    static let darkBackground = Color(hex: 0x01030C)
+    /// 다크 화면 위쪽 가운데 글로우의 가장 밝은 색 (가장자리로 갈수록 `darkBackground`로 사라짐)
+    static let darkTopGlow = Color(hex: 0x3D4A5D)
+    static let darkCard = Color(hex: 0x202228)
+    static let darkChipUnselected = Color(hex: 0x202228)
     /// 다크 화면의 강조색 (선택된 칩, 주요 버튼, 강조 텍스트)
-    static let darkChipSelected = Color(hex: 0x99BDE3)
-    static let darkChipTextSelected = Color(hex: 0x0A111D)
-    static let darkChipTextUnselected = Color(hex: 0xCFD6E2)
-    static let darkSubtitle = Color(hex: 0x8F98A8)
+    static let darkChipSelected = Color(hex: 0xA6DDF7)
+    static let darkChipTextSelected = Color(hex: 0x01030C)
+    static let darkChipTextUnselected = Color(hex: 0xF5FAFF)
+    static let darkSubtitle = Color(hex: 0xB9B9B9)
     /// 다크 화면 보조 버튼 배경
-    static let darkSecondaryButton = Color(hex: 0xE8F7FF)
+    static let darkSecondaryButton = Color(hex: 0xF5FAFF)
+    /// 안내 단계(①②) 번호 원 색상 — 강조색보다 한 단계 진한 하늘색
+    static let guideStepNumber = Color(hex: 0x76CAF2)
 
     // MARK: 온보딩
 
