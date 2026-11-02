@@ -6,7 +6,7 @@ import SwiftUI
 ///     ┌ 상단 네비게이션 바: 히스토리
 ///     ├ 타이틀 + 설명
 ///     ├ 기간 필터 칩: [오늘] 일주일 이번 달 올해 전체
-///     └ 연습 기록 카드 목록
+///     └ 연습 기록 카드 목록 (터치 시 HistoryDetailView 로 이동)
 struct HistoryView: View {
     @State private var selectedFilter: HistoryFilter = .today
 
@@ -24,13 +24,13 @@ struct HistoryView: View {
         let earlierLastYear = calendar.date(byAdding: .month, value: -2, to: lastYear) ?? lastYear
 
         return [
-            HistoryRecord(date: now, badge: "보통", duration: "32초"),
-            HistoryRecord(date: recentDate, badge: "좋음", duration: "28초"),
-            HistoryRecord(date: earlierThisMonth, badge: "보통", duration: "35초"),
-            HistoryRecord(date: lastMonth, badge: "좋음", duration: "30초"),
-            HistoryRecord(date: earlierThisYear, badge: "보통", duration: "38초"),
-            HistoryRecord(date: lastYear, badge: "좋음", duration: "33초"),
-            HistoryRecord(date: earlierLastYear, badge: "보통", duration: "40초")
+            HistoryRecord(date: now, badge: "보통", durationSeconds: 32),
+            HistoryRecord(date: recentDate, badge: "좋음", durationSeconds: 28),
+            HistoryRecord(date: earlierThisMonth, badge: "보통", durationSeconds: 35),
+            HistoryRecord(date: lastMonth, badge: "좋음", durationSeconds: 30),
+            HistoryRecord(date: earlierThisYear, badge: "보통", durationSeconds: 38),
+            HistoryRecord(date: lastYear, badge: "좋음", durationSeconds: 33),
+            HistoryRecord(date: earlierLastYear, badge: "보통", durationSeconds: 40)
         ]
     }()
 
@@ -82,8 +82,13 @@ struct HistoryView: View {
                 // MARK: 연습 기록 카드 목록
                 ScrollView {
                     VStack(spacing: Layout.cardSpacing) {
-                        ForEach(filteredRecords.indices, id: \.self) { index in
-                            HistoryRecordCard(record: filteredRecords[index])
+                        ForEach(filteredRecords) { record in
+                            NavigationLink {
+                                HistoryDetailView(result: record.result)
+                            } label: {
+                                HistoryRecordCard(record: record)
+                            }
+                            .buttonStyle(.plain)
                         }
                     }
                 }
@@ -147,16 +152,59 @@ private struct HistoryFilterBar: View {
 
 /// 카드에 표시할 임시 연습 기록
 // TODO: 엔티티 설계 후 이 임시 타입을 실제 모델로 교체합니다.
-private struct HistoryRecord {
+private struct HistoryRecord: Identifiable {
+    let id = UUID()
     let date: Date
+    let dailyOrder: Int
     let badge: String
-    let duration: String
+    let durationSeconds: Int
+    let result: PracticeResult
+
+    init(
+        date: Date,
+        dailyOrder: Int = 1,
+        badge: String,
+        durationSeconds: Int,
+        result: PracticeResult? = nil
+    ) {
+        self.date = date
+        self.dailyOrder = dailyOrder
+        self.badge = badge
+        self.durationSeconds = durationSeconds
+        self.result = result ?? Self.makeResult(date: date, dailyOrder: dailyOrder, totalSeconds: durationSeconds)
+    }
+
+    var duration: String {
+        durationSeconds.practiceSecondsText
+    }
 
     var title: String {
         let calendar = Calendar.current
         let isThisYear = calendar.isDate(date, equalTo: Date(), toGranularity: .year)
         let yearPrefix = isThisYear ? "" : "\(calendar.component(.year, from: date))년 "
-        return "\(yearPrefix)\(calendar.component(.month, from: date))월 \(calendar.component(.day, from: date))일 - 1차"
+        return "\(yearPrefix)\(calendar.component(.month, from: date))월 \(calendar.component(.day, from: date))일 - \(dailyOrder)차"
+    }
+
+    private static func makeResult(date: Date, dailyOrder: Int, totalSeconds: Int) -> PracticeResult {
+        let total = Double(max(totalSeconds, 1))
+        let s1 = (total * 0.15).rounded()
+        let s2 = (total * 0.60).rounded()
+        let s3 = (total * 0.75).rounded()
+        let s4 = (total * 0.85).rounded()
+        let s5 = (total * 0.92).rounded()
+
+        return PracticeResult(
+            practicedAt: date,
+            dailyOrder: dailyOrder,
+            segments: [
+                DetectedSegment(sound: .normalAeration, start: 0, end: s1),
+                DetectedSegment(sound: .rolling, start: s1, end: s2),
+                DetectedSegment(sound: .normalAeration, start: s2, end: s3),
+                DetectedSegment(sound: .overAeration, start: s3, end: s4),
+                DetectedSegment(sound: .lackOfAir, start: s4, end: s5),
+                DetectedSegment(sound: .overheated, start: s5, end: total)
+            ]
+        )
     }
 }
 
@@ -223,6 +271,8 @@ private enum Layout {
 
 struct HistoryView_Previews: PreviewProvider {
     static var previews: some View {
-        HistoryView()
+        NavigationStack {
+            HistoryView()
+        }
     }
 }
