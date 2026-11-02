@@ -165,7 +165,7 @@ final class PracticeSession: NSObject, ObservableObject, AVAudioRecorderDelegate
         publish()
     }
 
-    /// iPhone 정지 버튼/X, 워치 종료 요청 또는 오디오 중단·오류 시 호출합니다.
+    /// iPhone 정지 버튼, 워치 종료 요청 또는 오디오 중단·오류 시 호출합니다.
     /// 녹음을 끝내고 기록을 저장하며, .finished로 바꿔 결과 화면을 표시하게 합니다.
     func stop() {
         // 이미 종료된 연습이면 다시 저장하지 않습니다.

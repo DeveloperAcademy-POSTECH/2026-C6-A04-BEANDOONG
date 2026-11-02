@@ -132,6 +132,7 @@ struct SteamingStopButton: View {
             }
         }
         .buttonStyle(.plain)
+        .accessibilityLabel("연습 종료")
     }
 }
 

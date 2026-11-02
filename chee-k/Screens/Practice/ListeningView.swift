@@ -3,7 +3,7 @@ import SwiftUI
 /// 스티밍 연습 – 소리 확인 중 화면
 /// - 디자인: Hi-Fi/iPhone 17 - 102.png
 ///
-///     ┌ 상단 바: 스티밍 연습  X
+///     ┌ 상단 바: 스티밍 연습
 ///     ├ 타이틀 + 설명
 ///     ├ 로딩 스피너 일러스트
 ///     └ 하단 중앙: 정지 버튼
@@ -12,7 +12,7 @@ struct ListeningView: View {
     var body: some View {
         VStack(spacing: 0) {
             // MARK: 상단 바
-            SteamingPracticeTopBar(onClose: onStop)
+            SteamingPracticeTopBar()
                 .padding(.top, Layout.topBarTop)
 
             // MARK: 타이틀 + 설명
