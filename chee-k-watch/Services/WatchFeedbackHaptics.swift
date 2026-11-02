@@ -5,10 +5,13 @@ import OSLog
 import WatchKit
 #endif
 
-/// 아이폰에서 새 공기주입 상태가 도착하면 워치에서 직접 진동을 요청합니다.
+/// 아이폰에서 받은 스티밍 소리 판정에 맞춰 워치 햅틱을 재생합니다.
 @MainActor
 final class WatchFeedbackHaptics: ObservableObject {
     private let logger = Logger(subsystem: "com.beandoong.cheek", category: "watch-feedback")
+    #if os(watchOS)
+    private var lastHapticAt: Date?
+    #endif
     #if DEBUG && os(watchOS)
     @Published private(set) var history: [String] = []
     #endif
@@ -21,37 +24,55 @@ final class WatchFeedbackHaptics: ObservableObject {
         #endif
     }
 
-    /// 같은 연습에서 공기주입에 진입한 순간만 손목에 전달합니다.
+    nonisolated enum Feedback: Equatable {
+        case notification, failure, skip(String)
+    }
+
+    /// 워치 앱이 활성 상태일 때 판정에 맞는 햅틱을 한 번 재생합니다.
     func receive(previous: PracticeState, current: PracticeState) {
-        if let reason = Self.exclusionReason(previous: previous, current: current, now: Date()) {
+        #if os(watchOS)
+        let now = Date()
+        let type: WKHapticType
+        switch Self.feedback(previous: previous, current: current, now: now, lastHapticAt: lastHapticAt) {
+        case .notification: type = .notification
+        case .failure: type = .failure
+        case .skip(let reason):
             record("\(current.phase.title) · 제외(\(reason))")
             return
         }
-        #if os(watchOS)
         guard WKApplication.shared().applicationState == .active else {
-            record("공기주입 · 비활성 · 진동 생략")
+            record("\(current.phase.title) · 앱 비활성 · 진동 생략")
             return
         }
-        playHaptic(for: "공기주입 · 활성")
+        lastHapticAt = now
+        playHaptic(type, for: current.phase.title)
         #endif
     }
 
-    /// 초기 동기화·중복 수신·지난 연습과 8초 이상 지연된 피드백은 알리지 않습니다.
-    nonisolated static func exclusionReason(previous: PracticeState, current: PracticeState, now: Date) -> String? {
-        guard previous.isWatchEnabled && current.isWatchEnabled else { return "워치 제외" }
-        guard current.sessionID != nil, previous.sessionID == current.sessionID else { return "첫 수신 또는 다른 연습" }
-        guard current.phase == .aeration else { return "공기주입 아님" }
-        guard previous.phase != current.phase else { return "같은 상태" }
-        guard current.updatedAt > previous.updatedAt else { return "같거나 오래된 갱신 시각" }
-        let age = now.timeIntervalSince(current.updatedAt)
-        guard abs(age) < 8 else { return "갱신 시각 차이 \(age.formatted(.number.precision(.fractionLength(1))))초" }
-        return nil
+    /// 공기주입은 반복하고 쇳소리·파바박은 해당 상태에 진입할 때만 경고합니다.
+    nonisolated static func feedback(previous: PracticeState, current: PracticeState, now: Date,
+                                     lastHapticAt: Date?) -> Feedback {
+        guard current.isWatchEnabled, current.sessionID != nil else { return .skip("워치 연습 아님") }
+        guard current.updatedAt > previous.updatedAt else { return .skip("이미 받았거나 오래된 판정") }
+        guard abs(now.timeIntervalSince(current.updatedAt)) < 2 else { return .skip("지연된 판정") }
+        let samePhase = previous.sessionID == current.sessionID && previous.phase == current.phase
+        switch current.phase {
+        case .aeration:
+            if samePhase, let lastHapticAt, now.timeIntervalSince(lastHapticAt) < 0.7 {
+                return .skip("직전 진동과 너무 가까운 판정")
+            }
+            return .notification
+        case .sharpSound, .bubble:
+            return samePhase ? .skip("같은 경고 상태") : .failure
+        default:
+            return .skip("진동 대상 아님")
+        }
     }
 
     #if os(watchOS)
     /// 워치에 햅틱을 요청하고 API 호출이 돌아온 시점을 기록합니다.
-    private func playHaptic(for source: String) {
-        WKInterfaceDevice.current().play(.notification)
+    private func playHaptic(_ type: WKHapticType, for source: String) {
+        WKInterfaceDevice.current().play(type)
         record("\(source) · 직접 진동 호출")
     }
 
@@ -62,7 +83,7 @@ final class WatchFeedbackHaptics: ObservableObject {
             record("수동 테스트 · 앱 비활성")
             return
         }
-        playHaptic(for: "수동 테스트")
+        playHaptic(.notification, for: "수동 테스트")
     }
     #endif
     #endif

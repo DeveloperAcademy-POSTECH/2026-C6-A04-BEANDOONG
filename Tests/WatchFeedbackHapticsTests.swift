@@ -1,46 +1,52 @@
 import Foundation
 
-/// 기기 없이 공기주입 진동의 중복·세션·유효 시간 조건을 검증합니다.
+/// 스티밍 소리별 햅틱과 중복·지연 수신 처리를 검증합니다.
 @main
 struct WatchFeedbackHapticsTests {
     static func main() {
-        let now = Date(timeIntervalSince1970: 1_000)
-        var previous = PracticeState()
-        previous.sessionID = UUID()
-        previous.phase = .listening
-        previous.updatedAt = now.addingTimeInterval(-1)
-        var current = previous
-        current.phase = .aeration
-        current.updatedAt = now
+        let start = Date(timeIntervalSince1970: 1_000)
+        var state = PracticeState()
+        state.sessionID = UUID()
+        state.phase = .listening
+        state.updatedAt = start
+        var lastHaptic: Date?
 
-        precondition(WatchFeedbackHaptics.exclusionReason(previous: previous, current: current, now: now) == nil)
-        precondition(WatchFeedbackHaptics.exclusionReason(previous: current, current: current, now: now) != nil)
-        precondition(WatchFeedbackHaptics.exclusionReason(previous: PracticeState(), current: current, now: now) != nil)
-        precondition(WatchFeedbackHaptics.exclusionReason(previous: previous, current: current, now: now.addingTimeInterval(8)) != nil)
-
-        var changed = current
-        changed.updatedAt = previous.updatedAt
-        precondition(WatchFeedbackHaptics.exclusionReason(previous: previous, current: changed, now: now) != nil)
-        changed = current
-        changed.phase = previous.phase
-        precondition(WatchFeedbackHaptics.exclusionReason(previous: previous, current: changed, now: now) != nil)
-        changed = current
-        changed.sessionID = UUID()
-        precondition(WatchFeedbackHaptics.exclusionReason(previous: previous, current: changed, now: now) != nil)
-        changed.sessionID = nil
-        precondition(WatchFeedbackHaptics.exclusionReason(previous: previous, current: changed, now: now) != nil)
-        changed = current
-        changed.isWatchEnabled = false
-        precondition(WatchFeedbackHaptics.exclusionReason(previous: previous, current: changed, now: now) != nil)
-        changed = current
-        for phase in PracticePhase.allCases where phase != .aeration {
-            changed.phase = phase
-            precondition(WatchFeedbackHaptics.exclusionReason(previous: previous, current: changed, now: now) != nil)
+        func receive(_ phase: PracticePhase, at second: Double, delay: Double = 0) -> WatchFeedbackHaptics.Feedback? {
+            var update = state
+            update.phase = phase
+            update.updatedAt = start.addingTimeInterval(second)
+            let arrival = update.updatedAt.addingTimeInterval(delay)
+            let feedback = WatchFeedbackHaptics.feedback(previous: state, current: update,
+                                                         now: arrival, lastHapticAt: lastHaptic)
+            if update.updatedAt >= state.updatedAt { state = update }
+            if case .skip = feedback { return nil }
+            lastHaptic = arrival
+            return feedback
         }
-        previous.phase = .milkFlow
-        precondition(WatchFeedbackHaptics.exclusionReason(previous: previous, current: current, now: now) == nil)
-        previous.isWatchEnabled = false
-        precondition(WatchFeedbackHaptics.exclusionReason(previous: previous, current: current, now: now) != nil)
+
+        precondition(receive(.aeration, at: 1) == .notification)
+        precondition(receive(.aeration, at: 1) == nil)
+        precondition(receive(.aeration, at: 2) == .notification)
+        precondition(receive(.aeration, at: 1) == nil)
+        precondition(receive(.milkFlow, at: 3) == nil)
+        precondition(receive(.aeration, at: 4, delay: 0.8) == .notification)
+        precondition(receive(.aeration, at: 5) == nil)
+        precondition(receive(.aeration, at: 6) == .notification)
+        precondition(receive(.sharpSound, at: 6.1) == .failure)
+        precondition(receive(.sharpSound, at: 6.1) == nil)
+        precondition(receive(.sharpSound, at: 7) == nil)
+        precondition(receive(.bubble, at: 8) == .failure)
+        precondition(receive(.bubble, at: 9) == nil)
+        precondition(receive(.aeration, at: 10) == .notification)
+        precondition(receive(.bubble, at: 11, delay: 2) == nil)
+        for (index, phase) in [PracticePhase.idle, .listening, .noiseWarning, .moreAir, .milkFlow, .finished].enumerated() {
+            precondition(receive(phase, at: 14 + Double(index)) == nil)
+        }
+        state.isWatchEnabled = false
+        precondition(receive(.sharpSound, at: 21) == nil)
+        state.isWatchEnabled = true
+        state.sessionID = nil
+        precondition(receive(.bubble, at: 22) == nil)
         print("WatchFeedbackHapticsTests passed")
     }
 }

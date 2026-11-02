@@ -16,7 +16,7 @@ struct cheekWatchApp: App {
     @State private var showsDiagnostics = false
     #endif
 
-    /// 공기주입 진동을 화면 생명주기와 분리해 앱 시작 시 연결합니다.
+    /// 스티밍 피드백 진동을 화면 생명주기와 분리해 앱 시작 시 연결합니다.
     init() {
         let connection = WatchConnection()
         let haptics = WatchFeedbackHaptics()

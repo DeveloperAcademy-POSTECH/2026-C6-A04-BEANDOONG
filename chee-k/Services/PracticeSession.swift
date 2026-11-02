@@ -193,8 +193,14 @@ final class PracticeSession: NSObject, ObservableObject, AVAudioRecorderDelegate
     /// 상태를 바꾸면 iPhone 화면이 갱신되고 같은 상태를 워치에도 전달합니다.
     func updateFeedback(_ phase: PracticePhase) {
         // 종료 후 늦게 도착한 분석 결과로 연습 화면이 다시 열리지 않게 합니다.
-        guard state.phase.isRunning, phase.isRunning, state.phase != phase else { return }
-        state.phase = phase
+        guard state.phase.isRunning, phase.isRunning else { return }
+        if state.phase != phase {
+            state.phase = phase
+        } else {
+            // 공기주입이 계속 확인될 때만 워치에 약 1초 간격으로 새 판정을 보냅니다.
+            guard phase == .aeration, state.isWatchEnabled,
+                  Date().timeIntervalSince(state.updatedAt) >= 1 else { return }
+        }
         publish()
     }
 
