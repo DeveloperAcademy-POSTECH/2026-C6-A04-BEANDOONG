@@ -27,8 +27,8 @@ struct SoundCheckingView: View {
         /// 화면 위쪽에 보이는 상태 문구
         var statusText: String {
             switch self {
-            case .listening: "소리 확인 중"
-            case .noiseWarning: "구분 어려움"
+            case .listening: "소리를 확인하고 있어요"
+            case .noiseWarning: "소리 구분이 어려워요"
             }
         }
     }
