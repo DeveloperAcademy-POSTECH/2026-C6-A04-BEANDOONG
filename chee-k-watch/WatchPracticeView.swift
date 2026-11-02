@@ -57,7 +57,6 @@ struct WatchPracticeView: View {
         case .finished:
             PracticeFinishedView(
                 practiceDurationText: connection.state.durationText,
-                onCloseTap: finishReview,
                 onDoneTap: finishReview
             )
         }

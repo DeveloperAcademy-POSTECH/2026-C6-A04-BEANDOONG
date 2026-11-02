@@ -10,11 +10,28 @@ import SwiftUI
 
 @main
 struct cheekWatchApp: App {
-    @StateObject private var connection = WatchConnection()
+    @StateObject private var connection: WatchConnection
+    private let feedbackNotifications: WatchFeedbackNotifications
+
+    /// 수신 상태 알림을 화면 생명주기와 분리해 앱 시작 시 연결합니다.
+    init() {
+        let connection = WatchConnection()
+        let notifications = WatchFeedbackNotifications()
+        connection.onStateChange = { previous, current in
+            await notifications.receive(previous: previous, current: current)
+        }
+        _connection = StateObject(wrappedValue: connection)
+        feedbackNotifications = notifications
+    }
+
     var body: some Scene {
         WindowGroup {
             WatchPracticeView()
                 .environmentObject(connection)
+                .task { await feedbackNotifications.requestAuthorization() }
+        }
+        .backgroundTask(.watchConnectivity) {
+            await connection.receiveBackgroundUpdates()
         }
     }
 }

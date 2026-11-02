@@ -5,7 +5,7 @@
 //  - 소리 확인 중: 연습을 시작한 직후 소리를 분석하는 동안
 //  - 구분 어려움: 주변 소음 등으로 스티밍 소리를 구분하기 어려울 때
 //
-//  화면만 그립니다. 추가 예정인 X 버튼은 전달받은 `onCloseTap`을 호출합니다.
+//  화면만 그립니다. X 버튼은 전달받은 `onCloseTap`으로 연습 종료를 요청합니다.
 //
 
 import SwiftUI
@@ -13,7 +13,7 @@ import SwiftUI
 /// 소리 확인 대기 화면
 /// - 디자인: hifi/watch11.png (소리 확인 중), hifi/watch11-1.png (구분 어려움)
 ///
-///     ┌ 상태 문구
+///     ┌ 좌측 상단 닫기(X) 버튼 · 상태 문구
 ///     └ 로딩 인디케이터 (화면 정중앙)
 struct SoundCheckingView: View {
     /// 대기 상태 종류
@@ -35,7 +35,7 @@ struct SoundCheckingView: View {
 
     /// 화면에 보여줄 대기 상태
     let checkingStatus: CheckingStatus
-    /// 뷰 작업자가 추가할 X 버튼에서 호출할 연습 종료 동작
+    /// X 버튼에서 호출할 연습 종료 동작
     var onCloseTap: () -> Void = {}
 
     var body: some View {
@@ -56,6 +56,7 @@ struct SoundCheckingView: View {
         }
         .foregroundStyle(.white)
         .background(AppColors.watchSoundCheckingBackground)
+        .watchCloseButton(onClose: onCloseTap)
     }
 }
 
