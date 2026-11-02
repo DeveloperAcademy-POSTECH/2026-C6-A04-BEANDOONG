@@ -6,6 +6,7 @@
 //  글자를 읽지 않아도 화면 전체 색상과 일러스트로 구분되게 디자인되어 있습니다.
 //
 //  화면만 그립니다. 어떤 피드백을 보여줄지는 화면을 사용하는 쪽에서 `feedback`으로 전달합니다.
+//  추가 예정인 X 버튼은 전달받은 `onCloseTap`을 호출합니다.
 //
 
 import SwiftUI
@@ -19,6 +20,8 @@ import SwiftUI
 struct SteamingFeedbackView: View {
     /// 화면에 보여줄 피드백 종류 (문구 · 일러스트 · 배경 색상이 함께 바뀝니다)
     let feedback: SteamingFeedback
+    /// 뷰 작업자가 추가할 X 버튼에서 호출할 연습 종료 동작
+    var onCloseTap: () -> Void = {}
 
     var body: some View {
         WatchFullScreenStack {
@@ -48,6 +51,7 @@ struct SteamingFeedbackView: View {
         .foregroundStyle(.white)
         .background(FeedbackBackground(gradient: feedback.backgroundGradient))
         // 피드백 화면은 버튼이 없는 디자인이라 상단 내비게이션 바를 숨깁니다.
+        // X를 시스템 툴바로 추가할 때는 이 숨김 설정도 제거해야 합니다.
         // (시간 표시는 watchOS가 항상 보여주므로 숨길 수 없습니다.)
         .toolbar(.hidden, for: .navigationBar)
     }

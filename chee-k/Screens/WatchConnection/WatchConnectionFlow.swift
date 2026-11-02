@@ -11,6 +11,7 @@ import SwiftUI
 /// 화면 레이아웃과 연결 상태 전환을 분리합니다. 재시도도 같은 확인 과정을 사용합니다.
 struct WatchConnectionFlow: View {
     @EnvironmentObject private var connection: WatchConnection
+    @EnvironmentObject private var practice: PracticeSession
     var startsWithCheck = false
     var onReady: (() -> Void)? = nil
     var onContinueWithoutWatch: (() -> Void)? = nil
@@ -21,15 +22,15 @@ struct WatchConnectionFlow: View {
         Group {
             switch status {
             case nil:
-                WatchSetupView(onCheck: retry, onContinue: onContinueWithoutWatch)
+                WatchSetupView(onCheck: retry, onContinue: continueWithoutWatch)
             case .checking:
                 WatchConnectingView()
             case .notPaired:
-                WatchNotFoundView(onCheck: retry, onContinue: onContinueWithoutWatch)
+                WatchNotFoundView(onCheck: retry, onContinue: continueWithoutWatch)
             case .appNotInstalled:
-                WatchAppInstallView(onCheck: retry, onContinue: onContinueWithoutWatch)
+                WatchAppInstallView(onCheck: retry, onContinue: continueWithoutWatch)
             case .unavailable:
-                WatchNotFoundView(isPaired: true, onCheck: retry, onContinue: onContinueWithoutWatch)
+                WatchNotFoundView(isPaired: true, onCheck: retry, onContinue: continueWithoutWatch)
             case .ready:
                 if let onReady {
                     WatchReadyView(onContinue: onReady)
@@ -48,4 +49,12 @@ struct WatchConnectionFlow: View {
     }
 
     private func retry() { attempt += 1 }
+
+    private func continueWithoutWatch() {
+        if let onContinueWithoutWatch {
+            onContinueWithoutWatch()
+        } else {
+            Task { await practice.start(usingWatch: false) }
+        }
+    }
 }
