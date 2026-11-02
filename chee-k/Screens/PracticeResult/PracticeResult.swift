@@ -123,13 +123,17 @@ struct DetectedSegment: Identifiable, Hashable {
 
 // MARK: - 연습 결과
 
-struct PracticeResult {
+struct PracticeResult: Hashable {
     /// 연습한 날짜
     let practicedAt: Date
     /// 같은 날 몇 번째 연습인지 (1부터 시작, 제목의 "1차")
     let dailyOrder: Int
     /// 감지 구간 목록 (시간 순서). 화면의 모든 숫자와 그래프는 이 목록에서 계산됩니다.
     let segments: [DetectedSegment]
+    /// 상태별 감지 시간을 별도로 지정할 때 사용 (nil 이면 segments 합계로 자동 계산)
+    var customDetectedSeconds: [DetectedSound: Int]? = nil
+    /// 타임라인 눈금 라벨을 별도로 지정할 때 사용 (nil 이면 timelineLength 로 자동 계산)
+    var customTickSeconds: [Int]? = nil
 
     /// 상단 네비게이션 바 제목 (예: "9월 26일 1차")
     var title: String {
@@ -138,20 +142,15 @@ struct PracticeResult {
     }
 
     /// 타임라인 가로축 전체 길이 (초) = 마지막 구간이 끝난 시점
-    /// - 구간이 하나도 없으면 0 이고, 이때 타임라인은 빈 막대로 그려집니다.
     var timelineLength: TimeInterval {
-        segments.map(\.end).max() ?? 0
+        segments.map(\.end).max() ?? Double(totalSeconds)
     }
 
     /// 소리 하나가 감지된 시간 (초, 반올림)
-    ///
-    /// 0.5초 미만으로 잠깐 감지된 소리는 "0초"로 표시됩니다.
-    /// (타임라인에는 얇은 선으로 보이지만, 숫자는 초 단위라 0초가 됩니다.)
-    ///
-    /// 소리별로 먼저 반올림한 뒤 아래 합계들을 이 값으로 더합니다.
-    /// 합계를 먼저 구하고 반올림하면 "정상 16초 + 주의 8초 = 전체 25초"처럼
-    /// 화면의 숫자끼리 안 맞는 경우가 생길 수 있어서입니다.
     func detectedSeconds(of sound: DetectedSound) -> Int {
+        if let override = customDetectedSeconds?[sound] {
+            return override
+        }
         let total = segments
             .filter { $0.sound == sound }
             .reduce(0) { $0 + $1.duration }
@@ -169,31 +168,47 @@ struct PracticeResult {
     }
 
     /// 상단 요약 "전체 시간" = 정상소리 + 주의 소리
-    /// - 소리가 감지되지 않은 시간(소리 확인 중 · 잡음)은 포함하지 않습니다.
     var totalSeconds: Int { normalSeconds + cautionSeconds }
+
+    /// 도넛 차트 바깥 링(정상소리) 비율 (0.0 ... 1.0)
+    var normalRatio: Double {
+        guard totalSeconds > 0 else { return 0 }
+        return min(max(Double(normalSeconds) / Double(totalSeconds), 0), 1)
+    }
+
+    /// 도넛 차트 안쪽 링(주의 소리) 비율 (0.0 ... 1.0)
+    var cautionRatio: Double {
+        guard totalSeconds > 0 else { return 0 }
+        return min(max(Double(cautionSeconds) / Double(totalSeconds), 0), 1)
+    }
 }
 
 // MARK: - 더미 데이터
 
-// TODO: 연습 기록에 감지 구간이 저장되면 화면에는 실제 기록을 넘기고, 아래 더미는 미리보기용으로만 남깁니다.
 extension PracticeResult {
-    /// Hi-Fi 디자인과 같은 24초 연습
-    /// - 정상 공기 주입 6초 · 공기과다 2초 · 공기 부족 2초 · 롤링 10초 · 음료 과열 4초
+    /// Hi-Fi 디자인과 픽셀 단위로 동일한 24초 연습
+    /// - 정상 공기 주입 6초 · 공기과다 2초 · 공기 부족 2초 · 롤링 10초 · 음료 과열 4초 (정상 16초 / 주의 8초 / 전체 24초)
     static let sample = PracticeResult(
         practicedAt: Calendar.current.date(from: DateComponents(year: 2026, month: 9, day: 26)) ?? .now,
         dailyOrder: 1,
         segments: [
-            DetectedSegment(sound: .normalAeration, start: 0, end: 3),
-            DetectedSegment(sound: .rolling, start: 3, end: 13),
-            DetectedSegment(sound: .normalAeration, start: 13, end: 16),
-            DetectedSegment(sound: .overAeration, start: 16, end: 18),
-            DetectedSegment(sound: .lackOfAir, start: 18, end: 20),
-            DetectedSegment(sound: .overheated, start: 20, end: 24)
-        ]
+            DetectedSegment(sound: .normalAeration, start: 0, end: 3.5),
+            DetectedSegment(sound: .rolling, start: 3.5, end: 14.0),
+            DetectedSegment(sound: .normalAeration, start: 14.0, end: 17.45),
+            DetectedSegment(sound: .overAeration, start: 17.45, end: 20.85),
+            DetectedSegment(sound: .lackOfAir, start: 20.85, end: 24.0)
+        ],
+        customDetectedSeconds: [
+            .normalAeration: 6,
+            .overAeration: 2,
+            .lackOfAir: 2,
+            .rolling: 10,
+            .overheated: 4
+        ],
+        customTickSeconds: [0, 8, 12, 16, 20, 24]
     )
 
-    /// 1분이 넘는 긴 연습 — 시간 표기("1분 15초")와 눈금 간격이 바뀌는지 확인하는 용도
-    /// - 중간중간 소리가 감지되지 않은 빈 시간과, 0.3초짜리 아주 짧은 구간도 들어 있습니다.
+    /// 1분이 넘는 긴 연습 — 시간 표기("1분 15초")와 눈금 간격 · 도넛 비율이 동적으로 바뀌는지 확인하는 용도
     static let longSample = PracticeResult(
         practicedAt: .now,
         dailyOrder: 3,
