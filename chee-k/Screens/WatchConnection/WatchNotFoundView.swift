@@ -20,7 +20,7 @@ struct WatchNotFoundView: View {
                 .padding(.top, Layout.headerTop)
 
             // MARK: 일러스트
-            AssetImageView(name: "IllustWatchDisconnect", width: 126, height: 210)
+            AssetImageView(name: "IllustWatchDisconnect", width: 121, height: 207)
                 .padding(.top, Layout.illustrationTop)
 
             // MARK: 타이틀 + 설명
@@ -43,7 +43,7 @@ struct WatchNotFoundView: View {
             )
                 .padding(.bottom, Layout.buttonsBottom)
         }
-        .darkScreenBackground()
+        .darkScreenBackgroundWithTopGlow()
         .navigationDestination(isPresented: $showsChecklist) {
             SessionChecklistView(usesWatch: false)
                 .toolbar(.hidden, for: .navigationBar)
@@ -55,10 +55,10 @@ struct WatchNotFoundView: View {
 
 private enum Layout {
     static let headerTop: CGFloat = 22         // 상태바 ↔ 네비게이션 바
-    static let illustrationTop: CGFloat = 129  // 네비게이션 바 ↔ 일러스트
+    static let illustrationTop: CGFloat = 132  // 네비게이션 바 ↔ 일러스트
     static let titleTop: CGFloat = 76          // 일러스트 ↔ 타이틀
-    static let subtitleTop: CGFloat = 18       // 타이틀 ↔ 설명
-    static let buttonsBottom: CGFloat = 13     // 버튼 ↔ 화면 하단(안전 영역)
+    static let subtitleTop: CGFloat = 14       // 타이틀 ↔ 설명
+    static let buttonsBottom: CGFloat = 11     // 버튼 ↔ 화면 하단(안전 영역)
 }
 
 struct WatchNotFoundView_Previews: PreviewProvider {

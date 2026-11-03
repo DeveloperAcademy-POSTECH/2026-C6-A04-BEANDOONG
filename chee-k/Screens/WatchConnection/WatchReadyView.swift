@@ -18,7 +18,7 @@ struct WatchReadyView: View {
                 .padding(.top, Layout.headerTop)
 
             // MARK: 일러스트
-            AssetImageView(name: "IllustWatchReady", width: 126, height: 210)
+            AssetImageView(name: "IllustWatchReady", width: 121, height: 207)
                 .padding(.top, Layout.illustrationTop)
 
             // MARK: 타이틀 + 설명
@@ -36,7 +36,7 @@ struct WatchReadyView: View {
             }
                 .padding(.bottom, Layout.buttonBottom)
         }
-        .darkScreenBackground()
+        .darkScreenBackgroundWithTopGlow()
         .navigationDestination(isPresented: $showsChecklist) {
             SessionChecklistView()
                 .toolbar(.hidden, for: .navigationBar)
@@ -48,10 +48,10 @@ struct WatchReadyView: View {
 
 private enum Layout {
     static let headerTop: CGFloat = 22         // 상태바 ↔ 네비게이션 바
-    static let illustrationTop: CGFloat = 129  // 네비게이션 바 ↔ 일러스트
+    static let illustrationTop: CGFloat = 132  // 네비게이션 바 ↔ 일러스트
     static let titleTop: CGFloat = 76          // 일러스트 ↔ 타이틀
-    static let subtitleTop: CGFloat = 18       // 타이틀 ↔ 설명
-    static let buttonBottom: CGFloat = 13      // 버튼 ↔ 화면 하단(안전 영역)
+    static let subtitleTop: CGFloat = 14       // 타이틀 ↔ 설명
+    static let buttonBottom: CGFloat = 11      // 버튼 ↔ 화면 하단(안전 영역)
 }
 
 struct WatchReadyView_Previews: PreviewProvider {
