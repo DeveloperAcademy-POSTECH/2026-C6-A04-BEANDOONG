@@ -41,7 +41,7 @@ struct PracticeResultTests {
 
         let directory = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: directory) }
-        let record = PracticeRecord(id: UUID(), startedAt: start, endedAt: start.addingTimeInterval(25), audioFilename: "test.m4a")
+        let record = PracticeRecord(id: UUID(), startedAt: start, endedAt: start.addingTimeInterval(25))
         try save(record: record, segments: timeline.segments, directory: directory)
         try verifyReload(record: record, expected: result, directory: directory)
         try verifyLegacyMigration(in: directory.appending(path: "migration"), start: start)
@@ -58,7 +58,7 @@ struct PracticeResultTests {
         let result = PracticeResult(practicedAt: start, dailyOrder: 1, segments: timeline.segments, duration: 10)
         precondition(result.timelineStart == 2 && result.totalSeconds == 8)
         precondition(result.segments.map(\.sound) == [.rolling, .normalAeration])
-        // 표시 기준만 옮기고, 녹음 기준 시각과 중간의 미분류 구간은 유지합니다.
+        // 표시 기준만 옮기고, 연습 기준 시각과 중간의 미분류 구간은 유지합니다.
         precondition(result.duration == 10 && result.segments.map(\.start) == [2, 8])
         precondition(result.segments[0].start - result.timelineStart == 0)
         precondition(result.segments[1].start - result.timelineStart == 6)
@@ -95,17 +95,30 @@ struct PracticeResultTests {
         try FileManager.default.createDirectory(at: legacy, withIntermediateDirectories: true)
         let records = (0..<2).map { index in
             PracticeRecord(id: UUID(), startedAt: start.addingTimeInterval(Double(index) * 60),
-                           endedAt: start.addingTimeInterval(Double(index) * 60 + 10), audioFilename: "legacy\(index).m4a")
+                           endedAt: start.addingTimeInterval(Double(index) * 60 + 10))
         }
-        try JSONEncoder().encode(records.reversed()).write(to: legacy.appending(path: "records.json"))
+        // 이전 JSON의 파일명 필드는 무시하고 연습 기록만 이전해야 합니다.
+        let encoded = try JSONEncoder().encode(records.reversed())
+        var legacyRecords = try JSONSerialization.jsonObject(with: encoded) as! [[String: Any]]
+        for index in legacyRecords.indices {
+            legacyRecords[index]["audioFilename"] = "legacy\(index).m4a"
+        }
+        try JSONSerialization.data(withJSONObject: legacyRecords).write(to: legacy.appending(path: "records.json"))
+        let audioFilename = "legacy0.m4a"
         let audio = Data("test audio placeholder".utf8)
-        try audio.write(to: legacy.appending(path: records[0].audioFilename))
+        try audio.write(to: legacy.appending(path: audioFilename))
+        // 현재 저장소가 이미 있어도 이전 JSON을 읽을 수 있어야 합니다.
+        try FileManager.default.createDirectory(at: destination, withIntermediateDirectories: true)
         let store = try PracticeHistoryStore(directory: destination, legacyDirectory: legacy)
         let restored = try store.records()
         precondition(restored.map(\.dailyOrder) == [2, 1])
         precondition(restored.allSatisfy { $0.result.totalSeconds == 10 && $0.result.segments.isEmpty })
-        let savedAudio = try Data(contentsOf: destination.appending(path: records[0].audioFilename))
-        precondition(savedAudio == audio)
+        precondition(!FileManager.default.fileExists(atPath: destination.appending(path: audioFilename).path))
+        let existingAudio = try Data(contentsOf: legacy.appending(path: audioFilename))
+        precondition(existingAudio == audio)
+        let metadata = try JSONSerialization.jsonObject(with: JSONEncoder().encode(restored.map(\.record))) as! [[String: Any]]
+        precondition(metadata.allSatisfy { $0["audioFilename"] == nil })
+        precondition(!FileManager.default.fileExists(atPath: legacy.appending(path: "records.json").path))
         precondition(!FileManager.default.fileExists(atPath: destination.appending(path: "records.json").path))
     }
 }

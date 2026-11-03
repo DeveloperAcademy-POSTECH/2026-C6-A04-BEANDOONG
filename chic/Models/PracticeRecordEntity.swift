@@ -1,14 +1,13 @@
 import Foundation
 import SwiftData
 
-/// 결과와 히스토리가 함께 사용하는 영구 저장 모델입니다. 녹음 원본은 audioFilename의 로컬 파일입니다.
+/// 결과와 히스토리가 함께 사용하는 영구 저장 모델입니다. 소리 원본은 저장하지 않습니다.
 @Model
 final class PracticeRecordEntity {
     @Attribute(.unique) var id: UUID
     var startedAt: Date
     var endedAt: Date
     var dailyOrder: Int
-    var audioFilename: String
     @Relationship(deleteRule: .cascade) var soundSegments: [PracticeSoundSegmentEntity]
 
     init(record: PracticeRecord, dailyOrder: Int, segments: [DetectedSegment]) {
@@ -16,12 +15,11 @@ final class PracticeRecordEntity {
         startedAt = record.startedAt
         endedAt = record.endedAt
         self.dailyOrder = dailyOrder
-        audioFilename = record.audioFilename
         soundSegments = segments.map(PracticeSoundSegmentEntity.init)
     }
 
     var record: PracticeRecord {
-        PracticeRecord(id: id, startedAt: startedAt, endedAt: endedAt, audioFilename: audioFilename)
+        PracticeRecord(id: id, startedAt: startedAt, endedAt: endedAt)
     }
 
     var result: PracticeResult {

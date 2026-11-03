@@ -15,7 +15,7 @@ struct PracticeStateTests {
         let start = Date(timeIntervalSince1970: 1_000)
         let end = start.addingTimeInterval(92)
         let id = UUID()
-        let record = PracticeRecord(id: id, startedAt: start, endedAt: end, audioFilename: "sample.m4a")
+        let record = PracticeRecord(id: id, startedAt: start, endedAt: end)
         var state = PracticeState()
         state.sessionID = id
         state.startedAt = start
@@ -54,7 +54,7 @@ struct PracticeStateTests {
             precondition(!received.isWatchEnabled && received.phase == .idle)
             precondition(received.sessionID == nil && received.startedAt == nil && received.endedAt == nil)
             precondition(received.records.isEmpty && received.updatedAt == state.updatedAt)
-            // 워치에 보내는 정보만 제외하며, iPhone에서 녹음·저장할 데이터는 유지합니다.
+            // 워치에 보내는 정보만 제외하며, iPhone에서 저장할 결과는 유지합니다.
             precondition(state.sessionID == id && state.records == [record])
         }
 
