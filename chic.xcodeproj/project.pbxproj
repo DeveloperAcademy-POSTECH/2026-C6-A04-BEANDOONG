@@ -426,6 +426,7 @@
 		A10000000000000000000009 /* Debug configuration for PBXNativeTarget "chic-watch" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = ZGS2437ZK6;
@@ -451,6 +452,7 @@
 		A1000000000000000000000A /* Release configuration for PBXNativeTarget "chic-watch" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = ZGS2437ZK6;
