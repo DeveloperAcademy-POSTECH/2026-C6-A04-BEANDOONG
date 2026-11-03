@@ -14,12 +14,12 @@ struct LaunchView: View {
             LaunchGlow.topLeading
             LaunchGlow.bottomTrailing
 
-            // MARK: 로고 (화면 중앙에서 37pt 위)
+            // MARK: 로고 (화면 중앙에서 35pt 위)
             Image("ChicLogo")
                 .resizable()
                 .scaledToFit()
-                .frame(width: 162, height: 60)
-                .offset(y: -37)
+                .frame(width: 149, height: 51)
+                .offset(y: -35)
         }
         .preferredColorScheme(.dark)
     }
