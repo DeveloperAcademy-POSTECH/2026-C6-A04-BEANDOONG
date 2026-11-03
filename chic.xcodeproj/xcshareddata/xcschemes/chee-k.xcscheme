@@ -15,23 +15,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "A10000000000000000000007"
-               BuildableName = "chee-k-watch.app"
-               BlueprintName = "chee-k-watch"
-               ReferencedContainer = "container:chee-k.xcodeproj">
-            </BuildableReference>
-         </BuildActionEntry>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "YES"
-            buildForProfiling = "YES"
-            buildForArchiving = "YES"
-            buildForAnalyzing = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
                BlueprintIdentifier = "936A3CD3307802AD00F6FB73"
-               BuildableName = "chee-k.app"
-               ReferencedContainer = "container:chee-k.xcodeproj">
+               BuildableName = "chic.app"
+               ReferencedContainer = "container:chic.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -58,9 +44,9 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "A10000000000000000000007"
-            BuildableName = "chee-k-watch.app"
-            ReferencedContainer = "container:chee-k.xcodeproj">
+            BlueprintIdentifier = "936A3CD3307802AD00F6FB73"
+            BuildableName = "chic.app"
+            ReferencedContainer = "container:chic.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -74,9 +60,9 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "A10000000000000000000007"
-            BuildableName = "chee-k-watch.app"
-            ReferencedContainer = "container:chee-k.xcodeproj">
+            BlueprintIdentifier = "936A3CD3307802AD00F6FB73"
+            BuildableName = "chic.app"
+            ReferencedContainer = "container:chic.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
