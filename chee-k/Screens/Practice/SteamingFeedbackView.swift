@@ -3,7 +3,7 @@ import SwiftUI
 /// 스티밍 연습 – 모델 피드백 화면 (피드백 종류에 따라 색상·아이콘·텍스트만 변경)
 /// - 디자인: Hi-Fi/iPhone 17 - 119, 101, 157, 158, 161.png
 ///
-///     ┌ 배경: 피드백별 그라데이션 / 단색
+///     ┌ 배경: 피드백별 그라데이션
 ///     ├ 상단 바: 스티밍 연습
 ///     ├ (상태 아이콘) + 타이틀 + 설명
 ///     ├ 피드백별 웨이브 일러스트
@@ -16,7 +16,7 @@ struct SteamingFeedbackView: View {
         ZStack {
             // MARK: 배경
             Rectangle()
-                .fill(feedback.background)
+                .fill(LinearGradient(colors: feedback.gradientColors, startPoint: .top, endPoint: .bottom))
                 .ignoresSafeArea()
 
             VStack(spacing: 0) {
@@ -67,18 +67,14 @@ enum SteamingFeedback: CaseIterable {
     /// 우유 흐름(롤링) 확인 (초록)
     case milkFlow
 
-    var background: AnyShapeStyle {
+    /// 배경 그라데이션 (위 → 아래)
+    var gradientColors: [Color] {
         switch self {
-        case .aeration:
-            AnyShapeStyle(LinearGradient(colors: AppColors.aerationGradient, startPoint: .top, endPoint: .bottom))
-        case .sharpSound:
-            AnyShapeStyle(LinearGradient(colors: AppColors.sharpSoundGradient, startPoint: .top, endPoint: .bottom))
-        case .bubble:
-            AnyShapeStyle(AppColors.bubbleWarningOrange)
-        case .moreAir:
-            AnyShapeStyle(AppColors.moreAirPurple)
-        case .milkFlow:
-            AnyShapeStyle(AppColors.milkFlowGreen)
+        case .aeration: AppColors.aerationGradient
+        case .sharpSound: AppColors.sharpSoundGradient
+        case .bubble: AppColors.bubbleGradient
+        case .moreAir: AppColors.moreAirGradient
+        case .milkFlow: AppColors.milkFlowGradient
         }
     }
 
@@ -123,11 +119,11 @@ enum SteamingFeedback: CaseIterable {
 
     var stopSquareColor: Color {
         switch self {
-        case .aeration: AppColors.aerationStopSquare
-        case .sharpSound: AppColors.sharpSoundStopSquare
-        case .bubble: AppColors.bubbleWarningOrange
-        case .moreAir: AppColors.moreAirPurple
-        case .milkFlow: AppColors.milkFlowGreen
+        case .aeration: AppColors.aerationTop
+        case .sharpSound: AppColors.sharpSoundTop
+        case .bubble: AppColors.bubbleTop
+        case .moreAir: AppColors.moreAirTop
+        case .milkFlow: AppColors.milkFlowTop
         }
     }
 }

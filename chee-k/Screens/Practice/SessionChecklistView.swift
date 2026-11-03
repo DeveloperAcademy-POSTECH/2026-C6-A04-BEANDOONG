@@ -84,11 +84,11 @@ private struct StatusLegendCard: View {
             }
 
             StatusLegendRow(title: "공기 주입 소리", description: "짧은 진동 한 번") {
-                WatchMiniIcon(screenColor: AppColors.aerationBlue)
+                WatchMiniIcon(screenColor: AppColors.aerationTop)
             }
 
             StatusLegendRow(title: "날카로운 소리", description: "짧은 진동 두 번") {
-                WatchMiniIcon(screenColor: AppColors.sharpSoundPink)
+                WatchMiniIcon(screenColor: AppColors.sharpSoundTop)
             }
         }
         .padding(.horizontal, 28)
