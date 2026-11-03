@@ -5,7 +5,7 @@ import SwiftUI
 ///
 ///     ┌ chic 로고
 ///     ├ 헤드라인 "다음 한잔을 / 위한 작은 연습" + 설명
-///     ├ 메인 연습 카드 (워치 + 피처 이미지, 좌하단 문구, 우하단 연습 버튼)
+///     ├ 메인 연습 카드 (워치 + 피처 이미지, 좌하단 문구, 우하단 [연습하기 →])
 ///     └ 하단 2열 카드: [연습 가이드] [최근 연습]
 struct HomeView: View {
     @EnvironmentObject private var practice: PracticeSession
@@ -155,17 +155,21 @@ struct HomeView: View {
 
 // MARK: - 메인 카드 연습 버튼
 
-/// 홈 카드 우측 하단에서 연습 준비 화면으로 이동하는 캡슐 버튼
+/// 메인 카드 우측 하단의 검정 캡슐 버튼: "연습하기 →"
 private struct HomePracticeButton: View {
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
-            Text("스티밍 연습하기")
-                .font(.pretendard(.bold, size: 16))
-                .foregroundStyle(AppColors.homePracticeButtonText)
-                .frame(width: 167, height: 44)
-                .background(Capsule().fill(AppColors.homePracticeButton))
+            HStack(spacing: 4) {
+                Text("연습하기")
+                Image(systemName: "arrow.right")
+                    .font(.system(size: 14, weight: .bold))
+            }
+            .font(.pretendard(.bold, size: 16))
+            .foregroundStyle(AppColors.homePracticeButtonText)
+            .frame(width: 136, height: 44)
+            .background(Capsule().fill(AppColors.homePracticeButton))
         }
         .buttonStyle(.plain)
     }
@@ -232,8 +236,8 @@ private extension AppColors {
         Color(hex: 0x0E131D)
     ]
     static let homePracticeCardGradient: [Color] = [Color(hex: 0xA6DDF7), Color(hex: 0xF3F8FE)]
-    static let homePracticeButton = Color(hex: 0xDBECFF)
-    static let homePracticeButtonText = Color(hex: 0x01030C)
+    static let homePracticeButton = Color(hex: 0x01030C)
+    static let homePracticeButtonText = Color(hex: 0xF5FAFF)
     static let homeGuideCard = Color(hex: 0x476480)
     static let homeRecentCard = Color(hex: 0x163248)
     /// 밝은 카드 위 글자·화살표 색
