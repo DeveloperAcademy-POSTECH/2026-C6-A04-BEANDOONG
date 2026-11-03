@@ -4,7 +4,7 @@ import SwiftUI
 /// - 디자인: Hi-Fi/iPhone 17 - 113.png
 ///
 ///     ┌ 상단 네비게이션 바: 애플 워치 연결
-///     ├ 워치 앱 설치 일러스트 (오른쪽으로 15pt 치우침)
+///     ├ 워치 앱 설치 일러스트
 ///     ├ 타이틀 + 설명
 ///     └ 하단 버튼: [다시 연결 확인하기] [휴대폰만 사용하기]
 struct WatchAppInstallView: View {
@@ -19,8 +19,7 @@ struct WatchAppInstallView: View {
                 .padding(.top, Layout.headerTop)
 
             // MARK: 일러스트
-            AssetImageView(name: "IllustWatchInstall", width: 252, height: 264)
-                .offset(x: Layout.illustrationOffsetX)
+            AssetImageView(name: "IllustWatchInstall", width: 121, height: 207)
                 .padding(.top, Layout.illustrationTop)
 
             // MARK: 타이틀 + 설명
@@ -43,7 +42,7 @@ struct WatchAppInstallView: View {
             )
                 .padding(.bottom, Layout.buttonsBottom)
         }
-        .darkScreenBackground()
+        .darkScreenBackgroundWithTopGlow()
         .navigationDestination(isPresented: $showsChecklist) {
             SessionChecklistView(usesWatch: false)
                 .toolbar(.hidden, for: .navigationBar)
@@ -54,12 +53,11 @@ struct WatchAppInstallView: View {
 // MARK: - Layout
 
 private enum Layout {
-    static let headerTop: CGFloat = 22           // 상태바 ↔ 네비게이션 바
-    static let illustrationTop: CGFloat = 102    // 네비게이션 바 ↔ 일러스트
-    static let illustrationOffsetX: CGFloat = 15 // 일러스트 가로 보정 (오른쪽으로)
-    static let titleTop: CGFloat = 49            // 일러스트 ↔ 타이틀
-    static let subtitleTop: CGFloat = 18         // 타이틀 ↔ 설명
-    static let buttonsBottom: CGFloat = 12       // 버튼 ↔ 화면 하단(안전 영역)
+    static let headerTop: CGFloat = 22         // 상태바 ↔ 네비게이션 바
+    static let illustrationTop: CGFloat = 132  // 네비게이션 바 ↔ 일러스트
+    static let titleTop: CGFloat = 76          // 일러스트 ↔ 타이틀
+    static let subtitleTop: CGFloat = 14       // 타이틀 ↔ 설명
+    static let buttonsBottom: CGFloat = 10     // 버튼 ↔ 화면 하단(안전 영역)
 }
 
 struct WatchAppInstallView_Previews: PreviewProvider {
