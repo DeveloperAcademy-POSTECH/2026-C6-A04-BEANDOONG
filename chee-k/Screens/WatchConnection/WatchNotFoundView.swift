@@ -8,7 +8,6 @@ import SwiftUI
 ///     ├ 타이틀 + 설명
 ///     └ 하단 버튼: [다시 연결 확인하기] [휴대폰만 사용하기]
 struct WatchNotFoundView: View {
-    var isPaired = false
     var onCheck: () -> Void = {}
     var onContinue: (() -> Void)? = nil
     @State private var showsChecklist = false
@@ -24,10 +23,10 @@ struct WatchNotFoundView: View {
                 .padding(.top, Layout.illustrationTop)
 
             // MARK: 타이틀 + 설명
-            DarkScreenTitle(isPaired ? "워치 앱과 연결할 수 없어요" : "Apple Watch 를\n찾지 못했어요")
+            DarkScreenTitle("Apple Watch 를\n찾지 못했어요")
                 .padding(.top, Layout.titleTop)
 
-            DarkScreenSubtitle(isPaired ? "Apple Watch에서 chic 앱을 열고\n두 기기를 가까이 두어 주세요" : "iPhone의 Watch 앱에서\nApple Watch의 페어링 상태를 확인해주세요")
+            DarkScreenSubtitle("iPhone의 Watch 앱에서\nApple Watch의 페어링 상태를 확인해주세요")
                 .padding(.top, Layout.subtitleTop)
 
             Spacer(minLength: 0)

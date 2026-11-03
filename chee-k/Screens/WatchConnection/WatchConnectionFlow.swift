@@ -30,7 +30,7 @@ struct WatchConnectionFlow: View {
             case .appNotInstalled:
                 WatchAppInstallView(onCheck: retry, onContinue: continueWithoutWatch)
             case .unavailable:
-                WatchNotFoundView(isPaired: true, onCheck: retry, onContinue: continueWithoutWatch)
+                WatchNotFoundView(onCheck: retry, onContinue: continueWithoutWatch)
             case .ready:
                 if let onReady {
                     WatchReadyView(onContinue: onReady)
