@@ -53,7 +53,7 @@ struct HomeView: View {
     private var content: some View {
         VStack(alignment: .leading, spacing: 0) {
             // MARK: 로고
-            AssetImageView(name: "ChicLogo", width: 84, height: 31)
+            AssetImageView(name: "ChicLogo", width: 82, height: 28)
                 .padding(.top, Layout.logoTop)
 
             // MARK: 헤드라인 + 설명
@@ -61,7 +61,7 @@ struct HomeView: View {
                 .padding(.top, Layout.headlineTop)
 
             Text("한 잔의 시작, 작은 소리부터 함께해요")
-                .font(.pretendard(.regular, size: 15))
+                .font(.pretendard(.regular, size: 16))
                 .foregroundStyle(AppColors.darkSubtitle)
                 .padding(.top, Layout.subtitleTop)
 
@@ -137,7 +137,7 @@ struct HomeView: View {
 
     /// "다음 **한잔**을 / 위한 작은 연습" — '한잔'만 강조색
     private var headline: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: 5) {
             HStack(spacing: 0) {
                 Text("다음 ")
                     .foregroundStyle(Color.white)
@@ -149,7 +149,7 @@ struct HomeView: View {
             Text("위한 작은 연습")
                 .foregroundStyle(Color.white)
         }
-        .font(.pretendard(.bold, size: 27))
+        .font(.pretendard(.bold, size: 28))
     }
 }
 
@@ -208,10 +208,10 @@ private struct HomeSubCard: View {
 
 private enum Layout {
     static let horizontalPadding: CGFloat = 20
-    static let logoTop: CGFloat = 16      // 상태바 ↔ 로고
-    static let headlineTop: CGFloat = 54  // 로고 ↔ 헤드라인
-    static let subtitleTop: CGFloat = 12  // 헤드라인 ↔ 설명
-    static let heroCardTop: CGFloat = 46  // 설명 ↔ 히어로 카드
+    static let logoTop: CGFloat = 19      // 상태바 ↔ 로고
+    static let headlineTop: CGFloat = 50  // 로고 ↔ 헤드라인
+    static let subtitleTop: CGFloat = 10  // 헤드라인 ↔ 설명
+    static let heroCardTop: CGFloat = 44  // 설명 ↔ 메인 카드
     static let subCardsTop: CGFloat = 15  // 히어로 카드 ↔ 하단 2열 카드
 }
 
