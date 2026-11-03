@@ -11,29 +11,29 @@ struct PracticeResultTests {
         timeline.update(phase: .bubble, at: 6)
         timeline.update(phase: .moreAir, at: 9)
         timeline.update(phase: .milkFlow, at: 12)
-        timeline.update(phase: .sharpSound, at: 18)
-        timeline.update(phase: .listening, at: 22)
+        timeline.update(phase: .listening, at: 18)
         timeline.finish(at: 25)
         timeline.finish(at: 25) // 중복 종료로 구간이 늘어나지 않습니다.
 
         let start = Date(timeIntervalSince1970: 1_000)
         let result = PracticeResult(practicedAt: start, dailyOrder: 1, segments: timeline.segments, duration: 25)
-        precondition(timeline.segments.map(\.sound) == [.normalAeration, .overAeration, .lackOfAir, .rolling, .overheated])
+        precondition(timeline.segments.map(\.sound) == [.normalAeration, .overAeration, .lackOfAir, .rolling])
         precondition(result.timelineStart == 2 && result.totalSeconds == 23 && result.timelineLength == 23)
-        precondition(result.normalSeconds == 10 && result.cautionSeconds == 10)
+        precondition(result.normalSeconds == 10 && result.cautionSeconds == 6)
         precondition(result.detectedSeconds(of: .normalAeration) == 4)
         precondition(result.detectedSeconds(of: .overAeration) == 3)
         precondition(result.detectedSeconds(of: .lackOfAir) == 3)
         precondition(result.detectedSeconds(of: .rolling) == 6)
-        precondition(result.detectedSeconds(of: .overheated) == 4)
         verifyInitialRolling(start: start)
+        precondition(SteamingStage.rolling.sounds == [.rolling])
+        precondition(PracticeResult.sample.normalSeconds + PracticeResult.sample.cautionSeconds == PracticeResult.sample.totalSeconds)
 
         let shortSegments = DetectedSound.allCases.enumerated().map { index, sound in
             DetectedSegment(sound: sound, start: Double(index) * 0.6, end: Double(index + 1) * 0.6)
         }
         let short = PracticeResult(practicedAt: start, dailyOrder: 1, segments: shortSegments, duration: 3)
         precondition(short.timelineStart == 0 && short.totalSeconds == 3)
-        precondition(short.normalSeconds + short.cautionSeconds == 3)
+        precondition(short.normalSeconds + short.cautionSeconds == 2)
         let empty = PracticeResult(practicedAt: start, dailyOrder: 1, segments: [], duration: 5)
         precondition(empty.timelineStart == 0)
         precondition(empty.totalSeconds == 5 && empty.normalSeconds == 0 && empty.cautionSeconds == 0)
@@ -42,6 +42,7 @@ struct PracticeResultTests {
         let directory = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: directory) }
         let record = PracticeRecord(id: UUID(), startedAt: start, endedAt: start.addingTimeInterval(25))
+        verifyRemovedSound(record: record, expected: result)
         try save(record: record, segments: timeline.segments, directory: directory)
         try verifyReload(record: record, expected: result, directory: directory)
         try verifyLegacyMigration(in: directory.appending(path: "migration"), start: start)
@@ -63,6 +64,21 @@ struct PracticeResultTests {
         precondition(result.segments[0].start - result.timelineStart == 0)
         precondition(result.segments[1].start - result.timelineStart == 6)
         precondition(result.normalSeconds == 6 && result.cautionSeconds == 0)
+    }
+
+    @MainActor
+    private static func verifyRemovedSound(record: PracticeRecord, expected: PracticeResult) {
+        let saved = PracticeRecordEntity(record: record, dailyOrder: 1, segments: expected.segments)
+        let removed = PracticeSoundSegmentEntity(segment: DetectedSegment(sound: .rolling, start: 18, end: 22))
+        removed.sound = "overheated" // 이전 버전에서 저장했을 수 있는 값입니다.
+        saved.soundSegments.append(removed)
+
+        let restored = saved.result
+        precondition(removed.segment == nil)
+        precondition(restored.segments.map(\.sound) == expected.segments.map(\.sound))
+        precondition(restored.totalSeconds == expected.totalSeconds)
+        precondition(restored.normalSeconds == expected.normalSeconds && restored.cautionSeconds == expected.cautionSeconds)
+        precondition(saved.soundSegments.count == expected.segments.count + 1) // 원본 저장 구간은 삭제하지 않습니다.
     }
 
     @MainActor
