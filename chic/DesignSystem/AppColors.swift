@@ -69,7 +69,4 @@ enum AppColors {
     static let moreAirTop = Color(hex: 0xA480EB)
     static let moreAirGradient: [Color] = [moreAirTop, Color(hex: 0xE4C0E9)]
 
-    /// 우유 과열 (빨강)
-    static let sharpSoundTop = Color(hex: 0xF2627C)
-    static let sharpSoundGradient: [Color] = [sharpSoundTop, Color(hex: 0xECBFBF)]
 }

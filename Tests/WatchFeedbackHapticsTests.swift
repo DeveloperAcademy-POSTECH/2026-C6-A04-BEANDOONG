@@ -32,11 +32,9 @@ struct WatchFeedbackHapticsTests {
         precondition(receive(.aeration, at: 4, delay: 0.8) == .notification)
         precondition(receive(.aeration, at: 5) == nil)
         precondition(receive(.aeration, at: 6) == .notification)
-        precondition(receive(.sharpSound, at: 6.1) == .failure)
-        precondition(receive(.sharpSound, at: 6.1) == nil)
-        precondition(receive(.sharpSound, at: 7) == nil)
-        precondition(receive(.moreAir, at: 7.5) == .failure)
-        precondition(receive(.moreAir, at: 7.8) == nil)
+        precondition(receive(.moreAir, at: 6.1) == .failure)
+        precondition(receive(.moreAir, at: 6.1) == nil)
+        precondition(receive(.moreAir, at: 7) == nil)
         precondition(receive(.bubble, at: 8) == .failure)
         precondition(receive(.bubble, at: 9) == nil)
         precondition(receive(.aeration, at: 10) == .notification)
@@ -45,7 +43,7 @@ struct WatchFeedbackHapticsTests {
             precondition(receive(phase, at: 14 + Double(index)) == nil)
         }
         state.isWatchEnabled = false
-        precondition(receive(.sharpSound, at: 21) == nil)
+        precondition(receive(.moreAir, at: 21) == nil)
         state.isWatchEnabled = true
         state.sessionID = nil
         precondition(receive(.bubble, at: 22) == nil)

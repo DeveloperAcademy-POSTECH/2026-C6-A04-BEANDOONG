@@ -87,7 +87,7 @@ struct PracticeSessionView: View {
     private var feedback: SteamingFeedback {
         switch practice.state.phase {
         case .bubble: .bubble
-        case .sharpSound, .moreAir: .moreAir
+        case .moreAir: .moreAir
         case .milkFlow: .milkFlow
         default: .aeration
         }

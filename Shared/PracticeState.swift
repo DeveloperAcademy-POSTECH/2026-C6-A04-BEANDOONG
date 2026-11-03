@@ -10,7 +10,7 @@ import Foundation
 
 // iPhone이 유일한 상태 원본입니다. 워치는 이 값만 표시합니다.
 nonisolated enum PracticePhase: String, Codable, CaseIterable {
-    case idle, listening, aeration, sharpSound, bubble, moreAir, milkFlow, finished
+    case idle, listening, aeration, bubble, moreAir, milkFlow, finished
 
     var isRunning: Bool { self != .idle && self != .finished }
 
@@ -19,7 +19,6 @@ nonisolated enum PracticePhase: String, Codable, CaseIterable {
         case .idle: "연결 확인"
         case .listening: "소리 확인 중"
         case .aeration: "공기 주입 소리"
-        case .sharpSound: "날카로운 소리"
         case .bubble: "큰 기포 주의"
         case .moreAir: "공기 부족"
         case .milkFlow: "롤링"

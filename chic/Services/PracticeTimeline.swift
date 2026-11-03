@@ -34,7 +34,6 @@ private extension PracticePhase {
         case .bubble: .overAeration
         case .moreAir: .lackOfAir
         case .milkFlow: .rolling
-        case .sharpSound: .overheated
         case .idle, .listening, .finished: nil
         }
     }

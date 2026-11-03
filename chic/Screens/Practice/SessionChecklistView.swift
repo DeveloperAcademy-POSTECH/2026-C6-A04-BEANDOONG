@@ -8,8 +8,8 @@ import SwiftUI
 ///     ├ 안내 단계 ① 휴대폰은 머신 가까이  ② 색상과 문구를 함께 확인
 ///     ├ 상태 안내 카드 (329 x 234, 2열 x 3줄)
 ///     │   ├ 공기 주입          │ 공기가 부족해요
-///     │   ├ 롤링 소리          │ 공기가 너무 많아요
-///     │   └ 노즐이 너무 높아요  │ 소리 확인 중
+///     │   ├ 롤링 소리          │ 노즐이 너무 높아요
+///     │   └ 소리 확인 중
 ///     └ 하단 버튼: [스팀 연습 시작하기]
 struct SessionChecklistView: View {
     @EnvironmentObject private var practice: PracticeSession
@@ -114,7 +114,6 @@ private struct StatusLegendItem: Identifiable {
         StatusLegendItem(title: "공기 주입", description: "일반적인\n공기 주입 소리", screenColor: AppColors.aerationTop),
         StatusLegendItem(title: "공기가 부족해요", description: "공기 주입 소리가\n작거나 없음", screenColor: AppColors.moreAirTop),
         StatusLegendItem(title: "롤링 소리", description: "우유가\n회전하는 소리", screenColor: AppColors.milkFlowTop),
-        StatusLegendItem(title: "공기가 너무 많아요", description: "끓는 소리가\n날 수 있어요", screenColor: AppColors.sharpSoundTop),
         StatusLegendItem(title: "노즐이 너무 높아요", description: "큰 거품과\n파열음 발생", screenColor: AppColors.bubbleTop),
         StatusLegendItem(title: "소리 확인 중", description: "상태를 확인할\n때까지 기다려요.", screenColor: .black)
     ]

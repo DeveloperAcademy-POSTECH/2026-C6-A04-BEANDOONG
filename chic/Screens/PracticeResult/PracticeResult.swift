@@ -60,8 +60,6 @@ enum DetectedSound: String, Codable, CaseIterable, Hashable {
     case lackOfAir
     /// 초록 · 우유가 회전하는 소리
     case rolling
-    /// 분홍 · 우유가 너무 뜨거워지는 소리
-    case overheated
 
     var title: String {
         switch self {
@@ -69,7 +67,6 @@ enum DetectedSound: String, Codable, CaseIterable, Hashable {
         case .overAeration: "공기과다"
         case .lackOfAir: "공기 부족"
         case .rolling: "롤링"
-        case .overheated: "음료 과열"
         }
     }
 
@@ -77,7 +74,7 @@ enum DetectedSound: String, Codable, CaseIterable, Hashable {
     var stage: SteamingStage {
         switch self {
         case .normalAeration, .overAeration, .lackOfAir: .aeration
-        case .rolling, .overheated: .rolling
+        case .rolling: .rolling
         }
     }
 
@@ -85,7 +82,7 @@ enum DetectedSound: String, Codable, CaseIterable, Hashable {
     var needsCaution: Bool {
         switch self {
         case .normalAeration, .rolling: false
-        case .overAeration, .lackOfAir, .overheated: true
+        case .overAeration, .lackOfAir: true
         }
     }
 
@@ -96,7 +93,6 @@ enum DetectedSound: String, Codable, CaseIterable, Hashable {
         case .overAeration: Color(hex: 0xFFA615)
         case .lackOfAir: Color(hex: 0xA480EB)
         case .rolling: Color(hex: 0x1ABC37)
-        case .overheated: Color(hex: 0xF2627C)
         }
     }
 
@@ -206,8 +202,8 @@ struct PracticeResult: Hashable {
 // MARK: - 더미 데이터
 
 extension PracticeResult {
-    /// Hi-Fi 디자인과 픽셀 단위로 동일한 24초 연습
-    /// - 정상 공기 주입 6초 · 공기과다 2초 · 공기 부족 2초 · 롤링 10초 · 음료 과열 4초 (정상 16초 / 주의 8초 / 전체 24초)
+    /// 현재 분석에서 사용하는 네 가지 소리로 구성한 24초 연습
+    /// - 정상 공기 주입 7초 · 공기과다 3초 · 공기 부족 3초 · 롤링 11초 (정상 18초 / 주의 6초 / 전체 24초)
     static let sample = PracticeResult(
         practicedAt: Calendar.current.date(from: DateComponents(year: 2026, month: 9, day: 26)) ?? .now,
         dailyOrder: 1,
@@ -217,13 +213,6 @@ extension PracticeResult {
             DetectedSegment(sound: .normalAeration, start: 14.0, end: 17.45),
             DetectedSegment(sound: .overAeration, start: 17.45, end: 20.85),
             DetectedSegment(sound: .lackOfAir, start: 20.85, end: 24.0)
-        ],
-        customDetectedSeconds: [
-            .normalAeration: 6,
-            .overAeration: 2,
-            .lackOfAir: 2,
-            .rolling: 10,
-            .overheated: 4
         ],
         customTickSeconds: [0, 8, 12, 16, 20, 24]
     )
@@ -237,8 +226,7 @@ extension PracticeResult {
             DetectedSegment(sound: .normalAeration, start: 6, end: 20),
             DetectedSegment(sound: .overAeration, start: 20, end: 20.3),
             DetectedSegment(sound: .normalAeration, start: 20.3, end: 28),
-            DetectedSegment(sound: .rolling, start: 31, end: 62),
-            DetectedSegment(sound: .overheated, start: 62, end: 75)
+            DetectedSegment(sound: .rolling, start: 31, end: 75)
         ]
     )
 
