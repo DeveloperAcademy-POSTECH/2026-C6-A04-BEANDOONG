@@ -47,16 +47,17 @@ struct SteamingFeedbackView: View {
 
 // MARK: - 피드백 종류
 
+/// case 이름은 `PracticePhase`(워치와 공유)와 맞춰 두고, 화면 문구만 Hi-Fi에 맞춥니다.
 enum SteamingFeedback: CaseIterable {
-    /// 공기 주입 소리 감지 (파랑)
+    /// 공기가 고르게 들어가는 중 (파랑)
     case aeration
-    /// 날카로운 소리 감지 (빨강)
+    /// 금속성 소리 — 우유가 오래 가열되는 중 (빨강)
     case sharpSound
-    /// 큰 기포 주의 (주황)
+    /// 노즐이 높아 큰 기포가 생길 수 있음 (주황)
     case bubble
-    /// 공기 추가 주입 (보라)
+    /// 공기 주입이 부족함 (보라)
     case moreAir
-    /// 우유 흐름(롤링) 확인 (초록)
+    /// 롤링이 안정적으로 진행되는 중 (초록)
     case milkFlow
 
     var gradientColors: [Color] {
@@ -71,21 +72,21 @@ enum SteamingFeedback: CaseIterable {
 
     var title: String {
         switch self {
-        case .aeration: "공기 주입 소리가\n감지되고 있어요."
-        case .sharpSound: "날카로운 소리가\n감지되고 있어요"
+        case .aeration: "공기가 고르게\n들어가고 있어요"
+        case .sharpSound: "우유가 오래\n가열되고 있어요"
         case .bubble: "큰 기포가\n생길 수 있어요"
-        case .moreAir: "공기를 조금 더\n넣어 주세요"
-        case .milkFlow: "우유의 흐름을\n확인해요"
+        case .moreAir: "공기 주입이\n부족해요"
+        case .milkFlow: "롤링이 안정적으로\n진행되고 있어요"
         }
     }
 
     var subtitle: String {
         switch self {
-        case .aeration: "공기 주입 소리가 들리고 있어요"
-        case .sharpSound: "우유의 상태를 확인해주세요"
+        case .aeration: "지금 상태를 유지해 주세요"
+        case .sharpSound: "온도를 확인해 주세요"
         case .bubble: "피처를 살짝 올려 노즐을 더 담가 주세요"
-        case .moreAir: "피처를 살짝 내려 주세요."
-        case .milkFlow: "한 방향으로 돌면 그대로 유지해 주세요"
+        case .moreAir: "피처를 살짝 내려 주세요"
+        case .milkFlow: "우유가 한 방향으로 돌도록 유지해 주세요"
         }
     }
 
