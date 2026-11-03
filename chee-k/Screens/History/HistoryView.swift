@@ -45,7 +45,7 @@ struct HistoryView: View {
             VStack(alignment: .leading, spacing: 0) {
                 // MARK: 타이틀 + 설명
                 Text("나의 연습이 쌓이는 곳")
-                    .font(.pretendard(.bold, size: 28))
+                    .font(.pretendard(.bold, size: 26))
                     .tracking(-0.3)
                     .foregroundStyle(Color.white)
                     .padding(.top, Layout.titleTop)
@@ -221,8 +221,8 @@ private enum Layout {
     static let horizontalPadding: CGFloat = 20
     static let headerTop: CGFloat = 22     // 상태바 ↔ 네비게이션 바
     static let titleTop: CGFloat = 48      // 네비게이션 바 ↔ 타이틀
-    static let subtitleTop: CGFloat = 11   // 타이틀 ↔ 설명
-    static let filterTop: CGFloat = 31     // 설명 ↔ 필터 칩
+    static let subtitleTop: CGFloat = 8    // 타이틀 ↔ 설명
+    static let filterTop: CGFloat = 36     // 설명 ↔ 필터 칩
     static let filterBottom: CGFloat = 20  // 필터 칩 ↔ 첫 카드
     static let cardSpacing: CGFloat = 14   // 카드 사이 간격
 }
