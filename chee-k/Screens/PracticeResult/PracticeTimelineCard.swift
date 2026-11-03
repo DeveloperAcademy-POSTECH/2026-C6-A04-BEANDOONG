@@ -48,6 +48,7 @@ struct PracticeTimelineCard: View {
                             TimelineTrack(
                                 stage: stage,
                                 segments: result.segments.filter { $0.sound.stage == stage },
+                                timelineStart: result.timelineStart,
                                 timelineLength: result.timelineLength
                             )
 
@@ -72,6 +73,8 @@ struct PracticeTimelineCard: View {
 private struct TimelineTrack: View {
     let stage: SteamingStage
     let segments: [DetectedSegment]
+    /// 두 단계가 함께 사용하는 첫 감지 시점 (녹음 시작 기준).
+    let timelineStart: TimeInterval
     /// 막대 전체가 나타내는 시간 (초)
     let timelineLength: TimeInterval
 
@@ -85,7 +88,7 @@ private struct TimelineTrack: View {
                 ForEach(segments) { segment in
                     segment.sound.timelineColor
                         .frame(width: max(segment.duration * pointsPerSecond, Metrics.minimumSegmentWidth))
-                        .offset(x: segment.start * pointsPerSecond)
+                        .offset(x: (segment.start - timelineStart) * pointsPerSecond)
                 }
             }
         }
@@ -100,8 +103,8 @@ private struct TimelineTrack: View {
         guard !segments.isEmpty else { return "감지된 소리 없음" }
         return segments
             .map { segment in
-                let start = Int(segment.start.rounded()).practiceSecondsText
-                let end = Int(segment.end.rounded()).practiceSecondsText
+                let start = Int((segment.start - timelineStart).rounded()).practiceSecondsText
+                let end = Int((segment.end - timelineStart).rounded()).practiceSecondsText
                 return "\(start)부터 \(end)까지 \(segment.sound.title)"
             }
             .joined(separator: ", ")

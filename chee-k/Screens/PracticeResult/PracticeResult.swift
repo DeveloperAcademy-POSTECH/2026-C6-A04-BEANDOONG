@@ -9,7 +9,7 @@
 //
 //      segments ─┬─ timelineLength    → 전체 타임라인 가로축 길이
 //                ├─ detectedSeconds   → 상태별 감지 시간 타일
-//                └─ normal / caution → 상단 도넛 차트 · 요약 (전체 시간은 실제 연습 길이)
+//                └─ normal / caution → 상단 도넛 차트 · 요약 (첫 감지 전 대기 시간 제외)
 //
 
 import SwiftUI
@@ -143,9 +143,14 @@ struct PracticeResult: Hashable {
         return "\(date.month ?? 0)월 \(date.day ?? 0)일 \(dailyOrder)차"
     }
 
-    /// 타임라인 가로축 전체 길이 (초). 실제 연습 길이가 없으면 마지막 감지 시점입니다.
+    /// 결과의 0초로 사용할 첫 감지 시점입니다. 감지 구간이 없으면 원래 시간 기준을 유지합니다.
+    var timelineStart: TimeInterval {
+        segments.map(\.start).min() ?? 0
+    }
+
+    /// 첫 감지 전 대기 시간을 제외한 타임라인 길이 (초).
     var timelineLength: TimeInterval {
-        max(duration ?? 0, segments.map(\.end).max() ?? 0)
+        max(0, max(duration ?? 0, segments.map(\.end).max() ?? 0) - timelineStart)
     }
 
     /// 소리 하나가 감지된 시간 (초, 반올림)
@@ -182,7 +187,7 @@ struct PracticeResult: Hashable {
         DetectedSound.allCases.filter(\.needsCaution).reduce(0) { $0 + detectedSeconds(of: $1) }
     }
 
-    /// 상단 요약 "전체 시간". 미분류 구간도 포함합니다.
+    /// 상단 요약 "전체 시간". 첫 감지 이후의 미분류 구간은 포함합니다.
     var totalSeconds: Int { Int(timelineLength.rounded()) }
 
     /// 도넛 차트 바깥 링(정상소리) 비율 (0.0 ... 1.0)
