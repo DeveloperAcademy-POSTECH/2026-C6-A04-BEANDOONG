@@ -40,7 +40,7 @@ struct SteamingGuideView: View {
             .padding(.top, Layout.stepsTop)
 
             // MARK: 일러스트
-            AssetImageView(name: "IllustPitchers", width: 242, height: 145)
+            AssetImageView(name: "IllustPitchers", width: 237, height: 141)
                 .padding(.top, Layout.illustrationTop)
 
             Spacer(minLength: 0)
@@ -57,11 +57,11 @@ struct SteamingGuideView: View {
 
 private enum Layout {
     static let headerTop: CGFloat = 22        // 상태바 ↔ 네비게이션 바
-    static let titleTop: CGFloat = 58         // 네비게이션 바 ↔ 타이틀
-    static let stepsTop: CGFloat = 33         // 타이틀 ↔ 안내 단계
+    static let titleTop: CGFloat = 56         // 네비게이션 바 ↔ 타이틀
+    static let stepsTop: CGFloat = 37         // 타이틀 ↔ 안내 단계
     static let stepsLeading: CGFloat = 92     // 안내 단계 좌측 여백
-    static let illustrationTop: CGFloat = 95  // 안내 단계 ↔ 일러스트
-    static let buttonBottom: CGFloat = 13     // 버튼 ↔ 화면 하단(안전 영역)
+    static let illustrationTop: CGFloat = 100 // 안내 단계 ↔ 일러스트
+    static let buttonBottom: CGFloat = 11     // 버튼 ↔ 화면 하단(안전 영역)
 }
 
 struct SteamingGuideView_Previews: PreviewProvider {
