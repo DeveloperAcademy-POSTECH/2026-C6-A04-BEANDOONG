@@ -46,7 +46,7 @@ enum SteamingFeedback: CaseIterable {
 
     // MARK: 일러스트
 
-    /// 화면 아래쪽 일러스트의 에셋 이름 (chee-k-watch/Assets.xcassets)
+    /// 화면 아래쪽 일러스트의 에셋 이름 (chic-watch/Assets.xcassets)
     var illustrationAssetName: String {
         switch self {
         case .aeration: "WatchIllustAeration"

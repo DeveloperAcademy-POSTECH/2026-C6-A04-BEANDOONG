@@ -4,9 +4,9 @@
 
 ## 모델과 분석 흐름
 
-- `chee-k/Models/ChicModelV2Gate.mlmodel`: 공기주입 계열 여부를 판단하는 1단계 모델. 지곡로 4–8의 541개 표본을 휘파람·숨소리 라벨로 추가했고, 정정된 정상 공기주입 라벨을 사용합니다.
-- `chee-k/Models/ChicModelV2Air.mlmodel`: 공기주입 계열의 정상/파바박을 구분하는 2단계 모델
-- `chee-k/Models/ChicModelV2Metallic.mlmodel`: 그 밖의 소리에서 쇳소리를 구분하는 2단계 모델
+- `chic/Models/ChicModelV2Gate.mlmodel`: 공기주입 계열 여부를 판단하는 1단계 모델. 지곡로 4–8의 541개 표본을 휘파람·숨소리 라벨로 추가했고, 정정된 정상 공기주입 라벨을 사용합니다.
+- `chic/Models/ChicModelV2Air.mlmodel`: 공기주입 계열의 정상/파바박을 구분하는 2단계 모델
+- `chic/Models/ChicModelV2Metallic.mlmodel`: 그 밖의 소리에서 쇳소리를 구분하는 2단계 모델
 - `Services/SoundAnalysis/ChicV2Input48k.swift`: 마이크 PCM을 48 kHz 모노로 변환
 - `Services/SoundAnalysis/ChicV2Filter.swift`: 1단계에만 11–12 kHz를 7 dB 강조
 - `Services/SoundAnalysis/ChicV2FeatureExtractor.swift`, `ChicV2SpectralFeatures.swift`: 원음·강조음의 특징 273개를 각각 계산

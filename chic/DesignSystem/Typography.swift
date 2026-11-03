@@ -29,7 +29,7 @@ enum FontRegistrar {
             if let url = Bundle.main.url(forResource: name, withExtension: ext) {
                 CTFontManagerRegisterFontsForURL(url as CFURL, .process, nil)
             } else {
-                let fallbackURL = URL(fileURLWithPath: "chee-k/Fonts/\(name).\(ext)")
+                let fallbackURL = URL(fileURLWithPath: "chic/Fonts/\(name).\(ext)")
                 if FileManager.default.fileExists(atPath: fallbackURL.path) {
                     CTFontManagerRegisterFontsForURL(fallbackURL as CFURL, .process, nil)
                 }
