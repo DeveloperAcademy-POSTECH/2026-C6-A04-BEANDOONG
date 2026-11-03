@@ -5,7 +5,7 @@ import SwiftUI
 
 // MARK: - 다크 화면 타이틀
 
-/// 다크 화면 큰 제목 (Bold 26, 흰색 / 여러 줄이면 가운데 정렬 + 줄간격 6)
+/// 다크 화면 큰 제목 (Bold 26, 흰색 / 여러 줄이면 가운데 정렬 + 줄간격 3)
 struct DarkScreenTitle: View {
     let text: String
 
@@ -18,7 +18,7 @@ struct DarkScreenTitle: View {
             Text(text)
                 .font(.pretendard(.bold, size: 26))
                 .multilineTextAlignment(.center)
-                .lineSpacing(6)
+                .lineSpacing(3)
                 .foregroundStyle(Color.white)
         } else {
             Text(text)
@@ -30,10 +30,10 @@ struct DarkScreenTitle: View {
 
 // MARK: - 다크 화면 설명 문구
 
-/// 다크 화면 제목 아래 설명 (Regular 15 / 여러 줄이면 가운데 정렬 + 줄간격 4)
+/// 다크 화면 제목 아래 설명 (Regular 16 / 여러 줄이면 가운데 정렬 + 줄간격 3)
 struct DarkScreenSubtitle: View {
     let text: String
-    /// 기본은 회색(`darkSubtitle`), 스티밍 화면에서는 반투명 흰색을 사용
+    /// 기본은 회색(`darkSubtitle`), 스티밍 화면에서는 흰색 계열을 사용
     let color: Color
 
     init(_ text: String, color: Color = AppColors.darkSubtitle) {
@@ -44,13 +44,13 @@ struct DarkScreenSubtitle: View {
     var body: some View {
         if text.contains("\n") {
             Text(text)
-                .font(.pretendard(.regular, size: 15))
+                .font(.pretendard(.regular, size: 16))
                 .multilineTextAlignment(.center)
-                .lineSpacing(4)
+                .lineSpacing(3)
                 .foregroundStyle(color)
         } else {
             Text(text)
-                .font(.pretendard(.regular, size: 15))
+                .font(.pretendard(.regular, size: 16))
                 .foregroundStyle(color)
         }
     }

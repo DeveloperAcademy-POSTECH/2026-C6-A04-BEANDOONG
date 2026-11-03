@@ -10,13 +10,15 @@ struct NumberedGuideStep: View {
     let title: String
     let line1: String
     let line2: String
+    /// 설명 두 줄 사이 간격 (스티밍 가이드 2, 연습 준비 0)
+    var descriptionLineGap: CGFloat = 2
 
     var body: some View {
         HStack(alignment: .top, spacing: 10) {
             // 번호 원 (25x25)
             ZStack {
                 Circle()
-                    .fill(AppColors.darkChipSelected)
+                    .fill(AppColors.guideStepNumber)
                     .frame(width: 25, height: 25)
                 Text("\(number)")
                     .font(.pretendard(.bold, size: 14))
@@ -26,19 +28,19 @@ struct NumberedGuideStep: View {
             // 제목 + 설명
             VStack(alignment: .leading, spacing: 0) {
                 Text(title)
-                    .font(.pretendard(.medium, size: 18))
+                    .font(.pretendard(.medium, size: 16))
                     .foregroundStyle(Color.white)
                     .frame(height: 25, alignment: .leading)
 
                 Text(line1)
                     .font(.pretendard(.regular, size: 12))
                     .foregroundStyle(AppColors.darkSubtitle)
-                    .padding(.top, 3)
+                    .padding(.top, 1)
 
                 Text(line2)
                     .font(.pretendard(.regular, size: 12))
                     .foregroundStyle(AppColors.darkSubtitle)
-                    .padding(.top, 3)
+                    .padding(.top, descriptionLineGap)
             }
         }
     }
