@@ -6,10 +6,10 @@ import SwiftUI
 ///     ┌ 상단 네비게이션 바: 연습 준비
 ///     ├ 타이틀 "시작 전, 잠깐 확인해요" ('잠깐 확인해요'만 강조색)
 ///     ├ 안내 단계 ① 휴대폰은 머신 가까이  ② 색상과 문구를 함께 확인
-///     ├ 상태 안내 카드 (264 x 192)
-///     │   ├ [휴대폰]      소리 확인 중
-///     │   ├ [워치·파랑]   공기 주입 소리
-///     │   └ [워치·분홍]   날카로운 소리
+///     ├ 상태 안내 카드 (329 x 234, 2열 x 3줄)
+///     │   ├ 공기 주입          │ 공기가 부족해요
+///     │   ├ 롤링 소리          │ 공기가 너무 많아요
+///     │   └ 노즐이 너무 높아요  │ 소리 확인 중
 ///     └ 하단 버튼: [연습 시작하기] [워치 없이 연습하기]
 struct SessionChecklistView: View {
     @EnvironmentObject private var practice: PracticeSession
@@ -44,7 +44,7 @@ struct SessionChecklistView: View {
             .padding(.leading, Layout.stepsLeading)
             .padding(.top, Layout.stepsTop)
 
-            // MARK: 상태 안내 카드 (x=69...332)
+            // MARK: 상태 안내 카드
             StatusLegendCard()
                 .padding(.top, Layout.legendCardTop)
 
@@ -75,24 +75,21 @@ struct SessionChecklistView: View {
 
 // MARK: - 상태 안내 카드
 
-/// 화면 상태별로 어떤 표시/진동이 나오는지 알려주는 카드 (264 x 192)
+/// 스티밍 상태별로 워치 화면에 어떤 색이 표시되는지 알려주는 카드 (329 x 234, 2열 x 3줄)
 private struct StatusLegendCard: View {
+    private let columns = Array(
+        repeating: GridItem(.fixed(LegendLayout.columnWidth), spacing: 0, alignment: .leading),
+        count: 2
+    )
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 18) {
-            StatusLegendRow(title: "소리 확인 중", description: "상태를 확인할 때까지 기다려요.") {
-                PhoneMiniIcon()
-            }
-
-            StatusLegendRow(title: "공기 주입 소리", description: "짧은 진동 한 번") {
-                WatchMiniIcon(screenColor: AppColors.aerationTop)
-            }
-
-            StatusLegendRow(title: "날카로운 소리", description: "짧은 진동 두 번") {
-                WatchMiniIcon(screenColor: AppColors.sharpSoundTop)
+        LazyVGrid(columns: columns, alignment: .leading, spacing: LegendLayout.rowSpacing) {
+            ForEach(StatusLegendItem.all) { item in
+                StatusLegendRow(item: item)
             }
         }
-        .padding(.horizontal, 28)
-        .frame(width: 264, height: 192, alignment: .leading)
+        .padding(.leading, LegendLayout.leadingPadding)
+        .frame(width: LegendLayout.cardWidth, height: LegendLayout.cardHeight, alignment: .leading)
         .background(
             RoundedRectangle(cornerRadius: 16, style: .continuous)
                 .fill(AppColors.darkCard)
@@ -100,22 +97,42 @@ private struct StatusLegendCard: View {
     }
 }
 
-/// 상태 안내 카드의 한 줄: [아이콘] 제목 / 설명
-private struct StatusLegendRow<Icon: View>: View {
+/// 상태 안내 카드의 한 칸에 들어갈 내용
+private struct StatusLegendItem: Identifiable {
     let title: String
+    /// 두 줄 설명 (\n 으로 줄바꿈)
     let description: String
-    @ViewBuilder let icon: () -> Icon
+    /// 워치 아이콘 화면 색
+    let screenColor: Color
+
+    var id: String { title }
+
+    /// 왼쪽 → 오른쪽, 위 → 아래 순서 (Hi-Fi 문구 그대로)
+    static let all: [StatusLegendItem] = [
+        StatusLegendItem(title: "공기 주입", description: "일반적인\n공기 주입 소리", screenColor: AppColors.aerationTop),
+        StatusLegendItem(title: "공기가 부족해요", description: "공기 주입 소리가\n작거나 없음", screenColor: AppColors.moreAirTop),
+        StatusLegendItem(title: "롤링 소리", description: "우유가\n회전하는 소리", screenColor: AppColors.milkFlowTop),
+        StatusLegendItem(title: "공기가 너무 많아요", description: "끓는 소리가\n날 수 있어요", screenColor: AppColors.sharpSoundTop),
+        StatusLegendItem(title: "노즐이 너무 높아요", description: "큰 거품과\n파열음 발생", screenColor: AppColors.bubbleTop),
+        StatusLegendItem(title: "소리 확인 중", description: "상태를 확인할\n때까지 기다려요.", screenColor: .black)
+    ]
+}
+
+/// 상태 안내 카드의 한 칸: [워치 아이콘] 제목 / 설명 2줄
+private struct StatusLegendRow: View {
+    let item: StatusLegendItem
 
     var body: some View {
-        HStack(spacing: 18) {
-            icon()
+        HStack(alignment: .top, spacing: LegendLayout.iconTextSpacing) {
+            WatchMiniIcon(screenColor: item.screenColor)
 
-            VStack(alignment: .leading, spacing: 3) {
-                Text(title)
-                    .font(.pretendard(.bold, size: 13))
+            VStack(alignment: .leading, spacing: 2) {
+                Text(item.title)
+                    .font(.pretendard(.bold, size: 12))
                     .foregroundStyle(Color.white)
-                Text(description)
-                    .font(.pretendard(.regular, size: 12))
+                Text(item.description)
+                    .font(.pretendard(.regular, size: 11))
+                    .lineSpacing(1)
                     .foregroundStyle(AppColors.darkSubtitle)
             }
         }
@@ -124,18 +141,7 @@ private struct StatusLegendRow<Icon: View>: View {
 
 // MARK: - 미니 아이콘
 
-/// 흰 테두리의 검정 휴대폰 모양 아이콘 (21 x 36, 아이콘 칸 폭 26)
-private struct PhoneMiniIcon: View {
-    var body: some View {
-        RoundedRectangle(cornerRadius: 5, style: .continuous)
-            .stroke(Color.white, lineWidth: 3.5)
-            .background(RoundedRectangle(cornerRadius: 5).fill(Color.black))
-            .frame(width: 21, height: 36)
-            .frame(width: 26)
-    }
-}
-
-/// 워치 모양 아이콘: 밴드(14 x 42) + 본체(24 x 28) + 화면(18 x 22, 상태 색상)
+/// 워치 모양 아이콘: 밴드(14 x 47) + 본체(24 x 28) + 화면(18 x 22, 상태 색상)
 private struct WatchMiniIcon: View {
     let screenColor: Color
 
@@ -143,18 +149,18 @@ private struct WatchMiniIcon: View {
         ZStack {
             // 밴드
             RoundedRectangle(cornerRadius: 3, style: .continuous)
-                .fill(Color.white)
-                .frame(width: 14, height: 42)
+                .fill(AppColors.legendWatchBody)
+                .frame(width: 14, height: 47)
             // 본체
             RoundedRectangle(cornerRadius: 5, style: .continuous)
-                .fill(Color.white)
+                .fill(AppColors.legendWatchBody)
                 .frame(width: 24, height: 28)
             // 화면
             RoundedRectangle(cornerRadius: 3, style: .continuous)
                 .fill(screenColor)
                 .frame(width: 18, height: 22)
         }
-        .frame(width: 26, height: 42)
+        .frame(width: 24, height: 47)
     }
 }
 
@@ -167,6 +173,22 @@ private enum Layout {
     static let stepsLeading: CGFloat = 92   // 안내 단계 좌측 여백
     static let legendCardTop: CGFloat = 38  // 안내 단계 ↔ 상태 안내 카드
     static let buttonsBottom: CGFloat = 9   // 버튼 ↔ 화면 하단(안전 영역)
+}
+
+/// 상태 안내 카드 내부 치수 (Hi-Fi 측정값)
+private enum LegendLayout {
+    static let cardWidth: CGFloat = 329
+    static let cardHeight: CGFloat = 234
+    static let leadingPadding: CGFloat = 27   // 카드 왼쪽 ↔ 첫 열 아이콘
+    static let columnWidth: CGFloat = 150     // 한 열의 폭 (왼쪽 아이콘 ↔ 오른쪽 아이콘)
+    static let rowSpacing: CGFloat = 26       // 줄 사이 간격 (아이콘 높이 47 + 26 = 줄 간격 73)
+    static let iconTextSpacing: CGFloat = 14  // 아이콘 ↔ 글자
+}
+
+// MARK: - 이 화면 전용 색상
+
+private extension AppColors {
+    static let legendWatchBody = Color(hex: 0xF5FAFF)
 }
 
 struct SessionChecklistView_Previews: PreviewProvider {
