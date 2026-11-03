@@ -9,7 +9,7 @@
 //
 //      segments ─┬─ timelineLength    → 전체 타임라인 가로축 길이
 //                ├─ detectedSeconds   → 상태별 감지 시간 타일
-//                └─ normal / caution / totalSeconds → 상단 도넛 차트 · 3열 요약
+//                └─ normal / caution → 상단 도넛 차트 · 요약 (전체 시간은 실제 연습 길이)
 //
 
 import SwiftUI
@@ -51,7 +51,7 @@ enum SteamingStage: CaseIterable {
 ///
 /// 소리마다 "어느 단계 줄에 그릴지 · 무슨 색인지 · 주의 소리인지"가 정해져 있습니다.
 /// case 순서가 곧 상태별 감지 시간 카드의 타일 순서입니다.
-enum DetectedSound: CaseIterable, Hashable {
+enum DetectedSound: String, Codable, CaseIterable, Hashable {
     /// 파랑 · 공기가 알맞게 들어가는 소리
     case normalAeration
     /// 주황 · 공기가 너무 많이 들어가는 소리
@@ -130,6 +130,8 @@ struct PracticeResult: Hashable {
     let dailyOrder: Int
     /// 감지 구간 목록 (시간 순서). 화면의 모든 숫자와 그래프는 이 목록에서 계산됩니다.
     let segments: [DetectedSegment]
+    /// 소리를 확인 중이던 시간까지 포함한 실제 연습 길이입니다.
+    var duration: TimeInterval? = nil
     /// 상태별 감지 시간을 별도로 지정할 때 사용 (nil 이면 segments 합계로 자동 계산)
     var customDetectedSeconds: [DetectedSound: Int]? = nil
     /// 타임라인 눈금 라벨을 별도로 지정할 때 사용 (nil 이면 timelineLength 로 자동 계산)
@@ -141,9 +143,9 @@ struct PracticeResult: Hashable {
         return "\(date.month ?? 0)월 \(date.day ?? 0)일 \(dailyOrder)차"
     }
 
-    /// 타임라인 가로축 전체 길이 (초) = 마지막 구간이 끝난 시점
+    /// 타임라인 가로축 전체 길이 (초). 실제 연습 길이가 없으면 마지막 감지 시점입니다.
     var timelineLength: TimeInterval {
-        segments.map(\.end).max() ?? Double(totalSeconds)
+        max(duration ?? 0, segments.map(\.end).max() ?? 0)
     }
 
     /// 소리 하나가 감지된 시간 (초, 반올림)
@@ -151,10 +153,23 @@ struct PracticeResult: Hashable {
         if let override = customDetectedSeconds?[sound] {
             return override
         }
-        let total = segments
-            .filter { $0.sound == sound }
-            .reduce(0) { $0 + $1.duration }
-        return Int(total.rounded())
+        return roundedDetectedSeconds[sound, default: 0]
+    }
+
+    /// 초 단위 반올림의 나머지를 배분해, 짧은 구간이 여러 개여도 합계가 늘어나지 않게 합니다.
+    private var roundedDetectedSeconds: [DetectedSound: Int] {
+        let durations = DetectedSound.allCases.map { sound in
+            segments.filter { $0.sound == sound }.reduce(0) { $0 + $1.duration }
+        }
+        var seconds = durations.map { Int($0.rounded(.down)) }
+        let remainder = Int(durations.reduce(0, +).rounded()) - seconds.reduce(0, +)
+        let indices = durations.indices.sorted {
+            let left = durations[$0] - Double(seconds[$0])
+            let right = durations[$1] - Double(seconds[$1])
+            return left == right ? $0 < $1 : left > right
+        }
+        for index in indices.prefix(remainder) { seconds[index] += 1 }
+        return Dictionary(uniqueKeysWithValues: zip(DetectedSound.allCases, seconds))
     }
 
     /// 상단 요약 "정상소리"
@@ -167,8 +182,8 @@ struct PracticeResult: Hashable {
         DetectedSound.allCases.filter(\.needsCaution).reduce(0) { $0 + detectedSeconds(of: $1) }
     }
 
-    /// 상단 요약 "전체 시간" = 정상소리 + 주의 소리
-    var totalSeconds: Int { normalSeconds + cautionSeconds }
+    /// 상단 요약 "전체 시간". 미분류 구간도 포함합니다.
+    var totalSeconds: Int { Int(timelineLength.rounded()) }
 
     /// 도넛 차트 바깥 링(정상소리) 비율 (0.0 ... 1.0)
     var normalRatio: Double {

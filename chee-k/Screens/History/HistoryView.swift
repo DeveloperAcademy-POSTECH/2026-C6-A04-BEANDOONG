@@ -8,31 +8,12 @@ import SwiftUI
 ///     ├ 기간 필터 칩: [오늘] 일주일 이번 달 올해 전체
 ///     └ 연습 기록 카드 목록 (터치 시 HistoryDetailView 로 이동)
 struct HistoryView: View {
+    @EnvironmentObject private var practice: PracticeSession
     @State private var selectedFilter: HistoryFilter = .today
 
-    // MARK: - 임시 목 데이터
-    // TODO: 엔티티 설계 후 아래 records 생성 코드를 삭제하고 실제 연습 기록으로 교체합니다.
-    // 실행 날짜 기준으로 오늘 / 최근 7일 / 이번 달 / 이전 달 / 작년 기록을 구성합니다.
-    private let records: [HistoryRecord] = {
-        let calendar = Calendar.current
-        let now = Date()
-        let recentDate = calendar.date(byAdding: .day, value: -3, to: now) ?? now
-        let earlierThisMonth = calendar.date(byAdding: .day, value: -10, to: now) ?? now
-        let lastMonth = calendar.date(byAdding: .month, value: -1, to: now) ?? now
-        let earlierThisYear = calendar.date(byAdding: .month, value: -3, to: now) ?? now
-        let lastYear = calendar.date(byAdding: .year, value: -1, to: now) ?? now
-        let earlierLastYear = calendar.date(byAdding: .month, value: -2, to: lastYear) ?? lastYear
-
-        return [
-            HistoryRecord(date: now, badge: "보통", durationSeconds: 32),
-            HistoryRecord(date: recentDate, badge: "좋음", durationSeconds: 28),
-            HistoryRecord(date: earlierThisMonth, badge: "보통", durationSeconds: 35),
-            HistoryRecord(date: lastMonth, badge: "좋음", durationSeconds: 30),
-            HistoryRecord(date: earlierThisYear, badge: "보통", durationSeconds: 38),
-            HistoryRecord(date: lastYear, badge: "좋음", durationSeconds: 33),
-            HistoryRecord(date: earlierLastYear, badge: "보통", durationSeconds: 40)
-        ]
-    }()
+    private var records: [HistoryRecord] {
+        practice.history.map { HistoryRecord(entity: $0) }
+    }
 
     private var filteredRecords: [HistoryRecord] {
         let calendar = Calendar.current
@@ -82,6 +63,12 @@ struct HistoryView: View {
                 // MARK: 연습 기록 카드 목록
                 ScrollView {
                     VStack(spacing: Layout.cardSpacing) {
+                        if filteredRecords.isEmpty {
+                            Text("선택한 기간에 연습 기록이 없어요.")
+                                .font(.pretendard(.regular, size: 15))
+                                .foregroundStyle(AppColors.darkSubtitle)
+                                .padding(.top, 40)
+                        }
                         ForEach(filteredRecords) { record in
                             NavigationLink {
                                 HistoryDetailView(result: record.result)
@@ -150,28 +137,21 @@ private struct HistoryFilterBar: View {
 
 // MARK: - 연습 기록 카드
 
-/// 카드에 표시할 임시 연습 기록
-// TODO: 엔티티 설계 후 이 임시 타입을 실제 모델로 교체합니다.
+/// 기존 카드 레이아웃에 저장된 기록을 전달합니다.
 private struct HistoryRecord: Identifiable {
-    let id = UUID()
+    let id: UUID
     let date: Date
     let dailyOrder: Int
-    let badge: String
     let durationSeconds: Int
     let result: PracticeResult
+    let badge = "저장됨"
 
-    init(
-        date: Date,
-        dailyOrder: Int = 1,
-        badge: String,
-        durationSeconds: Int,
-        result: PracticeResult? = nil
-    ) {
-        self.date = date
-        self.dailyOrder = dailyOrder
-        self.badge = badge
-        self.durationSeconds = durationSeconds
-        self.result = result ?? Self.makeResult(date: date, dailyOrder: dailyOrder, totalSeconds: durationSeconds)
+    init(entity: PracticeRecordEntity) {
+        id = entity.id
+        date = entity.startedAt
+        dailyOrder = entity.dailyOrder
+        result = entity.result
+        durationSeconds = result.totalSeconds
     }
 
     var duration: String {
@@ -183,28 +163,6 @@ private struct HistoryRecord: Identifiable {
         let isThisYear = calendar.isDate(date, equalTo: Date(), toGranularity: .year)
         let yearPrefix = isThisYear ? "" : "\(calendar.component(.year, from: date))년 "
         return "\(yearPrefix)\(calendar.component(.month, from: date))월 \(calendar.component(.day, from: date))일 - \(dailyOrder)차"
-    }
-
-    private static func makeResult(date: Date, dailyOrder: Int, totalSeconds: Int) -> PracticeResult {
-        let total = Double(max(totalSeconds, 1))
-        let s1 = (total * 0.15).rounded()
-        let s2 = (total * 0.60).rounded()
-        let s3 = (total * 0.75).rounded()
-        let s4 = (total * 0.85).rounded()
-        let s5 = (total * 0.92).rounded()
-
-        return PracticeResult(
-            practicedAt: date,
-            dailyOrder: dailyOrder,
-            segments: [
-                DetectedSegment(sound: .normalAeration, start: 0, end: s1),
-                DetectedSegment(sound: .rolling, start: s1, end: s2),
-                DetectedSegment(sound: .normalAeration, start: s2, end: s3),
-                DetectedSegment(sound: .overAeration, start: s3, end: s4),
-                DetectedSegment(sound: .lackOfAir, start: s4, end: s5),
-                DetectedSegment(sound: .overheated, start: s5, end: total)
-            ]
-        )
     }
 }
 
@@ -272,7 +230,9 @@ private enum Layout {
 struct HistoryView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack {
+            let connection = WatchConnection()
             HistoryView()
+                .environmentObject(PracticeSession(connection: connection))
         }
     }
 }

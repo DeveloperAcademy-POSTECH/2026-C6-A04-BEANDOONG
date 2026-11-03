@@ -41,9 +41,7 @@ struct WatchPracticeView: View {
         case .idle:
             StartRequestView(onStartTap: start)
         case .listening:
-            SoundCheckingView(checkingStatus: .listening, onCloseTap: stop)
-        case .noiseWarning:
-            SoundCheckingView(checkingStatus: .noiseWarning, onCloseTap: stop)
+            SoundCheckingView(onCloseTap: stop)
         case .aeration:
             SteamingFeedbackView(feedback: .aeration, onCloseTap: stop)
         case .sharpSound:
@@ -57,7 +55,6 @@ struct WatchPracticeView: View {
         case .finished:
             PracticeFinishedView(
                 practiceDurationText: connection.state.durationText,
-                onCloseTap: finishReview,
                 onDoneTap: finishReview
             )
         }

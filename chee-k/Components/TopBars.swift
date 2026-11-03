@@ -11,6 +11,7 @@ struct TopNavigationHeader: View {
     let title: String
     /// true: 흰색 아이콘/제목 (다크 화면), false: 검정 아이콘/제목 (라이트 화면)
     var isDark: Bool = false
+    var onBack: (() -> Void)? = nil
 
     private var foregroundColor: Color {
         isDark ? Color.white : AppColors.lightHeaderText
@@ -20,7 +21,7 @@ struct TopNavigationHeader: View {
         ZStack {
             HStack {
                 Button {
-                    dismiss()
+                    if let onBack { onBack() } else { dismiss() }
                 } label: {
                     Image(systemName: "chevron.left")
                         .font(.system(size: 17, weight: .semibold))
@@ -41,30 +42,20 @@ struct TopNavigationHeader: View {
 
 // MARK: - 스티밍 연습 상단 바
 
-/// 스티밍 진행 중 화면의 상단 바: 좌측 제목 + 우측 닫기(X)
+/// 스티밍 진행 중 화면의 상단 바: 좌측 제목
 ///
-///     [ 스티밍 연습              X ]
+///     [ 스티밍 연습                ]
 struct SteamingPracticeTopBar: View {
     var title: String = "스티밍 연습"
-    var onClose: () -> Void = {}
 
     var body: some View {
-        HStack {
-            Text(title)
-                .font(.pretendard(.medium, size: 16))
-                .foregroundStyle(Color.white)
-            Spacer()
-            Button(action: onClose) {
-                Image(systemName: "xmark")
-                    .font(.system(size: 17, weight: .regular))
-                    .foregroundStyle(Color.white)
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel("연습 종료")
-        }
-        .frame(height: 20)
-        .padding(.leading, 20)
-        .padding(.trailing, 25)
+        Text(title)
+            .font(.pretendard(.medium, size: 16))
+            .foregroundStyle(Color.white)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .frame(height: 20)
+            .padding(.leading, 20)
+            .padding(.trailing, 25)
     }
 }
 
