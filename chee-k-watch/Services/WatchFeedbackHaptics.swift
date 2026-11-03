@@ -66,7 +66,7 @@ final class WatchFeedbackHaptics: ObservableObject {
                 return .skip("직전 진동과 너무 가까운 판정")
             }
             return .notification
-        case .sharpSound, .bubble:
+        case .moreAir, .sharpSound, .bubble:
             return samePhase ? .skip("같은 경고 상태") : .failure
         default:
             return .skip("진동 대상 아님")
