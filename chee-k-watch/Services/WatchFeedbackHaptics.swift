@@ -10,6 +10,7 @@ import WatchKit
 final class WatchFeedbackHaptics: ObservableObject {
     private let logger = Logger(subsystem: "com.beandoong.cheek", category: "watch-feedback")
     #if os(watchOS)
+    private lazy var runtime = WatchPracticeRuntime { [weak self] in self?.record($0) }
     private var lastHapticAt: Date?
     #endif
     #if DEBUG && os(watchOS)
@@ -28,9 +29,10 @@ final class WatchFeedbackHaptics: ObservableObject {
         case notification, failure, skip(String)
     }
 
-    /// 워치 앱이 활성 상태일 때 판정에 맞는 햅틱을 한 번 재생합니다.
+    /// 연습의 실행 상태를 반영하고 판정에 맞는 햅틱을 한 번 요청합니다.
     func receive(previous: PracticeState, current: PracticeState) {
         #if os(watchOS)
+        runtime.update(for: current)
         let now = Date()
         let type: WKHapticType
         switch Self.feedback(previous: previous, current: current, now: now, lastHapticAt: lastHapticAt) {
@@ -40,12 +42,14 @@ final class WatchFeedbackHaptics: ObservableObject {
             record("\(current.phase.title) · 제외(\(reason))")
             return
         }
-        guard WKApplication.shared().applicationState == .active else {
-            record("\(current.phase.title) · 앱 비활성 · 진동 생략")
+        let isActive = WKApplication.shared().applicationState == .active
+        guard isActive || runtime.isRunning(for: current.sessionID) else {
+            record("\(current.phase.title) · 확장 세션 없음 · 진동 생략")
             return
         }
         lastHapticAt = now
-        playHaptic(type, for: current.phase.title)
+        let source = isActive ? "활성" : "확장 세션"
+        playHaptic(type, for: "\(current.phase.title) · \(source)")
         #endif
     }
 
