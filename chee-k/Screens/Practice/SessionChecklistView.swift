@@ -1,19 +1,21 @@
 import SwiftUI
 
 /// 연습 준비 확인 화면
-/// - 디자인: Hi-Fi/iPhone 17 - 152.png
+/// - 디자인: Hi-Fi 변경사항 18
 ///
 ///     ┌ 상단 네비게이션 바: 연습 준비
-///     ├ 타이틀 "시작 전, 잠깐 확인해요" ('잠깐 확인해요'만 강조색)
+///     ├ 타이틀 "시작 전 잠깐 확인해요" ('잠깐 확인해요'만 강조색)
 ///     ├ 안내 단계 ① 휴대폰은 머신 가까이  ② 색상과 문구를 함께 확인
 ///     ├ 상태 안내 카드 (329 x 234, 2열 x 3줄)
 ///     │   ├ 공기 주입          │ 공기가 부족해요
 ///     │   ├ 롤링 소리          │ 공기가 너무 많아요
 ///     │   └ 노즐이 너무 높아요  │ 소리 확인 중
-///     └ 하단 버튼: [연습 시작하기] [워치 없이 연습하기]
+///     └ 하단 버튼: [스팀 연습 시작하기] [워치 없이 연습하기]
 struct SessionChecklistView: View {
     @EnvironmentObject private var practice: PracticeSession
+    /// 워치와 함께 연습할지 여부 (홈 '워치 없이 연습', 워치 연결 실패 화면에서는 false)
     var usesWatch = true
+
     var body: some View {
         VStack(spacing: 0) {
             // MARK: 상단 네비게이션 바
@@ -25,19 +27,21 @@ struct SessionChecklistView: View {
                 .padding(.top, Layout.titleTop)
 
             // MARK: 안내 단계 (왼쪽 정렬, 좌측 여백 92)
-            VStack(alignment: .leading, spacing: 26) {
+            VStack(alignment: .leading, spacing: Layout.stepSpacing) {
                 NumberedGuideStep(
                     number: 1,
                     title: "휴대폰은 머신 가까이",
                     line1: "물과 열이 직접 닿지 않는",
-                    line2: "안정적인 곳에 두고 연습해 주세요."
+                    line2: "안정적인 곳에 두고 연습해 주세요.",
+                    descriptionLineGap: Layout.stepDescriptionLineGap
                 )
 
                 NumberedGuideStep(
                     number: 2,
                     title: "색상과 문구를 함께 확인해요.",
-                    line1: "색상 변화로 공기주입 상태를",
-                    line2: "쉽게 확인할 수 있어요."
+                    line1: "색상 변화로 공기주입 상태를 쉽게",
+                    line2: "확인할 수 있어요.",
+                    descriptionLineGap: Layout.stepDescriptionLineGap
                 )
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -51,8 +55,9 @@ struct SessionChecklistView: View {
             Spacer(minLength: 0)
 
             // MARK: 하단 버튼
+            // Hi-Fi는 버튼 하나지만, '워치 없이 연습하기' 동작은 develop 그대로 유지합니다.
             DarkButtonPair(
-                primaryTitle: "연습 시작하기", secondaryTitle: "워치 없이 연습하기",
+                primaryTitle: "스팀 연습 시작하기", secondaryTitle: "워치 없이 연습하기",
                 primaryAction: { Task { await practice.start(usingWatch: usesWatch) } },
                 secondaryAction: { Task { await practice.start(usingWatch: false) } }
             )
@@ -61,10 +66,10 @@ struct SessionChecklistView: View {
         .darkScreenBackground()
     }
 
-    /// "시작 전, **잠깐 확인해요**"
+    /// "시작 전 **잠깐 확인해요**"
     private var title: some View {
         HStack(spacing: 0) {
-            Text("시작 전, ")
+            Text("시작 전 ")
                 .foregroundStyle(Color.white)
             Text("잠깐 확인해요")
                 .foregroundStyle(AppColors.darkChipSelected)
@@ -168,9 +173,12 @@ private struct WatchMiniIcon: View {
 
 private enum Layout {
     static let headerTop: CGFloat = 22      // 상태바 ↔ 네비게이션 바
-    static let titleTop: CGFloat = 97       // 네비게이션 바 ↔ 타이틀
-    static let stepsTop: CGFloat = 23       // 타이틀 ↔ 안내 단계
+    static let titleTop: CGFloat = 68       // 네비게이션 바 ↔ 타이틀
+    static let stepsTop: CGFloat = 49       // 타이틀 ↔ 안내 단계
     static let stepsLeading: CGFloat = 92   // 안내 단계 좌측 여백
+    static let stepSpacing: CGFloat = 32    // 안내 단계 ① ↔ ②
+    /// 안내 단계 설명 두 줄 사이 (스티밍 가이드 화면보다 촘촘함)
+    static let stepDescriptionLineGap: CGFloat = 0
     static let legendCardTop: CGFloat = 38  // 안내 단계 ↔ 상태 안내 카드
     static let buttonsBottom: CGFloat = 9   // 버튼 ↔ 화면 하단(안전 영역)
 }
