@@ -19,7 +19,7 @@ struct WatchIntroView: View {
                 .padding(.top, Layout.topBarTop)
 
             // MARK: 일러스트
-            AssetImageView(name: "IllustPhoneWatch", width: 234, height: 198)
+            AssetImageView(name: "IllustPhoneWatch", width: 230, height: 193)
                 .padding(.top, Layout.illustrationTop)
 
             // MARK: 타이틀 + 설명
@@ -38,7 +38,7 @@ struct WatchIntroView: View {
             DarkPrimaryButton(title: "다음", action: onNext)
                 .padding(.bottom, Layout.buttonBottom)
         }
-        .darkScreenBackground()
+        .darkScreenBackgroundWithTopGlow()
     }
 }
 
@@ -46,11 +46,11 @@ struct WatchIntroView: View {
 
 private enum Layout {
     static let topBarTop: CGFloat = 22         // 상태바 ↔ 상단 바
-    static let illustrationTop: CGFloat = 173  // 상단 바 ↔ 일러스트
+    static let illustrationTop: CGFloat = 177  // 상단 바 ↔ 일러스트
     static let titleTop: CGFloat = 74          // 일러스트 ↔ 타이틀
-    static let subtitleTop: CGFloat = 16       // 타이틀 ↔ 설명
+    static let subtitleTop: CGFloat = 11       // 타이틀 ↔ 설명
     static let indicatorBottom: CGFloat = 28   // 인디케이터 ↔ 버튼
-    static let buttonBottom: CGFloat = 13      // 버튼 ↔ 화면 하단(안전 영역)
+    static let buttonBottom: CGFloat = 10      // 버튼 ↔ 화면 하단(안전 영역)
 }
 
 struct WatchIntroView_Previews: PreviewProvider {

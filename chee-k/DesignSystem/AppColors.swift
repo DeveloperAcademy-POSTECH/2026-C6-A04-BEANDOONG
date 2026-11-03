@@ -70,9 +70,9 @@ enum AppColors {
 
     // MARK: 온보딩
 
-    static let onboardingSkipText = Color(hex: 0x9EA6B4)
-    static let pageIndicatorActive = Color(hex: 0x48637E)
-    static let pageIndicatorInactive = Color(hex: 0xA5ACB8)
+    static let onboardingSkipText = Color(hex: 0xB9B9B9)
+    static let pageIndicatorActive = Color(hex: 0xA6DDF7)
+    static let pageIndicatorInactive = Color(hex: 0x717276)
 
     // MARK: 스티밍 피드백 (공기 주입 = 파랑, 날카로운 소리 = 분홍, 큰 기포 = 주황, 공기 추가 = 보라, 우유 흐름 = 초록)
 

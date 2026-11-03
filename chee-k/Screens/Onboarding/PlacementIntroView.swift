@@ -4,7 +4,7 @@ import SwiftUI
 /// - 디자인: Hi-Fi/iPhone 17 - 109.png
 ///
 ///     ┌ 상단 바: 건너뛰기
-///     ├ 스팀 머신 + 휴대폰 일러스트
+///     ├ 스팀 머신 + 소리 감지 일러스트
 ///     ├ 타이틀 + 설명
 ///     ├ 페이지 인디케이터 (● 세 번째)
 ///     └ 하단 버튼: 다음
@@ -19,7 +19,7 @@ struct PlacementIntroView: View {
                 .padding(.top, Layout.topBarTop)
 
             // MARK: 일러스트
-            AssetImageView(name: "IllustMachinePhone", width: 254, height: 202)
+            AssetImageView(name: "IllustMachineSound", width: 251, height: 199)
                 .padding(.top, Layout.illustrationTop)
 
             // MARK: 타이틀 + 설명
@@ -38,7 +38,7 @@ struct PlacementIntroView: View {
             DarkPrimaryButton(title: "다음", action: onNext)
                 .padding(.bottom, Layout.buttonBottom)
         }
-        .darkScreenBackground()
+        .darkScreenBackgroundWithTopGlow()
     }
 }
 
@@ -46,11 +46,11 @@ struct PlacementIntroView: View {
 
 private enum Layout {
     static let topBarTop: CGFloat = 22         // 상태바 ↔ 상단 바
-    static let illustrationTop: CGFloat = 159  // 상단 바 ↔ 일러스트
+    static let illustrationTop: CGFloat = 162  // 상단 바 ↔ 일러스트
     static let titleTop: CGFloat = 82          // 일러스트 ↔ 타이틀
-    static let subtitleTop: CGFloat = 16       // 타이틀 ↔ 설명
+    static let subtitleTop: CGFloat = 11       // 타이틀 ↔ 설명
     static let indicatorBottom: CGFloat = 28   // 인디케이터 ↔ 버튼
-    static let buttonBottom: CGFloat = 13      // 버튼 ↔ 화면 하단(안전 영역)
+    static let buttonBottom: CGFloat = 10      // 버튼 ↔ 화면 하단(안전 영역)
 }
 
 struct PlacementIntroView_Previews: PreviewProvider {
