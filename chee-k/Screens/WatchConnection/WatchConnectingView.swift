@@ -14,7 +14,7 @@ struct WatchConnectingView: View {
                 .padding(.top, Layout.headerTop)
 
             // MARK: 일러스트
-            AssetImageView(name: "IllustWatchChecking", width: 126, height: 210)
+            AssetImageView(name: "IllustWatchChecking", width: 121, height: 207)
                 .padding(.top, Layout.illustrationTop)
 
             // MARK: 타이틀 + 설명
@@ -26,7 +26,7 @@ struct WatchConnectingView: View {
 
             Spacer(minLength: 0)
         }
-        .darkScreenBackground()
+        .darkScreenBackgroundWithTopGlow()
     }
 }
 
@@ -34,9 +34,9 @@ struct WatchConnectingView: View {
 
 private enum Layout {
     static let headerTop: CGFloat = 22         // 상태바 ↔ 네비게이션 바
-    static let illustrationTop: CGFloat = 129  // 네비게이션 바 ↔ 일러스트
+    static let illustrationTop: CGFloat = 132  // 네비게이션 바 ↔ 일러스트
     static let titleTop: CGFloat = 76          // 일러스트 ↔ 타이틀
-    static let subtitleTop: CGFloat = 18       // 타이틀 ↔ 설명
+    static let subtitleTop: CGFloat = 14       // 타이틀 ↔ 설명
 }
 
 struct WatchConnectingView_Previews: PreviewProvider {
