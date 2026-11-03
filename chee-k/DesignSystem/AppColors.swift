@@ -74,25 +74,27 @@ enum AppColors {
     static let pageIndicatorActive = Color(hex: 0xA6DDF7)
     static let pageIndicatorInactive = Color(hex: 0x717276)
 
-    // MARK: 스티밍 피드백 (공기 주입 = 파랑, 날카로운 소리 = 분홍, 큰 기포 = 주황, 공기 추가 = 보라, 우유 흐름 = 초록)
+    // MARK: 스티밍 피드백
+    // 배경은 모두 위 → 아래 2색 그라데이션이고, 위쪽 색이 곧 상태 대표색입니다.
+    // (정지 버튼 사각형, 연습 준비 화면의 워치 아이콘 화면 색으로도 사용)
 
-    static let aerationBlue = Color(hex: 0x5A82FC)
-    static let aerationGradient: [Color] = [
-        aerationBlue,
-        Color(hex: 0x4371FC),
-        aerationBlue
-    ]
-    static let aerationStopSquare = Color(hex: 0x4C77FC)
+    /// 공기 주입 (파랑)
+    static let aerationTop = Color(hex: 0x1BA7E9)
+    static let aerationGradient: [Color] = [aerationTop, Color(hex: 0xA5DCF6)]
 
-    static let sharpSoundPink = Color(hex: 0xFF5B79)
-    static let sharpSoundGradient: [Color] = [
-        sharpSoundPink,
-        Color(hex: 0xFF385E),
-        Color(hex: 0xFF5978)
-    ]
-    static let sharpSoundStopSquare = Color(hex: 0xFF4F70)
+    /// 롤링 (초록)
+    static let milkFlowTop = Color(hex: 0x1ABC37)
+    static let milkFlowGradient: [Color] = [milkFlowTop, Color(hex: 0xCCF175)]
 
-    static let bubbleWarningOrange = Color(hex: 0xFFA615)
-    static let moreAirPurple = Color(hex: 0x784AD6)
-    static let milkFlowGreen = Color(hex: 0x1ABC6B)
+    /// 노즐이 높아 큰 기포가 생길 수 있음 (주황)
+    static let bubbleTop = Color(hex: 0xFFA615)
+    static let bubbleGradient: [Color] = [bubbleTop, Color(hex: 0xF1E175)]
+
+    /// 공기 주입 부족 (보라)
+    static let moreAirTop = Color(hex: 0xA480EB)
+    static let moreAirGradient: [Color] = [moreAirTop, Color(hex: 0xE4C0E9)]
+
+    /// 우유 과열 (빨강)
+    static let sharpSoundTop = Color(hex: 0xF2627C)
+    static let sharpSoundGradient: [Color] = [sharpSoundTop, Color(hex: 0xECBFBF)]
 }

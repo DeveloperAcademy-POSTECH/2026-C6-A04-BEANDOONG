@@ -1,12 +1,12 @@
 import SwiftUI
 
-/// 스티밍 연습 – 모델 피드백 화면 (피드백 종류에 따라 색상·아이콘·텍스트만 변경)
-/// - 디자인: Hi-Fi/iPhone 17 - 119, 101, 157, 158, 161.png
+/// 스티밍 연습 – 모델 피드백 화면 (피드백 종류에 따라 색상·텍스트·일러스트만 변경)
+/// - 디자인: Hi-Fi 변경사항 07~11
 ///
-///     ┌ 배경: 피드백별 그라데이션 / 단색
+///     ┌ 배경: 피드백별 위 → 아래 그라데이션
 ///     ├ 상단 바: 스티밍 연습
-///     ├ (상태 아이콘) + 타이틀 + 설명
-///     ├ 피드백별 웨이브 일러스트
+///     ├ 타이틀 + 설명
+///     ├ 피드백별 우유 일러스트
 ///     └ 하단 중앙: 정지 버튼
 struct SteamingFeedbackView: View {
     let feedback: SteamingFeedback
@@ -15,8 +15,7 @@ struct SteamingFeedbackView: View {
     var body: some View {
         ZStack {
             // MARK: 배경
-            Rectangle()
-                .fill(feedback.background)
+            LinearGradient(colors: feedback.gradientColors, startPoint: .top, endPoint: .bottom)
                 .ignoresSafeArea()
 
             VStack(spacing: 0) {
@@ -24,21 +23,16 @@ struct SteamingFeedbackView: View {
                 SteamingPracticeTopBar()
                     .padding(.top, Layout.topBarTop)
 
-                // MARK: 상태 아이콘 + 타이틀 + 설명
-                if let statusIcon = feedback.statusIcon {
-                    AssetImageView(name: statusIcon, width: 40, height: 38)
-                        .padding(.top, Layout.iconTop)
-                }
-
+                // MARK: 타이틀 + 설명
                 DarkScreenTitle(feedback.title)
-                    .padding(.top, hasIcon ? Layout.titleTopWithIcon : Layout.titleTop)
+                    .padding(.top, Layout.titleTop)
 
-                DarkScreenSubtitle(feedback.subtitle, color: Color.white.opacity(0.92))
+                DarkScreenSubtitle(feedback.subtitle, color: Color.white)
                     .padding(.top, Layout.subtitleTop)
 
                 // MARK: 일러스트
-                AssetImageView(name: feedback.waveImage, width: 262, height: 262)
-                    .padding(.top, hasIcon ? Layout.illustrationTopWithIcon : Layout.illustrationTop)
+                AssetImageView(name: feedback.illustration, width: Layout.illustrationSize, height: Layout.illustrationSize)
+                    .padding(.top, Layout.illustrationTop)
 
                 Spacer(minLength: 0)
 
@@ -49,85 +43,71 @@ struct SteamingFeedbackView: View {
         }
         .preferredColorScheme(.dark)
     }
-
-    private var hasIcon: Bool { feedback.statusIcon != nil }
 }
 
 // MARK: - 피드백 종류
 
+/// case 이름은 `PracticePhase`(워치와 공유)와 맞춰 두고, 화면 문구만 Hi-Fi에 맞춥니다.
 enum SteamingFeedback: CaseIterable {
-    /// 공기 주입 소리 감지 (파랑)
+    /// 공기가 고르게 들어가는 중 (파랑)
     case aeration
-    /// 날카로운 소리 감지 (분홍)
+    /// 금속성 소리 — 우유가 오래 가열되는 중 (빨강)
     case sharpSound
-    /// 큰 기포 주의 (주황)
+    /// 노즐이 높아 큰 기포가 생길 수 있음 (주황)
     case bubble
-    /// 공기 추가 주입 (보라)
+    /// 공기 주입이 부족함 (보라)
     case moreAir
-    /// 우유 흐름(롤링) 확인 (초록)
+    /// 롤링이 안정적으로 진행되는 중 (초록)
     case milkFlow
 
-    var background: AnyShapeStyle {
+    var gradientColors: [Color] {
         switch self {
-        case .aeration:
-            AnyShapeStyle(LinearGradient(colors: AppColors.aerationGradient, startPoint: .top, endPoint: .bottom))
-        case .sharpSound:
-            AnyShapeStyle(LinearGradient(colors: AppColors.sharpSoundGradient, startPoint: .top, endPoint: .bottom))
-        case .bubble:
-            AnyShapeStyle(AppColors.bubbleWarningOrange)
-        case .moreAir:
-            AnyShapeStyle(AppColors.moreAirPurple)
-        case .milkFlow:
-            AnyShapeStyle(AppColors.milkFlowGreen)
-        }
-    }
-
-    var statusIcon: String? {
-        switch self {
-        case .aeration, .sharpSound: nil
-        case .bubble: "IllustBubbleIcon"
-        case .moreAir: "IllustPulseIcon"
-        case .milkFlow: "IllustSwirlIcon"
+        case .aeration: AppColors.aerationGradient
+        case .sharpSound: AppColors.sharpSoundGradient
+        case .bubble: AppColors.bubbleGradient
+        case .moreAir: AppColors.moreAirGradient
+        case .milkFlow: AppColors.milkFlowGradient
         }
     }
 
     var title: String {
         switch self {
-        case .aeration: "공기 주입 소리가\n감지되고 있어요."
-        case .sharpSound: "날카로운 소리가\n감지되고 있어요"
+        case .aeration: "공기가 고르게\n들어가고 있어요"
+        case .sharpSound: "우유가 오래\n가열되고 있어요"
         case .bubble: "큰 기포가\n생길 수 있어요"
-        case .moreAir: "공기를 조금 더\n넣어 주세요"
-        case .milkFlow: "우유의 흐름을\n확인해요"
+        case .moreAir: "공기 주입이\n부족해요"
+        case .milkFlow: "롤링이 안정적으로\n진행되고 있어요"
         }
     }
 
     var subtitle: String {
         switch self {
-        case .aeration: "공기 주입 소리가 들리고 있어요"
-        case .sharpSound: "우유의 상태를 확인해주세요"
+        case .aeration: "지금 상태를 유지해 주세요"
+        case .sharpSound: "온도를 확인해 주세요"
         case .bubble: "피처를 살짝 올려 노즐을 더 담가 주세요"
-        case .moreAir: "피처를 살짝 내려 주세요."
-        case .milkFlow: "한 방향으로 돌면 그대로 유지해 주세요"
+        case .moreAir: "피처를 살짝 내려 주세요"
+        case .milkFlow: "우유가 한 방향으로 돌도록 유지해 주세요"
         }
     }
 
-    var waveImage: String {
+    var illustration: String {
         switch self {
-        case .aeration: "IllustBlueWave"
-        case .sharpSound: "IllustPinkWave"
-        case .bubble: "IllustOrangeWave"
-        case .moreAir: "IllustPurpleWave"
-        case .milkFlow: "IllustGreenWave"
+        case .aeration: "IllustFeedbackAeration"
+        case .sharpSound: "IllustFeedbackSharpSound"
+        case .bubble: "IllustFeedbackBubble"
+        case .moreAir: "IllustFeedbackMoreAir"
+        case .milkFlow: "IllustFeedbackMilkFlow"
         }
     }
 
+    /// 정지 버튼 가운데 사각형 색 = 배경 그라데이션의 위쪽 색
     var stopSquareColor: Color {
         switch self {
-        case .aeration: AppColors.aerationStopSquare
-        case .sharpSound: AppColors.sharpSoundStopSquare
-        case .bubble: AppColors.bubbleWarningOrange
-        case .moreAir: AppColors.moreAirPurple
-        case .milkFlow: AppColors.milkFlowGreen
+        case .aeration: AppColors.aerationTop
+        case .sharpSound: AppColors.sharpSoundTop
+        case .bubble: AppColors.bubbleTop
+        case .moreAir: AppColors.moreAirTop
+        case .milkFlow: AppColors.milkFlowTop
         }
     }
 }
@@ -135,14 +115,12 @@ enum SteamingFeedback: CaseIterable {
 // MARK: - Layout
 
 private enum Layout {
-    static let topBarTop: CGFloat = 13                // 상태바 ↔ 상단 바
-    static let iconTop: CGFloat = 44                  // 상단 바 ↔ 상태 아이콘
-    static let titleTop: CGFloat = 80                 // 상단 바 ↔ 타이틀 (아이콘 없음)
-    static let titleTopWithIcon: CGFloat = 22         // 상태 아이콘 ↔ 타이틀
-    static let subtitleTop: CGFloat = 16              // 타이틀 ↔ 설명
-    static let illustrationTop: CGFloat = 75          // 설명 ↔ 일러스트 (아이콘 없음)
-    static let illustrationTopWithIcon: CGFloat = 68  // 설명 ↔ 일러스트 (아이콘 있음)
-    static let stopButtonBottom: CGFloat = 52         // 정지 버튼 ↔ 화면 하단(안전 영역)
+    static let topBarTop: CGFloat = 13          // 상태바 ↔ 상단 바
+    static let titleTop: CGFloat = 79           // 상단 바 ↔ 타이틀
+    static let subtitleTop: CGFloat = 16        // 타이틀 ↔ 설명
+    static let illustrationTop: CGFloat = 75    // 설명 ↔ 일러스트
+    static let illustrationSize: CGFloat = 258  // 일러스트 가로·세로
+    static let stopButtonBottom: CGFloat = 74   // 정지 버튼 ↔ 화면 하단(안전 영역)
 }
 
 struct SteamingFeedbackView_Previews: PreviewProvider {

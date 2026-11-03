@@ -114,17 +114,19 @@ struct LightButtonPair: View {
 
 // MARK: - 스티밍 정지 버튼
 
-/// 스티밍 화면 하단 중앙의 원형 정지 버튼: 흰 원(82) 안에 정사각형(25)
+/// 스티밍 화면 하단 중앙의 원형 정지 버튼: 아주 옅은 하늘빛 흰 원(82) 안에 정사각형(25)
 struct SteamingStopButton: View {
     /// 가운데 정사각형 색상 (화면 배경색에 맞춤)
     let squareColor: Color
     var action: () -> Void = {}
+    /// 바깥 원 색상 (순백보다 아주 옅은 하늘빛)
+    private let circleColor = Color(hex: 0xF5FAFF)
 
     var body: some View {
         Button(action: action) {
             ZStack {
                 Circle()
-                    .fill(Color.white)
+                    .fill(circleColor)
                     .frame(width: 82, height: 82)
                 RoundedRectangle(cornerRadius: 4, style: .continuous)
                     .fill(squareColor)
