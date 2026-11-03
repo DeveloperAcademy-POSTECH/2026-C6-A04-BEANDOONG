@@ -17,7 +17,7 @@ struct MicrophoneAccessView: View {
                 .padding(.top, Layout.headerTop)
 
             // MARK: 일러스트
-            AssetImageView(name: "IllustMic", width: 98, height: 170)
+            AssetImageView(name: "IllustMic", width: 93, height: 165)
                 .padding(.top, Layout.illustrationTop)
 
             // MARK: 타이틀 + 설명
@@ -33,7 +33,7 @@ struct MicrophoneAccessView: View {
             DarkPrimaryButton(title: "설정 열기", action: onOpenSettings)
                 .padding(.bottom, Layout.buttonsBottom)
         }
-        .darkScreenBackground()
+        .darkScreenBackgroundWithTopGlow()
     }
 }
 
@@ -41,10 +41,10 @@ struct MicrophoneAccessView: View {
 
 private enum Layout {
     static let headerTop: CGFloat = 22         // 상태바 ↔ 네비게이션 바
-    static let illustrationTop: CGFloat = 129  // 네비게이션 바 ↔ 일러스트
+    static let illustrationTop: CGFloat = 133  // 네비게이션 바 ↔ 일러스트
     static let titleTop: CGFloat = 74          // 일러스트 ↔ 타이틀
     static let subtitleTop: CGFloat = 16       // 타이틀 ↔ 설명
-    static let buttonsBottom: CGFloat = 12     // 버튼 ↔ 화면 하단(안전 영역)
+    static let buttonsBottom: CGFloat = 10     // 버튼 ↔ 화면 하단(안전 영역)
 }
 
 struct MicrophoneAccessView_Previews: PreviewProvider {
