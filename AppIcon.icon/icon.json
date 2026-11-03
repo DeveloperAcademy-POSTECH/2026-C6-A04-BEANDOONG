@@ -6,16 +6,48 @@
     {
       "layers" : [
         {
+          "blend-mode" : "normal",
           "glass" : false,
-          "image-name" : "기본.svg",
-          "name" : "기본",
-          "position" : {
-            "scale" : 1,
-            "translation-in-points" : [
-              0,
-              0
-            ]
-          }
+          "hidden-specializations" : [
+            {
+              "value" : false
+            },
+            {
+              "idiom" : "watchOS",
+              "value" : false
+            }
+          ],
+          "image-name-specializations" : [
+            {
+              "value" : "기본.svg"
+            },
+            {
+              "idiom" : "watchOS",
+              "value" : "Frame 2147236729.svg"
+            }
+          ],
+          "name" : "AppIcon_Watch",
+          "position-specializations" : [
+            {
+              "value" : {
+                "scale" : 1,
+                "translation-in-points" : [
+                  0,
+                  0
+                ]
+              }
+            },
+            {
+              "idiom" : "watchOS",
+              "value" : {
+                "scale" : 1.1,
+                "translation-in-points" : [
+                  0,
+                  0
+                ]
+              }
+            }
+          ]
         }
       ],
       "shadow" : {
