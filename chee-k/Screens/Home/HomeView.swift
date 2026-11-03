@@ -5,7 +5,7 @@ import SwiftUI
 ///
 ///     ┌ chic 로고
 ///     ├ 헤드라인 "다음 한잔을 / 위한 작은 연습" + 설명
-///     ├ 메인 히어로 카드 (피처 이미지)
+///     ├ 메인 연습 카드 (워치 + 피처 이미지, 좌하단 문구, 우하단 연습 버튼)
 ///     └ 하단 2열 카드: [연습 가이드] [최근 연습]
 struct HomeView: View {
     @EnvironmentObject private var practice: PracticeSession
@@ -96,37 +96,38 @@ struct HomeView: View {
         .preferredColorScheme(.dark)
     }
 
-    /// 피처 이미지와 안내 문구 위에 독립된 연습 버튼을 배치한 홈 카드
+    /// 워치+피처 이미지 위로, 좌하단 안내 문구와 우하단 연습 버튼을 배치한 홈 카드
     private var practiceCard: some View {
-        VStack(alignment: .leading, spacing: 0) {
+        HStack(alignment: .bottom, spacing: 0) {
             VStack(alignment: .leading, spacing: 4) {
-                Text("실시간 피드백과 함께")
-                Text("함께 스티밍을 연습해요")
+                Text("애플 워치와 함께")
+                Text("스티밍을 연습해요")
             }
             .font(.pretendard(.semibold, size: 20))
-            .foregroundStyle(Color.white)
+            .foregroundStyle(AppColors.homeCardText)
 
-            Spacer()
+            Spacer(minLength: 0)
 
             HomePracticeButton {
                 path.append(MicrophonePermission.isGranted ? .watchSetup : .microphone)
             }
-            .frame(maxWidth: .infinity, alignment: .trailing)
         }
-        .padding(.horizontal, 15)
-        .padding(.vertical, 17)
-        .frame(width: 362, height: 262)
+        .padding(.leading, HeroCard.textLeading)
+        .padding(.trailing, HeroCard.buttonTrailing)
+        .padding(.bottom, HeroCard.contentBottom)
+        .frame(width: HeroCard.width, height: HeroCard.height, alignment: .bottom)
         .background {
             LinearGradient(
                 colors: AppColors.homePracticeCardGradient,
                 startPoint: .top,
                 endPoint: .bottom
             )
-            .overlay(alignment: .trailing) {
-                Image("HomePitcher")
+            .overlay(alignment: .topLeading) {
+                // 이미지는 카드보다 크게 그려 왼쪽(손목)과 위쪽(스팀 노즐)이 카드 밖으로 잘립니다. (Hi-Fi 그대로)
+                Image("HomeWatchPractice")
                     .resizable()
-                    .frame(width: 342, height: 385)
-                    .opacity(0.82)
+                    .frame(width: HeroCard.imageSize.width, height: HeroCard.imageSize.height)
+                    .offset(HeroCard.imageOffset)
                     .accessibilityHidden(true)
             }
             .allowsHitTesting(false)
@@ -210,6 +211,18 @@ private enum Layout {
     static let subCardsTop: CGFloat = 15  // 히어로 카드 ↔ 하단 2열 카드
 }
 
+/// 메인 연습 카드 치수 (Hi-Fi 측정값)
+private enum HeroCard {
+    static let width: CGFloat = 362
+    static let height: CGFloat = 341
+    /// 이미지 원본(@3x) 크기 그대로, 카드 왼쪽 위에서 (-42, -30) 만큼 밖으로 밀어 배치 (Hi-Fi와 겹쳐 맞춘 값)
+    static let imageSize = CGSize(width: 469, height: 284)
+    static let imageOffset = CGSize(width: -42, height: -30)
+    static let textLeading: CGFloat = 15     // 카드 왼쪽 ↔ 안내 문구
+    static let buttonTrailing: CGFloat = 23  // 연습 버튼 ↔ 카드 오른쪽
+    static let contentBottom: CGFloat = 25   // 연습 버튼 ↔ 카드 아래
+}
+
 // MARK: - 이 화면 전용 색상
 
 private extension AppColors {
@@ -218,11 +231,13 @@ private extension AppColors {
         Color(hex: 0x111721),
         Color(hex: 0x0E131D)
     ]
-    static let homePracticeCardGradient: [Color] = [Color(hex: 0xDBECFF), Color(hex: 0x76CAF2)]
+    static let homePracticeCardGradient: [Color] = [Color(hex: 0xA6DDF7), Color(hex: 0xF3F8FE)]
     static let homePracticeButton = Color(hex: 0xDBECFF)
     static let homePracticeButtonText = Color(hex: 0x01030C)
     static let homeGuideCard = Color(hex: 0x476480)
     static let homeRecentCard = Color(hex: 0x163248)
+    /// 밝은 카드 위 글자·화살표 색
+    static let homeCardText = Color(hex: 0x01030C)
 }
 
 struct HomeView_Previews: PreviewProvider {
