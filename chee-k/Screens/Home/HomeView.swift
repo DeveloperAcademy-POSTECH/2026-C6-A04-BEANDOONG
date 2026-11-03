@@ -36,7 +36,7 @@ struct HomeView: View {
                         case .watchSetup:
                             WatchConnectionFlow()
                         case .history:
-                            HistoryView()
+                            HistoryView(onStartPractice: startPractice)
                         }
                     }
                     .toolbar(.hidden, for: .navigationBar)
@@ -110,9 +110,7 @@ struct HomeView: View {
 
             Spacer(minLength: 0)
 
-            HomePracticeButton {
-                path.append(MicrophonePermission.isGranted ? .watchSetup : .microphone)
-            }
+            HomePracticeButton(action: startPractice)
         }
         .padding(.leading, HeroCard.textLeading)
         .padding(.trailing, HeroCard.buttonTrailing)
@@ -135,6 +133,10 @@ struct HomeView: View {
             .allowsHitTesting(false)
         }
         .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+    }
+
+    private func startPractice() {
+        path = [MicrophonePermission.isGranted ? .watchSetup : .microphone]
     }
 
     /// "다음 **한잔**을 / 위한 작은 연습" — '한잔'만 강조색
