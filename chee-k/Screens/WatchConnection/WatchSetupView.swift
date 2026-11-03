@@ -19,7 +19,7 @@ struct WatchSetupView: View {
                 .padding(.top, Layout.headerTop)
 
             // MARK: 일러스트
-            AssetImageView(name: "IllustPhoneWatch", width: 234, height: 198)
+            AssetImageView(name: "IllustPhoneWatch", width: 230, height: 193)
                 .padding(.top, Layout.illustrationTop)
 
             // MARK: 타이틀 + 설명
@@ -42,7 +42,7 @@ struct WatchSetupView: View {
             )
                 .padding(.bottom, Layout.buttonsBottom)
         }
-        .darkScreenBackground()
+        .darkScreenBackgroundWithTopGlow()
         .navigationDestination(isPresented: $showsChecklist) {
             SessionChecklistView(usesWatch: false)
                 .toolbar(.hidden, for: .navigationBar)
@@ -54,10 +54,10 @@ struct WatchSetupView: View {
 
 private enum Layout {
     static let headerTop: CGFloat = 22         // 상태바 ↔ 네비게이션 바
-    static let illustrationTop: CGFloat = 141  // 네비게이션 바 ↔ 일러스트
-    static let titleTop: CGFloat = 65          // 일러스트 ↔ 타이틀
-    static let subtitleTop: CGFloat = 16       // 타이틀 ↔ 설명
-    static let buttonsBottom: CGFloat = 12     // 버튼 ↔ 화면 하단(안전 영역)
+    static let illustrationTop: CGFloat = 145  // 네비게이션 바 ↔ 일러스트
+    static let titleTop: CGFloat = 69          // 일러스트 ↔ 타이틀
+    static let subtitleTop: CGFloat = 9        // 타이틀 ↔ 설명
+    static let buttonsBottom: CGFloat = 10     // 버튼 ↔ 화면 하단(안전 영역)
 }
 
 struct WatchSetupView_Previews: PreviewProvider {
