@@ -6,7 +6,7 @@
 //  글자를 읽지 않아도 화면 전체 색상과 일러스트로 구분되게 디자인되어 있습니다.
 //
 //  화면만 그립니다. 어떤 피드백을 보여줄지는 화면을 사용하는 쪽에서 `feedback`으로 전달합니다.
-//  추가 예정인 X 버튼은 전달받은 `onCloseTap`을 호출합니다.
+//  X 버튼은 전달받은 `onCloseTap`으로 연습 종료를 요청합니다.
 //
 
 import SwiftUI
@@ -14,13 +14,13 @@ import SwiftUI
 /// 실시간 피드백 화면
 /// - 디자인: hifi/Frame 2147236534 ~ 2147236538.png
 ///
-///     ┌ 안내 문구 (해야 할 동작)
-///     ├ 소리 상태 문구
+///     ┌ 좌측 상단 닫기(X) 버튼
+///     ├ 안내 문구 (해야 할 동작) · 소리 상태 문구
 ///     └ 일러스트
 struct SteamingFeedbackView: View {
     /// 화면에 보여줄 피드백 종류 (문구 · 일러스트 · 배경 색상이 함께 바뀝니다)
     let feedback: SteamingFeedback
-    /// 뷰 작업자가 추가할 X 버튼에서 호출할 연습 종료 동작
+    /// X 버튼에서 호출할 연습 종료 동작
     var onCloseTap: () -> Void = {}
 
     var body: some View {
@@ -50,10 +50,7 @@ struct SteamingFeedbackView: View {
         }
         .foregroundStyle(.white)
         .background(FeedbackBackground(gradient: feedback.backgroundGradient))
-        // 피드백 화면은 버튼이 없는 디자인이라 상단 내비게이션 바를 숨깁니다.
-        // X를 시스템 툴바로 추가할 때는 이 숨김 설정도 제거해야 합니다.
-        // (시간 표시는 watchOS가 항상 보여주므로 숨길 수 없습니다.)
-        .toolbar(.hidden, for: .navigationBar)
+        .watchCloseButton(onClose: onCloseTap)
     }
 }
 
@@ -91,8 +88,8 @@ private enum Metrics {
     static let edgeGlowBlurRadius: CGFloat = 8           // 가장자리 빛 번짐을 흐리게 퍼뜨리는 정도
 }
 
-#Preview("파랑 · 공기 주입 소리") { SteamingFeedbackView(feedback: .aeration) }
-#Preview("분홍 · 공기 과다") { SteamingFeedbackView(feedback: .sharpSound) }
-#Preview("주황 · 노즐 높음") { SteamingFeedbackView(feedback: .bubble) }
-#Preview("보라 · 공기 부족") { SteamingFeedbackView(feedback: .moreAir) }
-#Preview("초록 · 롤링 소리") { SteamingFeedbackView(feedback: .milkFlow) }
+#Preview("파랑 · 공기 주입 소리") { NavigationStack { SteamingFeedbackView(feedback: .aeration) } }
+#Preview("분홍 · 공기 과다") { NavigationStack { SteamingFeedbackView(feedback: .sharpSound) } }
+#Preview("주황 · 노즐 높음") { NavigationStack { SteamingFeedbackView(feedback: .bubble) } }
+#Preview("보라 · 공기 부족") { NavigationStack { SteamingFeedbackView(feedback: .moreAir) } }
+#Preview("초록 · 롤링 소리") { NavigationStack { SteamingFeedbackView(feedback: .milkFlow) } }

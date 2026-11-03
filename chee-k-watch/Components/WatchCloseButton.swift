@@ -6,8 +6,7 @@
 //
 //  [왜 툴바에 넣나요?]
 //  직접 그려서 좌측 상단에 배치하면 기기마다 시간 표시 · 둥근 모서리와 겹칠 수 있습니다.
-//  시스템 툴바(.topBarLeading)에 넣으면 watchOS가 기기 크기에 맞는 위치와 모양(유리 질감 원형 버튼)을
-//  알아서 정해 주므로, Hi-Fi와 같은 모양을 모든 기기에서 안전하게 유지할 수 있습니다.
+//  시스템 툴바(.topBarLeading)로 위치를 정하고, 원형 배경은 디자인의 30×30pt로 표시합니다.
 //
 //  [주의]
 //  툴바는 NavigationStack 안에서만 보입니다. 이 버튼을 쓰는 화면은 NavigationStack 안에 넣어 주세요.
@@ -22,8 +21,16 @@ extension View {
         toolbar {
             ToolbarItem(placement: .topBarLeading) {
                 Button(action: onClose) {
-                    Image(systemName: "xmark")
+                    let icon = Image(systemName: "xmark")
+                        .font(.system(size: 14, weight: .medium))
+                        .frame(width: 30, height: 30)
+                    if #available(watchOS 26.0, *) {
+                        icon.glassEffect(.regular.interactive(), in: Circle())
+                    } else {
+                        icon.background(.ultraThinMaterial, in: Circle())
+                    }
                 }
+                .buttonStyle(.plain)
                 // VoiceOver가 아이콘 이름 대신 "닫기"라고 읽도록 합니다.
                 .accessibilityLabel("닫기")
             }

@@ -30,7 +30,15 @@ SessionChecklistView의 “워치 없이 연습하기”와 연결 안내의 “
 
 회귀 확인: 준비 화면의 “워치 없이 연습하기”, 연결 안내·미페어링・앱 미설치・통신 불가 화면의 “휴대폰만 사용하기”를 각각 눌러 바로 iPhone만 Listening으로 전환되는지 확인합니다. 워치는 제외 안내를 표시해야 합니다. 소리 분석에 따른 피드백 변경·녹음 종료 후에도 워치에 연습 정보가 표시되지 않아야 합니다. 도중에 워치 앱을 닫았다 열어도 같아야 합니다. 결과 화면에서 뒤로가기을 누르고 일반 연습 시작을 선택하면 다시 양쪽이 동기화되어야 합니다. 데이터 테스트는 스냅샷에서 연습 정보가 제외되고 다음 일반 연습에서 정상 전송으로 돌아오는 경우를 포함합니다.
 
-## 워치 화면 동작
+## 연습 중 X 버튼과 소리별 진동
+
+워치의 소리 확인 화면과 피드백 화면 왼쪽 위에 30×30pt X 버튼을 표시합니다. 누르면 iPhone에 종료를 요청합니다. 연습 종료 화면에서는 하단 ‘완료’를 눌러 시작 화면으로 돌아갑니다.
+
+워치 앱이 활성 상태일 때 정상 공기주입은 `.notification` 햅틱을 재생합니다. 공기주입이 이어지면 아이폰이 약 1초마다 최신 판정을 다시 보내고 워치가 진동을 반복합니다. 쇳소리 또는 파바박(큰 기포)으로 전환되면 `.failure` 햅틱을 한 번 재생합니다. 롤링과 연습 종료 시에는 진동을 생략합니다. 워치는 같은 판정의 중복 전송과 2초 이상 지난 판정을 버립니다.
+
+실기기에서 공기주입 → 쇳소리 → 파바박 → 롤링 순으로 바꿔 공기주입의 반복 진동, 각 경고의 진동, 롤링에서의 중단을 확인합니다. 손목을 내려 워치 앱이 비활성 상태로 전환되면 진동을 생략합니다. Debug 진단 화면에서는 워치 화면의 빈 곳을 1초간 길게 눌러 수신과 햅틱 호출 기록을 볼 수 있습니다.
+
+## #44 시점의 워치 화면 연결
 
 - 대기 화면의 “스티밍 연습 시작”은 iPhone에 시작을 요청합니다. 성공 응답이나 상태 전송을 받은 뒤 소리 확인 화면으로 전환합니다.
 - SoundCheckingView(소리 확인)와 SteamingFeedbackView(피드백 5종)에 `onCloseTap` 종료 콜백을 연결했습니다. 호출하면 `.stop`을 전송하고, iPhone이 전달한 `.finished` 상태에 따라 양쪽이 종료 화면을 표시합니다. iPhone에서 종료해도 같은 상태가 워치에 반영됩니다.
@@ -40,13 +48,15 @@ SessionChecklistView의 “워치 없이 연습하기”와 연결 안내의 “
 
 ## 녹음과 기록
 
+아래의 개발 메뉴와 진동 구현 여부는 #44 시점의 설명입니다. 현재 워치 햅틱은 [연습 중 X 버튼과 소리별 진동](#연습-중-x-버튼과-소리별-진동)에 정리했습니다.
+
 마이크 권한을 허용한 뒤 iPhone 앱이 **활성 상태**여야 새 녹음을 시작합니다. 워치 요청이 백그라운드 iPhone 앱을 깨우더라도 새 녹음이 허용되는 것은 아니므로, 이 경우 iPhone 앱을 열라는 오류를 워치에 표시합니다. 시작된 녹음은 audio background mode를 사용하며 전화 등 오디오 중단 시 종료하고 안내합니다.
 
 녹음은 iPhone 앱 내부 `Library/Application Support/PracticeHistory`의 `.m4a` 파일, 기록과 분석 구간은 SwiftData에 저장합니다. 기존 JSON 기록도 이전하며 HistoryView와 결과·히스토리 상세 화면이 저장된 데이터를 사용합니다. 워치에는 최근 20건의 ID·시작/종료 시간·파일명 메타데이터를 전달하며 녹음 파일과 분석 구간은 전송하지 않습니다. 엔티티와 저장 보호 정책은 [practice-results.md](practice-results.md)를 참고하세요.
 
 녹음 시작 시 Listening을 표시하고, 소리 분석 결과를 `PracticeSession.updateFeedback(_:)`로 전달해 iOS·워치 화면에 함께 반영합니다. 모델 연결은 [steaming-sound-model.md](steaming-sound-model.md)를 참고하세요. 개발용 동기화 테스트 메뉴는 제거했습니다. 진동 패턴은 아직 구현하지 않았습니다.
 
-## 실행 및 실제 기기 확인
+## #44와 함께 적용한 뒤의 실제 기기 확인
 
 프로젝트의 iOS 최소 버전은 27.0, watchOS 최소 버전은 10.6입니다. Xcode에서 실제 기기의 OS 버전과 각 타깃의 서명 설정을 확인하세요.
 
@@ -57,7 +67,7 @@ SessionChecklistView의 “워치 없이 연습하기”와 연결 안내의 “
 5. 다시 워치의 스티밍 연습 시작 → iPhone 녹음과 화면 표시. iPhone 하단 정지 버튼 → 워치 종료 표시를 확인합니다. iPhone의 소리 확인·피드백 화면은 상단 X 없이 제목만 표시합니다. 빠르게 두 번 시작해도 하나의 녹음만 생성되어야 합니다.
 6. 소리 분석으로 전달된 상태에 맞게 iPhone과 워치의 피드백 화면이 함께 바뀌는지 확인합니다. iPhone에서 종료한 뒤 워치 종료 화면에 X가 없고 “완료”로 StartRequestView에 돌아오는지, iPhone이 “시작 전, 잠깐 확인해요”로 이동하는지 확인합니다. 통신 실패 시에는 완료 화면과 오류 안내를 유지해야 합니다. iPhone에서 먼저 결과 화면의 뒤로가기을 눌러도 양쪽이 대기 상태로 돌아와야 하며, 새 연습의 종료 화면은 정상적으로 표시되어야 합니다.
 7. 연습 중 워치 앱을 닫거나 통신을 끊습니다. 모달 대신 상단 배너가 나타났다가 약 3초 뒤 자동으로 사라지고, iPhone 녹음·분석과 정지 버튼은 계속 동작해야 합니다. 3초 안에 재연결하거나 연습을 종료하면 배너가 즉시 사라지는지 확인합니다. 재연결 후 다시 끊으면 배너가 새로 표시되어야 합니다. 워치 없이 시작한 연습에서는 표시되지 않아야 합니다.
-8. 녹음 중 iPhone을 잠가도 연습이 유지되는지 확인합니다. X 버튼 UI 추가 후에는 워치에서 종료해 기록 저장도 확인합니다. 새 시작 요청은 iPhone 앱이 활성화되지 않았으면 안내해야 합니다.
+8. 녹음 중 iPhone을 잠가도 연습이 유지되는지 확인합니다. 워치에서 X로 종료해 기록 저장도 확인합니다. 새 시작 요청은 iPhone 앱이 활성화되지 않았으면 안내해야 합니다.
 9. 앱 재실행 후 iPhone에서 연결 확인을 누르고 워치 앱을 엽니다. 상태가 자동으로 동기화되고, iPhone의 저장된 기록 목록이 유지되는지 확인합니다.
 
 시뮬레이터 빌드 성공은 실제 WCSession 연결이나 마이크 녹음 성공을 보장하지 않습니다. 위 항목은 페어링된 실제 기기에서 검증해야 합니다.
@@ -80,6 +90,12 @@ DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcrun swiftc \
   Shared/PracticeState.swift Tests/PracticeStateTests.swift \
   -o /tmp/beandoong-state-tests
 /tmp/beandoong-state-tests
+
+DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcrun swiftc \
+  -module-cache-path /tmp/beandoong-watch-feedback-cache \
+  Shared/PracticeState.swift chee-k-watch/Services/WatchFeedbackHaptics.swift \
+  Tests/WatchFeedbackHapticsTests.swift -o /tmp/beandoong-watch-feedback-tests
+/tmp/beandoong-watch-feedback-tests
 ```
 
 SDK는 destination으로 선택합니다. watch 스킴에는 호스트 iOS 앱도 포함되므로 `-sdk watchsimulator`를 전체 빌드에 강제하지 않습니다.

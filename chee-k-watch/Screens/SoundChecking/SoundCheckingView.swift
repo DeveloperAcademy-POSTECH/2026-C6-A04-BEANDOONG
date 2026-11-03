@@ -3,7 +3,7 @@
 //
 //  연습 중 실시간 피드백을 보여주기 전, 앱이 아직 소리를 판단하지 못했을 때 보이는 대기 화면입니다.
 //
-//  화면만 그립니다. 추가 예정인 X 버튼은 전달받은 `onCloseTap`을 호출합니다.
+//  화면만 그립니다. X 버튼은 전달받은 `onCloseTap`으로 연습 종료를 요청합니다.
 //
 
 import SwiftUI
@@ -11,7 +11,7 @@ import SwiftUI
 /// 소리 확인 대기 화면
 /// - 디자인: hifi/watch11.png (소리 확인 중)
 ///
-///     ┌ 상태 문구
+///     ┌ 좌측 상단 닫기(X) 버튼 · 상태 문구
 ///     └ 로딩 인디케이터 (화면 정중앙)
 struct SoundCheckingView: View {
     /// 뷰 작업자가 추가할 X 버튼에서 호출할 연습 종료 동작
@@ -35,6 +35,7 @@ struct SoundCheckingView: View {
         }
         .foregroundStyle(.white)
         .background(AppColors.watchSoundCheckingBackground)
+        .watchCloseButton(onClose: onCloseTap)
     }
 }
 

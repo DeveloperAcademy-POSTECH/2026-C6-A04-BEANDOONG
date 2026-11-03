@@ -83,7 +83,7 @@ final class PracticeSession: NSObject, ObservableObject, AVAudioRecorderDelegate
                 }
                 self.finishReview()
             }
-            return self.state.watchSnapshot // 재연결·상태 요청도 이번 연습의 워치 사용 설정을 따릅니다.
+            return self.connection.state // 동기화 응답에도 일반 전송과 같은 최신 워치 스냅샷을 사용합니다.
         }
         // 불러온 기록을 포함한 초기 상태를 통신 담당에게 전달합니다.
         publish()
@@ -218,16 +218,21 @@ final class PracticeSession: NSObject, ObservableObject, AVAudioRecorderDelegate
         }
     }
 
-    /// 모델 분석 결과나 디버그 메뉴에서 받은 상태를 적용합니다.
-    /// 상태를 바꾸면 iPhone 화면이 갱신되고 같은 상태를 워치에도 전달합니다.
+    /// 소리가 바뀔 때 구간을 기록하고, 지속되는 공기주입은 워치에만 다시 보냅니다.
     func updateFeedback(_ phase: PracticePhase) {
         // 종료 후 늦게 도착한 분석 결과로 연습 화면이 다시 열리지 않게 합니다.
-        guard state.phase.isRunning, phase.isRunning, state.phase != phase else { return }
-        if let startedAt = state.startedAt {
-            timeline.update(phase: phase, at: max(0, Date().timeIntervalSince(startedAt)))
+        guard state.phase.isRunning, phase.isRunning else { return }
+        let now = Date()
+        if state.phase != phase {
+            if let startedAt = state.startedAt {
+                timeline.update(phase: phase, at: max(0, now.timeIntervalSince(startedAt)))
+            }
+            state.phase = phase
+        } else {
+            guard phase == .aeration, state.isWatchEnabled,
+                  now.timeIntervalSince(connection.state.updatedAt) >= 1 else { return }
         }
-        state.phase = phase
-        publish()
+        publish(at: now)
     }
 
     /// iPhone 결과의 뒤로가기 또는 워치 결과 화면의 '완료'에서 호출합니다.
@@ -248,11 +253,10 @@ final class PracticeSession: NSObject, ObservableObject, AVAudioRecorderDelegate
     }
 
     /// 현재 상태를 통신 담당에게 전달합니다. 실제 전송 방식은 WatchConnection이 처리합니다.
-    private func publish() {
-        // 워치가 새 상태와 뒤늦게 도착한 예전 상태를 구분할 때 사용하는 시각입니다.
-        state.updatedAt = Date()
-        // 워치 제외 여부와 최근 20건 제한은 일반 전송·상태 요청에서 같은 규칙을 사용합니다.
-        connection.publish(state.watchSnapshot)
+    private func publish(at now: Date = Date()) {
+        var snapshot = state.watchSnapshot
+        snapshot.updatedAt = now
+        connection.publish(snapshot)
     }
 
     // 녹음기가 인코딩 오류를 알려주는 AVAudioRecorderDelegate 콜백입니다.

@@ -21,6 +21,8 @@ final class WatchConnection: NSObject, ObservableObject {
     @Published private(set) var isSending = false
 
     var onCommand: ((WatchRequest) throws -> PracticeState)?
+    // 워치의 알림 처리는 화면 생성과 분리해 상태 수신 시 한 번만 실행합니다.
+    var onStateChange: ((PracticeState, PracticeState) async -> Void)?
     private var pending: [UUID: (Result<PracticeState, Error>) -> Void] = [:]
     private let session: WCSession? = WCSession.isSupported() ? .default : nil
 
@@ -74,7 +76,7 @@ final class WatchConnection: NSObject, ObservableObject {
         defer { isSending = false }
         do {
             let received = try await request(command)
-            apply(received)
+            await apply(received)
         } catch {
             errorMessage = error.localizedDescription
         }
@@ -121,13 +123,15 @@ final class WatchConnection: NSObject, ObservableObject {
         pending.removeValue(forKey: id)?(result)
     }
 
-    private func apply(_ newState: PracticeState) {
+    private func apply(_ newState: PracticeState) async {
         guard newState.updatedAt >= state.updatedAt else { return }
+        let previous = state
         state = newState
         hasSynced = true
+        await onStateChange?(previous, newState)
     }
 
-    private func receive(_ message: [String: Any], reply: (([String: Any]) -> Void)? = nil) {
+    private func receive(_ message: [String: Any], reply: (([String: Any]) -> Void)? = nil) async {
         do {
             if let data = message["request"] as? Data {
                 let request = try JSONDecoder().decode(WatchRequest.self, from: data)
@@ -143,11 +147,24 @@ final class WatchConnection: NSObject, ObservableObject {
                 reply?(["state": try JSONEncoder().encode(current)])
             } else if let data = message["state"] as? Data {
                 #if os(watchOS)
-                apply(try JSONDecoder().decode(PracticeState.self, from: data))
+                await apply(try JSONDecoder().decode(PracticeState.self, from: data))
                 #endif
             }
         } catch { reply?(["error": error.localizedDescription]) }
     }
+
+    #if os(watchOS)
+    /// 시스템이 제공한 백그라운드 실행 시간 안에 최신 수신 상태와 알림 처리를 마칩니다.
+    func receiveBackgroundUpdates() async {
+        guard let session else { return }
+        while session.activationState != .activated || session.hasContentPending {
+            do { try await Task.sleep(for: .milliseconds(50)) }
+            catch { return }
+        }
+        guard !Task.isCancelled else { return }
+        await receive(session.receivedApplicationContext)
+    }
+    #endif
 }
 
 extension WatchConnection: WCSessionDelegate {
@@ -157,7 +174,7 @@ extension WatchConnection: WCSessionDelegate {
             #if os(iOS)
             self.publish(self.state)
             #else
-            self.receive(session.receivedApplicationContext)
+            await self.receive(session.receivedApplicationContext)
             await self.send(.sync)
             #endif
         }
@@ -177,15 +194,15 @@ extension WatchConnection: WCSessionDelegate {
     }
 
     nonisolated func session(_ session: WCSession, didReceiveMessage message: [String: Any]) {
-        Task { @MainActor in self.receive(message) }
+        Task { @MainActor in await self.receive(message) }
     }
 
     nonisolated func session(_ session: WCSession, didReceiveMessage message: [String: Any], replyHandler: @escaping ([String: Any]) -> Void) {
-        Task { @MainActor in self.receive(message, reply: replyHandler) }
+        Task { @MainActor in await self.receive(message, reply: replyHandler) }
     }
 
     nonisolated func session(_ session: WCSession, didReceiveApplicationContext applicationContext: [String: Any]) {
-        Task { @MainActor in self.receive(applicationContext) }
+        Task { @MainActor in await self.receive(applicationContext) }
     }
 
     #if os(iOS)

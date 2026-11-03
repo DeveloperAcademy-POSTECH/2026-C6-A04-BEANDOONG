@@ -35,7 +35,7 @@ enum WatchDesignSize {
     }
 }
 
-extension Font {
+extension Font {                                                      
     /// Hi-Fi(46mm) 기준 글자 크기를 현재 기기 크기에 맞게 변환한 시스템 폰트
     /// - Parameters:
     ///   - designSize: Hi-Fi 기준 글자 크기 (pt)
