@@ -21,35 +21,10 @@ extension Color {
 /// 한 화면에서만 쓰는 색상은 해당 화면 파일 하단의 `private extension AppColors`에 둡니다.
 enum AppColors {
 
-    // MARK: 라이트 테마 (연습 기록 / 연습 상세 화면)
+    // MARK: 라이트 테마
 
-    static let darkTitle = Color(hex: 0x0F2938)
-    static let pureBlackTitle = Color(hex: 0x0B151D)
-    static let subtitleGray = Color(hex: 0x5E7482)
-    static let axisGray = Color(hex: 0x6B808E)
-    static let captionGray = Color(hex: 0x7A8E9B)
-    static let cardBackground = Color(hex: 0xEEF8FD)
-    static let primaryButton = Color(hex: 0x42BAF8)
-    static let secondaryButton = Color(hex: 0xE8F6FE)
-    static let greenAccent = Color(hex: 0x0C5B47)
-    static let badgeBlueText = Color(hex: 0x0F6B8F)
     /// 라이트 상단 네비게이션 바의 뒤로가기 아이콘 / 제목 색상
     static let lightHeaderText = Color(hex: 0x111111)
-
-    // MARK: 스펙트로그램 하단 상태 색상 바
-
-    static let statusMint = Color(hex: 0xBCEAD9)
-    static let statusYellow = Color(hex: 0xFFE29D)
-    static let statusGray = Color(hex: 0xE5EDF4)
-
-    /// 스펙트로그램 히트맵 5단계 색상 (0: 가장 진함 → 4: 가장 옅음, Hi-Fi 원본 sRGB 픽셀에서 추출)
-    static let heatmapPalette: [Color] = [
-        Color(hex: 0x267A9B),
-        Color(hex: 0x56ADCE),
-        Color(hex: 0x8FD3EE),
-        Color(hex: 0xC2E6F7),
-        Color(hex: 0xE5F4FB)
-    ]
 
     // MARK: 다크 테마 (대부분의 화면)
 

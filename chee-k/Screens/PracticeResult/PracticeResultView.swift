@@ -27,10 +27,10 @@ struct PracticeResultView: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            // MARK: 상단 네비게이션 바 (스크롤해도 고정)
-            TopNavigationHeader(title: result.title, isDark: true, onBack: onClose)
-                .padding(.top, PracticeResultMetrics.headerTop)
-                .padding(.bottom, PracticeResultMetrics.headerBottom)
+            // MARK: 상단 바 (스크롤해도 고정): 좌측 제목 + 우측 닫기(X)
+            PracticeResultTopBar(onClose: onClose)
+                .padding(.top, ResultTopBarLayout.top)
+                .padding(.bottom, ResultTopBarLayout.bottom)
 
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
@@ -63,6 +63,44 @@ struct PracticeResultView: View {
         .darkScreenBackground()
         .toolbar(.hidden, for: .navigationBar)
     }
+}
+
+// MARK: - 상단 바
+
+/// 연습 결과 상단 바: 좌측 "스티밍 연습 결과" + 우측 닫기(X)
+/// 스티밍 연습 화면들의 상단 바와 같은 위치·글꼴을 씁니다. (히스토리 상세는 날짜 제목 + 뒤로가기를 그대로 사용)
+///
+///     [ 스티밍 연습 결과            X ]
+private struct PracticeResultTopBar: View {
+    /// 닫기 동작. nil 이면 닫기(X)를 표시하지 않습니다. (프리뷰)
+    let onClose: (() -> Void)?
+
+    var body: some View {
+        HStack {
+            Text("스티밍 연습 결과")
+                .font(.pretendard(.medium, size: 16))
+                .foregroundStyle(Color.white)
+            Spacer()
+            if let onClose {
+                Button(action: onClose) {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 17, weight: .regular))
+                        .foregroundStyle(Color.white)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("닫기")
+            }
+        }
+        .frame(height: 20)
+        .padding(.leading, 20)
+        .padding(.trailing, 25)
+    }
+}
+
+/// 연습 결과 상단 바 위치 (히스토리 상세와 공유하는 `PracticeResultMetrics.headerTop` 과는 따로 둡니다)
+private enum ResultTopBarLayout {
+    static let top: CGFloat = 13     // 상태바 ↔ 상단 바 (스티밍 연습 화면과 같음)
+    static let bottom: CGFloat = 25  // 상단 바 ↔ 상단 요약 (상단 바가 9pt 올라간 만큼 늘려 요약 위치 유지)
 }
 
 // MARK: - 공통 섹션 컴포넌트

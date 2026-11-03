@@ -134,9 +134,13 @@ private struct TimelineAxis: View {
     var body: some View {
         GeometryReader { geometry in
             let width = geometry.size.width
-            let count = tickSeconds.count
+            let ticks = tickSeconds
+            let count = ticks.count
 
-            ForEach(Array(tickSeconds.enumerated()), id: \.offset) { index, second in
+            // 튜플 키패스(enumerated + \.offset)는 Xcode 프리뷰에서 크래시가 나서, 인덱스를 id로 씁니다.
+            // (직접 지정한 눈금에는 같은 초가 겹칠 수 있어 초 값 대신 인덱스를 씁니다)
+            ForEach(ticks.indices, id: \.self) { index in
+                let second = ticks[index]
                 let xPosition = tickXPosition(index: index, count: count, second: second, width: width)
 
                 // 눈금 선
