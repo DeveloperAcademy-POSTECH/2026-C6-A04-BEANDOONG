@@ -42,9 +42,13 @@ struct WatchConnectionFlow: View {
         .task(id: attempt) {
             guard attempt > 0 || startsWithCheck else { return }
             status = .checking
-            let result = await connection.check()
+            async let result = connection.check()
+            // 확인이 바로 끝나도 버튼을 누른 피드백이 보이도록 잠깐 유지합니다.
+            do { try await Task.sleep(for: .milliseconds(700)) }
+            catch { return }
+            let checkedStatus = await result
             guard !Task.isCancelled else { return }
-            status = result
+            status = checkedStatus
         }
     }
 
