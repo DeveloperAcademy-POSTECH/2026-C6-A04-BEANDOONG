@@ -6,7 +6,7 @@ import SwiftUI
 ///     ┌ 상단 네비게이션 바: 애플 워치 연결
 ///     ├ 워치 일러스트 (준비 완료)
 ///     ├ 타이틀 + 설명
-///     └ 하단 버튼: [스팀 연습 시작]
+///     └ 하단 버튼: [완료]
 struct WatchReadyView: View {
     var onContinue: (() -> Void)? = nil
     @State private var showsChecklist = false
@@ -31,7 +31,7 @@ struct WatchReadyView: View {
             Spacer(minLength: 0)
 
             // MARK: 하단 버튼
-            DarkPrimaryButton(title: "스팀 연습 시작") {
+            DarkPrimaryButton(title: "완료") {
                 if let onContinue { onContinue() } else { showsChecklist = true }
             }
                 .padding(.bottom, Layout.buttonBottom)
