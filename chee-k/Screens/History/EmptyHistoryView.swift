@@ -31,7 +31,7 @@ struct EmptyHistoryView: View {
             DarkPrimaryButton(title: "첫 연습 시작하기")
                 .padding(.bottom, Layout.buttonBottom)
         }
-        .darkScreenBackground()
+        .darkScreenBackgroundWithTopGlow()
     }
 }
 
@@ -41,8 +41,8 @@ private enum Layout {
     static let headerTop: CGFloat = 22         // 상태바 ↔ 네비게이션 바
     static let illustrationTop: CGFloat = 240  // 네비게이션 바 ↔ 일러스트
     static let titleTop: CGFloat = 55          // 일러스트 ↔ 타이틀
-    static let subtitleTop: CGFloat = 16       // 타이틀 ↔ 설명
-    static let buttonBottom: CGFloat = 13      // 버튼 ↔ 화면 하단(안전 영역)
+    static let subtitleTop: CGFloat = 10       // 타이틀 ↔ 설명
+    static let buttonBottom: CGFloat = 10      // 버튼 ↔ 화면 하단(안전 영역)
 }
 
 struct EmptyHistoryView_Previews: PreviewProvider {
