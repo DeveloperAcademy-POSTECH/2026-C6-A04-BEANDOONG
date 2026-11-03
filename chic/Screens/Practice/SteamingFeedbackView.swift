@@ -51,8 +51,6 @@ struct SteamingFeedbackView: View {
 enum SteamingFeedback: CaseIterable {
     /// 공기가 고르게 들어가는 중 (파랑)
     case aeration
-    /// 금속성 소리 — 우유가 오래 가열되는 중 (빨강)
-    case sharpSound
     /// 노즐이 높아 큰 기포가 생길 수 있음 (주황)
     case bubble
     /// 공기 주입이 부족함 (보라)
@@ -63,7 +61,6 @@ enum SteamingFeedback: CaseIterable {
     var gradientColors: [Color] {
         switch self {
         case .aeration: AppColors.aerationGradient
-        case .sharpSound: AppColors.sharpSoundGradient
         case .bubble: AppColors.bubbleGradient
         case .moreAir: AppColors.moreAirGradient
         case .milkFlow: AppColors.milkFlowGradient
@@ -73,7 +70,6 @@ enum SteamingFeedback: CaseIterable {
     var title: String {
         switch self {
         case .aeration: "공기가 고르게\n들어가고 있어요"
-        case .sharpSound: "우유가 오래\n가열되고 있어요"
         case .bubble: "큰 기포가\n생길 수 있어요"
         case .moreAir: "공기 주입이\n부족해요"
         case .milkFlow: "롤링이 안정적으로\n진행되고 있어요"
@@ -83,7 +79,6 @@ enum SteamingFeedback: CaseIterable {
     var subtitle: String {
         switch self {
         case .aeration: "지금 상태를 유지해 주세요"
-        case .sharpSound: "온도를 확인해 주세요"
         case .bubble: "피처를 살짝 올려 노즐을 더 담가 주세요"
         case .moreAir: "피처를 살짝 내려 주세요"
         case .milkFlow: "우유가 한 방향으로 돌도록 유지해 주세요"
@@ -93,7 +88,6 @@ enum SteamingFeedback: CaseIterable {
     var illustration: String {
         switch self {
         case .aeration: "IllustFeedbackAeration"
-        case .sharpSound: "IllustFeedbackSharpSound"
         case .bubble: "IllustFeedbackBubble"
         case .moreAir: "IllustFeedbackMoreAir"
         case .milkFlow: "IllustFeedbackMilkFlow"
@@ -104,7 +98,6 @@ enum SteamingFeedback: CaseIterable {
     var stopSquareColor: Color {
         switch self {
         case .aeration: AppColors.aerationTop
-        case .sharpSound: AppColors.sharpSoundTop
         case .bubble: AppColors.bubbleTop
         case .moreAir: AppColors.moreAirTop
         case .milkFlow: AppColors.milkFlowTop

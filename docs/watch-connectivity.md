@@ -6,11 +6,11 @@
 
 - `Shared/PracticeState.swift`: 양쪽에서 사용하는 상태·명령·기록 메타데이터.
 - `Shared/WatchConnection.swift`: WCSession 활성화, 연결 확인, 요청/응답, 최신 상태 동기화.
-- `chee-k/Services/PracticeSession.swift`: iPhone의 녹음 시작/종료, 파일·기록 저장, 상태 발행.
+- `chic/Services/PracticeSession.swift`: iPhone의 녹음 시작/종료, 파일·기록 저장, 상태 발행.
 - `WatchConnectionFlow`: 기존 연결 화면을 전환하는 컨테이너. 기존 화면은 버튼 콜백만 추가.
 - `AppRootView`: 연습 상태를 관찰해 연습·결과 화면을 표시합니다. cheekApp은 공유 객체 생성과 전달만 담당합니다.
 - `PracticeSessionView`: 기존 ListeningView / SteamingFeedbackView를 연습 상태에 따라 표시. 종료 후 결과 로딩 → PracticeResultView를 표시합니다.
-- `chee-k-watch/WatchPracticeView.swift`: 기존 워치 뷰를 연결하는 컨테이너. StartRequestView → SoundCheckingView / SteamingFeedbackView → PracticeFinishedView를 iPhone의 연습 상태에 따라 표시합니다. 최신 상태 확인은 앱 활성화·재연결 시 자동 처리합니다.
+- `chic-watch/WatchPracticeView.swift`: 기존 워치 뷰를 연결하는 컨테이너. StartRequestView → SoundCheckingView / SteamingFeedbackView → PracticeFinishedView를 iPhone의 연습 상태에 따라 표시합니다. 최신 상태 확인은 앱 활성화·재연결 시 자동 처리합니다.
 
 연습 화면은 AppRootView의 ZStack에서 상태에 따라 표시합니다. 녹음 종료 후 `.finished`에서는 로딩 후 결과 화면을 유지합니다. iPhone 결과 화면의 뒤로가기나 워치 결과 화면의 “완료”가 `finishReview()`를 호출해 `.idle`로 바뀌면 HomeView가 이동 경로를 준비 화면으로 교체합니다. 최초 연습을 연결 완료 화면이나 워치에서 시작했어도 이전 화면을 그대로 드러내지 않습니다. 연습 중에는 뒤의 기본 화면에 터치와 접근성 포커스가 전달되지 않게 합니다.
 
@@ -34,9 +34,9 @@ SessionChecklistView의 “워치 없이 연습하기”와 연결 안내의 “
 
 워치의 소리 확인 화면과 피드백 화면 왼쪽 위에 30×30pt X 버튼을 표시합니다. 누르면 iPhone에 종료를 요청합니다. 연습 종료 화면에서는 하단 ‘완료’를 눌러 시작 화면으로 돌아갑니다.
 
-워치 앱이 활성 상태일 때 정상 공기주입은 `.notification` 햅틱을 재생합니다. 공기주입이 이어지면 아이폰이 약 1초마다 최신 판정을 다시 보내고 워치가 진동을 반복합니다. 쇳소리 또는 파바박(큰 기포)으로 전환되면 `.failure` 햅틱을 한 번 재생합니다. 롤링과 연습 종료 시에는 진동을 생략합니다. 워치는 같은 판정의 중복 전송과 2초 이상 지난 판정을 버립니다.
+워치 앱을 열고 워치와 함께 연습을 시작하면 `self-care` 확장 세션을 요청합니다. 손목을 내려도 세션은 최대 10분간 유지될 수 있으며, 크라운을 눌러 앱에서 나가면 종료됩니다. 연습 종료 또는 워치 제외 상태를 받으면 세션을 종료합니다. 정상 공기주입은 `.notification` 햅틱을 재생합니다. 공기주입이 이어지면 아이폰이 약 1초마다 최신 판정을 다시 보내고 워치가 진동을 반복합니다. 쇳소리 또는 파바박(큰 기포)으로 전환되면 `.failure` 햅틱을 한 번 재생합니다. 롤링과 연습 종료 시에는 진동을 생략합니다. 워치는 같은 판정의 중복 전송과 2초 이상 지난 판정을 버립니다.
 
-실기기에서 공기주입 → 쇳소리 → 파바박 → 롤링 순으로 바꿔 공기주입의 반복 진동, 각 경고의 진동, 롤링에서의 중단을 확인합니다. 손목을 내려 워치 앱이 비활성 상태로 전환되면 진동을 생략합니다. Debug 진단 화면에서는 워치 화면의 빈 곳을 1초간 길게 눌러 수신과 햅틱 호출 기록을 볼 수 있습니다.
+실기기에서 공기주입 → 쇳소리 → 파바박 → 롤링 순으로 바꿔 공기주입의 반복 진동, 각 경고의 진동, 롤링에서의 중단을 확인합니다. 손목을 내린 뒤에도 같은 연습의 확장 세션이 실행 중이고 새 판정이 도착하면 해당 햅틱을 요청합니다. 착용한 워치에서 실제 진동을 확인합니다. Debug 진단 화면에서는 워치 화면의 빈 곳을 1초간 길게 눌러 수신과 햅틱 호출 기록을 볼 수 있습니다.
 
 ## #44 시점의 워치 화면 연결
 
@@ -60,7 +60,7 @@ SessionChecklistView의 “워치 없이 연습하기”와 연결 안내의 “
 
 프로젝트의 iOS 최소 버전은 27.0, watchOS 최소 버전은 10.6입니다. Xcode에서 실제 기기의 OS 버전과 각 타깃의 서명 설정을 확인하세요.
 
-1. iPhone에 `chee-k`, 페어링된 Apple Watch에 `chee-k-watch`를 설치하고 양쪽 앱을 엽니다.
+1. iPhone에 `chic`, 페어링된 Apple Watch에 `chic-watch`를 설치하고 양쪽 앱을 엽니다.
 2. iPhone에서 마이크를 허용하고 연결 확인하기를 누릅니다. Connecting → Ready, 워치에 StartRequestView가 표시되는지 확인합니다.
 3. 미페어링 기기에서 NotFound, 워치 앱 삭제 후 AppInstall, 워치 앱을 닫은 상태에서 앱을 열라는 안내를 확인합니다. 다시 연결 확인하기로 복구합니다.
 4. iPhone의 연습 시작하기 → 워치 SoundCheckingView. iPhone에서 종료한 뒤 워치 PracticeFinishedView의 총 연습 시간과 iPhone의 녹음 파일·기록 목록 저장을 확인합니다. X 버튼 UI 추가 후에는 소리 확인·피드백 5종 각각에서 워치 X로 종료해 양쪽이 종료 화면으로 전환되고 기록이 한 번만 저장되는지도 확인합니다.
@@ -76,12 +76,12 @@ SessionChecklistView의 “워치 없이 연습하기”와 연결 안내의 “
 
 ```sh
 DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild \
-  -project chee-k.xcodeproj -scheme chee-k \
+  -project chic.xcodeproj -scheme chee-k \
   -destination 'generic/platform=iOS Simulator' \
   -derivedDataPath /tmp/beandoong-build CODE_SIGNING_ALLOWED=NO build
 
 DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcodebuild \
-  -project chee-k.xcodeproj -scheme chee-k-watch \
+  -project chic.xcodeproj -scheme chee-k-watch \
   -destination 'generic/platform=watchOS Simulator' \
   -derivedDataPath /tmp/beandoong-watch-build CODE_SIGNING_ALLOWED=NO build
 
@@ -93,7 +93,7 @@ DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcrun swiftc \
 
 DEVELOPER_DIR=/Applications/Xcode.app/Contents/Developer xcrun swiftc \
   -module-cache-path /tmp/beandoong-watch-feedback-cache \
-  Shared/PracticeState.swift chee-k-watch/Services/WatchFeedbackHaptics.swift \
+  Shared/PracticeState.swift chic-watch/Services/WatchFeedbackHaptics.swift \
   Tests/WatchFeedbackHapticsTests.swift -o /tmp/beandoong-watch-feedback-tests
 /tmp/beandoong-watch-feedback-tests
 ```

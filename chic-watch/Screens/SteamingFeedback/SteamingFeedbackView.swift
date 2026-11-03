@@ -89,7 +89,6 @@ private enum Metrics {
 }
 
 #Preview("파랑 · 공기 주입 소리") { NavigationStack { SteamingFeedbackView(feedback: .aeration) } }
-#Preview("분홍 · 공기 과다") { NavigationStack { SteamingFeedbackView(feedback: .sharpSound) } }
 #Preview("주황 · 노즐 높음") { NavigationStack { SteamingFeedbackView(feedback: .bubble) } }
 #Preview("보라 · 공기 부족") { NavigationStack { SteamingFeedbackView(feedback: .moreAir) } }
 #Preview("초록 · 롤링 소리") { NavigationStack { SteamingFeedbackView(feedback: .milkFlow) } }

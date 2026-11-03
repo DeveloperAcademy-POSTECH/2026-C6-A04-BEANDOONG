@@ -44,11 +44,9 @@ struct WatchPracticeView: View {
             SoundCheckingView(onCloseTap: stop)
         case .aeration:
             SteamingFeedbackView(feedback: .aeration, onCloseTap: stop)
-        case .sharpSound:
-            SteamingFeedbackView(feedback: .sharpSound, onCloseTap: stop)
         case .bubble:
             SteamingFeedbackView(feedback: .bubble, onCloseTap: stop)
-        case .moreAir:
+        case .sharpSound, .moreAir:
             SteamingFeedbackView(feedback: .moreAir, onCloseTap: stop)
         case .milkFlow:
             SteamingFeedbackView(feedback: .milkFlow, onCloseTap: stop)

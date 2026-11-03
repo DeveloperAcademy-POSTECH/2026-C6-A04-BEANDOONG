@@ -8,12 +8,12 @@
 
 ## 엔티티
 
-`chee-k/Models/PracticeRecordEntity.swift`에 두 엔티티가 있습니다.
+`chic/Models/PracticeRecordEntity.swift`에 두 엔티티가 있습니다.
 
 - `PracticeRecordEntity`: 세션 ID, 시작·종료 시각, 같은 날 연습 회차, 녹음 파일명, 감지 구간 목록.
 - `PracticeSoundSegmentEntity`: 소리 종류, 시작·종료 경과 시간. 기록에 종속되며 부모 삭제 시 함께 삭제됩니다.
 
-`chee-k/Services/PracticeHistoryStore.swift`가 SwiftData 저장과 재조회를 담당합니다. 기존 `Documents/PracticeRecordings` 폴더를 `Library/Application Support/PracticeHistory`로 옮기고 `records.json`을 한 번 이전합니다. 이전이 모두 성공해야 JSON 인덱스를 제거하며, 녹음 원본은 유지합니다. 기존 기록에는 분석 구간이 없어 소리별 시간은 0으로 표시합니다.
+`chic/Services/PracticeHistoryStore.swift`가 SwiftData 저장과 재조회를 담당합니다. 기존 `Documents/PracticeRecordings` 폴더를 `Library/Application Support/PracticeHistory`로 옮기고 `records.json`을 한 번 이전합니다. 이전이 모두 성공해야 JSON 인덱스를 제거하며, 녹음 원본은 유지합니다. 기존 기록에는 분석 구간이 없어 소리별 시간은 0으로 표시합니다.
 
 녹음 원본은 같은 폴더의 `<세션 UUID>.m4a` 파일입니다. SwiftData의 `audioFilename`이 이 파일을 가리킵니다. 큰 녹음 전체를 DB에 읽어 넣지 않아도 결과와 함께 관리할 수 있으며, iCloud는 필요하지 않습니다. 현재 결과 화면은 녹음을 재생하지 않습니다.
 

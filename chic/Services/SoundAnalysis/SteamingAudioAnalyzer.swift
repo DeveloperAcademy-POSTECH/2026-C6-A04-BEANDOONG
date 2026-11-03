@@ -57,7 +57,7 @@ nonisolated final class SteamingAudioAnalyzer: @unchecked Sendable {
                         switch display {
                         case .air: phase = .aeration
                         case .sputter: phase = .bubble
-                        case .metallic: phase = .sharpSound
+                        case .metallic: phase = .moreAir
                         case .other: phase = .milkFlow
                         }
                     }
