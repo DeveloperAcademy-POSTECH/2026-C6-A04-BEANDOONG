@@ -32,7 +32,6 @@ nonisolated struct PracticeRecord: Codable, Identifiable, Equatable {
     let id: UUID
     let startedAt: Date
     let endedAt: Date
-    let audioFilename: String
     var duration: TimeInterval { endedAt.timeIntervalSince(startedAt) }
 }
 

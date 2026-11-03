@@ -1,7 +1,7 @@
 import Foundation
 import SwiftData
 
-/// iPhone 내부 저장만 사용합니다. 녹음 바이너리는 DB에 넣지 않고 보호된 파일로 보관합니다.
+/// 소리 원본 없이 연습 시간과 분석 구간만 iPhone 내부에 저장합니다.
 @MainActor
 final class PracticeHistoryStore {
     nonisolated static var directory: URL {
@@ -13,11 +13,6 @@ final class PracticeHistoryStore {
 
     init(directory: URL = PracticeHistoryStore.directory, legacyDirectory: URL? = nil) throws {
         let files = FileManager.default
-        if let legacyDirectory, files.fileExists(atPath: legacyDirectory.path),
-           !files.fileExists(atPath: directory.path) {
-            try files.createDirectory(at: directory.deletingLastPathComponent(), withIntermediateDirectories: true)
-            try files.moveItem(at: legacyDirectory, to: directory)
-        }
         try files.createDirectory(at: directory, withIntermediateDirectories: true)
         var protectedDirectory = directory
         var values = URLResourceValues()
@@ -34,10 +29,14 @@ final class PracticeHistoryStore {
                                        configurations: configuration)
         context.autosaveEnabled = false
         try migrateLegacyRecords(in: directory)
+        if let legacyDirectory, legacyDirectory != directory {
+            try migrateLegacyRecords(in: legacyDirectory)
+        }
         #if os(iOS)
-        for url in try files.contentsOfDirectory(at: directory, includingPropertiesForKeys: nil) {
-            let protection: FileProtectionType = url.pathExtension == "m4a" ? .completeUnlessOpen : .completeUntilFirstUserAuthentication
-            try files.setAttributes([.protectionKey: protection], ofItemAtPath: url.path)
+        for url in try files.contentsOfDirectory(at: directory, includingPropertiesForKeys: nil)
+            where url.pathExtension != "m4a" {
+            try files.setAttributes([.protectionKey: FileProtectionType.completeUntilFirstUserAuthentication],
+                                    ofItemAtPath: url.path)
         }
         #endif
     }
@@ -65,7 +64,7 @@ final class PracticeHistoryStore {
             // 이전 기록에는 분석 구간이 없으므로 소리별 시간은 0으로 둡니다.
             try save(record: record, dailyOrder: orders[day, default: 1], segments: [])
         }
-        // 전체 이전에 성공한 뒤에만 이전 인덱스를 제거합니다. 녹음 파일은 유지합니다.
+        // 전체 이전에 성공한 뒤에만 이전 인덱스를 제거합니다. 소리 파일은 옮기지 않습니다.
         try FileManager.default.removeItem(at: index)
     }
 }

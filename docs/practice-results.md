@@ -10,12 +10,12 @@
 
 `chic/Models/PracticeRecordEntity.swift`에 두 엔티티가 있습니다.
 
-- `PracticeRecordEntity`: 세션 ID, 시작·종료 시각, 같은 날 연습 회차, 녹음 파일명, 감지 구간 목록.
+- `PracticeRecordEntity`: 세션 ID, 시작·종료 시각, 같은 날 연습 회차, 감지 구간 목록.
 - `PracticeSoundSegmentEntity`: 소리 종류, 시작·종료 경과 시간. 기록에 종속되며 부모 삭제 시 함께 삭제됩니다.
 
-`chic/Services/PracticeHistoryStore.swift`가 SwiftData 저장과 재조회를 담당합니다. 기존 `Documents/PracticeRecordings` 폴더를 `Library/Application Support/PracticeHistory`로 옮기고 `records.json`을 한 번 이전합니다. 이전이 모두 성공해야 JSON 인덱스를 제거하며, 녹음 원본은 유지합니다. 기존 기록에는 분석 구간이 없어 소리별 시간은 0으로 표시합니다.
+`chic/Services/PracticeHistoryStore.swift`가 SwiftData 저장과 재조회를 담당합니다. `Library/Application Support/PracticeHistory`와 기존 `Documents/PracticeRecordings`의 `records.json`에서 연습 기록만 한 번 이전합니다. 이전이 모두 성공해야 JSON 인덱스를 제거합니다. 기존 기록에는 분석 구간이 없어 소리별 시간은 0으로 표시합니다.
 
-녹음 원본은 같은 폴더의 `<세션 UUID>.m4a` 파일입니다. SwiftData의 `audioFilename`이 이 파일을 가리킵니다. 큰 녹음 전체를 DB에 읽어 넣지 않아도 결과와 함께 관리할 수 있으며, iCloud는 필요하지 않습니다. 현재 결과 화면은 녹음을 재생하지 않습니다.
+마이크 입력은 메모리에서 실시간 분석하며 소리 원본 파일을 만들지 않습니다. SwiftData와 워치 전송 데이터에서도 `audioFilename`을 제거했습니다. 기존 버전이 만든 녹음 파일은 자동 삭제하거나 다른 폴더로 옮기지 않습니다.
 
 ## 시간과 색상
 
@@ -37,9 +37,9 @@
 
 - SwiftData는 `cloudKitDatabase: .none`으로 구성합니다. 신규 서버 전송이나 CloudKit 동기화는 없습니다. [Apple ModelConfiguration 문서](https://developer.apple.com/documentation/swiftdata/modelconfiguration)
 - 앱 내부 Application Support 폴더를 사용하고, 해당 폴더에 백업 제외 속성을 설정합니다. 기기 삭제·앱 삭제 시 복구할 클라우드 사본은 만들지 않습니다. [Apple 백업 제외 속성](https://developer.apple.com/documentation/foundation/urlresourcekey/isexcludedfrombackupkey)
-- 녹음 파일은 `completeUnlessOpen` 보호를 적용합니다. 열린 녹음은 잠금 후에도 계속 쓸 수 있고, 닫힌 파일은 잠금 중 열기를 제한합니다. DB는 첫 잠금 해제 이후 백그라운드 종료·저장이 가능하도록 `completeUntilFirstUserAuthentication` 보호를 사용합니다. [Apple 파일 보호 문서](https://developer.apple.com/documentation/foundation/fileprotectiontype)
+- DB는 첫 잠금 해제 이후 백그라운드 종료·저장이 가능하도록 `completeUntilFirstUserAuthentication` 보호를 사용합니다. [Apple 파일 보호 문서](https://developer.apple.com/documentation/foundation/fileprotectiontype)
 - 워치에는 기존 최근 20건의 메타데이터만 동기화하며 녹음 원본이나 분석 구간은 보내지 않습니다. 워치 제외 모드의 전송 규칙은 그대로 유지합니다.
-- 마이크 권한 안내에 녹음과 결과의 기기 저장 목적을 명시합니다.
+- 마이크 권한 안내에 실시간 분석 목적과 소리 원본을 저장하지 않음을 명시합니다.
 
 ## 검증
 
@@ -47,6 +47,6 @@
 sh Tests/verify-practice-results.sh
 ```
 
-5개 색상 매핑, 연속 구간·중복 종료, 미분류 시간, 소수점 반올림 합계, 실제 디스크의 SwiftData 저장·재조회, 중복 저장 방지, 기존 JSON·녹음 이전을 검증합니다. 테스트는 임시 폴더와 합성 데이터만 사용합니다.
+5개 색상 매핑, 연속 구간·중복 종료, 미분류 시간, 소수점 반올림 합계, 실제 디스크의 SwiftData 저장·재조회, 중복 저장 방지, 기존 JSON 기록 이전 시 소리 파일이 옮겨지지 않고 새 메타데이터에 파일명이 포함되지 않는지 검증합니다. 테스트는 임시 폴더와 합성 데이터만 사용합니다.
 
-실제 iPhone에서는 연습 종료 → 로딩 → 결과, 앱 재실행 후 히스토리 상세의 동일 데이터, 잠금 중 녹음 유지 및 워치 종료 후 저장을 확인해야 합니다. 빌드와 데이터 테스트는 실제 마이크·페어링된 워치 동작을 검증하지 않습니다.
+실제 iPhone에서는 연습 종료 → 로딩 → 결과, 앱 재실행 후 히스토리 상세의 동일 데이터, 잠금 중 분석 유지 및 워치 종료 후 결과 저장을 확인해야 합니다. 연습 시작·종료 후 새 `.m4a` 파일이 생기지 않는지도 확인합니다. 빌드와 데이터 테스트는 실제 마이크·페어링된 워치 동작을 검증하지 않습니다.
