@@ -8,6 +8,8 @@ import SwiftUI
 ///     ├ 타이틀 + 설명
 ///     └ 하단 버튼: [첫 연습 시작하기]
 struct EmptyHistoryView: View {
+    let onStartPractice: () -> Void
+
     var body: some View {
         VStack(spacing: 0) {
             // MARK: 상단 네비게이션 바
@@ -28,7 +30,7 @@ struct EmptyHistoryView: View {
             Spacer(minLength: 0)
 
             // MARK: 하단 버튼
-            DarkPrimaryButton(title: "첫 연습 시작하기")
+            DarkPrimaryButton(title: "첫 연습 시작하기", action: onStartPractice)
                 .padding(.bottom, Layout.buttonBottom)
         }
         .darkScreenBackgroundWithTopGlow()
@@ -47,6 +49,6 @@ private enum Layout {
 
 struct EmptyHistoryView_Previews: PreviewProvider {
     static var previews: some View {
-        EmptyHistoryView()
+        EmptyHistoryView(onStartPractice: {})
     }
 }

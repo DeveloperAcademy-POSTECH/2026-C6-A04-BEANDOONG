@@ -1,12 +1,12 @@
 import SwiftUI
 
-/// 온보딩 3/3: 휴대폰을 스팀 머신 가까이에 놓기
+/// 온보딩 2/3: 휴대폰을 스팀 머신 가까이에 놓기
 /// - 디자인: Hi-Fi/iPhone 17 - 109.png
 ///
 ///     ┌ 상단 바: 건너뛰기
 ///     ├ 스팀 머신 + 소리 감지 일러스트
 ///     ├ 타이틀 + 설명
-///     ├ 페이지 인디케이터 (● 세 번째)
+///     ├ 페이지 인디케이터 (● 두 번째)
 ///     └ 하단 버튼: 다음
 struct PlacementIntroView: View {
     var onNext: () -> Void = {}
@@ -32,7 +32,7 @@ struct PlacementIntroView: View {
             Spacer(minLength: 0)
 
             // MARK: 페이지 인디케이터 + 하단 버튼
-            OnboardingPageIndicator(activeIndex: 2)
+            OnboardingPageIndicator(activeIndex: 1)
                 .padding(.bottom, Layout.indicatorBottom)
 
             DarkPrimaryButton(title: "다음", action: onNext)

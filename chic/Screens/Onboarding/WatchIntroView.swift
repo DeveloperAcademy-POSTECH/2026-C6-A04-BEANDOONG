@@ -1,12 +1,12 @@
 import SwiftUI
 
-/// 온보딩 2/3: 아이폰과 워치로 함께 확인
+/// 온보딩 1/3: 아이폰과 워치로 함께 확인
 /// - 디자인: Hi-Fi/iPhone 17 - 108.png
 ///
 ///     ┌ 상단 바: 건너뛰기
 ///     ├ 아이폰 + 워치 일러스트
 ///     ├ 타이틀 + 설명
-///     ├ 페이지 인디케이터 (● 두 번째)
+///     ├ 페이지 인디케이터 (● 첫 번째)
 ///     └ 하단 버튼: 다음
 struct WatchIntroView: View {
     var onNext: () -> Void = {}
@@ -32,7 +32,7 @@ struct WatchIntroView: View {
             Spacer(minLength: 0)
 
             // MARK: 페이지 인디케이터 + 하단 버튼
-            OnboardingPageIndicator(activeIndex: 1)
+            OnboardingPageIndicator(activeIndex: 0)
                 .padding(.bottom, Layout.indicatorBottom)
 
             DarkPrimaryButton(title: "다음", action: onNext)

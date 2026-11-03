@@ -1,12 +1,12 @@
 import SwiftUI
 
-/// 온보딩 1/3: 공기주입 상태 확인
+/// 온보딩 3/3: 공기주입 상태 확인
 /// - 디자인: Hi-Fi/iPhone 17 - 106.png
 ///
 ///     ┌ 상단 바: 건너뛰기
 ///     ├ 사운드 웨이브 일러스트
 ///     ├ 타이틀 + 설명
-///     ├ 페이지 인디케이터 (● 첫 번째)
+///     ├ 페이지 인디케이터 (● 세 번째)
 ///     └ 하단 버튼: 다음
 struct SoundIntroView: View {
     var onNext: () -> Void = {}
@@ -32,7 +32,7 @@ struct SoundIntroView: View {
             Spacer(minLength: 0)
 
             // MARK: 페이지 인디케이터 + 하단 버튼
-            OnboardingPageIndicator(activeIndex: 0)
+            OnboardingPageIndicator(activeIndex: 2)
                 .padding(.bottom, Layout.indicatorBottom)
 
             DarkPrimaryButton(title: "다음", action: onNext)

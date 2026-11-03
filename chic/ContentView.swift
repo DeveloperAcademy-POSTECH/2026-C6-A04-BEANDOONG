@@ -9,12 +9,12 @@ import SwiftUI
 
 struct ContentView: View {
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
-    @State private var step: OnboardingStep = .sound
+    @State private var step: OnboardingStep = .watch
 
     private enum OnboardingStep {
-        case sound
         case watch
         case placement
+        case sound
     }
 
     var body: some View {
@@ -28,12 +28,12 @@ struct ContentView: View {
     @ViewBuilder
     private var onboarding: some View {
         switch step {
-        case .sound:
-            SoundIntroView(onNext: { step = .watch }, onSkip: completeOnboarding)
         case .watch:
             WatchIntroView(onNext: { step = .placement }, onSkip: completeOnboarding)
         case .placement:
-            PlacementIntroView(onNext: completeOnboarding, onSkip: completeOnboarding)
+            PlacementIntroView(onNext: { step = .sound }, onSkip: completeOnboarding)
+        case .sound:
+            SoundIntroView(onNext: completeOnboarding, onSkip: completeOnboarding)
         }
     }
 

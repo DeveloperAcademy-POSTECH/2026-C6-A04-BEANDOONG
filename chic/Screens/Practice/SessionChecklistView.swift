@@ -10,10 +10,10 @@ import SwiftUI
 ///     │   ├ 공기 주입          │ 공기가 부족해요
 ///     │   ├ 롤링 소리          │ 공기가 너무 많아요
 ///     │   └ 노즐이 너무 높아요  │ 소리 확인 중
-///     └ 하단 버튼: [스팀 연습 시작하기] [워치 없이 연습하기]
+///     └ 하단 버튼: [스팀 연습 시작하기]
 struct SessionChecklistView: View {
     @EnvironmentObject private var practice: PracticeSession
-    /// 워치와 함께 연습할지 여부 (홈 '워치 없이 연습', 워치 연결 실패 화면에서는 false)
+    /// 진입 경로에서 정한 워치 사용 여부
     var usesWatch = true
 
     var body: some View {
@@ -55,13 +55,10 @@ struct SessionChecklistView: View {
             Spacer(minLength: 0)
 
             // MARK: 하단 버튼
-            // Hi-Fi는 버튼 하나지만, '워치 없이 연습하기' 동작은 develop 그대로 유지합니다.
-            DarkButtonPair(
-                primaryTitle: "스팀 연습 시작하기", secondaryTitle: "워치 없이 연습하기",
-                primaryAction: { Task { await practice.start(usingWatch: usesWatch) } },
-                secondaryAction: { Task { await practice.start(usingWatch: false) } }
-            )
-                .padding(.bottom, Layout.buttonsBottom)
+            DarkPrimaryButton(title: "스팀 연습 시작하기") {
+                Task { await practice.start(usingWatch: usesWatch) }
+            }
+            .padding(.bottom, Layout.buttonBottom)
         }
         .darkScreenBackground()
     }
@@ -180,7 +177,7 @@ private enum Layout {
     /// 안내 단계 설명 두 줄 사이 (스티밍 가이드 화면보다 촘촘함)
     static let stepDescriptionLineGap: CGFloat = 0
     static let legendCardTop: CGFloat = 38  // 안내 단계 ↔ 상태 안내 카드
-    static let buttonsBottom: CGFloat = 9   // 버튼 ↔ 화면 하단(안전 영역)
+    static let buttonBottom: CGFloat = 9    // 버튼 ↔ 화면 하단(안전 영역)
 }
 
 /// 상태 안내 카드 내부 치수 (Hi-Fi 측정값)

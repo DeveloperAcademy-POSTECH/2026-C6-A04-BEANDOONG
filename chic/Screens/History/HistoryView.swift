@@ -9,6 +9,7 @@ import SwiftUI
 ///     └ 연습 기록 카드 목록 (터치 시 HistoryDetailView 로 이동)
 struct HistoryView: View {
     @EnvironmentObject private var practice: PracticeSession
+    let onStartPractice: () -> Void
     @State private var selectedFilter: HistoryFilter = .today
 
     private var records: [HistoryRecord] {
@@ -37,6 +38,14 @@ struct HistoryView: View {
     }
 
     var body: some View {
+        if practice.history.isEmpty {
+            EmptyHistoryView(onStartPractice: onStartPractice)
+        } else {
+            historyContent
+        }
+    }
+
+    private var historyContent: some View {
         VStack(alignment: .leading, spacing: 0) {
             // MARK: 상단 네비게이션 바
             TopNavigationHeader(title: "히스토리", isDark: true)
@@ -231,7 +240,7 @@ struct HistoryView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack {
             let connection = WatchConnection()
-            HistoryView()
+            HistoryView(onStartPractice: {})
                 .environmentObject(PracticeSession(connection: connection))
         }
     }

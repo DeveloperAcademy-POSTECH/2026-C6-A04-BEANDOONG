@@ -19,20 +19,23 @@ struct PracticeResultTests {
         let start = Date(timeIntervalSince1970: 1_000)
         let result = PracticeResult(practicedAt: start, dailyOrder: 1, segments: timeline.segments, duration: 25)
         precondition(timeline.segments.map(\.sound) == [.normalAeration, .overAeration, .lackOfAir, .rolling, .overheated])
-        precondition(result.totalSeconds == 25 && result.timelineLength == 25)
+        precondition(result.timelineStart == 2 && result.totalSeconds == 23 && result.timelineLength == 23)
         precondition(result.normalSeconds == 10 && result.cautionSeconds == 10)
         precondition(result.detectedSeconds(of: .normalAeration) == 4)
         precondition(result.detectedSeconds(of: .overAeration) == 3)
         precondition(result.detectedSeconds(of: .lackOfAir) == 3)
         precondition(result.detectedSeconds(of: .rolling) == 6)
         precondition(result.detectedSeconds(of: .overheated) == 4)
+        verifyInitialRolling(start: start)
 
         let shortSegments = DetectedSound.allCases.enumerated().map { index, sound in
             DetectedSegment(sound: sound, start: Double(index) * 0.6, end: Double(index + 1) * 0.6)
         }
         let short = PracticeResult(practicedAt: start, dailyOrder: 1, segments: shortSegments, duration: 3)
+        precondition(short.timelineStart == 0 && short.totalSeconds == 3)
         precondition(short.normalSeconds + short.cautionSeconds == 3)
         let empty = PracticeResult(practicedAt: start, dailyOrder: 1, segments: [], duration: 5)
+        precondition(empty.timelineStart == 0)
         precondition(empty.totalSeconds == 5 && empty.normalSeconds == 0 && empty.cautionSeconds == 0)
         precondition(empty.normalRatio == 0 && empty.cautionRatio == 0)
 
@@ -43,6 +46,23 @@ struct PracticeResultTests {
         try verifyReload(record: record, expected: result, directory: directory)
         try verifyLegacyMigration(in: directory.appending(path: "migration"), start: start)
         print("PracticeResultTests passed (timeline, summaries, SwiftData persistence, legacy migration)")
+    }
+
+    private static func verifyInitialRolling(start: Date) {
+        var timeline = PracticeTimeline()
+        timeline.update(phase: .milkFlow, at: 2)
+        timeline.update(phase: .listening, at: 6)
+        timeline.update(phase: .aeration, at: 8)
+        timeline.finish(at: 10)
+
+        let result = PracticeResult(practicedAt: start, dailyOrder: 1, segments: timeline.segments, duration: 10)
+        precondition(result.timelineStart == 2 && result.totalSeconds == 8)
+        precondition(result.segments.map(\.sound) == [.rolling, .normalAeration])
+        // 표시 기준만 옮기고, 녹음 기준 시각과 중간의 미분류 구간은 유지합니다.
+        precondition(result.duration == 10 && result.segments.map(\.start) == [2, 8])
+        precondition(result.segments[0].start - result.timelineStart == 0)
+        precondition(result.segments[1].start - result.timelineStart == 6)
+        precondition(result.normalSeconds == 6 && result.cautionSeconds == 0)
     }
 
     @MainActor
@@ -60,6 +80,7 @@ struct PracticeResultTests {
         let saved = try store.records()
         precondition(saved.count == 1 && saved[0].record == record)
         let restored = saved[0].result
+        precondition(restored.timelineStart == expected.timelineStart)
         precondition(restored.totalSeconds == expected.totalSeconds)
         precondition(restored.normalSeconds == expected.normalSeconds && restored.cautionSeconds == expected.cautionSeconds)
         precondition(restored.segments.map(\.sound) == expected.segments.map(\.sound))
