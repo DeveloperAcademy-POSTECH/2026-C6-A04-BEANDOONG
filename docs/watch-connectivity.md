@@ -9,10 +9,10 @@
 - `chee-k/Services/PracticeSession.swift`: iPhone의 녹음 시작/종료, 파일·기록 저장, 상태 발행.
 - `WatchConnectionFlow`: 기존 연결 화면을 전환하는 컨테이너. 기존 화면은 버튼 콜백만 추가.
 - `AppRootView`: 연습 상태를 관찰해 연습·결과 화면을 표시합니다. cheekApp은 공유 객체 생성과 전달만 담당합니다.
-- `PracticeSessionView`: 기존 ListeningView / NoiseWarningView / SteamingFeedbackView를 연습 상태에 따라 표시. 종료 화면은 임시 UI.
+- `PracticeSessionView`: 기존 ListeningView / SteamingFeedbackView를 연습 상태에 따라 표시. 종료 후 결과 로딩 → PracticeResultView를 표시합니다.
 - `chee-k-watch/WatchPracticeView.swift`: 기존 워치 뷰를 연결하는 컨테이너. StartRequestView → SoundCheckingView / SteamingFeedbackView → PracticeFinishedView를 iPhone의 연습 상태에 따라 표시합니다. 최신 상태 확인은 앱 활성화·재연결 시 자동 처리합니다.
 
-연습 화면은 AppRootView의 ZStack에서 상태에 따라 표시합니다. 녹음 종료 후 `.finished`에서는 임시 결과 화면을 유지합니다. iPhone 결과 화면의 “다시 연습”이나 워치 결과 화면의 “완료”/X가 `finishReview()`를 호출해 `.idle`로 바뀌면 HomeView가 이동 경로를 준비 화면으로 교체합니다. 최초 연습을 연결 완료 화면이나 워치에서 시작했어도 이전 화면을 그대로 드러내지 않습니다. 연습 중에는 뒤의 기본 화면에 터치와 접근성 포커스가 전달되지 않게 합니다.
+연습 화면은 AppRootView의 ZStack에서 상태에 따라 표시합니다. 녹음 종료 후 `.finished`에서는 로딩 후 결과 화면을 유지합니다. iPhone 결과 화면의 뒤로가기나 워치 결과 화면의 “완료”가 `finishReview()`를 호출해 `.idle`로 바뀌면 HomeView가 이동 경로를 준비 화면으로 교체합니다. 최초 연습을 연결 완료 화면이나 워치에서 시작했어도 이전 화면을 그대로 드러내지 않습니다. 연습 중에는 뒤의 기본 화면에 터치와 접근성 포커스가 전달되지 않게 합니다.
 
 상태의 원본은 iPhone 한 곳입니다. 워치는 시작·종료·결과 확인 완료를 요청하고 iPhone이 성공한 상태만 표시합니다. 워치의 `.stop` 요청도 iPhone 버튼과 같은 `PracticeSession.stop()`을 호출해 녹음과 분석을 종료하고 결과를 저장합니다. `sendMessage`로 즉시 전송하고 `updateApplicationContext`로 최신 상태를 남깁니다. 워치가 다시 활성화되면 최신 상태를 요청합니다. 오래된 상태는 `updatedAt`으로 무시합니다. 종료·결과 확인 완료는 세션 ID가 일치해야 적용되며, 요청은 8초 후 만료됩니다. 전송에 실패한 요청은 나중에 실행되도록 큐에 넣지 않습니다.
 
@@ -26,9 +26,9 @@ SessionChecklistView의 “워치 없이 연습하기”와 연결 안내의 “
 
 `PracticeState.isWatchEnabled`는 이번 연습의 워치 사용 여부이며, 페어링 상태를 바꾸지 않습니다. false이면 `watchSnapshot`은 워치 제외 안내만 포함하고 연습 ID·진행 상태·시작/종료 시간·기록은 제외합니다. 일반 전송뿐 아니라 워치의 상태 요청 응답과 재연결 때도 이 스냅샷을 사용합니다. 워치의 시작·종료·결과 확인 완료 요청은 거절하고 iPhone의 연결 끊김 안내도 표시하지 않습니다. iPhone 녹음과 기록 저장은 그대로 진행합니다.
 
-연습 중 연결 끊김은 안내 배너만 표시하며, 자동으로 워치 제외 모드로 전환하지 않습니다. 결과 화면의 “다시 연습”을 누르면 이번 연습의 워치 제외가 해제되어 일반 대기·최근 기록 동기화로 돌아갑니다.
+연습 중 연결 끊김은 안내 배너만 표시하며, 자동으로 워치 제외 모드로 전환하지 않습니다. 결과 화면의 뒤로가기을 누르면 이번 연습의 워치 제외가 해제되어 일반 대기·최근 기록 동기화로 돌아갑니다.
 
-회귀 확인: 준비 화면의 “워치 없이 연습하기”, 연결 안내·미페어링・앱 미설치・통신 불가 화면의 “휴대폰만 사용하기”를 각각 눌러 바로 iPhone만 Listening으로 전환되는지 확인합니다. 워치는 제외 안내를 표시해야 합니다. 테스트 메뉴에서 피드백 변경·녹음 종료 후에도 워치에 연습 정보가 표시되지 않아야 합니다. 도중에 워치 앱을 닫았다 열어도 같아야 합니다. 결과 화면에서 “다시 연습”을 누르고 일반 연습 시작을 선택하면 다시 양쪽이 동기화되어야 합니다. 데이터 테스트는 스냅샷에서 연습 정보가 제외되고 다음 일반 연습에서 정상 전송으로 돌아오는 경우를 포함합니다.
+회귀 확인: 준비 화면의 “워치 없이 연습하기”, 연결 안내·미페어링・앱 미설치・통신 불가 화면의 “휴대폰만 사용하기”를 각각 눌러 바로 iPhone만 Listening으로 전환되는지 확인합니다. 워치는 제외 안내를 표시해야 합니다. 소리 분석에 따른 피드백 변경·녹음 종료 후에도 워치에 연습 정보가 표시되지 않아야 합니다. 도중에 워치 앱을 닫았다 열어도 같아야 합니다. 결과 화면에서 뒤로가기을 누르고 일반 연습 시작을 선택하면 다시 양쪽이 동기화되어야 합니다. 데이터 테스트는 스냅샷에서 연습 정보가 제외되고 다음 일반 연습에서 정상 전송으로 돌아오는 경우를 포함합니다.
 
 ## 연습 중 X 버튼과 소리별 진동
 
@@ -52,7 +52,7 @@ SessionChecklistView의 “워치 없이 연습하기”와 연결 안내의 “
 
 마이크 권한을 허용한 뒤 iPhone 앱이 **활성 상태**여야 새 녹음을 시작합니다. 워치 요청이 백그라운드 iPhone 앱을 깨우더라도 새 녹음이 허용되는 것은 아니므로, 이 경우 iPhone 앱을 열라는 오류를 워치에 표시합니다. 시작된 녹음은 audio background mode를 사용하며 전화 등 오디오 중단 시 종료하고 안내합니다.
 
-녹음은 iPhone 앱 Documents/PracticeRecordings의 `.m4a`, 기록 목록은 `records.json`에 저장합니다. 워치에는 최근 20건의 ID·시작/종료 시간·파일명 메타데이터를 전달하며 녹음 파일 자체는 전송하지 않습니다. 기존 HistoryView / SessionSummaryView의 샘플 그래프·기록 UI는 이번 작업에서 실제 저장 데이터로 교체하지 않았습니다.
+녹음은 iPhone 앱 내부 `Library/Application Support/PracticeHistory`의 `.m4a` 파일, 기록과 분석 구간은 SwiftData에 저장합니다. 기존 JSON 기록도 이전하며 HistoryView와 결과·히스토리 상세 화면이 저장된 데이터를 사용합니다. 워치에는 최근 20건의 ID·시작/종료 시간·파일명 메타데이터를 전달하며 녹음 파일과 분석 구간은 전송하지 않습니다. 엔티티와 저장 보호 정책은 [practice-results.md](practice-results.md)를 참고하세요.
 
 녹음 시작 시 Listening을 표시하고, 소리 분석 결과를 `PracticeSession.updateFeedback(_:)`로 전달해 iOS·워치 화면에 함께 반영합니다. 모델 연결은 [steaming-sound-model.md](steaming-sound-model.md)를 참고하세요. 개발용 동기화 테스트 메뉴는 제거했습니다. 진동 패턴은 아직 구현하지 않았습니다.
 

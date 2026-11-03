@@ -2,8 +2,6 @@
 //  SoundCheckingView.swift
 //
 //  연습 중 실시간 피드백을 보여주기 전, 앱이 아직 소리를 판단하지 못했을 때 보이는 대기 화면입니다.
-//  - 소리 확인 중: 연습을 시작한 직후 소리를 분석하는 동안
-//  - 구분 어려움: 주변 소음 등으로 스티밍 소리를 구분하기 어려울 때
 //
 //  화면만 그립니다. X 버튼은 전달받은 `onCloseTap`으로 연습 종료를 요청합니다.
 //
@@ -11,37 +9,18 @@
 import SwiftUI
 
 /// 소리 확인 대기 화면
-/// - 디자인: hifi/watch11.png (소리 확인 중), hifi/watch11-1.png (구분 어려움)
+/// - 디자인: hifi/watch11.png (소리 확인 중)
 ///
 ///     ┌ 좌측 상단 닫기(X) 버튼 · 상태 문구
 ///     └ 로딩 인디케이터 (화면 정중앙)
 struct SoundCheckingView: View {
-    /// 대기 상태 종류
-    /// - case 이름은 Shared/PracticeState.swift 의 PracticePhase 연습 단계 이름과 같게 맞췄습니다.
-    enum CheckingStatus {
-        /// 소리를 분석하는 중 (PracticePhase.listening)
-        case listening
-        /// 소음 등으로 스티밍 소리를 구분하기 어려움 (PracticePhase.noiseWarning)
-        case noiseWarning
-
-        /// 화면 위쪽에 보이는 상태 문구
-        var statusText: String {
-            switch self {
-            case .listening: "소리를 확인하고 있어요"
-            case .noiseWarning: "소리 구분이 어려워요"
-            }
-        }
-    }
-
-    /// 화면에 보여줄 대기 상태
-    let checkingStatus: CheckingStatus
     /// 뷰 작업자가 추가할 X 버튼에서 호출할 연습 종료 동작
     var onCloseTap: () -> Void = {}
 
     var body: some View {
         WatchFullScreenStack {
             // MARK: 상태 문구
-            Text(checkingStatus.statusText)
+            Text("소리를 확인하고 있어요")
                 .font(.watchScaled(18))
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
@@ -80,12 +59,6 @@ private extension AppColors {
 
 #Preview("소리 확인 중") {
     NavigationStack {
-        SoundCheckingView(checkingStatus: .listening)
-    }
-}
-
-#Preview("구분 어려움") {
-    NavigationStack {
-        SoundCheckingView(checkingStatus: .noiseWarning)
+        SoundCheckingView()
     }
 }

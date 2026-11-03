@@ -2,8 +2,8 @@
 //  PracticeSessionView.swift
 //
 //  iPhone의 현재 연습 상태에 맞는 화면을 표시하는 컨테이너입니다.
-//  기존 ListeningView, NoiseWarningView, SteamingFeedbackView에 종료 동작을 연결합니다.
-//  연결 끊김 배너와 임시 종료 화면을 표시하며, Debug 빌드에는 동기화 테스트 메뉴를 제공합니다.
+//  기존 ListeningView, SteamingFeedbackView에 종료 동작을 연결합니다.
+//  연결 끊김 배너와 결과 로딩·완료 화면을 표시합니다.
 //
 
 import SwiftUI
@@ -18,18 +18,8 @@ struct PracticeSessionView: View {
             switch practice.state.phase {
             case .idle, .listening:
                 ListeningView(onStop: practice.stop)
-            case .noiseWarning:
-                NoiseWarningView(onStop: practice.stop)
             case .finished:
-                VStack(spacing: 24) {
-                    Text("연습을 마쳤어요").font(.title2)
-                    Text(practice.state.durationText).font(.largeTitle.monospacedDigit())
-                    Text("녹음과 연습 기록은 iPhone에서 관리해요.")
-                    // 최종 결과 뷰에서도 '다시 연습' 버튼에 같은 동작을 연결합니다.
-                    DarkPrimaryButton(title: "다시 연습", action: practice.finishReview)
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .darkScreenBackground()
+                FinishedPracticeView(result: practice.result, onClose: practice.finishReview)
             default:
                 SteamingFeedbackView(feedback: feedback, onStop: practice.stop)
             }
@@ -69,20 +59,6 @@ struct PracticeSessionView: View {
         } message: {
             Text(practice.errorMessage ?? "")
         }
-        #if DEBUG
-        .overlay(alignment: .topLeading) {
-            if !showsDisconnection {
-                Menu("동기화 테스트") {
-                    ForEach(PracticePhase.allCases.filter(\.isRunning), id: \.self) { phase in
-                        Button(phase.title) { practice.updateFeedback(phase) }
-                    }
-                }
-                .font(.caption)
-                .padding(.top, 42)
-                .padding(.leading)
-            }
-        }
-        #endif
     }
 
     private var disconnectionBanner: some View {
@@ -115,6 +91,28 @@ struct PracticeSessionView: View {
         case .moreAir: .moreAir
         case .milkFlow: .milkFlow
         default: .aeration
+        }
+    }
+}
+
+private struct FinishedPracticeView: View {
+    let result: PracticeResult?
+    let onClose: () -> Void
+    @State private var minimumLoadingFinished = false
+
+    var body: some View {
+        Group {
+            if minimumLoadingFinished, let result {
+                PracticeResultView(result: result, onClose: onClose)
+            } else {
+                PracticeResultLoadingView()
+            }
+        }
+        .task {
+            // 저장이 빨리 끝나도 로딩 화면이 깜빡이지 않게 잠깐 유지합니다.
+            do { try await Task.sleep(for: .milliseconds(700)) }
+            catch { return }
+            minimumLoadingFinished = true
         }
     }
 }

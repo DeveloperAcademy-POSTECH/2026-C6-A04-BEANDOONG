@@ -35,7 +35,7 @@ struct PracticeStateTests {
         precondition(state.duration == 0)
         precondition(PracticeState().durationText == "00:00")
         precondition(!PracticePhase.idle.isRunning && !PracticePhase.finished.isRunning)
-        precondition(PracticePhase.listening.isRunning && PracticePhase.noiseWarning.isRunning)
+        precondition(PracticePhase.listening.isRunning)
 
         // 종료·완료 요청은 세션 ID를 보존해야 다른 연습에 적용되지 않습니다.
         for command: WatchCommand in [.stop, .finishReview] {

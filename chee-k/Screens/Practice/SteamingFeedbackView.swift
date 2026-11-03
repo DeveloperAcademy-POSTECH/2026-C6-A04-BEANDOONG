@@ -4,7 +4,7 @@ import SwiftUI
 /// - 디자인: Hi-Fi/iPhone 17 - 119, 101, 157, 158, 161.png
 ///
 ///     ┌ 배경: 피드백별 그라데이션 / 단색
-///     ├ 상단 바: 스티밍 연습  X
+///     ├ 상단 바: 스티밍 연습
 ///     ├ (상태 아이콘) + 타이틀 + 설명
 ///     ├ 피드백별 웨이브 일러스트
 ///     └ 하단 중앙: 정지 버튼
@@ -21,7 +21,7 @@ struct SteamingFeedbackView: View {
 
             VStack(spacing: 0) {
                 // MARK: 상단 바
-                SteamingPracticeTopBar(onClose: onStop)
+                SteamingPracticeTopBar()
                     .padding(.top, Layout.topBarTop)
 
                 // MARK: 상태 아이콘 + 타이틀 + 설명
