@@ -35,11 +35,13 @@ struct WatchFeedbackHapticsTests {
         precondition(receive(.sharpSound, at: 6.1) == .failure)
         precondition(receive(.sharpSound, at: 6.1) == nil)
         precondition(receive(.sharpSound, at: 7) == nil)
+        precondition(receive(.moreAir, at: 7.5) == .failure)
+        precondition(receive(.moreAir, at: 7.8) == nil)
         precondition(receive(.bubble, at: 8) == .failure)
         precondition(receive(.bubble, at: 9) == nil)
         precondition(receive(.aeration, at: 10) == .notification)
         precondition(receive(.bubble, at: 11, delay: 2) == nil)
-        for (index, phase) in [PracticePhase.idle, .listening, .moreAir, .milkFlow, .finished].enumerated() {
+        for (index, phase) in [PracticePhase.idle, .listening, .milkFlow, .finished].enumerated() {
             precondition(receive(phase, at: 14 + Double(index)) == nil)
         }
         state.isWatchEnabled = false
