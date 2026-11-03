@@ -13,7 +13,7 @@ struct HomeView: View {
 
     private enum Destination: Hashable {
         case microphone
-        case checklist
+        case checklist(usesWatch: Bool)
         case watchSetup
         case history
     }
@@ -31,8 +31,8 @@ struct HomeView: View {
                                 // 완료한 권한 화면은 뒤로가기 경로에 남기지 않습니다.
                                 path[path.count - 1] = .watchSetup
                             }
-                        case .checklist:
-                            SessionChecklistView()
+                        case .checklist(let usesWatch):
+                            SessionChecklistView(usesWatch: usesWatch)
                         case .watchSetup:
                             WatchConnectionFlow()
                         case .history:
@@ -46,7 +46,7 @@ struct HomeView: View {
             // 결과 화면의 '다시 연습'으로 종료 상태를 벗어날 때만 준비 화면으로 이동합니다.
             // 최초 연습을 어느 화면에서 시작했든 준비 화면을 목적지로 명시합니다.
             guard previous == .finished, current == .idle else { return }
-            path = [.checklist]
+            path = [.checklist(usesWatch: true)]
         }
     }
 
@@ -71,8 +71,12 @@ struct HomeView: View {
 
             // MARK: 하단 2열 카드 (워치 없이 연습 / 최근 연습)
             HStack(spacing: Layout.subCardSpacing) {
-                // 누르는 동작은 아직 연결하지 않았습니다. (워치 없이 연습 흐름은 별도 작업)
-                HomeSubCard(title: "워치 없이 연습", color: AppColors.homeWithoutWatchCard)
+                Button {
+                    path.append(.checklist(usesWatch: false))
+                } label: {
+                    HomeSubCard(title: "워치 없이 연습", color: AppColors.homeWithoutWatchCard)
+                }
+                .buttonStyle(.plain)
 
                 Button {
                     path.append(.history)
