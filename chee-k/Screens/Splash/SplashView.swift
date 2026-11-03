@@ -14,12 +14,12 @@ struct LaunchView: View {
             LaunchGlow.topLeading
             LaunchGlow.bottomTrailing
 
-            // MARK: 로고 (화면 중앙에서 37pt 위)
+            // MARK: 로고 (화면 중앙에서 35pt 위)
             Image("ChicLogo")
                 .resizable()
                 .scaledToFit()
-                .frame(width: 162, height: 60)
-                .offset(y: -37)
+                .frame(width: 149, height: 51)
+                .offset(y: -35)
         }
         .preferredColorScheme(.dark)
     }
@@ -33,12 +33,12 @@ private enum LaunchGlow {
     static var topLeading: some View {
         RadialGradient(
             colors: [
-                Color(hex: 0x162238, opacity: 0.85),
-                Color(hex: 0x02040D, opacity: 0.0)
+                Color(hex: 0x323E50),
+                Color(hex: 0x01030C, opacity: 0.0)
             ],
             center: .topLeading,
-            startRadius: 10,
-            endRadius: 340
+            startRadius: 0,
+            endRadius: 380
         )
         .ignoresSafeArea()
     }
@@ -47,12 +47,12 @@ private enum LaunchGlow {
     static var bottomTrailing: some View {
         RadialGradient(
             colors: [
-                Color(hex: 0x26354A, opacity: 0.85),
-                Color(hex: 0x02040D, opacity: 0.0)
+                Color(hex: 0x3E4C61),
+                Color(hex: 0x01030C, opacity: 0.0)
             ],
             center: .bottomTrailing,
-            startRadius: 10,
-            endRadius: 360
+            startRadius: 0,
+            endRadius: 375
         )
         .ignoresSafeArea()
     }
