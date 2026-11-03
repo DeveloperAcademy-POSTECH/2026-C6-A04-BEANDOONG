@@ -32,11 +32,12 @@ struct DetectedDurationCard: View {
                 titleWeight: headerTitleWeight
             )
 
-            ForEach(Array(SteamingStage.allCases.enumerated()), id: \.element) { index, stage in
+            // 튜플 키패스(enumerated + \.element)는 Xcode 프리뷰에서 크래시가 나서, 단계 값 자체를 id로 씁니다.
+            ForEach(SteamingStage.allCases, id: \.self) { stage in
                 Text(stage.title)
                     .font(.pretendard(.semibold, size: 12))
                     .foregroundStyle(PracticeResultColors.primaryText)
-                    .padding(.top, index == 0 ? Metrics.firstStageTitleTop : Metrics.nextStageTitleTop)
+                    .padding(.top, stage == SteamingStage.allCases.first ? Metrics.firstStageTitleTop : Metrics.nextStageTitleTop)
                     .accessibilityAddTraits(.isHeader)
 
                 HStack(spacing: tileSpacing(for: stage)) {
