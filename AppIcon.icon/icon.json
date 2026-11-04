@@ -7,9 +7,14 @@
       "layers" : [
         {
           "blend-mode" : "normal",
+          "fill" : "automatic",
           "glass" : false,
           "hidden-specializations" : [
             {
+              "value" : false
+            },
+            {
+              "idiom" : "square",
               "value" : false
             },
             {
@@ -23,7 +28,7 @@
             },
             {
               "idiom" : "watchOS",
-              "value" : "Frame 2147236729.svg"
+              "value" : "Frame 2147236728.svg"
             }
           ],
           "name" : "AppIcon_Watch",
