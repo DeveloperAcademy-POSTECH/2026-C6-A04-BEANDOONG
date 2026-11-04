@@ -7,8 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		93F691703099BDD400073498 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 93F6916F3099BDD400073498 /* AppIcon.icon */; };
-		93F691713099BDD400073498 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 93F6916F3099BDD400073498 /* AppIcon.icon */; };
+		93001EA2309A78A6000A7AA0 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 93001EA1309A78A6000A7AA0 /* AppIcon.icon */; };
+		93001EA3309A78A6000A7AA0 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 93001EA1309A78A6000A7AA0 /* AppIcon.icon */; };
 		A1000000000000000000000B /* chic-watch.app in Embed Watch Content */ = {isa = PBXBuildFile; fileRef = A10000000000000000000001 /* chic-watch.app */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
 
@@ -35,8 +35,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		93001EA1309A78A6000A7AA0 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
 		936A3CD4307802AD00F6FB73 /* chic.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = chic.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		93F6916F3099BDD400073498 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
 		A10000000000000000000001 /* chic-watch.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; path = "chic-watch.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -99,7 +99,7 @@
 				936A3CD6307802AD00F6FB73 /* chic */,
 				A10000000000000000000002 /* chic-watch */,
 				A10000000000000000000003 /* Shared */,
-				93F6916F3099BDD400073498 /* AppIcon.icon */,
+				93001EA1309A78A6000A7AA0 /* AppIcon.icon */,
 				936A3CD5307802AD00F6FB73 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -197,13 +197,13 @@
 		936A3CD2307802AD00F6FB73 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			files = (
-				93F691703099BDD400073498 /* AppIcon.icon in Resources */,
+				93001EA3309A78A6000A7AA0 /* AppIcon.icon in Resources */,
 			);
 		};
 		A10000000000000000000005 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			files = (
-				93F691713099BDD400073498 /* AppIcon.icon in Resources */,
+				93001EA2309A78A6000A7AA0 /* AppIcon.icon in Resources */,
 			);
 		};
 /* End PBXResourcesBuildPhase section */
@@ -426,6 +426,7 @@
 		A10000000000000000000009 /* Debug configuration for PBXNativeTarget "chic-watch" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = ZGS2437ZK6;
@@ -451,6 +452,7 @@
 		A1000000000000000000000A /* Release configuration for PBXNativeTarget "chic-watch" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = ZGS2437ZK6;
