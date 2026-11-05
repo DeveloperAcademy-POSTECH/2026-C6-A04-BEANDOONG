@@ -2,7 +2,7 @@ import CoreML
 import Foundation
 
 /// 한 번의 연습에서 유지하며 직렬 분석 큐에서 두 단계 모델을 실행합니다.
-nonisolated final class ChicModelV2 {
+nonisolated final class ChicModelV3 {
     enum State: String { case air, sputter, metallic, other }
     struct Frame {
         let state: State
@@ -69,7 +69,7 @@ nonisolated final class ChicModelV2 {
             guard let u = bundle.url(forResource: name, withExtension: "mlmodelc") else { throw Failure.resource(name) }
             return u
         }
-        try self.init(gateURL: url("ChicModelV2Gate"), airURL: url("ChicModelV2Air"), rollingURL: url("ChicModelV2Metallic"))
+        try self.init(gateURL: url("ChicModelV3Gate"), airURL: url("ChicModelV3Air"), rollingURL: url("ChicModelV3Metallic"))
     }
     /// 테스트 또는 앱 번들에서 받은 세 모델로 연습별 분석 상태를 만듭니다.
     init(gateURL: URL, airURL: URL, rollingURL: URL) throws {

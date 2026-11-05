@@ -28,17 +28,17 @@ nonisolated final class ChicV2Input48k {
     /// 고정된 마이크 입력률을 유지하며 48 kHz PCM으로 변환합니다.
     func convert(_ samples: [Float], sampleRate: Double) throws -> [Float] {
         guard sampleRate.isFinite, (32000...192000).contains(sampleRate),
-              rate == nil || rate == sampleRate, samples.allSatisfy(\.isFinite) else { throw ChicModelV2.Failure.input }
+              rate == nil || rate == sampleRate, samples.allSatisfy(\.isFinite) else { throw ChicModelV3.Failure.input }
         rate = sampleRate
         if sampleRate == 48000 || samples.isEmpty { return samples }
         if converter == nil {
             guard let input = AVAudioFormat(standardFormatWithSampleRate: sampleRate, channels: 1),
                   let output = AVAudioFormat(standardFormatWithSampleRate: 48000, channels: 1),
-                  let new = AVAudioConverter(from: input, to: output) else { throw ChicModelV2.Failure.input }
+                  let new = AVAudioConverter(from: input, to: output) else { throw ChicModelV3.Failure.input }
             new.primeMethod = .none
             converter = new
         }
-        guard let c = converter, let dst = AVAudioPCMBuffer(pcmFormat: c.outputFormat, frameCapacity: 1024) else { throw ChicModelV2.Failure.input }
+        guard let c = converter, let dst = AVAudioPCMBuffer(pcmFormat: c.outputFormat, frameCapacity: 1024) else { throw ChicModelV3.Failure.input }
         let supply = Supply(samples, c.inputFormat)
         var result = [Float]()
         while true {
@@ -46,10 +46,10 @@ nonisolated final class ChicV2Input48k {
             var error: NSError?
             let status = c.convert(to: dst, error: &error) { count, flag in supply.next(count, flag) }
             if let error { throw error }
-            guard !supply.allocationFailed, let data = dst.floatChannelData?[0] else { throw ChicModelV2.Failure.input }
+            guard !supply.allocationFailed, let data = dst.floatChannelData?[0] else { throw ChicModelV3.Failure.input }
             result.append(contentsOf: UnsafeBufferPointer(start: data, count: Int(dst.frameLength)))
             if status == .inputRanDry && supply.offset == samples.count { return result }
-            guard status == .haveData, dst.frameLength > 0 else { throw ChicModelV2.Failure.input }
+            guard status == .haveData, dst.frameLength > 0 else { throw ChicModelV3.Failure.input }
         }
     }
 }
