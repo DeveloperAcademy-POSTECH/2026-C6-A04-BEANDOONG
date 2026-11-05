@@ -77,6 +77,8 @@ final class WatchConnection: NSObject, ObservableObject {
         do {
             let received = try await request(command)
             await apply(received)
+        } catch let error as WCError where error.code == .notReachable {
+            // 상대 앱에 즉시 도달할 수 없는 통신 오류는 팝업으로 표시하지 않습니다.
         } catch {
             errorMessage = error.localizedDescription
         }
