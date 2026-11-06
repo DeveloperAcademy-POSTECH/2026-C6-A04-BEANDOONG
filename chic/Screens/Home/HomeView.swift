@@ -7,9 +7,22 @@ import SwiftUI
 ///     ├ 헤드라인 "다음 한잔을 / 위한 작은 연습" + 설명
 ///     ├ 메인 연습 카드 (워치 + 피처 이미지, 좌하단 문구, 우하단 [연습하기 →])
 ///     └ 하단 2열 카드: [워치 없이 연습] [최근 연습]
+///
+/// `animatesEntrance`를 켜면 화면이 나타날 때 로고 → 헤드라인 → 설명 → 메인 카드 → 하단 카드 순서로
+/// 아래에서 살짝 떠오르며 차례로 나타나요. (온보딩을 마치고 홈으로 넘어올 때)
 struct HomeView: View {
     @EnvironmentObject private var practice: PracticeSession
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var path: [Destination] = []
+    /// 등장 애니메이션을 할지
+    private let animatesEntrance: Bool
+    /// 홈 요소가 다 나타났는지 (등장 애니메이션을 하지 않으면 처음부터 true)
+    @State private var hasEntered: Bool
+
+    init(animatesEntrance: Bool = false) {
+        self.animatesEntrance = animatesEntrance
+        _hasEntered = State(initialValue: !animatesEntrance)
+    }
 
     private enum Destination: Hashable {
         case microphone
@@ -42,6 +55,7 @@ struct HomeView: View {
                     .toolbar(.hidden, for: .navigationBar)
                 }
         }
+        .onAppear(perform: enter)
         .onChange(of: practice.state.phase) { previous, current in
             // 결과 화면의 '다시 연습'으로 종료 상태를 벗어날 때만 준비 화면으로 이동합니다.
             // 최초 연습을 어느 화면에서 시작했든 준비 화면을 목적지로 명시합니다.
@@ -54,19 +68,23 @@ struct HomeView: View {
         VStack(alignment: .leading, spacing: 0) {
             // MARK: 로고
             AssetImageView(name: "ChicLogo", width: 82, height: 28)
+                .homeEntrance(order: 0, hasEntered: hasEntered)
                 .padding(.top, Layout.logoTop)
 
             // MARK: 헤드라인 + 설명
             headline
+                .homeEntrance(order: 1, hasEntered: hasEntered)
                 .padding(.top, Layout.headlineTop)
 
             Text("한 잔의 시작, 작은 소리부터 함께해요")
                 .font(.pretendard(.regular, size: 16))
                 .foregroundStyle(AppColors.darkSubtitle)
+                .homeEntrance(order: 2, hasEntered: hasEntered)
                 .padding(.top, Layout.subtitleTop)
 
             // MARK: 메인 연습 카드
             practiceCard
+                .homeEntrance(order: 3, hasEntered: hasEntered)
                 .padding(.top, Layout.heroCardTop)
 
             // MARK: 하단 2열 카드 (워치 없이 연습 / 최근 연습)
@@ -77,6 +95,7 @@ struct HomeView: View {
                     HomeSubCard(title: "워치 없이 연습", color: AppColors.homeWithoutWatchCard)
                 }
                 .buttonStyle(.plain)
+                .homeEntrance(order: 4, hasEntered: hasEntered)
 
                 Button {
                     path.append(.history)
@@ -84,6 +103,7 @@ struct HomeView: View {
                     HomeSubCard(title: "최근 연습", color: AppColors.homeRecentCard)
                 }
                 .buttonStyle(.plain)
+                .homeEntrance(order: 5, hasEntered: hasEntered)
             }
             .padding(.top, Layout.subCardsTop)
 
@@ -139,6 +159,18 @@ struct HomeView: View {
         .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
     }
 
+    /// 홈 요소를 나타나게 해요. 동작 줄이기가 켜져 있으면 떠오르는 움직임 없이 바로 보여 줘요.
+    private func enter() {
+        guard !hasEntered else { return }
+        guard !reduceMotion else {
+            var instant = Transaction()
+            instant.disablesAnimations = true
+            withTransaction(instant) { hasEntered = true }
+            return
+        }
+        hasEntered = true
+    }
+
     private func startPractice() {
         path = [MicrophonePermission.isGranted ? .watchSetup : .microphone]
     }
@@ -158,6 +190,33 @@ struct HomeView: View {
                 .foregroundStyle(Color.white)
         }
         .font(.pretendard(.bold, size: 28))
+    }
+}
+
+// MARK: - 등장 애니메이션
+
+/// 홈 요소가 차례로 떠오르는 타이밍
+/// - 온보딩이 걷히기 시작하고 0.15초 뒤에 첫 요소가 출발하고, 요소 사이는 0.06초씩 늦게 출발해요.
+/// - 각 요소는 12pt 아래에서 0.45초 동안 떠오르며 나타나요 (스플래시·온보딩과 같은 ease-out-expo).
+private enum HomeEntranceMotion {
+    static let startDelay: TimeInterval = 0.15
+    static let stagger: TimeInterval = 0.06
+    static let duration: TimeInterval = 0.45
+    static let riseDistance: CGFloat = 12
+
+    static func animation(order: Int) -> Animation {
+        Animation.timingCurve(MotionCurve.easeOutExpo, duration: duration)
+            .delay(startDelay + stagger * Double(order))
+    }
+}
+
+private extension View {
+    /// `order`번째로 나타나는 홈 요소: 나타나기 전에는 투명하게 조금 아래에 있다가 제자리로 떠올라요.
+    func homeEntrance(order: Int, hasEntered: Bool) -> some View {
+        self
+            .opacity(hasEntered ? 1 : 0)
+            .offset(y: hasEntered ? 0 : HomeEntranceMotion.riseDistance)
+            .animation(HomeEntranceMotion.animation(order: order), value: hasEntered)
     }
 }
 

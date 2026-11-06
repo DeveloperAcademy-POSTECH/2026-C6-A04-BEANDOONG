@@ -35,7 +35,7 @@ struct PracticeResultView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
                     // MARK: 상단 히어로 요약 (타이틀 + 도넛 차트 + 3열 요약)
-                    PracticeSummarySection(result: result)
+                    PracticeSummarySection(result: result, animatesRings: true)
 
                     // MARK: 스티밍 기록 · 연습 가이드 · 안내 문구
                     VStack(alignment: .leading, spacing: 0) {
