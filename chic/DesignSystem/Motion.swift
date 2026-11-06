@@ -41,3 +41,39 @@ enum MotionCurve {
         endControlPoint: UnitPoint(x: 0.35, y: 1)
     )
 }
+
+// MARK: - 반복 애니메이션 시계
+
+/// 반복 애니메이션용 시계: 화면에 나타난 순간부터 흐른 시간을 한 주기 안의 진행률(0 이상 1 미만)로 넘겨 줘요.
+///
+/// - 화면에 나타날 때마다 0부터 다시 시작해서, 첫 프레임이 항상 Hi-Fi 정지 화면과 같아요.
+/// - 경과 시간을 주기로 나눈 나머지를 쓰기 때문에 반복할 때 이음새가 튀지 않아요.
+/// - 동작 줄이기(Reduce Motion)가 켜져 있으면 시계를 멈추고 0(Hi-Fi 정지 화면)만 넘겨요.
+///
+///     LoopTimeline(period: 1.4) { progress in
+///         Spinner(progress: progress)
+///     }
+struct LoopTimeline<Content: View>: View {
+    /// 한 주기 길이(초)
+    let period: TimeInterval
+    @ViewBuilder let content: (_ progress: Double) -> Content
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var startDate = Date.now
+
+    var body: some View {
+        if reduceMotion {
+            content(0)
+        } else {
+            TimelineView(.animation) { context in
+                content(progress(at: context.date))
+            }
+            .onAppear { startDate = .now }
+        }
+    }
+
+    private func progress(at date: Date) -> Double {
+        let elapsed = max(0, date.timeIntervalSince(startDate))
+        return elapsed.truncatingRemainder(dividingBy: period) / period
+    }
+}
