@@ -9,13 +9,7 @@ import SwiftUI
 
 struct ContentView: View {
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
-    @State private var step: OnboardingStep = .watch
-
-    private enum OnboardingStep {
-        case watch
-        case placement
-        case sound
-    }
+    @State private var step: OnboardingPage = .watch
 
     var body: some View {
         if hasCompletedOnboarding {
@@ -25,15 +19,17 @@ struct ContentView: View {
         }
     }
 
-    @ViewBuilder
+    /// 온보딩 1/3 → 2/3 → 3/3. 쪽이 바뀔 때의 넘김 애니메이션은 OnboardingView 가 해요.
     private var onboarding: some View {
+        OnboardingView(page: step, onNext: showNextStep, onSkip: completeOnboarding)
+    }
+
+    /// 다음: 1/3 → 2/3 → 3/3, 마지막 쪽에서는 온보딩 완료
+    private func showNextStep() {
         switch step {
-        case .watch:
-            WatchIntroView(onNext: { step = .placement }, onSkip: completeOnboarding)
-        case .placement:
-            PlacementIntroView(onNext: { step = .sound }, onSkip: completeOnboarding)
-        case .sound:
-            SoundIntroView(onNext: completeOnboarding, onSkip: completeOnboarding)
+        case .watch: step = .placement
+        case .placement: step = .sound
+        case .sound: completeOnboarding()
         }
     }
 
