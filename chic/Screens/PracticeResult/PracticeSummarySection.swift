@@ -118,7 +118,9 @@ struct PracticeDonutChart: View {
 }
 
 /// 단일 도넛 링 (트랙 + 비율에 따라 길이가 변하는 둥근 호)
-private struct DonutRingArc: View {
+///
+/// `fill`이 0 → 1로 바뀌면 호가 시작점에 고정된 채 시계 방향으로 자라요.
+private struct DonutRingArc: View, Animatable {
     /// 링의 바깥 지름
     let diameter: CGFloat
     let lineWidth: CGFloat
@@ -126,6 +128,13 @@ private struct DonutRingArc: View {
     let ratio: Double
     let foregroundColor: Color
     let trackColor: Color
+    /// 호가 최종 길이까지 차오른 정도 (0 ... 1)
+    var fill: Double = 1
+
+    var animatableData: Double {
+        get { fill }
+        set { fill = newValue }
+    }
 
     /// stroke 중심선 지름
     private var centerlineDiameter: CGFloat {
@@ -145,7 +154,25 @@ private struct DonutRingArc: View {
         return max(0.5, ratio * 360.0 - 2.0 * capDegrees)
     }
 
-    /// 호 시작 각도: Hi-Fi 기준 호 중심 각도(-54°, 12시 방향에서 시계방향 36°)를 중심으로 최종 호를 대칭 배치한 자리
+    /// 지금 보이는 호 각도 (둥근 끝 포함). 보이는 길이가 `fill` 만큼 자라요.
+    private var visibleDegrees: Double {
+        let finalVisibleDegrees = ratio >= 1 ? 360 : finalStrokeDegrees + 2.0 * capDegrees
+        return finalVisibleDegrees * fill
+    }
+
+    /// 지금 그릴 선 각도 (둥근 끝 제외)
+    private var strokeDegrees: Double {
+        if ratio >= 1 { return visibleDegrees }
+        return max(0, visibleDegrees - 2.0 * capDegrees)
+    }
+
+    /// 출발할 때 둥근 점이 툭 나타나지 않도록, 보이는 호가 둥근 끝 두 개만큼 자랄 때까지 서서히 나타나요.
+    private var arcOpacity: Double {
+        min(1, visibleDegrees / (2.0 * capDegrees))
+    }
+
+    /// 호 시작 각도: Hi-Fi 기준 호 중심 각도(-54°, 12시 방향에서 시계방향 36°)를 중심으로 최종 호를 대칭 배치한 자리.
+    /// 최종 길이로 고정해 두어서, 차오르는 동안 시작점이 움직이지 않아요.
     private var startRotation: Angle {
         .degrees(Metrics.arcCenterDegrees - finalStrokeDegrees / 2.0)
     }
@@ -155,18 +182,22 @@ private struct DonutRingArc: View {
             Circle()
                 .stroke(trackColor, lineWidth: lineWidth)
 
-            if ratio > 0 {
+            if ratio > 0 && fill > 0 {
                 Circle()
-                    .trim(from: 0, to: CGFloat(finalStrokeDegrees / 360.0))
+                    .trim(from: 0, to: CGFloat(max(strokeDegrees, Self.minimumStrokeDegrees) / 360.0))
                     .stroke(
                         foregroundColor,
                         style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
                     )
                     .rotationEffect(startRotation)
+                    .opacity(arcOpacity)
             }
         }
         .frame(width: centerlineDiameter, height: centerlineDiameter)
     }
+
+    /// 선 길이가 0이면 둥근 끝도 그려지지 않아서, 출발 직후에도 둥근 점이 보이도록 남겨 두는 최소 각도
+    private static let minimumStrokeDegrees: Double = 0.01
 }
 
 // MARK: - 3열 요약 바
