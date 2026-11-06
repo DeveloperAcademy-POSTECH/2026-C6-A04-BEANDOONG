@@ -6,18 +6,25 @@ import SwiftUI
 ///     ┌ (상단 바 · 페이지 인디케이터 · 다음 버튼은 OnboardingView 가 그려요)
 ///     ├ 아이폰 + 워치 일러스트
 ///     └ 타이틀 + 설명
+///
+/// `motion`: 쪽을 넘길 때 부분마다 옆으로 밀리고 투명해지는 정도. 평소에는 제자리(`.resting`)예요.
 struct WatchIntroPage: View {
+    var motion: OnboardingPageMotion = .resting
+
     var body: some View {
         VStack(spacing: 0) {
             // MARK: 일러스트
             AssetImageView(name: "IllustPhoneWatch", width: 230, height: 193)
+                .onboardingPart(motion.illustration)
                 .padding(.top, Metrics.illustrationTop)
 
             // MARK: 타이틀 + 설명
             DarkScreenTitle("아이폰과 워치로\n함께 확인해요")
+                .onboardingPart(motion.title)
                 .padding(.top, Metrics.titleTop)
 
             DarkScreenSubtitle("Apple Watch를 함께 사용하면\n상태 변화를 진동으로도 안내받을 수 있어요")
+                .onboardingPart(motion.subtitle)
                 .padding(.top, Metrics.subtitleTop)
         }
     }
