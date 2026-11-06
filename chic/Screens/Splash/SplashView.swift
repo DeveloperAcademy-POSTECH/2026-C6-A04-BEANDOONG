@@ -4,7 +4,7 @@ import SwiftUI
 /// - 디자인: Hi-Fi/iPhone 17 - 92.png
 ///
 ///     ┌ 배경: 검정 + 좌상단/우하단 네이비 글로우
-///     └ 화면 중앙(살짝 위) chic 로고
+///     └ 화면 중앙(살짝 위) chic 로고 (SplashLogoReveal 등장 애니메이션)
 struct LaunchView: View {
     var body: some View {
         ZStack {
@@ -14,11 +14,8 @@ struct LaunchView: View {
             LaunchGlow.topLeading
             LaunchGlow.bottomTrailing
 
-            // MARK: 로고 (화면 중앙에서 35pt 위)
-            Image("ChicLogo")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 149, height: 51)
+            // MARK: 로고 (화면 중앙에서 35pt 위) — 조각별로 떠오르며 흐림이 걷히는 등장 애니메이션
+            SplashLogoReveal()
                 .offset(y: -35)
         }
         .preferredColorScheme(.dark)
