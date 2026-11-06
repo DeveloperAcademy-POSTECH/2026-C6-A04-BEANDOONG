@@ -4,7 +4,7 @@ import SwiftUI
 /// - 디자인: Hi-Fi/iPhone 17 - 111.png
 ///
 ///     ┌ 상단 네비게이션 바: 애플 워치 연결
-///     ├ 워치 일러스트 (확인 중)
+///     ├ 워치 일러스트 (확인 중, 원형 점 로더 애니메이션)
 ///     └ 타이틀 + 설명   (하단 버튼 없음)
 struct WatchConnectingView: View {
     var body: some View {
@@ -14,7 +14,7 @@ struct WatchConnectingView: View {
                 .padding(.top, Layout.headerTop)
 
             // MARK: 일러스트
-            AssetImageView(name: "IllustWatchChecking", width: 121, height: 207)
+            WatchConnectingIllustration()
                 .padding(.top, Layout.illustrationTop)
 
             // MARK: 타이틀 + 설명
