@@ -9,13 +9,15 @@ import SwiftUI
 ///      ╭─┼ ● ┼─╮      ← 원형 파동 4개가 같은 간격으로 계속 퍼짐
 ///     ~~~~ ● ~~~~     ← 파동 선: 마루가 양옆으로 흘러감
 ///
-///     ┌ 아래: 원형 파동 + 파동 선 (코드로 그림)
-///     └ 위:   베이스 이미지 (코어 구, ONB-02는 스팀 머신까지) — 파동이 코어 뒤로 지나가요
+///     ┌ 캔버스: 원형 파동 + 파동 선 → 그 위에 코어 구 (모두 코드로 그림) — 파동이 코어 뒤로 지나가요
+///     └ 베이스 이미지: ONB-02 스팀 머신 (ONB-03 은 없음)
 ///
 /// - 파동 4개가 같은 간격으로 돌아서, 첫 프레임은 Hi-Fi의 링 3개와 같아요 (4번째는 코어 뒤에 숨어 있어요).
-/// - 새 파동은 코어 뒤에서 나오는 동안 서서히 나타나요 (코어가 링 중심보다 조금 아래라 위쪽이 먼저 삐져나오지 않게).
+/// - 새 파동은 코어 뒤에서 나오는 동안 서서히 나타나요 (코어 가장자리에서 선이 툭 생기지 않게).
+/// - 원본 일러스트는 코어 구가 링 중심보다 조금 아래에 있었고 가장자리에 파동 선이 닿던 흠도 있어서,
+///   코어를 링 중심에 정확한 원으로 다시 그려 동심원으로 맞췄어요.
 /// - 파동 선의 파장 = 파동이 한 주기에 퍼지는 거리라서, 선의 마루가 파동과 같은 속도로 움직여요.
-/// - 링·선 색은 원본 일러스트처럼 일러스트 전체에 깔린 위 → 아래 그라데이션을 써요.
+/// - 링·선·코어 색은 원본 일러스트처럼 일러스트 전체에 깔린 위 → 아래 그라데이션을 써요.
 /// - 동작 줄이기(Reduce Motion)가 켜져 있으면 Hi-Fi 정지 화면으로 멈춰 있어요.
 struct SoundRippleIllustration: View {
     let spec: SoundRippleSpec
@@ -27,12 +29,27 @@ struct SoundRippleIllustration: View {
                     let paint = spec.gradientShading
                     drawRings(in: &context, progress: progress, paint: paint)
                     drawWave(in: &context, progress: progress, paint: paint)
+                    drawCore(in: &context, paint: paint)
                 }
             }
 
-            AssetImageView(name: spec.baseImage, width: spec.frameSize.width, height: spec.frameSize.height)
+            if let baseImage = spec.baseImage {
+                AssetImageView(name: baseImage, width: spec.frameSize.width, height: spec.frameSize.height)
+            }
         }
         .accessibilityHidden(true)
+    }
+
+    // MARK: 코어 구
+
+    /// 파동과 선을 덮는 코어 구. 파동과 같은 중심에 그려 동심원이 돼요.
+    private func drawCore(in context: inout GraphicsContext, paint: GraphicsContext.Shading) {
+        let radius = spec.coreRadius
+        let core = Path(ellipseIn: CGRect(
+            x: spec.center.x - radius, y: spec.center.y - radius,
+            width: radius * 2, height: radius * 2
+        ))
+        context.fill(core, with: paint)
     }
 
     // MARK: 원형 파동
@@ -90,14 +107,16 @@ struct SoundRippleIllustration: View {
 
 /// 소리 파동 일러스트 한 장의 사양 (Hi-Fi 일러스트 실측값, 일러스트 픽셀 단위)
 struct SoundRippleSpec {
-    /// 위에 덮는 베이스 이미지 (코어 구 포함)
-    let baseImage: String
+    /// 위에 덮는 베이스 이미지 (파동·코어 말고 남은 그림, 없으면 nil)
+    let baseImage: String?
     /// 화면에 놓이는 크기(pt) — 기존 일러스트와 같아요
     let frameSize: CGSize
     /// 일러스트 PNG 크기(px, 3배)
     let pixelSize: CGSize
-    /// 원형 파동과 파동 선의 중심
+    /// 원형 파동 · 파동 선 · 코어 구의 중심
     let center: CGPoint
+    /// 코어 구 반지름 (원본 일러스트의 코어 면적으로 잰 값)
+    let coreRadius: CGFloat
     /// ONB-03 일러스트 대비 크기 비율 (ONB-03 = 1)
     let scale: CGFloat
     let ringLineWidth: CGFloat
@@ -125,7 +144,7 @@ struct SoundRippleSpec {
         /// 파동이 다 사라지는 반지름
         var ringEndRadius: CGFloat { 274.5 * scale }
         /// 코어 뒤에서 나오며 나타나기 시작하는 반지름 / 다 나타나는 반지름.
-        /// 코어 구가 링 중심보다 조금 아래에 있어서, 링이 코어 위쪽으로 먼저 삐져나와 눈썹처럼 보이지 않게 이 구간에서 서서히 나타나요.
+        /// 코어 가장자리(85.5px)를 막 벗어난 링이 툭 생기지 않게 이 구간에서 서서히 나타나요.
         /// 다 나타나는 반지름은 Hi-Fi 안쪽 링(126px)보다 작아서 첫 프레임은 Hi-Fi와 같아요.
         var ringAppearStartRadius: CGFloat { 90 * scale }
         var ringAppearEndRadius: CGFloat { 115 * scale }
@@ -155,6 +174,7 @@ struct SoundRippleSpec {
         frameSize: CGSize(width: 251, height: 199),
         pixelSize: CGSize(width: 753, height: 596),
         center: CGPoint(x: 613.6, y: 254.8),
+        coreRadius: 36.2,
         scale: 91 / 225, // 바깥 링 반지름 ONB-02 91px : ONB-03 225px
         ringLineWidth: 8.4,
         waveLineWidth: 8.4,
@@ -165,10 +185,11 @@ struct SoundRippleSpec {
 
     /// ONB-03 공기주입 일러스트
     static let soundWave = SoundRippleSpec(
-        baseImage: "IllustSoundWaveCore",
+        baseImage: nil,
         frameSize: CGSize(width: 219, height: 153),
         pixelSize: CGSize(width: 656, height: 459),
         center: CGPoint(x: 327.5, y: 229.5),
+        coreRadius: 85.5,
         scale: 1,
         ringLineWidth: 9,
         waveLineWidth: 9,
