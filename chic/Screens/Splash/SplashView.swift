@@ -22,6 +22,18 @@ struct LaunchView: View {
     }
 }
 
+// MARK: - 표시 시간
+
+/// 앱을 켰을 때 스플래시를 보여 주는 시간 (AppRootView 가 사용)
+enum SplashTiming {
+    /// 로고 등장 애니메이션(1.35초)이 끝난 뒤 로고를 잠깐 더 보여 주는 시간
+    private static let holdAfterReveal: TimeInterval = 0.5
+    /// 스플래시를 보여 주는 시간 (로고 등장 + 머무름)
+    static let displayDuration: TimeInterval = SplashLogoReveal.revealDuration + holdAfterReveal
+    /// 스플래시가 걷히며 다음 화면이 드러나는 시간
+    static let fadeOutDuration: TimeInterval = 0.35
+}
+
 // MARK: - 배경 글로우
 
 /// 배경 모서리에 은은하게 퍼지는 네이비 원형 그라데이션

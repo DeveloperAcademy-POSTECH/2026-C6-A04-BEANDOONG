@@ -35,6 +35,9 @@ struct SplashLogoReveal: View {
         .onAppear(perform: reveal)
     }
 
+    /// 마지막 조각(i 점)까지 다 나타나는 데 걸리는 시간(초)
+    static var revealDuration: TimeInterval { RevealMotion.totalDuration }
+
     private func reveal() {
         guard !reduceMotion else {
             risen = Set(LogoPart.allCases)
@@ -63,6 +66,11 @@ private enum RevealMotion {
     static let focusDuration: TimeInterval = 0.85
     /// 처음 흐림 반지름 (화면 폭 402pt 의 2.2%)
     static let startBlur: CGFloat = 8.8
+
+    /// 마지막 조각(i 점)이 출발한 뒤 떠오름·흐림이 모두 끝나는 시간 = 전체 길이 (1.35초)
+    static var totalDuration: TimeInterval {
+        delay(of: .dot) + max(riseDuration, focusDuration)
+    }
 
     static func delay(of part: LogoPart) -> TimeInterval {
         let order = Double(LogoPart.allCases.firstIndex(of: part) ?? 0)
