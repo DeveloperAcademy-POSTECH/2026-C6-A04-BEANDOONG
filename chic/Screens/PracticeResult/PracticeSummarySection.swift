@@ -16,6 +16,9 @@ import SwiftUI
 /// 상단 히어로 요약 섹션 (타이틀 + 동심원 도넛 차트 + 3열 요약 바)
 struct PracticeSummarySection: View {
     let result: PracticeResult
+    /// true: 화면이 열릴 때 도넛 링이 시작점에서 차오름 (연습 결과 화면)
+    /// false: 처음부터 최종 길이로 보여 줌 (히스토리 상세 화면)
+    var animatesRings: Bool = false
 
     var body: some View {
         VStack(spacing: 0) {
@@ -27,7 +30,7 @@ struct PracticeSummarySection: View {
                 .padding(.top, Metrics.titleTop)
                 .accessibilityAddTraits(.isHeader)
 
-            PracticeDonutChart(result: result)
+            PracticeDonutChart(result: result, animatesRings: animatesRings)
                 .padding(.top, Metrics.donutTop)
 
             PracticeSummaryRow(result: result)
@@ -78,6 +81,21 @@ struct PracticeSummarySection: View {
 /// 정상소리(바깥 링)와 주의 소리(안쪽 링) 비율을 보여주는 동심원 도넛 차트
 struct PracticeDonutChart: View {
     let result: PracticeResult
+    /// true: 화면이 열릴 때 바깥 링 → 안쪽 링 순서로 시작점에서 시계 방향으로 차오름 (애플 피트니스 링처럼)
+    let animatesRings: Bool
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    /// 링이 최종 길이까지 차오른 정도 (0: 비어 있음, 1: 최종 길이)
+    @State private var outerFill: Double
+    @State private var innerFill: Double
+
+    init(result: PracticeResult, animatesRings: Bool = false) {
+        self.result = result
+        self.animatesRings = animatesRings
+        let startFill: Double = animatesRings ? 0 : 1
+        _outerFill = State(initialValue: startFill)
+        _innerFill = State(initialValue: startFill)
+    }
 
     var body: some View {
         ZStack {
@@ -87,7 +105,8 @@ struct PracticeDonutChart: View {
                 lineWidth: Metrics.ringLineWidth,
                 ratio: result.normalRatio,
                 foregroundColor: PracticeResultColors.normalSound,
-                trackColor: PracticeResultColors.cardBackground
+                trackColor: PracticeResultColors.cardBackground,
+                fill: outerFill
             )
 
             // 안쪽 링 (주의 소리)
@@ -96,7 +115,8 @@ struct PracticeDonutChart: View {
                 lineWidth: Metrics.ringLineWidth,
                 ratio: result.cautionRatio,
                 foregroundColor: PracticeResultColors.cautionSound,
-                trackColor: PracticeResultColors.cardBackground
+                trackColor: PracticeResultColors.cardBackground,
+                fill: innerFill
             )
 
             // 중앙 전체 시간
@@ -114,7 +134,29 @@ struct PracticeDonutChart: View {
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("전체 연습 시간 \(result.totalSeconds.practiceSecondsText)")
         .accessibilityValue("정상소리 \(result.normalSeconds.practiceSecondsText), 주의 소리 \(result.cautionSeconds.practiceSecondsText)")
+        .onAppear(perform: fillRings)
     }
+
+    /// 비어 있는 링을 최종 길이까지 채워요. 동작 줄이기가 켜져 있으면 애니메이션 없이 바로 채워요.
+    private func fillRings() {
+        guard outerFill < 1 || innerFill < 1 else { return }
+        guard !reduceMotion else {
+            outerFill = 1
+            innerFill = 1
+            return
+        }
+        withAnimation(RingFillMotion.outer) { outerFill = 1 }
+        withAnimation(RingFillMotion.inner) { innerFill = 1 }
+    }
+}
+
+/// 도넛 링이 차오르는 타이밍: 바깥 링이 먼저, 안쪽 링이 0.15초 늦게 출발해 1초 동안 차올라요.
+private enum RingFillMotion {
+    static let duration: TimeInterval = 1.0
+    static let innerDelay: TimeInterval = 0.15
+
+    static let outer = Animation.timingCurve(MotionCurve.easeOutQuart, duration: duration)
+    static let inner = outer.delay(innerDelay)
 }
 
 /// 단일 도넛 링 (트랙 + 비율에 따라 길이가 변하는 둥근 호)
