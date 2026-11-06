@@ -154,7 +154,7 @@ struct SoundRippleSpec {
         baseImage: "IllustMachineSoundBase",
         frameSize: CGSize(width: 251, height: 199),
         pixelSize: CGSize(width: 753, height: 596),
-        center: CGPoint(x: 613, y: 254.3),
+        center: CGPoint(x: 613.6, y: 254.8),
         scale: 91 / 225, // 바깥 링 반지름 ONB-02 91px : ONB-03 225px
         ringLineWidth: 8.4,
         waveLineWidth: 8.4,
@@ -168,7 +168,7 @@ struct SoundRippleSpec {
         baseImage: "IllustSoundWaveCore",
         frameSize: CGSize(width: 219, height: 153),
         pixelSize: CGSize(width: 656, height: 459),
-        center: CGPoint(x: 327, y: 229),
+        center: CGPoint(x: 327.5, y: 229.5),
         scale: 1,
         ringLineWidth: 9,
         waveLineWidth: 9,
