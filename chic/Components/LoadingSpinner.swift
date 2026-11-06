@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// 소리 확인 중 스피너 (STM-01)
+/// 로딩 스피너 (STM-01) — 소리 확인 중 화면과 연습 결과 로딩 화면이 같이 써요
 ///
 /// 원 위 12칸에 놓인 점은 제자리에 있고, 크기 배치(가장 큰 점 → 양쪽으로 작아짐 → 빈 칸)만
 /// 시계 방향으로 부드럽게 흘러서 빈 칸이 한 바퀴 돌아요.
@@ -14,7 +14,7 @@ import SwiftUI
 /// - 점은 이미지가 아니라 벡터로 그려서 테두리가 깨지지 않아요.
 /// - 점마다 위 → 아래 그라데이션이 들어 있고, 점이 돌지 않으니 그라데이션 방향도 항상 위 → 아래예요.
 /// - 레이아웃 크기는 기존 일러스트(`IllustSpinner`, 62×70)와 같아서 화면 배치가 바뀌지 않아요.
-struct ListeningSpinner: View {
+struct LoadingSpinner: View {
     var body: some View {
         LoopTimeline(period: SpinnerMotion.period) { progress in
             Canvas { context, _ in
@@ -116,7 +116,7 @@ private enum SpinnerGeometry {
 }
 
 #Preview {
-    ListeningSpinner()
+    LoadingSpinner()
         .padding(40)
         .background(AppColors.darkBackground)
 }

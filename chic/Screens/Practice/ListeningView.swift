@@ -5,7 +5,7 @@ import SwiftUI
 ///
 ///     ┌ 상단 바: 스티밍 연습
 ///     ├ 타이틀 + 설명
-///     ├ 로딩 스피너 (ListeningSpinner)
+///     ├ 로딩 스피너 (LoadingSpinner)
 ///     └ 하단 중앙: 정지 버튼
 struct ListeningView: View {
     var onStop: () -> Void = {}
@@ -23,7 +23,7 @@ struct ListeningView: View {
                 .padding(.top, Layout.subtitleTop)
 
             // MARK: 스피너 (크기 배치가 시계 방향으로 흐르는 애니메이션)
-            ListeningSpinner()
+            LoadingSpinner()
                 .padding(.top, Layout.illustrationTop)
 
             Spacer(minLength: 0)
