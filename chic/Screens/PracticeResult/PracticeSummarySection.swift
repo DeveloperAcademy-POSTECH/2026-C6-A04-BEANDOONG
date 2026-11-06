@@ -132,20 +132,22 @@ private struct DonutRingArc: View {
         diameter - lineWidth
     }
 
-    /// 둥근 양 끝 캡(lineCap: .round)까지 포함한 시각적 호의 각도가 정확히 `ratio * 360°`가 되도록 보정한 trim 값
-    private var trimEnd: CGFloat {
-        guard ratio > 0 else { return 0 }
-        if ratio >= 1 { return 1 }
+    /// 둥근 끝(lineCap: .round) 하나가 호 바깥으로 튀어나오는 각도
+    private var capDegrees: Double {
         let radius = centerlineDiameter / 2
-        let capDegrees = Double((lineWidth / 2) / radius) * 180.0 / .pi
-        let strokeDegrees = max(0.5, ratio * 360.0 - 2.0 * capDegrees)
-        return CGFloat(strokeDegrees / 360.0)
+        return Double((lineWidth / 2) / radius) * 180.0 / .pi
     }
 
-    /// Hi-Fi 디자인 기준 호 중심 각도(-54°, 12시 방향에서 시계방향 36°)를 기준으로 대칭 배치
+    /// 최종 상태의 선 각도: 둥근 양 끝까지 포함한 보이는 호가 정확히 `ratio * 360°`가 되도록 끝 두 개를 뺀 값
+    private var finalStrokeDegrees: Double {
+        guard ratio > 0 else { return 0 }
+        if ratio >= 1 { return 360 }
+        return max(0.5, ratio * 360.0 - 2.0 * capDegrees)
+    }
+
+    /// 호 시작 각도: Hi-Fi 기준 호 중심 각도(-54°, 12시 방향에서 시계방향 36°)를 중심으로 최종 호를 대칭 배치한 자리
     private var startRotation: Angle {
-        let strokeDegrees = Double(trimEnd) * 360.0
-        return .degrees(Metrics.arcCenterDegrees - strokeDegrees / 2.0)
+        .degrees(Metrics.arcCenterDegrees - finalStrokeDegrees / 2.0)
     }
 
     var body: some View {
@@ -155,7 +157,7 @@ private struct DonutRingArc: View {
 
             if ratio > 0 {
                 Circle()
-                    .trim(from: 0, to: trimEnd)
+                    .trim(from: 0, to: CGFloat(finalStrokeDegrees / 360.0))
                     .stroke(
                         foregroundColor,
                         style: StrokeStyle(lineWidth: lineWidth, lineCap: .round)
