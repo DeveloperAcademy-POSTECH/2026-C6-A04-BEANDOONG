@@ -6,7 +6,7 @@ nonisolated struct ChicDisplayFilter {
     private var consecutiveCount = 0
     private var display: ChicModelV3.State?
 
-    /// 공기주입·롤링은 2회, 쇳소리·파바박은 3회 연속된 대표 판정을 확인합니다.
+    /// 공기주입은 1회, 롤링은 2회, 쇳소리·파바박은 3회 연속된 대표 판정을 확인합니다.
     mutating func consume(_ state: ChicModelV3.State) -> ChicModelV3.State? {
         frames.append(state)
         guard frames.count == 10 else { return nil }
@@ -18,7 +18,11 @@ nonisolated struct ChicDisplayFilter {
 
         consecutiveCount = winner == candidate ? min(consecutiveCount + 1, 3) : 1
         candidate = winner
-        let required = winner == .metallic || winner == .sputter ? 3 : 2
+        let required = switch winner {
+        case .air: 1
+        case .other: 2
+        case .metallic, .sputter: 3
+        }
         if consecutiveCount >= required && (winner != .other || display != nil) {
             display = winner
         }

@@ -15,24 +15,26 @@ import Foundation
                 precondition(filter.consume(candidate) == result)
             }
         }
-        check([.other, .other, .air, .other, .air, .air], [nil, nil, nil, nil, nil, .air])
-        check([.air, .air, .other, .air, .other, .other], [nil, .air, .air, .air, .air, .other])
+        check([.other, .other, .air, .other, .air, .air], [nil, nil, .air, .air, .air, .air])
+        check([.air, .air, .other, .air, .other, .other], [.air, .air, .air, .air, .air, .other])
         check([.air, .air, .metallic, .metallic, .air, .metallic, .metallic, .metallic],
-              [nil, .air, .air, .air, .air, .air, .air, .metallic])
+              [.air, .air, .air, .air, .air, .air, .air, .metallic])
         check([.air, .air, .sputter, .sputter, .metallic, .sputter, .sputter, .sputter],
-              [nil, .air, .air, .air, .air, .air, .air, .sputter])
+              [.air, .air, .air, .air, .air, .air, .air, .sputter])
         check([.metallic, .metallic, .metallic, .sputter, .sputter, .sputter, .air, .air],
-              [nil, nil, .metallic, .metallic, .metallic, .sputter, .sputter, .air])
-        check([.air, .sputter, .air, .sputter], [nil, nil, nil, nil])
+              [nil, nil, .metallic, .metallic, .metallic, .sputter, .air, .air])
+        check([.air, .sputter, .air, .sputter], [.air, .air, .air, .air])
+        check([.air, .other, .other, .air], [.air, .air, .other, .air])
 
         var filter = ChicDisplayFilter()
         let majority = Array(repeating: State.air, count: 6) + Array(repeating: State.metallic, count: 4)
-        for state in majority { precondition(filter.consume(state) == nil) }
+        for state in majority.dropLast() { precondition(filter.consume(state) == nil) }
+        precondition(filter.consume(majority.last!) == .air)
         let tied: [State] = [.air, .metallic, .air, .metallic, .metallic, .metallic, .air, .air, .sputter, .other]
         for state in tied.dropLast() { precondition(filter.consume(state) == nil) }
         precondition(filter.consume(tied.last!) == .air)
         var fresh = ChicDisplayFilter()
-        for _ in 0..<19 { precondition(fresh.consume(.air) == nil) }
+        for _ in 0..<9 { precondition(fresh.consume(.air) == nil) }
         precondition(fresh.consume(.air) == .air)
         print("PASS 10-frame mode, ties, strict consecutive runs and fresh session")
     }
