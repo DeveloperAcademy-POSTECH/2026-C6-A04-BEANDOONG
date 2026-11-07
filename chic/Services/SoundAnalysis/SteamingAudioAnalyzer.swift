@@ -9,13 +9,13 @@ nonisolated final class SteamingAudioAnalyzer: @unchecked Sendable {
     private let pendingBuffer = DispatchSemaphore(value: 8)
     private let input48k = ChicV2Input48k()
     private var displayFilter = ChicDisplayFilter()
-    private let classifier: ChicModelV2
+    private let classifier: ChicModelV3
     private var isStopped = false
     private var hasTap = false
 
     @MainActor
     init() throws {
-        classifier = try ChicModelV2()
+        classifier = try ChicModelV3()
     }
 
     /// 오디오 세션은 연습 관리자가 활성화한 뒤 호출합니다.

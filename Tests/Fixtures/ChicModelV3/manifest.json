@@ -1,0 +1,12 @@
+{
+  "version": 3,
+  "frames": 817,
+  "fixtureSHA256": "e427952cb487b0beba88ec10b2dcfc1ea394a7e3e07d8b120bf418fd15cabfa2",
+  "expectedSHA256": "7a93ad51a86784036feaf80427054c31d55530694188762f9f83b45547372db3",
+  "models": {
+    "ChicModelV3Air.mlmodel": "1861ffd42ffc0631e0f94a3d30a8d6c588cd68577b0b722a400f052d3ad98cf9",
+    "ChicModelV3Gate.mlmodel": "9753bb42e63ef89d438db5d95056cc1e2e7155f85f70f4b808808b56624cbbdc",
+    "ChicModelV3Metallic.mlmodel": "9f9ec1e6db6bdc835e29dd63f117b381a4a6dad3627f415f68151b6ed2368722"
+  },
+  "reference": "Separate Core ML scorers; numpy causal FIR; independent Python run-group display reference. Regression fixture, not a new accuracy validation set."
+}
