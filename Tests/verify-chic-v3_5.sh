@@ -14,4 +14,4 @@ done
 xcrun swiftc -O -module-cache-path "$work/cache" \
     "$root"/chic/Services/SoundAnalysis/Chic*.swift \
     "$root"/Tests/ChicModelV3_5Tests.swift -o "$work/check"
-"$work/check" "$root/Tests/Fixtures/ChicModelV3_5" "$work" "$root/chic/Models/ChicEndV3_5Weights.json"
+"$work/check" "$root/Tests/Fixtures/ChicModelV3_5" "$work"

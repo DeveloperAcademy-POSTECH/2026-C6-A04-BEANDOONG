@@ -10,11 +10,13 @@
   },
   "reference": "Separate raw Core ML scorers; independent Python run-group display reference. Regression fixture, not a new accuracy validation set.",
   "resources": {
-    "ChicAudioFeatures.mlmodel": "3848efc6b8771a78a7500ddffdf32c7c9a88e999d6a133e5cd2693d51b85bd8f",
-    "ChicEndV3_5Weights.json": "dd45828d4676d9f8343e789820bbc620c47876480484fff48ab537147aef5faf",
+    "ChicAudioFeatures.mlmodel": "8ec2d0e5c6add578f16d3d8ade3c947b8e5a2c0e5531cdd6e807fa45d3ed89cb",
+    "ChicEndV3_5.mlmodel": "42a0ae81d126ee76f967dbe5e7fcde9ba19fd864cadb7a8b7a8fa4c426ae6a25",
     "ChicModelV3_5Air.mlmodel": "afb73f4159ae86e9d9ca61d52406370d74778f972f2ca9625c4e4608e38e06e0",
     "ChicModelV3_5Gate.mlmodel": "31237ef2f5c9627cc934314d98fd02e6e3b3d40a528f19a811e572505e3f2556",
     "ChicModelV3_5Metallic.mlmodel": "1dbe325ecafdc60e42abbbdabb6d7f4d2197203420446c7ebb59b77d84f7c709"
   },
-  "endExpectedSHA256": "7e6d8ed14d3a644237dae9c2ed03753e81bb96d93ef2f29d6863a916ef715b86"
+  "endExpectedSHA256": "224a294a82274f86f229b0a4c59f403004f6ec8bdc93f9a3ae8b4cccd9fcc780",
+  "endAudioWindowSeconds": 0.5,
+  "endClassifier": "gradient boosted trees, 100 rounds, depth 3"
 }

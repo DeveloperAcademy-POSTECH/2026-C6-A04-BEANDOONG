@@ -1,9 +1,11 @@
 import AVFAudio
 import Foundation
+import OSLog
 
 /// 마이크 PCM 분석을 별도 큐에서 실행하고 결과만 연습 관리자에게 전달합니다.
 // 엔진 시작·종료는 메인 액터에서, 특징·모델·종료 플래그 접근은 분석 큐에서 직렬화합니다.
 nonisolated final class SteamingAudioAnalyzer: @unchecked Sendable {
+    private let logger = Logger(subsystem: "com.beandoong.cheek", category: "SteamingEnd")
     private let engine = AVAudioEngine()
     private let queue = DispatchQueue(label: "com.beandoong.cheek.sound-analysis")
     private let pendingBuffer = DispatchSemaphore(value: 8)
@@ -62,7 +64,11 @@ nonisolated final class SteamingAudioAnalyzer: @unchecked Sendable {
                         guard !self.isStopped else { return }
                         let display = self.displayFilter.consume(frame.state)
                         guard let scores = try self.endDetector.consume(spectrum: frame.spectrum) else { return }
-                        if self.endRule.consume(work: scores.work, end: scores.end, purge: scores.purge) != nil {
+                        #if DEBUG
+                        self.logger.debug("종료 분석 active=\(self.endRule.isActive) work=\(scores.work) end=\(scores.end) purge=\(scores.purge) dBFS=\(scores.rmsDBFS) dropDB=\(scores.dropDB)")
+                        #endif
+                        if let reason = self.endRule.consume(work: scores.work, end: scores.end, purge: scores.purge, rmsDBFS: scores.rmsDBFS, dropDB: scores.dropDB) {
+                            self.logger.notice("자동 종료 reason=\(String(describing: reason), privacy: .public) work=\(scores.work) end=\(scores.end) purge=\(scores.purge) dBFS=\(scores.rmsDBFS) dropDB=\(scores.dropDB)")
                             self.isStopped = true
                             finished = true
                             return
