@@ -2,9 +2,9 @@
   "version": "3.5",
   "frames": 817,
   "fixtureSHA256": "e427952cb487b0beba88ec10b2dcfc1ea394a7e3e07d8b120bf418fd15cabfa2",
-  "expectedSHA256": "93c67c0189c5b67b695ada7f42cfe7a2605424a1b472c954b205794dddff236a",
+  "expectedSHA256": "cea6e68d05f2d96bce9c074ddaff7e06a20d2fae1eb632bdf5a8a2b57cba7f0b",
   "models": {
-    "ChicModelV3_5Air.mlmodel": "afb73f4159ae86e9d9ca61d52406370d74778f972f2ca9625c4e4608e38e06e0",
+    "ChicModelV3_5Air.mlmodel": "1e3cab5caf996e2f45c88a2640da17b76de4c7a0e594824f2ea2491bb5f0a7b0",
     "ChicModelV3_5Gate.mlmodel": "31237ef2f5c9627cc934314d98fd02e6e3b3d40a528f19a811e572505e3f2556",
     "ChicModelV3_5Metallic.mlmodel": "1dbe325ecafdc60e42abbbdabb6d7f4d2197203420446c7ebb59b77d84f7c709"
   },
@@ -12,11 +12,16 @@
   "resources": {
     "ChicAudioFeatures.mlmodel": "8ec2d0e5c6add578f16d3d8ade3c947b8e5a2c0e5531cdd6e807fa45d3ed89cb",
     "ChicEndV3_5.mlmodel": "42a0ae81d126ee76f967dbe5e7fcde9ba19fd864cadb7a8b7a8fa4c426ae6a25",
-    "ChicModelV3_5Air.mlmodel": "afb73f4159ae86e9d9ca61d52406370d74778f972f2ca9625c4e4608e38e06e0",
+    "ChicModelV3_5Air.mlmodel": "1e3cab5caf996e2f45c88a2640da17b76de4c7a0e594824f2ea2491bb5f0a7b0",
     "ChicModelV3_5Gate.mlmodel": "31237ef2f5c9627cc934314d98fd02e6e3b3d40a528f19a811e572505e3f2556",
     "ChicModelV3_5Metallic.mlmodel": "1dbe325ecafdc60e42abbbdabb6d7f4d2197203420446c7ebb59b77d84f7c709"
   },
   "endExpectedSHA256": "224a294a82274f86f229b0a4c59f403004f6ec8bdc93f9a3ae8b4cccd9fcc780",
   "endAudioWindowSeconds": 0.5,
-  "endClassifier": "gradient boosted trees, 100 rounds, depth 3"
+  "endClassifier": "gradient boosted trees, 100 rounds, depth 3",
+  "airClasses": [
+    "air",
+    "sputter",
+    "rolling"
+  ]
 }

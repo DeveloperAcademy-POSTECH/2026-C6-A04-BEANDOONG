@@ -20,11 +20,11 @@ nonisolated struct ChicEndRule {
     mutating func consume(work: Double, end: Double, purge: Double, rmsDBFS: Double, dropDB: Double) -> Reason? {
         guard isActive, !isFinished else { return nil }
         purgeCount = purge >= 0.5 ? purgeCount + 1 : 0
-        quietCount = rmsDBFS < -55 ? quietCount + 1 : 0
+        quietCount = rmsDBFS < -60 ? quietCount + 1 : 0
         lowWorkCount = work < 0.3 ? lowWorkCount + 1 : 0
         let reason: Reason?
         if end >= 0.8 && dropDB >= 3 { reason = .endSound }
-        else if lowWorkCount >= 20 || quietCount >= 20 { reason = .disappearance }
+        else if lowWorkCount >= 20 || quietCount >= 30 { reason = .disappearance }
         else if purgeCount >= 5 { reason = .cleaning }
         else { reason = nil }
         if reason != nil { isFinished = true; isActive = false }

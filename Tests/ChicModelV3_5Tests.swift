@@ -7,6 +7,32 @@ import Foundation
     struct Expected: Decodable { let gate, state: String; let sputter: Double?; let display: String? }
     struct EndExpected: Decodable { let extraSilentSamples: Int; let probabilities: [[Double]]; let times: [Double] }
 
+    /// 롤링 우세·동률과 공기주입 0.5 초과 경계, 문턱 미달 시 롤링 전환을 확인합니다.
+    static func checkAirRolling() {
+        precondition(ChicModelV3_5.airState(air: 0.2, sputter: 0.3, rolling: 0.5) == .other)
+        precondition(ChicModelV3_5.airState(air: 0.4, sputter: 0.2, rolling: 0.4) == .other)
+        precondition(ChicModelV3_5.airState(air: 0, sputter: 0.5, rolling: 0.5) == .other)
+        precondition(ChicModelV3_5.airState(air: 0.6, sputter: 0.1, rolling: 0.3) == .air)
+        precondition(ChicModelV3_5.airState(air: 0.2, sputter: 0.5, rolling: 0.3) == .sputter)
+        precondition(ChicModelV3_5.airState(air: 0.35, sputter: 0.4, rolling: 0.25) == .other)
+        precondition(ChicModelV3_5.airState(air: 0.4, sputter: 0.35, rolling: 0.25) == .other)
+        precondition(ChicModelV3_5.airState(air: 0.5, sputter: 0.2, rolling: 0.3) == .other)
+        precondition(ChicModelV3_5.airState(air: 0.500001, sputter: 0.2, rolling: 0.299999) == .air)
+        precondition(ChicModelV3_5.airState(air: 0.499999, sputter: 0.2, rolling: 0.300001) == .other)
+        precondition(ChicModelV3_5.airState(air: 0.5, sputter: 0.5, rolling: 0) == .sputter)
+        var display = ChicDisplayFilter()
+        for _ in 0..<10 { _ = display.consume(.air) }
+        var result: ChicModelV3_5.State?
+        let belowThreshold = ChicModelV3_5.airState(air: 0.4, sputter: 0.35, rolling: 0.25)
+        for _ in 0..<10 { result = display.consume(belowThreshold) }
+        precondition(result == .air)
+        for _ in 0..<10 { result = display.consume(belowThreshold) }
+        precondition(result == .other)
+        for _ in 0..<10 { result = display.consume(ChicModelV3_5.airState(air: 0.2, sputter: 0.3, rolling: 0.5)) }
+        precondition(result == .other)
+        print("PASS air >0.5 boundary, fallback to rolling, ties, warning threshold and rolling display transition")
+    }
+
     /// 고정 특징 벡터에서 독립 학습 모델과 Core ML 분류 점수를 비교합니다.
     static func checkEndClassifier(fixture: URL, compiled: URL) throws {
         let expected = try JSONDecoder().decode([[Double]].self, from: Data(contentsOf: fixture.appendingPathComponent("expected-end-classifier.json")))
@@ -29,7 +55,7 @@ import Foundation
         print("PASS end classifier: \(expected.count) vectors, maximum error \(error)")
     }
 
-    /// 시작 전 오종료 방지, 엄격한 20회 연속, 우선순위와 한 번만 종료하는 조건을 확인합니다.
+    /// 시작 전 오종료 방지, 작업 20회·저음량 30회 연속, 우선순위와 한 번만 종료하는 조건을 확인합니다.
     static func checkEndRule() {
         var rule = ChicEndRule()
         for _ in 0..<30 { precondition(rule.consume(work: 0, end: 1, purge: 1, rmsDBFS: -30, dropDB: 3) == nil) }
@@ -55,13 +81,14 @@ import Foundation
         var quiet = ChicEndRule()
         for _ in 0..<30 { precondition(quiet.consume(work: 1, end: 0, purge: 0, rmsDBFS: -80, dropDB: 0) == nil) }
         quiet.activate()
-        for _ in 0..<19 { precondition(quiet.consume(work: 1, end: 0, purge: 0, rmsDBFS: -70, dropDB: 0) == nil) }
-        precondition(quiet.consume(work: 1, end: 0, purge: 0, rmsDBFS: -55, dropDB: 0) == nil)
-        for _ in 0..<19 { precondition(quiet.consume(work: 1, end: 0, purge: 0, rmsDBFS: -70, dropDB: 0) == nil) }
-        precondition(quiet.consume(work: 1, end: 0, purge: 0, rmsDBFS: -70, dropDB: 0) == .disappearance)
+        for _ in 0..<35 { precondition(quiet.consume(work: 1, end: 0, purge: 0, rmsDBFS: -59, dropDB: 0) == nil) }
+        for _ in 0..<29 { precondition(quiet.consume(work: 1, end: 0, purge: 0, rmsDBFS: -60.001, dropDB: 0) == nil) }
+        precondition(quiet.consume(work: 1, end: 0, purge: 0, rmsDBFS: -60, dropDB: 0) == nil)
+        for _ in 0..<29 { precondition(quiet.consume(work: 1, end: 0, purge: 0, rmsDBFS: -60.001, dropDB: 0) == nil) }
+        precondition(quiet.consume(work: 1, end: 0, purge: 0, rmsDBFS: -60.001, dropDB: 0) == .disappearance)
         var alternating = ChicEndRule(); alternating.activate()
         for i in 0..<60 { precondition(alternating.consume(work: i % 2 == 0 ? 0 : 1, end: 0, purge: 0, rmsDBFS: i % 2 == 0 ? -30 : -70, dropDB: 0) == nil) }
-        print("PASS quiet independent of work, reset at -55, no mixed counter, inactive suppression")
+        print("PASS quiet 29/30 boundary, independent of work, reset at -60, no mixed counter, inactive suppression")
         print("PASS first-feedback activation, strict <0.3 x20, reset at 0.3, priority and single completion")
     }
 
@@ -142,6 +169,7 @@ import Foundation
     }
     /// 같은 소리를 서로 다른 버퍼 크기로 나눠도 결과가 같은지 확인합니다.
     static func main() throws {
+        checkAirRolling()
         checkDisplayFilter()
         checkEndRule()
         let args = CommandLine.arguments

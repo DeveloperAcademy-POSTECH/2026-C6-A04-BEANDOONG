@@ -74,9 +74,16 @@ nonisolated final class ChicModelV3_5 {
     /// 테스트 또는 앱 번들에서 받은 세 모델로 연습별 분석 상태를 만듭니다.
     init(gateURL: URL, airURL: URL, rollingURL: URL) throws {
         gate = try Classifier(url: gateURL, labels: ["air","metallic","sputter","other","breath_whistle"])
-        air = try Classifier(url: airURL, labels: ["air","sputter"])
+        air = try Classifier(url: airURL, labels: ["air","sputter","rolling"])
         rolling = try Classifier(url: rollingURL, labels: ["air","metallic","sputter","other"])
         rawExtractor = try ChicV2FeatureExtractor()
+    }
+
+    /// 롤링 우세를 우선하며 공기주입은 0.5 초과, 두 문턱 미달은 롤링으로 판정합니다.
+    static func airState(air: Double, sputter: Double, rolling: Double) -> State {
+        if rolling >= air && rolling >= sputter { return .other }
+        if sputter >= sputterThreshold { return .sputter }
+        return air > 0.5 ? .air : .other
     }
 
     /// 재학습과 동일한 원음 특징을 두 단계 분류와 종료 분석에 공유합니다.
@@ -88,9 +95,9 @@ nonisolated final class ChicModelV3_5 {
             var score: Double?
             switch label {
             case "air", "sputter":
-                let p = try air.scores(x)[1]
-                score = p
-                state = p >= Self.sputterThreshold ? .sputter : .air
+                let p = try air.scores(x)
+                score = p[1]
+                state = Self.airState(air: p[0], sputter: p[1], rolling: p[2])
             case "breath_whistle": state = .other
             case "metallic", "other":
                 let p = try rolling.scores(x)
