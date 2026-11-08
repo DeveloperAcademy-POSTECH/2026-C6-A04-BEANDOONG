@@ -9,18 +9,22 @@ nonisolated final class SteamingAudioAnalyzer: @unchecked Sendable {
     private let pendingBuffer = DispatchSemaphore(value: 8)
     private let input48k = ChicV2Input48k()
     private var displayFilter = ChicDisplayFilter()
-    private let classifier: ChicModelV3
+    private let classifier: ChicModelV3_5
+    private let endDetector: ChicEndDetector
+    private var endRule = ChicEndRule()
     private var isStopped = false
     private var hasTap = false
 
     @MainActor
     init() throws {
-        classifier = try ChicModelV3()
+        classifier = try ChicModelV3_5()
+        endDetector = try ChicEndDetector()
     }
 
     /// 오디오 세션은 연습 관리자가 활성화한 뒤 호출합니다.
     @MainActor
     func start(onResult: @escaping @Sendable (PracticePhase) -> Void,
+               onFinish: @escaping @Sendable () -> Void,
                onError: @escaping @Sendable (String) -> Void) throws {
         let input = engine.inputNode
         let format = input.outputFormat(forBus: 0)
@@ -51,17 +55,31 @@ nonisolated final class SteamingAudioAnalyzer: @unchecked Sendable {
                 guard !self.isStopped else { return }
                 do {
                     var phase: PracticePhase?
+                    var finished = false
                     let pcm48 = try self.input48k.convert(samples, sampleRate: rate)
+                    try self.endDetector.append(pcm48)
                     try self.classifier.consume(pcm48, sampleRate: 48_000) { frame in
-                        guard let display = self.displayFilter.consume(frame.state) else { return }
-                        switch display {
-                        case .air: phase = .aeration
-                        case .sputter: phase = .bubble
-                        case .metallic: phase = .moreAir
-                        case .other: phase = .milkFlow
+                        guard !self.isStopped else { return }
+                        let display = self.displayFilter.consume(frame.state)
+                        guard let scores = try self.endDetector.consume(spectrum: frame.spectrum) else { return }
+                        if self.endRule.consume(work: scores.work, end: scores.end, purge: scores.purge) != nil {
+                            self.isStopped = true
+                            finished = true
+                            return
+                        }
+                        if let display {
+                            switch display {
+                            case .air: phase = .aeration
+                            case .sputter: phase = .bubble
+                            case .metallic: phase = .moreAir
+                            case .other: phase = .milkFlow
+                            }
+                            // 첫 피드백과 같은 시점에 시작하며, 그 이전 낮은 작업 점수는 세지 않습니다.
+                            self.endRule.activate()
                         }
                     }
-                    if let phase { onResult(phase) }
+                    if finished { onFinish() }
+                    else if let phase { onResult(phase) }
                 } catch {
                     self.isStopped = true
                     onError(error.localizedDescription)

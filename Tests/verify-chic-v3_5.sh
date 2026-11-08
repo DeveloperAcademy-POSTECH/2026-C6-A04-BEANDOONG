@@ -8,10 +8,10 @@ fi
 work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
 
-for model in "$root"/chic/Models/ChicModelV3*.mlmodel; do
+for model in "$root"/chic/Models/*.mlmodel; do
     xcrun coremlcompiler compile "$model" "$work" >/dev/null
 done
 xcrun swiftc -O -module-cache-path "$work/cache" \
     "$root"/chic/Services/SoundAnalysis/Chic*.swift \
-    "$root"/Tests/ChicModelV3Tests.swift -o "$work/check"
-"$work/check" "$root/Tests/Fixtures/ChicModelV3" "$work"
+    "$root"/Tests/ChicModelV3_5Tests.swift -o "$work/check"
+"$work/check" "$root/Tests/Fixtures/ChicModelV3_5" "$work" "$root/chic/Models/ChicEndV3_5Weights.json"

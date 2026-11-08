@@ -1,0 +1,20 @@
+{
+  "version": "3.5",
+  "frames": 817,
+  "fixtureSHA256": "e427952cb487b0beba88ec10b2dcfc1ea394a7e3e07d8b120bf418fd15cabfa2",
+  "expectedSHA256": "93c67c0189c5b67b695ada7f42cfe7a2605424a1b472c954b205794dddff236a",
+  "models": {
+    "ChicModelV3_5Air.mlmodel": "afb73f4159ae86e9d9ca61d52406370d74778f972f2ca9625c4e4608e38e06e0",
+    "ChicModelV3_5Gate.mlmodel": "31237ef2f5c9627cc934314d98fd02e6e3b3d40a528f19a811e572505e3f2556",
+    "ChicModelV3_5Metallic.mlmodel": "1dbe325ecafdc60e42abbbdabb6d7f4d2197203420446c7ebb59b77d84f7c709"
+  },
+  "reference": "Separate raw Core ML scorers; independent Python run-group display reference. Regression fixture, not a new accuracy validation set.",
+  "resources": {
+    "ChicAudioFeatures.mlmodel": "3848efc6b8771a78a7500ddffdf32c7c9a88e999d6a133e5cd2693d51b85bd8f",
+    "ChicEndV3_5Weights.json": "dd45828d4676d9f8343e789820bbc620c47876480484fff48ab537147aef5faf",
+    "ChicModelV3_5Air.mlmodel": "afb73f4159ae86e9d9ca61d52406370d74778f972f2ca9625c4e4608e38e06e0",
+    "ChicModelV3_5Gate.mlmodel": "31237ef2f5c9627cc934314d98fd02e6e3b3d40a528f19a811e572505e3f2556",
+    "ChicModelV3_5Metallic.mlmodel": "1dbe325ecafdc60e42abbbdabb6d7f4d2197203420446c7ebb59b77d84f7c709"
+  },
+  "endExpectedSHA256": "7e6d8ed14d3a644237dae9c2ed03753e81bb96d93ef2f29d6863a916ef715b86"
+}
