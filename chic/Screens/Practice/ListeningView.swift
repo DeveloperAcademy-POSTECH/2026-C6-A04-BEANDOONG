@@ -5,7 +5,7 @@ import SwiftUI
 ///
 ///     ┌ 상단 바: 스티밍 연습
 ///     ├ 타이틀 + 설명
-///     ├ 로딩 스피너 일러스트
+///     ├ 로딩 스피너 (LoadingSpinner)
 ///     └ 하단 중앙: 정지 버튼
 struct ListeningView: View {
     var onStop: () -> Void = {}
@@ -22,8 +22,8 @@ struct ListeningView: View {
             DarkScreenSubtitle("스티밍을 시작하면 소리를 확인해요.", color: AppColors.listeningSubtitle)
                 .padding(.top, Layout.subtitleTop)
 
-            // MARK: 일러스트
-            AssetImageView(name: "IllustSpinner", width: 62, height: 70)
+            // MARK: 스피너 (크기 배치가 시계 방향으로 흐르는 애니메이션)
+            LoadingSpinner()
                 .padding(.top, Layout.illustrationTop)
 
             Spacer(minLength: 0)
