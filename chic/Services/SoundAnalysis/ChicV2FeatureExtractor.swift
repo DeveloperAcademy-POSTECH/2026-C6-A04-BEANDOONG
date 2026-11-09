@@ -26,7 +26,7 @@ nonisolated final class ChicV2FeatureExtractor {
     deinit { vDSP_DFT_DestroySetupD(setup) }
 
     /// 고정 샘플레이트의 모노 PCM을 받아 완성된 프레임마다 특징을 전달합니다.
-    func consume(_ input: [Float], sampleRate: Double, onFeatures: ([Double]) throws -> Void) throws {
+    func consume(_ input: [Float], sampleRate: Double, onFeatures: ([Double], [Double]) throws -> Void) throws {
         guard sampleRate.isFinite, (32000...192000).contains(sampleRate),
               input.allSatisfy(\.isFinite), rate == 0 || rate == sampleRate else {
             throw NSError(domain: "SteamingAnalysis", code: 2,
@@ -61,7 +61,7 @@ nonisolated final class ChicV2FeatureExtractor {
                 flatness: sum > 1e-25 ? exp(logSum / count) / (sum / count) : 0,
                 lowerDB: db(lower), upperDB: db(upper)
             )
-            try onFeatures(spectral.consume(frame: frame, power: power, sampleRate: rate, reading: reading))
+            try onFeatures(spectral.consume(frame: frame, power: power, sampleRate: rate, reading: reading), power)
             cursor += hop
         }
         pending.removeFirst(cursor)

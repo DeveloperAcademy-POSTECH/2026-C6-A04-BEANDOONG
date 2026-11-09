@@ -130,6 +130,11 @@ final class PracticeSession: ObservableObject {
                     guard let self, self.state.sessionID == id else { return }
                     self.updateFeedback(phase)
                 }
+            }, onFinish: { [weak self] in
+                Task { @MainActor [weak self] in
+                    guard let self, self.state.sessionID == id, self.state.phase.isRunning else { return }
+                    self.stop()
+                }
             }, onError: { [weak self] message in
                 Task { @MainActor [weak self] in
                     guard let self, self.state.sessionID == id, self.state.phase.isRunning else { return }
@@ -155,7 +160,7 @@ final class PracticeSession: ObservableObject {
         publish()
     }
 
-    /// iPhone 정지 버튼, 워치 종료 요청 또는 오디오 중단·오류 시 호출합니다.
+    /// 자동 종료, iPhone 정지 버튼, 워치 종료 요청 또는 오디오 중단·오류 시 호출합니다.
     /// 분석을 끝내고 결과를 저장하며, .finished로 바꿔 결과 화면을 표시하게 합니다.
     func stop() {
         // 이미 종료된 연습이면 다시 저장하지 않습니다.

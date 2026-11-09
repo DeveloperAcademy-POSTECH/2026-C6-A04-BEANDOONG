@@ -2,12 +2,13 @@ import CoreML
 import Foundation
 
 /// 한 번의 연습에서 유지하며 직렬 분석 큐에서 두 단계 모델을 실행합니다.
-nonisolated final class ChicModelV3 {
+nonisolated final class ChicModelV3_5 {
     enum State: String { case air, sputter, metallic, other }
     struct Frame {
         let state: State
         let gateLabel: String
         let sputterScore: Double?
+        let spectrum: [Double]
     }
     enum Failure: LocalizedError {
         case resource(String), schema, input, alignment
@@ -21,12 +22,11 @@ nonisolated final class ChicModelV3 {
             }
         }
     }
-    static let sputterThreshold = 0.7543236034777003
+    static let sputterThreshold = 0.5
+    static let metallicThreshold = 0.65
     private static let columns = (0..<273).map { String(format: "f%03d", $0) }
     private let gate, air, rolling: Classifier
     private let rawExtractor: ChicV2FeatureExtractor
-    private let boostedExtractor: ChicV2FeatureExtractor
-    private let filter = ChicV2Filter()
 
     private struct Classifier {
         let model: MLModel
@@ -69,40 +69,42 @@ nonisolated final class ChicModelV3 {
             guard let u = bundle.url(forResource: name, withExtension: "mlmodelc") else { throw Failure.resource(name) }
             return u
         }
-        try self.init(gateURL: url("ChicModelV3Gate"), airURL: url("ChicModelV3Air"), rollingURL: url("ChicModelV3Metallic"))
+        try self.init(gateURL: url("ChicModelV3_5Gate"), airURL: url("ChicModelV3_5Air"), rollingURL: url("ChicModelV3_5Metallic"))
     }
     /// 테스트 또는 앱 번들에서 받은 세 모델로 연습별 분석 상태를 만듭니다.
     init(gateURL: URL, airURL: URL, rollingURL: URL) throws {
         gate = try Classifier(url: gateURL, labels: ["air","metallic","sputter","other","breath_whistle"])
-        air = try Classifier(url: airURL, labels: ["air","sputter"])
+        air = try Classifier(url: airURL, labels: ["air","sputter","rolling"])
         rolling = try Classifier(url: rollingURL, labels: ["air","metallic","sputter","other"])
         rawExtractor = try ChicV2FeatureExtractor()
-        boostedExtractor = try ChicV2FeatureExtractor()
     }
 
-    /// 같은 버퍼의 강조음과 원음으로 두 단계 판정을 완료합니다.
+    /// 롤링 우세를 우선하며 공기주입은 0.5 초과, 두 문턱 미달은 롤링으로 판정합니다.
+    static func airState(air: Double, sputter: Double, rolling: Double) -> State {
+        if rolling >= air && rolling >= sputter { return .other }
+        if sputter >= sputterThreshold { return .sputter }
+        return air > 0.5 ? .air : .other
+    }
+
+    /// 재학습과 동일한 원음 특징을 두 단계 분류와 종료 분석에 공유합니다.
     func consume(_ mono: [Float], sampleRate: Double, onFrame: (Frame) throws -> Void) throws {
         guard sampleRate == 48_000, mono.allSatisfy(\.isFinite) else { throw Failure.input }
-        var gates = [String]()
-        try boostedExtractor.consume(filter.process(mono), sampleRate: sampleRate) { gates.append(try gate.winner($0)) }
-        var i = 0
-        try rawExtractor.consume(mono, sampleRate: sampleRate) { x in
-            guard i < gates.count else { throw Failure.alignment }
-            let label = gates[i]
-            i += 1
+        try rawExtractor.consume(mono, sampleRate: sampleRate) { x, spectrum in
+            let label = try gate.winner(x)
             let state: State
             var score: Double?
             switch label {
             case "air", "sputter":
-                let p = try air.scores(x)[1]
-                score = p
-                state = p >= Self.sputterThreshold ? .sputter : .air
+                let p = try air.scores(x)
+                score = p[1]
+                state = Self.airState(air: p[0], sputter: p[1], rolling: p[2])
             case "breath_whistle": state = .other
-            case "metallic", "other": state = try rolling.winner(x) == "metallic" ? .metallic : .other
+            case "metallic", "other":
+                let p = try rolling.scores(x)
+                state = p[1] > p[0] && p[1] >= p[2] && p[1] >= p[3] && p[1] >= Self.metallicThreshold ? .metallic : .other
             default: throw Failure.schema
             }
-            try onFrame(Frame(state: state, gateLabel: label, sputterScore: score))
+            try onFrame(Frame(state: state, gateLabel: label, sputterScore: score, spectrum: spectrum))
         }
-        guard i == gates.count else { throw Failure.alignment }
     }
 }
