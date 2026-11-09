@@ -61,32 +61,32 @@ import Foundation
     /// 시작 전 오종료 방지, 작업 점수 20회 연속, 우선순위와 한 번만 종료하는 조건을 확인합니다.
     static func checkEndRule() {
         var rule = ChicEndRule()
-        for _ in 0..<30 { precondition(rule.consume(work: 0, end: 1, purge: 1, dropDB: 3) == nil) }
+        for _ in 0..<30 { precondition(rule.consume(work: 0, end: 1, purge: 1) == nil) }
         rule.activate()
-        for _ in 0..<19 { precondition(rule.consume(work: 0.299, end: 0, purge: 0, dropDB: 3) == nil) }
-        precondition(rule.consume(work: 0.3, end: 0, purge: 0, dropDB: 3) == nil)
-        for _ in 0..<19 { precondition(rule.consume(work: 0.299, end: 0, purge: 0, dropDB: 3) == nil) }
-        precondition(rule.consume(work: 0.299, end: 0, purge: 0, dropDB: 3) == .disappearance)
+        for _ in 0..<19 { precondition(rule.consume(work: 0.299, end: 0, purge: 0) == nil) }
+        precondition(rule.consume(work: 0.3, end: 0, purge: 0) == nil)
+        for _ in 0..<19 { precondition(rule.consume(work: 0.299, end: 0, purge: 0) == nil) }
+        precondition(rule.consume(work: 0.299, end: 0, purge: 0) == .disappearance)
         rule.activate()
-        precondition(rule.consume(work: 0, end: 1, purge: 1, dropDB: 3) == nil)
+        precondition(rule.consume(work: 0, end: 1, purge: 1) == nil)
         var end = ChicEndRule(); end.activate()
-        precondition(end.consume(work: 0.1, end: 0.849999, purge: 0, dropDB: 3) == nil)
-        precondition(end.consume(work: 0.1, end: 0.85, purge: 0, dropDB: 2.999) == nil)
-        precondition(end.consume(work: 0.1, end: 0.85, purge: 0, dropDB: 3) == .endSound)
+        precondition(end.consume(work: 0.1, end: 0.599999, purge: 0) == nil)
+        precondition(end.consume(work: 0.1, end: 0.6, purge: 0) == .endSound)
         var purge = ChicEndRule(); purge.activate()
-        for _ in 0..<4 { precondition(purge.consume(work: 0.1, end: 0, purge: 0.5, dropDB: 0) == nil) }
-        precondition(purge.consume(work: 0.1, end: 0, purge: 0.499, dropDB: 0) == nil)
-        for _ in 0..<4 { precondition(purge.consume(work: 0.1, end: 0, purge: 0.5, dropDB: 0) == nil) }
-        precondition(purge.consume(work: 0.1, end: 0, purge: 0.5, dropDB: 0) == .cleaning)
+        for _ in 0..<6 { precondition(purge.consume(work: 0.8, end: 0, purge: 0.499999) == nil) }
+        for _ in 0..<2 { precondition(purge.consume(work: 0.8, end: 0, purge: 0.5) == nil) }
+        precondition(purge.consume(work: 0.8, end: 0, purge: 0.499999) == nil)
+        for _ in 0..<2 { precondition(purge.consume(work: 0.8, end: 0, purge: 0.5) == nil) }
+        precondition(purge.consume(work: 0.8, end: 0, purge: 0.5) == .cleaning)
         var priority = ChicEndRule(); priority.activate()
-        for _ in 0..<19 { precondition(priority.consume(work: 0, end: 0, purge: 0, dropDB: 3) == nil) }
-        precondition(priority.consume(work: 0, end: 0, purge: 1, dropDB: 3) == .disappearance)
+        for _ in 0..<19 { precondition(priority.consume(work: 0, end: 0, purge: 0) == nil) }
+        precondition(priority.consume(work: 0, end: 0, purge: 1) == .disappearance)
         var activeWork = ChicEndRule(); activeWork.activate()
         for work in [0.3, 0.778, 1.0] {
-            for _ in 0..<60 { precondition(activeWork.consume(work: work, end: 0, purge: 0, dropDB: 20) == nil) }
+            for _ in 0..<60 { precondition(activeWork.consume(work: work, end: 0, purge: 0) == nil) }
         }
         var alternating = ChicEndRule(); alternating.activate()
-        for i in 0..<60 { precondition(alternating.consume(work: i % 2 == 0 ? 0 : 1, end: 0, purge: 0, dropDB: 0) == nil) }
+        for i in 0..<60 { precondition(alternating.consume(work: i % 2 == 0 ? 0 : 1, end: 0, purge: 0) == nil) }
         print("PASS work >=0.3 suppresses disappearance for 60 updates; nonconsecutive low work does not finish")
         print("PASS first-feedback activation, strict <0.3 x20, reset at 0.3, priority and single completion")
     }
@@ -123,7 +123,7 @@ import Foundation
                     energyHistory.append(energy)
                     if energyHistory.count > 10 { energyHistory.removeFirst() }
                     let reference = expected.probabilities[index]
-                    precondition(actualRule.consume(work: actual[1], end: actual[2], purge: actual[3], dropDB: 3) == referenceRule.consume(work: reference[1], end: reference[2], purge: reference[3], dropDB: 3), "종료 시점 불일치: \(index)")
+                    precondition(actualRule.consume(work: actual[1], end: actual[2], purge: actual[3]) == referenceRule.consume(work: reference[1], end: reference[2], purge: reference[3]), "종료 시점 불일치: \(index)")
                     index += 1
                 }
                 offset = stop; chunk += 1

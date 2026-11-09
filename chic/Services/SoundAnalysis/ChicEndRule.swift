@@ -15,14 +15,14 @@ nonisolated struct ChicEndRule {
     }
 
     /// 소멸은 낮은 작업 점수의 연속 횟수로만 확인합니다.
-    mutating func consume(work: Double, end: Double, purge: Double, dropDB: Double) -> Reason? {
+    mutating func consume(work: Double, end: Double, purge: Double) -> Reason? {
         guard isActive, !isFinished else { return nil }
         purgeCount = purge >= 0.5 ? purgeCount + 1 : 0
         lowWorkCount = work < 0.3 ? lowWorkCount + 1 : 0
         let reason: Reason?
-        if end >= 0.85 && dropDB >= 3 { reason = .endSound }
+        if end >= 0.6 { reason = .endSound }
         else if lowWorkCount >= 20 { reason = .disappearance }
-        else if purgeCount >= 5 { reason = .cleaning }
+        else if purgeCount >= 3 { reason = .cleaning }
         else { reason = nil }
         if reason != nil { isFinished = true; isActive = false }
         return reason

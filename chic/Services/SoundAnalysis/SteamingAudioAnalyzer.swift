@@ -67,7 +67,7 @@ nonisolated final class SteamingAudioAnalyzer: @unchecked Sendable {
                         #if DEBUG
                         self.logger.debug("종료 분석 active=\(self.endRule.isActive) work=\(scores.work) end=\(scores.end) purge=\(scores.purge) dBFS=\(scores.rmsDBFS) dropDB=\(scores.dropDB)")
                         #endif
-                        if let reason = self.endRule.consume(work: scores.work, end: scores.end, purge: scores.purge, dropDB: scores.dropDB) {
+                        if let reason = self.endRule.consume(work: scores.work, end: scores.end, purge: scores.purge) {
                             self.logger.notice("자동 종료 reason=\(String(describing: reason), privacy: .public) work=\(scores.work) end=\(scores.end) purge=\(scores.purge) dBFS=\(scores.rmsDBFS) dropDB=\(scores.dropDB)")
                             self.isStopped = true
                             finished = true
