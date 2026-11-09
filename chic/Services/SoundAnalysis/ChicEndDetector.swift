@@ -77,7 +77,9 @@ nonisolated final class ChicEndDetector {
               let input = description.inputDescriptionsByName["features"]?.multiArrayConstraint,
               input.shape == [1845], input.dataType == .double,
               let output = description.outputDescriptionsByName["probabilities"]?.multiArrayConstraint,
-              output.shape == [4], output.dataType == .double else { throw ChicModelV3_5.Failure.schema }
+              output.shape == [4], output.dataType == .double,
+              let activity = description.outputDescriptionsByName["activityProbabilities"]?.multiArrayConstraint,
+              activity.shape == [4], activity.dataType == .double else { throw ChicModelV3_5.Failure.schema }
         classificationInput = try MLMultiArray(shape: [1845], dataType: .double)
         classificationProvider = try MLDictionaryFeatureProvider(dictionary: ["features": classificationInput])
         audioInput = try MLMultiArray(shape: [8000], dataType: .float32)
@@ -167,10 +169,15 @@ nonisolated final class ChicEndDetector {
         for i in features.indices { values[i] = features[i] }
         let prediction = try classifier.prediction(from: classificationProvider)
         guard let probabilities = prediction.featureValue(for: "probabilities")?.multiArrayValue,
-              probabilities.count == 4 else { throw ChicModelV3_5.Failure.schema }
+              probabilities.count == 4,
+              let activity = prediction.featureValue(for: "activityProbabilities")?.multiArrayValue,
+              activity.count == 4 else { throw ChicModelV3_5.Failure.schema }
         let p = (0..<4).map { probabilities[$0].doubleValue }
+        let a = (0..<4).map { activity[$0].doubleValue }
         guard p.allSatisfy({ $0.isFinite && (0...1).contains($0) }),
-              abs(p.reduce(0, +) - 1) < 1e-5 else { throw ChicModelV3_5.Failure.schema }
+              a.allSatisfy({ $0.isFinite && (0...1).contains($0) }),
+              abs(p.reduce(0, +) - 1) < 1e-5,
+              abs(a.reduce(0, +) - 1) < 1e-5 else { throw ChicModelV3_5.Failure.schema }
         embeddings.append(embedding)
         if embeddings.count > 15 { embeddings.removeFirst() }
         bandHistory.append(current)
@@ -178,7 +185,8 @@ nonisolated final class ChicEndDetector {
         let discard = max(0, end16 - 8000 - sampleBase16)
         samples16.removeFirst(discard)
         sampleBase16 += discard
-        return Scores(other: p[0], work: p[1], end: p[2], purge: p[3], rmsDBFS: rmsDBFS, dropDB: dropDB)
+        // 종료음 재학습이 기존 작업 점수의 소멸 기준까지 바꾸지 않도록 작업 출력을 보존합니다.
+        return Scores(other: a[0], work: a[1], end: p[2], purge: p[3], rmsDBFS: rmsDBFS, dropDB: dropDB)
     }
 
     /// 직전 3·10·30묶음의 주파수 변화와 변동성을 학습 순서대로 계산합니다.

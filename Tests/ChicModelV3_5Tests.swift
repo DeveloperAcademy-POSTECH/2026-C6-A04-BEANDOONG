@@ -47,55 +47,54 @@ import Foundation
                 input[i] = NSNumber(value: value)
             }
             let result = try model.prediction(from: provider)
-            guard let probabilities = result.featureValue(for: "probabilities")?.multiArrayValue else { preconditionFailure("분류 확률 누락") }
-            precondition(probabilities.count == 4)
-            for i in 0..<4 { error = max(error, abs(probabilities[i].doubleValue - expected[row][i])) }
+            precondition(expected[row].count == 8)
+            for (head, name) in ["activityProbabilities", "probabilities"].enumerated() {
+                guard let probabilities = result.featureValue(for: name)?.multiArrayValue else { preconditionFailure("분류 확률 누락") }
+                precondition(probabilities.count == 4)
+                for i in 0..<4 { error = max(error, abs(probabilities[i].doubleValue - expected[row][head * 4 + i])) }
+            }
         }
         precondition(error < 0.0001)
         print("PASS end classifier: \(expected.count) vectors, maximum error \(error)")
     }
 
-    /// 시작 전 오종료 방지, 작업 20회·저음량 30회 연속, 우선순위와 한 번만 종료하는 조건을 확인합니다.
+    /// 시작 전 오종료 방지, 작업 점수 20회 연속, 우선순위와 한 번만 종료하는 조건을 확인합니다.
     static func checkEndRule() {
         var rule = ChicEndRule()
-        for _ in 0..<30 { precondition(rule.consume(work: 0, end: 1, purge: 1, rmsDBFS: -30, dropDB: 3) == nil) }
+        for _ in 0..<30 { precondition(rule.consume(work: 0, end: 1, purge: 1, dropDB: 3) == nil) }
         rule.activate()
-        for _ in 0..<19 { precondition(rule.consume(work: 0.299, end: 0, purge: 0, rmsDBFS: -30, dropDB: 3) == nil) }
-        precondition(rule.consume(work: 0.3, end: 0, purge: 0, rmsDBFS: -30, dropDB: 3) == nil)
-        for _ in 0..<19 { precondition(rule.consume(work: 0.299, end: 0, purge: 0, rmsDBFS: -30, dropDB: 3) == nil) }
-        precondition(rule.consume(work: 0.299, end: 0, purge: 0, rmsDBFS: -30, dropDB: 3) == .disappearance)
+        for _ in 0..<19 { precondition(rule.consume(work: 0.299, end: 0, purge: 0, dropDB: 3) == nil) }
+        precondition(rule.consume(work: 0.3, end: 0, purge: 0, dropDB: 3) == nil)
+        for _ in 0..<19 { precondition(rule.consume(work: 0.299, end: 0, purge: 0, dropDB: 3) == nil) }
+        precondition(rule.consume(work: 0.299, end: 0, purge: 0, dropDB: 3) == .disappearance)
         rule.activate()
-        precondition(rule.consume(work: 0, end: 1, purge: 1, rmsDBFS: -30, dropDB: 3) == nil)
+        precondition(rule.consume(work: 0, end: 1, purge: 1, dropDB: 3) == nil)
         var end = ChicEndRule(); end.activate()
-        precondition(end.consume(work: 0.1, end: 0.799, purge: 0, rmsDBFS: -30, dropDB: 3) == nil)
-        precondition(end.consume(work: 0.1, end: 0.8, purge: 0, rmsDBFS: -30, dropDB: 2.999) == nil)
-        precondition(end.consume(work: 0.1, end: 0.8, purge: 0, rmsDBFS: -30, dropDB: 3) == .endSound)
+        precondition(end.consume(work: 0.1, end: 0.849999, purge: 0, dropDB: 3) == nil)
+        precondition(end.consume(work: 0.1, end: 0.85, purge: 0, dropDB: 2.999) == nil)
+        precondition(end.consume(work: 0.1, end: 0.85, purge: 0, dropDB: 3) == .endSound)
         var purge = ChicEndRule(); purge.activate()
-        for _ in 0..<4 { precondition(purge.consume(work: 0.1, end: 0, purge: 0.5, rmsDBFS: -30, dropDB: 0) == nil) }
-        precondition(purge.consume(work: 0.1, end: 0, purge: 0.499, rmsDBFS: -30, dropDB: 0) == nil)
-        for _ in 0..<4 { precondition(purge.consume(work: 0.1, end: 0, purge: 0.5, rmsDBFS: -30, dropDB: 0) == nil) }
-        precondition(purge.consume(work: 0.1, end: 0, purge: 0.5, rmsDBFS: -30, dropDB: 0) == .cleaning)
+        for _ in 0..<4 { precondition(purge.consume(work: 0.1, end: 0, purge: 0.5, dropDB: 0) == nil) }
+        precondition(purge.consume(work: 0.1, end: 0, purge: 0.499, dropDB: 0) == nil)
+        for _ in 0..<4 { precondition(purge.consume(work: 0.1, end: 0, purge: 0.5, dropDB: 0) == nil) }
+        precondition(purge.consume(work: 0.1, end: 0, purge: 0.5, dropDB: 0) == .cleaning)
         var priority = ChicEndRule(); priority.activate()
-        for _ in 0..<19 { precondition(priority.consume(work: 0, end: 0, purge: 0, rmsDBFS: -30, dropDB: 3) == nil) }
-        precondition(priority.consume(work: 0, end: 0, purge: 1, rmsDBFS: -30, dropDB: 3) == .disappearance)
-        var quiet = ChicEndRule()
-        for _ in 0..<30 { precondition(quiet.consume(work: 1, end: 0, purge: 0, rmsDBFS: -80, dropDB: 0) == nil) }
-        quiet.activate()
-        for _ in 0..<35 { precondition(quiet.consume(work: 1, end: 0, purge: 0, rmsDBFS: -59, dropDB: 0) == nil) }
-        for _ in 0..<29 { precondition(quiet.consume(work: 1, end: 0, purge: 0, rmsDBFS: -60.001, dropDB: 0) == nil) }
-        precondition(quiet.consume(work: 1, end: 0, purge: 0, rmsDBFS: -60, dropDB: 0) == nil)
-        for _ in 0..<29 { precondition(quiet.consume(work: 1, end: 0, purge: 0, rmsDBFS: -60.001, dropDB: 0) == nil) }
-        precondition(quiet.consume(work: 1, end: 0, purge: 0, rmsDBFS: -60.001, dropDB: 0) == .disappearance)
+        for _ in 0..<19 { precondition(priority.consume(work: 0, end: 0, purge: 0, dropDB: 3) == nil) }
+        precondition(priority.consume(work: 0, end: 0, purge: 1, dropDB: 3) == .disappearance)
+        var activeWork = ChicEndRule(); activeWork.activate()
+        for work in [0.3, 0.778, 1.0] {
+            for _ in 0..<60 { precondition(activeWork.consume(work: work, end: 0, purge: 0, dropDB: 20) == nil) }
+        }
         var alternating = ChicEndRule(); alternating.activate()
-        for i in 0..<60 { precondition(alternating.consume(work: i % 2 == 0 ? 0 : 1, end: 0, purge: 0, rmsDBFS: i % 2 == 0 ? -30 : -70, dropDB: 0) == nil) }
-        print("PASS quiet 29/30 boundary, independent of work, reset at -60, no mixed counter, inactive suppression")
+        for i in 0..<60 { precondition(alternating.consume(work: i % 2 == 0 ? 0 : 1, end: 0, purge: 0, dropDB: 0) == nil) }
+        print("PASS work >=0.3 suppresses disappearance for 60 updates; nonconsecutive low work does not finish")
         print("PASS first-feedback activation, strict <0.3 x20, reset at 0.3, priority and single completion")
     }
 
     /// 실제 PCM 뒤 무음을 붙인 독립 Python 점수와 두 버퍼 방식의 출력이 일치하는지 확인합니다.
-    static func checkEndDetector(_ pcm: [Float], fixture: URL, compiled: URL) throws {
-        let expected = try JSONDecoder().decode(EndExpected.self, from: Data(contentsOf: fixture.appendingPathComponent("expected-end.json")))
-        let samples = pcm + [Float](repeating: 0, count: expected.extraSilentSamples)
+    static func checkEndDetector(_ pcm: [Float], fixture: URL, compiled: URL, gain: Float = 1, referenceName: String = "expected-end.json") throws {
+        let expected = try JSONDecoder().decode(EndExpected.self, from: Data(contentsOf: fixture.appendingPathComponent(referenceName)))
+        let samples = pcm.map { $0 * gain } + [Float](repeating: 0, count: expected.extraSilentSamples)
         for chunks in [[4800], [1, 127, 513, 1024, 4097]] {
             let detector = try ChicEndDetector(modelURL: compiled.appendingPathComponent("ChicAudioFeatures.mlmodelc"), classifierURL: compiled.appendingPathComponent("ChicEndV3_5.mlmodelc"))
             let spectrum = try ChicV2FeatureExtractor()
@@ -124,7 +123,7 @@ import Foundation
                     energyHistory.append(energy)
                     if energyHistory.count > 10 { energyHistory.removeFirst() }
                     let reference = expected.probabilities[index]
-                    precondition(actualRule.consume(work: actual[1], end: actual[2], purge: actual[3], rmsDBFS: -30, dropDB: 3) == referenceRule.consume(work: reference[1], end: reference[2], purge: reference[3], rmsDBFS: -30, dropDB: 3), "종료 시점 불일치: \(index)")
+                    precondition(actualRule.consume(work: actual[1], end: actual[2], purge: actual[3], dropDB: 3) == referenceRule.consume(work: reference[1], end: reference[2], purge: reference[3], dropDB: 3), "종료 시점 불일치: \(index)")
                     index += 1
                 }
                 offset = stop; chunk += 1
@@ -182,6 +181,7 @@ import Foundation
         let x = Array(UnsafeBufferPointer(start: buf.floatChannelData![0], count: Int(buf.frameLength)))
         try checkEndClassifier(fixture: dir, compiled: compiled)
         try checkEndDetector(x, fixture: dir, compiled: compiled)
+        try checkEndDetector(x, fixture: dir, compiled: compiled, gain: Float(pow(10.0, -24.0 / 20)), referenceName: "expected-end-low-gain.json")
         for chunks in [[4800], [1, 127, 513, 1024, 4097]] {
             let stream = try ChicModelV3_5(gateURL: compiled.appendingPathComponent("ChicModelV3_5Gate.mlmodelc"),
                                          airURL: compiled.appendingPathComponent("ChicModelV3_5Air.mlmodelc"),
