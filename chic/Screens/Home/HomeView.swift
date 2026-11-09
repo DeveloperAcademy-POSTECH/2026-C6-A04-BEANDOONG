@@ -46,7 +46,7 @@ struct HomeView: View {
             // 결과 화면의 '다시 연습'으로 종료 상태를 벗어날 때만 준비 화면으로 이동합니다.
             // 최초 연습을 어느 화면에서 시작했든 준비 화면을 목적지로 명시합니다.
             guard previous == .finished, current == .idle else { return }
-            path = [.checklist(usesWatch: true)]
+            path = []
         }
     }
 
