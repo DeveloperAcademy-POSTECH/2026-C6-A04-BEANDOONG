@@ -11,6 +11,7 @@ final class WatchFeedbackHaptics: ObservableObject {
     private let logger = Logger(subsystem: "com.beandoong.cheek", category: "watch-feedback")
     #if os(watchOS)
     private lazy var runtime = WatchPracticeRuntime { [weak self] in self?.record($0) }
+    private var lastHapticAt: Date?
     #endif
     #if DEBUG && os(watchOS)
     @Published private(set) var history: [String] = []
@@ -25,7 +26,7 @@ final class WatchFeedbackHaptics: ObservableObject {
     }
 
     nonisolated enum Feedback: Equatable {
-        case failure, skip(String)
+        case start, failure, skip(String)
     }
 
     /// 연습의 실행 상태를 반영하고 판정에 맞는 햅틱을 한 번 요청합니다.
@@ -33,8 +34,10 @@ final class WatchFeedbackHaptics: ObservableObject {
         #if os(watchOS)
         runtime.update(for: current)
         let now = Date()
-        switch Self.feedback(previous: previous, current: current, now: now) {
-        case .failure: break
+        let type: WKHapticType
+        switch Self.feedback(previous: previous, current: current, now: now, lastHapticAt: lastHapticAt) {
+        case .start: type = .click
+        case .failure: type = .failure
         case .skip(let reason):
             record("\(current.phase.title) · 제외(\(reason))")
             return
@@ -45,17 +48,24 @@ final class WatchFeedbackHaptics: ObservableObject {
             return
         }
         let source = isActive ? "활성" : "확장 세션"
-        playHaptic(.failure, for: "\(current.phase.title) · \(source)")
+        lastHapticAt = now
+        playHaptic(type, for: "\(current.phase.title) · \(source)")
         #endif
     }
 
-    /// 쇳소리·파바박 상태에 진입할 때만 경고합니다.
-    nonisolated static func feedback(previous: PracticeState, current: PracticeState, now: Date) -> Feedback {
+    /// 공기주입은 반복하고 쇳소리·파바박은 해당 상태에 진입할 때만 경고합니다.
+    nonisolated static func feedback(previous: PracticeState, current: PracticeState, now: Date,
+                                     lastHapticAt: Date?) -> Feedback {
         guard current.isWatchEnabled, current.sessionID != nil else { return .skip("워치 연습 아님") }
         guard current.updatedAt > previous.updatedAt else { return .skip("이미 받았거나 오래된 판정") }
         guard abs(now.timeIntervalSince(current.updatedAt)) < 2 else { return .skip("지연된 판정") }
         let samePhase = previous.sessionID == current.sessionID && previous.phase == current.phase
         switch current.phase {
+        case .aeration:
+            if samePhase, let lastHapticAt, now.timeIntervalSince(lastHapticAt) < 0.7 {
+                return .skip("직전 진동과 너무 가까운 판정")
+            }
+            return .start
         case .moreAir, .bubble:
             return samePhase ? .skip("같은 경고 상태") : .failure
         default:

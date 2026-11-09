@@ -9,46 +9,51 @@ struct WatchFeedbackHapticsTests {
         state.sessionID = UUID()
         state.phase = .listening
         state.updatedAt = start
+        var lastHaptic: Date?
 
         func receive(_ phase: PracticePhase, at second: Double, delay: Double = 0) -> WatchFeedbackHaptics.Feedback? {
             var update = state
             update.phase = phase
             update.updatedAt = start.addingTimeInterval(second)
             let arrival = update.updatedAt.addingTimeInterval(delay)
-            let feedback = WatchFeedbackHaptics.feedback(previous: state, current: update, now: arrival)
+            let feedback = WatchFeedbackHaptics.feedback(previous: state, current: update,
+                                                         now: arrival, lastHapticAt: lastHaptic)
             if update.updatedAt >= state.updatedAt { state = update }
             if case .skip = feedback { return nil }
+            lastHaptic = arrival
             return feedback
         }
 
+        precondition(receive(.aeration, at: 1) == .start)
         precondition(receive(.aeration, at: 1) == nil)
-        precondition(receive(.aeration, at: 1) == nil)
-        precondition(receive(.aeration, at: 2) == nil)
+        precondition(receive(.aeration, at: 2) == .start)
         precondition(receive(.aeration, at: 1) == nil)
         precondition(receive(.milkFlow, at: 3) == nil)
-        precondition(receive(.aeration, at: 4, delay: 0.8) == nil)
+        precondition(receive(.aeration, at: 4, delay: 0.8) == .start)
         precondition(receive(.aeration, at: 5) == nil)
-        precondition(receive(.aeration, at: 6) == nil)
+        precondition(receive(.aeration, at: 6) == .start)
         precondition(receive(.moreAir, at: 6.1) == .failure)
         precondition(receive(.moreAir, at: 6.1) == nil)
         precondition(receive(.moreAir, at: 7) == nil)
         precondition(receive(.bubble, at: 8) == .failure)
         precondition(receive(.bubble, at: 9) == nil)
-        precondition(receive(.aeration, at: 10) == nil)
+        precondition(receive(.aeration, at: 10) == .start)
         precondition(receive(.bubble, at: 11, delay: 2) == nil)
         precondition(receive(.moreAir, at: 12) == .failure)
         precondition(receive(.bubble, at: 11.5) == nil)
-        precondition(receive(.aeration, at: 12.1) == nil)
+        precondition(receive(.aeration, at: 12.1) == .start)
         precondition(receive(.moreAir, at: 12.2) == .failure)
         var newSession = state
         newSession.sessionID = UUID()
         newSession.updatedAt = start.addingTimeInterval(13)
         precondition(WatchFeedbackHaptics.feedback(previous: state, current: newSession,
-                                                  now: newSession.updatedAt) == .failure)
+                                                  now: newSession.updatedAt, lastHapticAt: lastHaptic) == .failure)
+        precondition(receive(.aeration, at: 13, delay: 2) == nil)
         for (index, phase) in [PracticePhase.idle, .listening, .milkFlow, .finished].enumerated() {
             precondition(receive(phase, at: 14 + Double(index)) == nil)
         }
         state.isWatchEnabled = false
+        precondition(receive(.aeration, at: 20) == nil)
         precondition(receive(.moreAir, at: 21) == nil)
         state.isWatchEnabled = true
         state.sessionID = nil

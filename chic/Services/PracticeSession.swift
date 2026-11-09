@@ -196,15 +196,20 @@ final class PracticeSession: ObservableObject {
         }
     }
 
-    /// 소리가 바뀔 때 구간을 기록하고 워치에 전달합니다.
+    /// 소리가 바뀔 때 구간을 기록하고, 지속되는 공기주입은 워치에만 다시 보냅니다.
     func updateFeedback(_ phase: PracticePhase) {
         // 종료 후 늦게 도착한 분석 결과로 연습 화면이 다시 열리지 않게 합니다.
-        guard state.phase.isRunning, phase.isRunning, state.phase != phase else { return }
+        guard state.phase.isRunning, phase.isRunning else { return }
         let now = Date()
-        if let startedAt = state.startedAt {
-            timeline.update(phase: phase, at: max(0, now.timeIntervalSince(startedAt)))
+        if state.phase != phase {
+            if let startedAt = state.startedAt {
+                timeline.update(phase: phase, at: max(0, now.timeIntervalSince(startedAt)))
+            }
+            state.phase = phase
+        } else {
+            guard phase == .aeration, state.isWatchEnabled,
+                  now.timeIntervalSince(connection.state.updatedAt) >= 1 else { return }
         }
-        state.phase = phase
         publish(at: now)
     }
 
