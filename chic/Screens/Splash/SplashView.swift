@@ -4,7 +4,7 @@ import SwiftUI
 /// - 디자인: Hi-Fi/iPhone 17 - 92.png
 ///
 ///     ┌ 배경: 검정 + 좌상단/우하단 네이비 글로우
-///     └ 화면 중앙(살짝 위) chic 로고
+///     └ 화면 중앙(살짝 위) chic 로고 (SplashLogoReveal 등장 애니메이션)
 struct LaunchView: View {
     var body: some View {
         ZStack {
@@ -14,15 +14,24 @@ struct LaunchView: View {
             LaunchGlow.topLeading
             LaunchGlow.bottomTrailing
 
-            // MARK: 로고 (화면 중앙에서 35pt 위)
-            Image("ChicLogo")
-                .resizable()
-                .scaledToFit()
-                .frame(width: 149, height: 51)
+            // MARK: 로고 (화면 중앙에서 35pt 위) — 조각별로 떠오르며 흐림이 걷히는 등장 애니메이션
+            SplashLogoReveal()
                 .offset(y: -35)
         }
         .preferredColorScheme(.dark)
     }
+}
+
+// MARK: - 표시 시간
+
+/// 앱을 켰을 때 스플래시를 보여 주는 시간 (AppRootView 가 사용)
+enum SplashTiming {
+    /// 로고 등장 애니메이션(1.35초)이 끝난 뒤 로고를 잠깐 더 보여 주는 시간
+    private static let holdAfterReveal: TimeInterval = 0.5
+    /// 스플래시를 보여 주는 시간 (로고 등장 + 머무름)
+    static let displayDuration: TimeInterval = SplashLogoReveal.revealDuration + holdAfterReveal
+    /// 스플래시가 걷히며 다음 화면이 드러나는 시간
+    static let fadeOutDuration: TimeInterval = 0.35
 }
 
 // MARK: - 배경 글로우

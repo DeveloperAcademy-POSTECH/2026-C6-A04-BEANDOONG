@@ -4,7 +4,7 @@ import SwiftUI
 /// - 디자인: Hi-Fi/iPhone 17 - 113.png
 ///
 ///     ┌ 상단 네비게이션 바: 애플 워치 연결
-///     ├ 워치 앱 설치 일러스트
+///     ├ 워치 앱 설치 일러스트 (진행 링 회전 애니메이션)
 ///     ├ 타이틀 + 설명
 ///     └ 하단 버튼: [다시 연결 확인하기] [휴대폰만 사용하기]
 struct WatchAppInstallView: View {
@@ -19,7 +19,7 @@ struct WatchAppInstallView: View {
                 .padding(.top, Layout.headerTop)
 
             // MARK: 일러스트
-            AssetImageView(name: "IllustWatchInstall", width: 121, height: 207)
+            WatchInstallIllustration()
                 .padding(.top, Layout.illustrationTop)
 
             // MARK: 타이틀 + 설명
