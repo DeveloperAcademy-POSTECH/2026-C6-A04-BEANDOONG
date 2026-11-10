@@ -23,6 +23,7 @@ struct cheekApp: App {
             AppRootView()
                 .environmentObject(connection)
                 .environmentObject(practice)
+                .providesDesignScale()
         }
     }
 }
