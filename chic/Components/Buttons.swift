@@ -7,6 +7,8 @@ import SwiftUI
 /// 다크 화면 주요 버튼: 하늘색 캡슐 + 검정 텍스트
 struct DarkPrimaryButton: View {
     let title: String
+    /// 버튼 폭 (기본 363 = iPhone 17 시안. 다른 기기에서는 `363.h(scale)`을 넘깁니다)
+    var width: CGFloat = 363
     var action: () -> Void = {}
 
     var body: some View {
@@ -14,7 +16,7 @@ struct DarkPrimaryButton: View {
             Text(title)
                 .font(.pretendard(.bold, size: 16))
                 .foregroundStyle(AppColors.darkChipTextSelected)
-                .frame(width: 363, height: 52)
+                .frame(width: width, height: 52)
                 .background(
                     Capsule()
                         .fill(AppColors.darkChipSelected)
@@ -27,6 +29,7 @@ struct DarkPrimaryButton: View {
 /// 다크 화면 보조 버튼: 아주 옅은 하늘색 캡슐 + 검정 텍스트
 struct DarkSecondaryButton: View {
     let title: String
+    var width: CGFloat = 363
     var action: () -> Void = {}
 
     var body: some View {
@@ -34,7 +37,7 @@ struct DarkSecondaryButton: View {
             Text(title)
                 .font(.pretendard(.bold, size: 16))
                 .foregroundStyle(AppColors.darkChipTextSelected)
-                .frame(width: 363, height: 52)
+                .frame(width: width, height: 52)
                 .background(
                     Capsule()
                         .fill(AppColors.darkSecondaryButton)
@@ -48,13 +51,16 @@ struct DarkSecondaryButton: View {
 struct DarkButtonPair: View {
     let primaryTitle: String
     let secondaryTitle: String
+    var width: CGFloat = 363
+    /// 두 버튼 사이 간격. 버튼 높이 52가 고정이라 간격도 모든 기기에서 11로 고정한다(비율로 바꾸면 화면이 짧은 기기에서 버튼이 붙는다)
+    var spacing: CGFloat = 11
     var primaryAction: () -> Void = {}
     var secondaryAction: () -> Void = {}
 
     var body: some View {
-        VStack(spacing: 11) {
-            DarkPrimaryButton(title: primaryTitle, action: primaryAction)
-            DarkSecondaryButton(title: secondaryTitle, action: secondaryAction)
+        VStack(spacing: spacing) {
+            DarkPrimaryButton(title: primaryTitle, width: width, action: primaryAction)
+            DarkSecondaryButton(title: secondaryTitle, width: width, action: secondaryAction)
         }
     }
 }
@@ -79,6 +85,35 @@ struct SteamingStopButton: View {
                     .fill(squareColor)
                     .frame(width: 25, height: 25)
             }
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel("연습 종료")
+    }
+}
+
+// MARK: - 스티밍 종료하기 버튼
+
+/// 스티밍 피드백 화면 하단의 "종료하기" 캡슐 버튼: 옅은 하늘빛 흰 캡슐(274x60) 안에 상태색 사각형(20) + 글자
+/// - Hi-Fi 160: 캡슐 x 64~338, y 720~780 / 사각형 20x20(모서리 3) / 글자와 간격 9
+struct SteamingEndButton: View {
+    /// 사각형 색상 (화면 배경 아래쪽 색 = 상태 팔레트 색)
+    let squareColor: Color
+    /// 버튼 폭 (기본 274 = iPhone 17 시안. 다른 기기에서는 `274.h(scale)`을 넘깁니다)
+    var width: CGFloat = 274
+    var action: () -> Void = {}
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 9) {
+                RoundedRectangle(cornerRadius: 3, style: .continuous)
+                    .fill(squareColor)
+                    .frame(width: 20, height: 20)
+                Text("종료하기")
+                    .font(.pretendard(.semibold, size: 20))
+                    .foregroundStyle(AppColors.darkChipTextSelected)
+            }
+            .frame(width: width, height: 60)
+            .background(Capsule().fill(AppColors.darkSecondaryButton))
         }
         .buttonStyle(.plain)
         .accessibilityLabel("연습 종료")
