@@ -53,20 +53,36 @@ enum AppColors {
     // 배경은 모두 위 → 아래 2색 그라데이션이고, 위쪽 색이 곧 상태 대표색입니다.
     // (정지 버튼 사각형, 연습 준비 화면의 워치 아이콘 화면 색으로도 사용)
 
-    /// 공기 주입 (파랑)
-    static let aerationTop = Color(hex: 0x1BA7E9)
-    static let aerationGradient: [Color] = [aerationTop, Color(hex: 0xA5DCF6)]
+    // 위쪽 색은 Hi-Fi 160/188/189/190의 위 끝(y 0)을 잰 값, 아래쪽 색은 디자인 시스템 팔레트(아래 `sound*`)입니다.
 
-    /// 롤링 (초록)
-    static let milkFlowTop = Color(hex: 0x1ABC37)
-    static let milkFlowGradient: [Color] = [milkFlowTop, Color(hex: 0xCCF175)]
+    /// 공기 주입 (파랑): 위 `01289F` → 아래 blue1
+    static let aerationTop = Color(hex: 0x01289F)
+    static let aerationGradient: [Color] = [aerationTop, soundNormalAeration]
 
-    /// 노즐이 높아 큰 기포가 생길 수 있음 (주황)
-    static let bubbleTop = Color(hex: 0xFFA615)
-    static let bubbleGradient: [Color] = [bubbleTop, Color(hex: 0xF1E175)]
+    /// 롤링 (초록): 위 `176101` → 아래 green1
+    static let milkFlowTop = Color(hex: 0x176101)
+    static let milkFlowGradient: [Color] = [milkFlowTop, soundRolling]
 
-    /// 공기 주입 부족 (보라)
-    static let moreAirTop = Color(hex: 0xA480EB)
-    static let moreAirGradient: [Color] = [moreAirTop, Color(hex: 0xE4C0E9)]
+    /// 노즐이 높아 큰 기포가 생길 수 있음 (주황): 위 `FE5F0F` → 아래 Yellow1
+    static let bubbleTop = Color(hex: 0xFE5F0F)
+    static let bubbleGradient: [Color] = [bubbleTop, soundOverAeration]
+
+    /// 공기 주입 부족 (보라): 위 `52009B` → 아래 Purple1
+    static let moreAirTop = Color(hex: 0x52009B)
+    static let moreAirGradient: [Color] = [moreAirTop, soundLackOfAir]
+
+    // MARK: 결과·히스토리 소리 상태 팔레트 (디자인 시스템 2026-11-10: blue1 / Yellow1 / Purple1 / green1 / red1)
+    // 타임라인 막대, 한 번에 보기 막대, 상태별 감지시간 도넛, 주의 소리 링에 쓰는 단색입니다.
+
+    /// 정상 공기 주입 (blue1)
+    static let soundNormalAeration = Color(hex: 0x3976FA)
+    /// 공기 과다 (Yellow1, 주황)
+    static let soundOverAeration = Color(hex: 0xFF9823)
+    /// 공기 부족 (Purple1)
+    static let soundLackOfAir = Color(hex: 0xA408FF)
+    /// 롤링 소리 (green1)
+    static let soundRolling = Color(hex: 0x2AC44B)
+    /// 주의 소리 (red1)
+    static let soundCaution = Color(hex: 0xF2627C)
 
 }
