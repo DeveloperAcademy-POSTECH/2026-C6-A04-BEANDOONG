@@ -63,15 +63,13 @@ struct SessionChecklistView: View {
         .darkScreenBackground()
     }
 
-    /// "시작 전 **잠깐 확인해요**"
+    /// 문장 전체를 번역하면서 확인 문구의 강조색과 언어별 어순을 유지합니다.
     private var title: some View {
-        HStack(spacing: 0) {
-            Text("시작 전 ")
-                .foregroundStyle(Color.white)
-            Text("잠깐 확인해요")
-                .foregroundStyle(AppColors.darkChipSelected)
-        }
-        .font(.pretendard(.bold, size: 26))
+        Text("시작 전 \(Text("잠깐 확인해요").foregroundStyle(AppColors.darkChipSelected))")
+            .font(.pretendard(.bold, size: 26))
+            .foregroundStyle(Color.white)
+            .multilineTextAlignment(.center)
+            .fixedSize(horizontal: false, vertical: true)
     }
 }
 

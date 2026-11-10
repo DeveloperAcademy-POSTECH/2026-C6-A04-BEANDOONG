@@ -10,6 +10,8 @@ import SwiftUI
 ///
 /// `animatesEntrance`를 켜면 화면이 나타날 때 로고 → 헤드라인 → 설명 → 메인 카드 → 하단 카드 순서로
 /// 아래에서 살짝 떠오르며 차례로 나타나요. (온보딩을 마치고 홈으로 넘어올 때)
+/// "원할한 Localization을 위해 하나의 문장을 따로 사용하지 마시오. 강조 표시의 경우 text 안에 표기"
+///
 struct HomeView: View {
     @EnvironmentObject private var practice: PracticeSession
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
@@ -105,6 +107,7 @@ struct HomeView: View {
                 .buttonStyle(.plain)
                 .homeEntrance(order: 5, hasEntered: hasEntered)
             }
+            .fixedSize(horizontal: false, vertical: true)
             .padding(.top, Layout.subCardsTop)
 
             Spacer(minLength: 0)
@@ -125,12 +128,11 @@ struct HomeView: View {
     /// 워치+피처 이미지 위로, 좌하단 안내 문구와 우하단 연습 버튼을 배치한 홈 카드
     private var practiceCard: some View {
         HStack(alignment: .bottom, spacing: 0) {
-            VStack(alignment: .leading, spacing: 4) {
-                Text("애플 워치와 함께")
-                Text("스티밍을 연습해요")
-            }
-            .font(.pretendard(.semibold, size: 20))
-            .foregroundStyle(AppColors.homeCardText)
+            Text("애플 워치와 함께\n스티밍을 연습해요")
+                .font(.pretendard(.semibold, size: 20))
+                .foregroundStyle(AppColors.homeCardText)
+                .lineSpacing(4)
+                .fixedSize(horizontal: false, vertical: true)
 
             Spacer(minLength: 0)
 
@@ -175,21 +177,13 @@ struct HomeView: View {
         path = [MicrophonePermission.isGranted ? .watchSetup : .microphone]
     }
 
-    /// "다음 **한잔**을 / 위한 작은 연습" — '한잔'만 강조색
+    /// 문장 전체를 번역하면서 '한잔'의 강조색과 언어별 어순을 유지합니다.
     private var headline: some View {
-        VStack(alignment: .leading, spacing: 5) {
-            HStack(spacing: 0) {
-                Text("다음 ")
-                    .foregroundStyle(Color.white)
-                Text("한잔")
-                    .foregroundStyle(AppColors.darkChipSelected)
-                Text("을")
-                    .foregroundStyle(Color.white)
-            }
-            Text("위한 작은 연습")
-                .foregroundStyle(Color.white)
-        }
-        .font(.pretendard(.bold, size: 28))
+        Text("다음 \(Text("한잔").foregroundStyle(AppColors.darkChipSelected))을\n위한 작은 연습")
+            .font(.pretendard(.bold, size: 28))
+            .foregroundStyle(Color.white)
+            .lineSpacing(5)
+            .fixedSize(horizontal: false, vertical: true)
     }
 }
 
@@ -244,9 +238,9 @@ private struct HomePracticeButton: View {
 
 // MARK: - 하단 서브 카드
 
-/// 우측 상단 화살표와 좌측 하단 제목이 있는 홈 카드 (173 x 107)
+/// 우측 상단 화살표와 좌측 하단 제목이 있으며 번역 길이에 맞춰 높이가 늘어나는 홈 카드입니다.
 private struct HomeSubCard: View {
-    let title: String
+    let title: LocalizedStringKey
     let color: Color
 
     var body: some View {
@@ -265,9 +259,11 @@ private struct HomeSubCard: View {
             Text(title)
                 .font(.pretendard(.semibold, size: 20))
                 .foregroundStyle(AppColors.homeCardText)
+                .fixedSize(horizontal: false, vertical: true)
         }
         .padding(15)
-        .frame(width: 173, height: 107)
+        .frame(width: 173)
+        .frame(minHeight: 107)
         .background(
             RoundedRectangle(cornerRadius: 10, style: .continuous)
                 .fill(color)
