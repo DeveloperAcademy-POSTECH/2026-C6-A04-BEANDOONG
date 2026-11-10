@@ -42,6 +42,8 @@ struct PracticeSessionView: View {
             catch { return }
             showsDisconnection = false
         }
+        // 일시적인 통신 불가로 연습을 방해하지 않도록 연결 끊김 배너를 잠시 숨깁니다.
+        /*
         .overlay(alignment: .top) {
             if showsDisconnection {
                 disconnectionBanner
@@ -51,6 +53,7 @@ struct PracticeSessionView: View {
             }
         }
         .animation(.easeInOut(duration: 0.2), value: showsDisconnection)
+        */
         .alert("연습 안내", isPresented: Binding(
             get: { practice.errorMessage != nil },
             set: { if !$0 { practice.errorMessage = nil } }

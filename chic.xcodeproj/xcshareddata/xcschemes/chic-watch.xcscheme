@@ -17,7 +17,7 @@
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "A10000000000000000000007"
                BuildableName = "chic-watch.app"
-               BlueprintName = "chee-k-watch"
+               BlueprintName = "chic-watch"
                ReferencedContainer = "container:chic.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>

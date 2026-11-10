@@ -26,7 +26,7 @@ final class WatchFeedbackHaptics: ObservableObject {
     }
 
     nonisolated enum Feedback: Equatable {
-        case notification, failure, skip(String)
+        case start, failure, skip(String)
     }
 
     /// 연습의 실행 상태를 반영하고 판정에 맞는 햅틱을 한 번 요청합니다.
@@ -36,7 +36,7 @@ final class WatchFeedbackHaptics: ObservableObject {
         let now = Date()
         let type: WKHapticType
         switch Self.feedback(previous: previous, current: current, now: now, lastHapticAt: lastHapticAt) {
-        case .notification: type = .notification
+        case .start: type = .click
         case .failure: type = .failure
         case .skip(let reason):
             record("\(current.phase.title) · 제외(\(reason))")
@@ -47,8 +47,8 @@ final class WatchFeedbackHaptics: ObservableObject {
             record("\(current.phase.title) · 확장 세션 없음 · 진동 생략")
             return
         }
-        lastHapticAt = now
         let source = isActive ? "활성" : "확장 세션"
+        lastHapticAt = now
         playHaptic(type, for: "\(current.phase.title) · \(source)")
         #endif
     }
@@ -65,7 +65,7 @@ final class WatchFeedbackHaptics: ObservableObject {
             if samePhase, let lastHapticAt, now.timeIntervalSince(lastHapticAt) < 0.7 {
                 return .skip("직전 진동과 너무 가까운 판정")
             }
-            return .notification
+            return .start
         case .moreAir, .bubble:
             return samePhase ? .skip("같은 경고 상태") : .failure
         default:
@@ -87,7 +87,7 @@ final class WatchFeedbackHaptics: ObservableObject {
             record("수동 테스트 · 앱 비활성")
             return
         }
-        playHaptic(.notification, for: "수동 테스트")
+        playHaptic(.failure, for: "수동 테스트")
     }
     #endif
     #endif
