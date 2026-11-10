@@ -43,13 +43,13 @@ struct WatchPracticeView: View {
         case .listening:
             SoundCheckingView(onCloseTap: stop)
         case .aeration:
-            SteamingFeedbackView(feedback: .aeration, onCloseTap: stop)
+            SteamingFeedbackView(feedback: .aeration, onStop: stop)
         case .bubble:
-            SteamingFeedbackView(feedback: .bubble, onCloseTap: stop)
+            SteamingFeedbackView(feedback: .bubble, onStop: stop)
         case .moreAir:
-            SteamingFeedbackView(feedback: .moreAir, onCloseTap: stop)
+            SteamingFeedbackView(feedback: .moreAir, onStop: stop)
         case .milkFlow:
-            SteamingFeedbackView(feedback: .milkFlow, onCloseTap: stop)
+            SteamingFeedbackView(feedback: .milkFlow, onStop: stop)
         case .finished:
             PracticeFinishedView(
                 practiceDurationText: connection.state.durationText,
