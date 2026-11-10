@@ -11,10 +11,10 @@
 import SwiftUI
 
 extension AppColors {
-    /// 워치 어두운 화면 배경 (시작 요청 화면, 종료 확인 화면)
+    /// 시작 요청, 소리 확인, 종료 확인 화면의 배경
     static let watchDarkScreenBackground = Color(hex: 0x01030C)
     /// 워치 하늘색 캡슐 버튼 배경 ([스티밍 연습 시작], [완료])
-    static let watchCapsuleButtonBackground = Color(hex: 0x76CAF2)
+    static let watchCapsuleButtonBackground = Color(hex: 0xA6DDF7)
     /// 워치 하늘색 캡슐 버튼 글자
     static let watchCapsuleButtonTitle = Color.black
 }

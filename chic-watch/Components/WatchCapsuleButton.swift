@@ -18,7 +18,7 @@ struct WatchCapsuleButton: View {
     var body: some View {
         Button(action: action) {
             Text(title)
-                .font(.watchScaled(18, weight: .bold))
+                .font(.watchScaled(16, weight: .bold))
                 .foregroundStyle(AppColors.watchCapsuleButtonTitle)
                 .lineLimit(1)
                 // 글자가 버튼보다 길어지면 한 줄을 유지한 채 최대 80%까지 줄입니다.
