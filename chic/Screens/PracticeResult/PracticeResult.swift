@@ -86,13 +86,13 @@ enum DetectedSound: String, Codable, CaseIterable, Hashable {
         }
     }
 
-    /// 타임라인 막대 색상 (Hi-Fi 원본 픽셀에서 추출)
+    /// 타임라인 막대 색상 (디자인 시스템 팔레트, Hi-Fi 269/270/271 측정으로 확인)
     var timelineColor: Color {
         switch self {
-        case .normalAeration: Color(hex: 0x1BA7E9)
-        case .overAeration: Color(hex: 0xFFA615)
-        case .lackOfAir: Color(hex: 0xA480EB)
-        case .rolling: Color(hex: 0x1ABC37)
+        case .normalAeration: AppColors.soundNormalAeration
+        case .overAeration: AppColors.soundOverAeration
+        case .lackOfAir: AppColors.soundLackOfAir
+        case .rolling: AppColors.soundRolling
         }
     }
 
@@ -132,11 +132,14 @@ struct PracticeResult: Hashable {
     var customDetectedSeconds: [DetectedSound: Int]? = nil
     /// 타임라인 눈금 라벨을 별도로 지정할 때 사용 (nil 이면 timelineLength 로 자동 계산)
     var customTickSeconds: [Int]? = nil
+    /// 상단 요약 "정상 소리" / "주의 소리"를 별도로 지정할 때 사용 (시안 샘플용, nil 이면 상태별 합계)
+    var customNormalSeconds: Int? = nil
+    var customCautionSeconds: Int? = nil
 
-    /// 상단 네비게이션 바 제목 (예: "9월 26일 1차")
+    /// 상단 네비게이션 바 제목 (예: "9월 28일 - 1차")
     var title: String {
         let date = Calendar.current.dateComponents([.month, .day], from: practicedAt)
-        return "\(date.month ?? 0)월 \(date.day ?? 0)일 \(dailyOrder)차"
+        return "\(date.month ?? 0)월 \(date.day ?? 0)일 - \(dailyOrder)차"
     }
 
     /// 결과의 0초로 사용할 첫 감지 시점입니다. 감지 구간이 없으면 원래 시간 기준을 유지합니다.
@@ -175,27 +178,39 @@ struct PracticeResult: Hashable {
 
     /// 상단 요약 "정상소리"
     var normalSeconds: Int {
-        DetectedSound.allCases.filter { !$0.needsCaution }.reduce(0) { $0 + detectedSeconds(of: $1) }
+        if let customNormalSeconds { return customNormalSeconds }
+        return detectedSeconds { !$0.needsCaution }
     }
 
     /// 상단 요약 "주의 소리"
     var cautionSeconds: Int {
-        DetectedSound.allCases.filter(\.needsCaution).reduce(0) { $0 + detectedSeconds(of: $1) }
+        if let customCautionSeconds { return customCautionSeconds }
+        return detectedSeconds(where: \.needsCaution)
+    }
+
+    /// 조건에 맞는 소리들의 감지 시간 합계 (초). 반올림 배분은 한 번만 계산합니다.
+    /// (소리마다 `detectedSeconds(of:)`를 부르면 구간 전체 계산을 소리 수만큼 반복해요)
+    private func detectedSeconds(where include: (DetectedSound) -> Bool) -> Int {
+        let rounded = roundedDetectedSeconds
+        return DetectedSound.allCases.filter(include).reduce(0) { total, sound in
+            total + (customDetectedSeconds?[sound] ?? rounded[sound, default: 0])
+        }
     }
 
     /// 상단 요약 "전체 시간". 첫 감지 이후의 미분류 구간은 포함합니다.
     var totalSeconds: Int { Int(timelineLength.rounded()) }
 
     /// 도넛 차트 바깥 링(정상소리) 비율 (0.0 ... 1.0)
-    var normalRatio: Double {
-        guard totalSeconds > 0 else { return 0 }
-        return min(max(Double(normalSeconds) / Double(totalSeconds), 0), 1)
-    }
+    var normalRatio: Double { ratio(of: normalSeconds) }
 
     /// 도넛 차트 안쪽 링(주의 소리) 비율 (0.0 ... 1.0)
-    var cautionRatio: Double {
-        guard totalSeconds > 0 else { return 0 }
-        return min(max(Double(cautionSeconds) / Double(totalSeconds), 0), 1)
+    var cautionRatio: Double { ratio(of: cautionSeconds) }
+
+    /// 전체 시간에 대한 비율을 0 ... 1 로 맞춥니다. 전체 시간이 0이면 0입니다.
+    private func ratio(of seconds: Int) -> Double {
+        let total = totalSeconds
+        guard total > 0 else { return 0 }
+        return min(max(Double(seconds) / Double(total), 0), 1)
     }
 }
 
@@ -215,6 +230,23 @@ extension PracticeResult {
             DetectedSegment(sound: .lackOfAir, start: 20.85, end: 24.0)
         ],
         customTickSeconds: [0, 8, 12, 16, 20, 24]
+    )
+
+    /// Hi-Fi 255 · 243 · 257 · 269~272 시안과 같은 값: 24초, 정상 16초 / 주의 8초, 공기 주입 6초 · 과다 2초 · 부족 2초 · 롤링 10초
+    static let hifiSample = PracticeResult(
+        practicedAt: Calendar.current.date(from: DateComponents(year: Calendar.current.component(.year, from: .now), month: 9, day: 28)) ?? .now,
+        dailyOrder: 1,
+        segments: [
+            DetectedSegment(sound: .normalAeration, start: 0, end: 3.7),
+            DetectedSegment(sound: .rolling, start: 3.7, end: 13.9),
+            DetectedSegment(sound: .normalAeration, start: 13.9, end: 17.2),
+            DetectedSegment(sound: .overAeration, start: 17.2, end: 20.4),
+            DetectedSegment(sound: .lackOfAir, start: 20.4, end: 24)
+        ],
+        customDetectedSeconds: [.normalAeration: 6, .overAeration: 2, .lackOfAir: 2, .rolling: 10],
+        customTickSeconds: [0, 8, 12, 16, 20, 24],
+        customNormalSeconds: 16,
+        customCautionSeconds: 8
     )
 
     /// 1분이 넘는 긴 연습 — 시간 표기("1분 15초")와 눈금 간격 · 도넛 비율이 동적으로 바뀌는지 확인하는 용도
