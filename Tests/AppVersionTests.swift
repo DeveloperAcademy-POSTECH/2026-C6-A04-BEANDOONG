@@ -20,11 +20,12 @@ struct AppVersionTests {
         precondition(AppVersion("1..0") == nil)
         precondition(AppVersion("-1.0.0") == nil)
 
-        // 시안 표기: 가운데 자리 두 자리
-        precondition(v("1.0.0").display == "1.00.0")
-        precondition(v("1.0.3").display == "1.00.3")
+        // 화면 표기: n.n.n, 빈 자리는 0
+        precondition(v("1.0.0").display == "1.0.0")
+        precondition(v("1.0.3").display == "1.0.3")
         precondition(v("1.12.4").display == "1.12.4")
-        precondition(v("2").display == "2.00.0")
+        precondition(v("1.2.3.4").display == "1.2.3.4")
+        precondition(v("2").display == "2.0.0")
         precondition(v("1.0.3").description == "1.0.3")
 
         // App Store 조회 결과 해석

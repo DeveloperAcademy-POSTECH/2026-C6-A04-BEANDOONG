@@ -19,10 +19,10 @@ nonisolated struct AppVersion: Comparable, CustomStringConvertible {
         (Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String).flatMap(AppVersion.init)
     }
 
-    /// 시안 표기: 가운데 자리를 두 자리로 (1.0.3 → 1.00.3, 1.12.0 → 1.12.0)
+    /// 화면 표기: n.n.n 세 자리 (1.0.3 → 1.0.3, 2 → 2.0.0)
     var display: String {
         let padded = components + Array(repeating: 0, count: max(0, 3 - components.count))
-        return "\(padded[0]).\(String(format: "%02d", padded[1])).\(padded[2])"
+        return padded.map(String.init).joined(separator: ".")
     }
 
     var description: String { components.map(String.init).joined(separator: ".") }

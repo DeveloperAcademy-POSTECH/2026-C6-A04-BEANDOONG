@@ -4,7 +4,7 @@ import SwiftUI
 /// - 디자인: Hi-Fi iPhone 17 - 266(새 버전 있음) · 241(최신 버전 사용 중)
 ///
 ///     ┌ 상단 바: < 설정
-///     ├ 앱 아이콘 + 버전 정보 ("최신 버전 사용중" 또는 "최신 버전 1.00.3" / "현재 버전 1.00.0")
+///     ├ 앱 아이콘 + 버전 정보 ("최신 버전 사용중" 또는 "최신 버전 1.0.3" / "현재 버전 1.0.0")
 ///     └ 정보 및 지원 카드: 개인정보 처리방침 · 문의하기
 struct SettingsView: View {
     @Environment(\.designScale) private var scale
@@ -129,7 +129,7 @@ struct SettingsView: View {
         return "\n\n\n---\n앱 버전: \(currentVersion)\n기기: \(device.model) · iOS \(device.systemVersion)\n"
     }
 
-    /// 지금 버전(Xcode의 Version)을 시안 표기(1.0.0 → 1.00.0)로 보여 줍니다.
+    /// 지금 버전(Xcode의 Version)을 n.n.n(예: 1.0.0)으로 보여 줍니다.
     private static var currentVersion: String {
         AppVersion.current?.display ?? "-"
     }
