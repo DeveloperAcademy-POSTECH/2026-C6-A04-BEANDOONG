@@ -29,6 +29,7 @@ struct PracticeSessionView: View {
             default:
                 SteamingFeedbackView(
                     feedback: feedback,
+                    aerationClock: practice.aerationClock,
                     onStop: practice.stop,
                     showsEndDialog: practice.silenceStartedAt != nil,
                     onContinue: practice.continueAfterSilence,

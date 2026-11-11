@@ -107,6 +107,8 @@ struct SteamingEndButton: View {
     let squareColor: Color
     /// 버튼 폭 (기본 274 = iPhone 17 시안. 다른 기기에서는 `274.h(scale)`을 넘깁니다)
     var width: CGFloat = 274
+    /// 캡슐 배경 불투명도 (기본 1 = 불투명. 새 연습 중 시안은 0.73으로 배경색이 비쳐요)
+    var backgroundOpacity: Double = 1
     var action: () -> Void = {}
 
     var body: some View {
@@ -120,7 +122,7 @@ struct SteamingEndButton: View {
                     .foregroundStyle(AppColors.darkChipTextSelected)
             }
             .frame(width: width, height: 60)
-            .background(Capsule().fill(AppColors.darkSecondaryButton))
+            .background(Capsule().fill(AppColors.darkSecondaryButton.opacity(backgroundOpacity)))
         }
         .buttonStyle(.plain)
         .accessibilityLabel("연습 종료")
