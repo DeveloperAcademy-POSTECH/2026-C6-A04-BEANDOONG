@@ -32,18 +32,27 @@ struct SplashLogoReveal: View {
         .frame(width: LogoGeometry.size.width, height: LogoGeometry.size.height)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("chic")
-        .onAppear(perform: reveal)
+        .onAppear(perform: showAllIfReduceMotion)
+        // 앱을 켠 직후 첫 프레임은 아래 화면(홈·온보딩)까지 한꺼번에 만드느라 늦게 그려져요.
+        // 그사이 애니메이션 앞부분이 건너뛰어지지 않도록, 첫 프레임이 그려진 뒤에 출발해요. (그전에는 배경만 보여서 런치 화면과 같아요)
+        .task {
+            guard !reduceMotion else { return }
+            await FrameClock.nextFrame()
+            reveal()
+        }
+    }
+
+    /// 동작 줄이기: 첫 프레임부터 다 나타난 로고
+    private func showAllIfReduceMotion() {
+        guard reduceMotion else { return }
+        risen = Set(LogoPart.allCases)
+        focused = Set(LogoPart.allCases)
     }
 
     /// 마지막 조각(i 점)까지 다 나타나는 데 걸리는 시간(초)
     static var revealDuration: TimeInterval { RevealMotion.totalDuration }
 
     private func reveal() {
-        guard !reduceMotion else {
-            risen = Set(LogoPart.allCases)
-            focused = Set(LogoPart.allCases)
-            return
-        }
         for part in LogoPart.allCases {
             withAnimation(RevealMotion.rise(part)) { _ = risen.insert(part) }
             withAnimation(RevealMotion.focus(part)) { _ = focused.insert(part) }
