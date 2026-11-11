@@ -37,7 +37,13 @@ struct ContentView: View {
 
     /// 온보딩 1/4 → 2/4 → 3/4 → 4/4. 쪽이 바뀔 때의 넘김 애니메이션은 OnboardingView 가 해요.
     private var onboarding: some View {
-        OnboardingView(page: step, onNext: showNextStep, onSkip: completeOnboarding)
+        OnboardingView(page: step, onNext: showNextStep, onSkip: completeOnboarding, onSwipe: swipeStep)
+    }
+
+    /// 좌우 스와이프: 첫·마지막 쪽 밖으로는 가지 않는다 (마지막 쪽에서 나가는 것은 "다음" 버튼으로만)
+    private func swipeStep(_ delta: Int) {
+        guard let target = OnboardingPage(rawValue: step.rawValue + delta) else { return }
+        step = target
     }
 
     /// 다음: 1/4 → 2/4 → 3/4 → 4/4, 마지막 쪽에서는 온보딩 완료
