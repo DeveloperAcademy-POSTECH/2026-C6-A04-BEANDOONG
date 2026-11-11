@@ -5,10 +5,17 @@ import SwiftUI
 // MARK: - 다크 화면 버튼 (363 x 52)
 
 /// 다크 화면 주요 버튼: 하늘색 캡슐 + 검정 텍스트
+/// 화면 하단 큰 버튼의 공통 치수 (시안: 버튼 위 754.5 ~ 아래 809.5, 화면 아래와 64.5 간격). 모든 하단 버튼 화면이 같은 자리에 오도록 여기서만 정한다.
+enum BottomButton {
+    static let height: CGFloat = 55
+    static let bottomGap: CGFloat = 64.5
+}
+
 struct DarkPrimaryButton: View {
     let title: String
     /// 버튼 폭 (기본 363 = iPhone 17 시안. 다른 기기에서는 `363.h(scale)`을 넘깁니다)
     var width: CGFloat = 363
+    var height: CGFloat = 52
     var action: () -> Void = {}
 
     var body: some View {
@@ -16,7 +23,7 @@ struct DarkPrimaryButton: View {
             Text(title)
                 .font(.pretendard(.bold, size: 16))
                 .foregroundStyle(AppColors.darkChipTextSelected)
-                .frame(width: width, height: 52)
+                .frame(width: width, height: height)
                 .background(
                     Capsule()
                         .fill(AppColors.darkChipSelected)
