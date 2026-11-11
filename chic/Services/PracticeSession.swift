@@ -29,6 +29,8 @@ final class PracticeSession: ObservableObject {
     private var soundAnalyzer: SteamingAudioAnalyzer?
     // 마이크 권한을 기다리는 동안 시작 버튼을 다시 눌러도 요청이 겹치지 않게 합니다.
     private var isStarting = false
+    // 직전 연습의 오디오 정리(엔진 종료 · 세션 비활성화) 작업입니다. 새 연습은 이 작업이 끝난 뒤 시작합니다.
+    private var audioTeardown: Task<Void, Never>?
     // 전화 등으로 오디오 사용이 중단되는 알림의 구독을 보관합니다.
     private var interruptionObserver: NSObjectProtocol?
 
@@ -63,7 +65,7 @@ final class PracticeSession: ObservableObject {
                 guard MicrophonePermission.isGranted else {
                     throw ConnectionError.message("iPhone에서 마이크 권한을 허용해주세요.")
                 }
-                try self.startAnalysis() // iPhone 버튼과 같은 시작 함수를 사용합니다.
+                try await self.startAnalysis() // iPhone 버튼과 같은 시작 함수를 사용합니다.
             case .stop:
                 // 이전 연습의 종료 요청이 새 연습에 적용되지 않도록 확인합니다.
                 guard request.sessionID == self.state.sessionID else {
@@ -102,12 +104,14 @@ final class PracticeSession: ObservableObject {
             errorMessage = "설정에서 마이크 권한을 허용해주세요."
             return
         }
-        do { try startAnalysis(usingWatch: usingWatch) }
+        do { try await startAnalysis(usingWatch: usingWatch) }
         catch { errorMessage = error.localizedDescription }
     }
 
     /// 두 기기의 시작 요청이 함께 사용하는 실시간 분석 처리입니다. 소리 원본은 저장하지 않습니다.
-    private func startAnalysis(usingWatch: Bool = true) throws {
+    /// 무거운 일(모델 로드 · 오디오 세션 활성화 · 엔진 시작)은 메인 스레드 밖에서 하고, 상태 변경은 성공한 뒤 여기서 합니다.
+    /// 그래서 시작 버튼을 누른 뒤에도 화면이 멈추지 않아요. 시작 순서와 결과는 전과 같습니다.
+    private func startAnalysis(usingWatch: Bool = true) async throws {
         // 어느 기기에서 요청하든 이미 연습 중이라면 중복 분석을 시작하지 않습니다.
         guard !state.phase.isRunning else { return }
         guard historyStore != nil else {
@@ -115,40 +119,46 @@ final class PracticeSession: ObservableObject {
         }
         // 워치 요청으로 백그라운드 앱이 깨어나도 새 마이크 입력은 시작하지 않습니다.
         guard UIApplication.shared.applicationState == .active else {
-            throw ConnectionError.message("연습을 시작하려면 iPhone에서 chic 앱을 열어주세요.")
+            throw ConnectionError.message(Self.openAppMessage)
         }
-        let analyzer = try SteamingAudioAnalyzer()
-        // 앱이 마이크 입력을 사용할 수 있도록 오디오 세션을 준비합니다.
-        let audio = AVAudioSession.sharedInstance()
-        try audio.setCategory(.record, mode: .measurement)
-        try audio.setActive(true)
+        // 직전 연습의 오디오 정리가 끝나야 새 세션을 켭니다. (늦게 끝난 setActive(false)가 새로 켠 세션을 끄지 않게)
+        await audioTeardown?.value
         // 이전 연습과 구분되는 ID를 만듭니다.
         let id = UUID()
-        do {
-            try analyzer.start(onResult: { [weak self] phase in
-                Task { @MainActor [weak self] in
-                    guard let self, self.state.sessionID == id else { return }
-                    self.updateFeedback(phase)
-                }
-            }, onFinish: { [weak self] in
-                Task { @MainActor [weak self] in
-                    guard let self, self.state.sessionID == id, self.state.phase.isRunning else { return }
-                    self.stop()
-                }
-            }, onError: { [weak self] message in
-                Task { @MainActor [weak self] in
-                    guard let self, self.state.sessionID == id, self.state.phase.isRunning else { return }
-                    self.stop()
-                    self.errorMessage = message
-                }
-            })
-            soundAnalyzer = analyzer
-        } catch {
-            analyzer.stop()
-            // 분석 시작에 실패하면 오디오 세션을 정리하고 오류를 호출자에게 전달합니다.
-            try? audio.setActive(false)
-            throw error
+        let onResult: @Sendable (PracticePhase) -> Void = { [weak self] phase in
+            Task { @MainActor [weak self] in
+                guard let self, self.state.sessionID == id else { return }
+                self.updateFeedback(phase)
+            }
         }
+        let onFinish: @Sendable () -> Void = { [weak self] in
+            Task { @MainActor [weak self] in self?.stopIfCurrent(id) }
+        }
+        let onError: @Sendable (String) -> Void = { [weak self] message in
+            Task { @MainActor [weak self] in self?.stopIfCurrent(id, errorMessage: message) }
+        }
+        let analyzer = try await Task.detached(priority: .userInitiated) {
+            let analyzer = try SteamingAudioAnalyzer()
+            // 앱이 마이크 입력을 사용할 수 있도록 오디오 세션을 준비합니다.
+            let audio = AVAudioSession.sharedInstance()
+            try audio.setCategory(.record, mode: .measurement)
+            try audio.setActive(true)
+            do {
+                try analyzer.start(onResult: onResult, onFinish: onFinish, onError: onError)
+            } catch {
+                analyzer.stop()
+                // 분석 시작에 실패하면 오디오 세션을 정리하고 오류를 호출자에게 전달합니다.
+                try? audio.setActive(false)
+                throw error
+            }
+            return analyzer
+        }.value
+        // 준비하는 동안 앱이 백그라운드로 갔다면, 켠 마이크를 바로 정리하고 시작하지 않습니다. (전에는 준비 중에 앱을 떠날 수 없었어요)
+        guard UIApplication.shared.applicationState == .active else {
+            audioTeardown = Self.tearDownAudio(analyzer)
+            throw ConnectionError.message(Self.openAppMessage)
+        }
+        soundAnalyzer = analyzer
         // 분석 시작에 성공한 뒤에만 새 연습 상태로 바꿉니다. 이전 기록 목록은 유지합니다.
         state.isWatchEnabled = usingWatch
         timeline = PracticeTimeline()
@@ -167,9 +177,11 @@ final class PracticeSession: ObservableObject {
         guard state.phase.isRunning, let id = state.sessionID,
               let startedAt = state.startedAt else { return }
         let endedAt = Date()
-        soundAnalyzer?.stop()
+        // 엔진 종료와 오디오 세션 비활성화는 오래 걸릴 수 있어 메인 스레드 밖에서 합니다.
+        // 그사이 도착한 분석 결과는 updateFeedback · onFinish 의 phase · sessionID 검사로 버려집니다.
+        let analyzer = soundAnalyzer
         soundAnalyzer = nil
-        try? AVAudioSession.sharedInstance().setActive(false)
+        audioTeardown = Self.tearDownAudio(analyzer)
         state.endedAt = endedAt
         timeline.finish(at: max(0, endedAt.timeIntervalSince(startedAt)))
         state.phase = .finished
@@ -228,6 +240,24 @@ final class PracticeSession: ObservableObject {
         guard state.phase.isRunning else { return }
         state.isWatchEnabled = false
         publish()
+    }
+
+    /// 연습을 시작할 수 없는 상태(앱이 앞에 없음)일 때의 안내입니다.
+    private static let openAppMessage = "연습을 시작하려면 iPhone에서 chic 앱을 열어주세요."
+
+    /// 분석기가 끝(자동 종료)이나 오류를 알렸을 때, 그 분석이 지금 진행 중인 연습의 것이면 종료합니다.
+    private func stopIfCurrent(_ id: UUID, errorMessage message: String? = nil) {
+        guard state.sessionID == id, state.phase.isRunning else { return }
+        stop()
+        if let message { errorMessage = message }
+    }
+
+    /// 엔진 종료와 오디오 세션 비활성화를 메인 스레드 밖에서 합니다. 다음 시작은 이 작업이 끝난 뒤에 해요.
+    private nonisolated static func tearDownAudio(_ analyzer: SteamingAudioAnalyzer?) -> Task<Void, Never> {
+        Task.detached(priority: .userInitiated) {
+            analyzer?.stop()
+            try? AVAudioSession.sharedInstance().setActive(false)
+        }
     }
 
     /// 현재 상태를 통신 담당에게 전달합니다. 실제 전송 방식은 WatchConnection이 처리합니다.
