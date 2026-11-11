@@ -44,7 +44,7 @@ struct WatchNotFoundView: View {
         }
         .darkScreenBackgroundWithTopGlow()
         .navigationDestination(isPresented: $showsChecklist) {
-            SessionChecklistView(usesWatch: false)
+            PracticePrepGuideView(usesWatch: false)
                 .toolbar(.hidden, for: .navigationBar)
         }
     }

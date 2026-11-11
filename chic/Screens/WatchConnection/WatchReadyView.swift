@@ -38,7 +38,7 @@ struct WatchReadyView: View {
         }
         .darkScreenBackgroundWithTopGlow()
         .navigationDestination(isPresented: $showsChecklist) {
-            SessionChecklistView()
+            PracticePrepGuideView()
                 .toolbar(.hidden, for: .navigationBar)
         }
     }

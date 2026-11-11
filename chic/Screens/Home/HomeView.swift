@@ -1,38 +1,48 @@
 import SwiftUI
 
 /// 홈 화면
-/// - 디자인: Hi-Fi 변경사항 05
+/// - 디자인: Hi-Fi iPhone 17 - 248(워치 미연결) · 253(워치 연결됨)
 ///
-///     ┌ chic 로고
+///     ┌ 상단 행: chic 로고 · 워치 페어링 배지(누르면 워치 연결 과정) · 설정
 ///     ├ 헤드라인 "다음 한잔을 / 위한 작은 연습" + 설명
-///     ├ 메인 연습 카드 (워치 + 피처 이미지, 좌하단 문구, 우하단 [연습하기 →])
-///     └ 하단 2열 카드: [워치 없이 연습] [최근 연습]
+///     ├ 메인 연습 카드 (워치 + 피처 이미지, 좌하단 문구, 우하단 [연습하기 →]) — 누르면 (마이크 권한 →) 연습 준비 가이드 → 연습 시작
+///     └ 기록 카드 ("연습 기록 보러가기", 우하단 [기록 보기 →])
 ///
-/// `animatesEntrance`를 켜면 화면이 나타날 때 로고 → 헤드라인 → 설명 → 메인 카드 → 하단 카드 순서로
+/// `animatesEntrance`를 켜면 화면이 나타날 때 로고 → 헤드라인 → 설명 → 메인 카드 → 기록 카드 순서로
 /// 아래에서 살짝 떠오르며 차례로 나타나요. (온보딩을 마치고 홈으로 넘어올 때)
 struct HomeView: View {
     @EnvironmentObject private var practice: PracticeSession
+    @EnvironmentObject private var connection: WatchConnection
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.designScale) private var scale
     @State private var path: [Destination] = []
     /// 등장 애니메이션을 할지
     private let animatesEntrance: Bool
+    /// 시안 캡처용: 워치 연결 상태를 고정 (nil이면 실제 연결 상태 사용)
+    private let watchConnectedOverride: Bool?
     /// 화면이 실제로 보이고 있는지 (기본: 보임). 온보딩 아래에 미리 만들어 둘 때 false 로 두면,
     /// true 가 되는 순간 등장 애니메이션이 출발해요.
     private let isEntranceActive: Bool
     /// 홈 요소가 다 나타났는지 (등장 애니메이션을 하지 않으면 처음부터 true)
     @State private var hasEntered: Bool
 
-    init(animatesEntrance: Bool = false, isEntranceActive: Bool = true) {
+    init(animatesEntrance: Bool = false, isEntranceActive: Bool = true, watchConnectedOverride: Bool? = nil) {
         self.animatesEntrance = animatesEntrance
         self.isEntranceActive = isEntranceActive
+        self.watchConnectedOverride = watchConnectedOverride
         _hasEntered = State(initialValue: !animatesEntrance)
     }
 
     private enum Destination: Hashable {
         case microphone
-        case checklist(usesWatch: Bool)
-        case watchSetup
+        case prepGuide      // 연습 준비 가이드 → 바로 연습 시작
+        case watchSetup     // 워치 연결 과정 (상단 "워치 페어링" 배지에서만 진입)
         case history
+        case settings
+    }
+
+    private var isWatchConnected: Bool {
+        watchConnectedOverride ?? connection.isReachable
     }
 
     var body: some View {
@@ -46,14 +56,18 @@ struct HomeView: View {
                             MicrophoneAlertView {
                                 guard path.last == .microphone else { return }
                                 // 완료한 권한 화면은 뒤로가기 경로에 남기지 않습니다.
-                                path[path.count - 1] = .watchSetup
+                                path[path.count - 1] = .prepGuide
                             }
-                        case .checklist(let usesWatch):
-                            SessionChecklistView(usesWatch: usesWatch)
+                        case .prepGuide:
+                            // 연습하기: 워치 연결 과정 없이 준비 가이드를 보여 주고 바로 연습을 시작합니다.
+                            PracticePrepGuideView()
                         case .watchSetup:
-                            WatchConnectionFlow()
+                            // 워치 연결이 끝나면(완료) 홈으로 돌아옵니다.
+                            WatchConnectionFlow(onReady: { path = [] })
                         case .history:
                             HistoryView(onStartPractice: startPractice)
+                        case .settings:
+                            SettingsView()
                         }
                     }
                     .toolbar(.hidden, for: .navigationBar)
@@ -64,63 +78,74 @@ struct HomeView: View {
             if isActive { enter() }
         }
         .onChange(of: practice.state.phase) { previous, current in
-            // 결과 화면의 '다시 연습'으로 종료 상태를 벗어날 때만 준비 화면으로 이동합니다.
-            // 최초 연습을 어느 화면에서 시작했든 준비 화면을 목적지로 명시합니다.
-            guard previous == .finished, current == .idle else { return }
-            path = []
+            // 연습이 끝나면 홈으로 돌아올 수 있게 경로를 비웁니다. (결과 화면을 닫으면 홈이 보여요)
+            // 결과 화면을 닫은 뒤에 비우면 아래에 있던 준비 화면이 잠깐 보였다가 밀려 나가므로,
+            // 결과(로딩) 화면이 화면 전체를 덮고 있는 종료 순간에 애니메이션 없이 비워 둡니다.
+            guard previous != .finished, current == .finished else { return }
+            var instant = Transaction()
+            instant.disablesAnimations = true
+            withTransaction(instant) { path = [] }
         }
     }
 
     private var content: some View {
         VStack(alignment: .leading, spacing: 0) {
-            // MARK: 로고
-            AssetImageView(name: "ChicLogo", width: 82, height: 28)
-                .homeEntrance(order: 0, hasEntered: hasEntered)
-                .padding(.top, Layout.logoTop)
+            // MARK: 상단 행 (로고 · 워치 페어링 배지 · 설정)
+            HStack(spacing: 0) {
+                AssetImageView(name: "ChicLogo", width: 82, height: 28)
+                Spacer(minLength: 0)
+                Button { path.append(.watchSetup) } label: {
+                    WatchPairingBadge(isConnected: isWatchConnected)
+                }
+                .buttonStyle(.plain)
+                .accessibilityHint("워치 연결 과정을 시작해요")
+                Button {
+                    path.append(.settings)
+                } label: {
+                    Image("IconSettings")
+                        .resizable()
+                        .frame(width: 24, height: 24)
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("설정")
+                .padding(.leading, Layout.badgeToSettings.h(scale))
+            }
+            .homeEntrance(order: 0, hasEntered: hasEntered)
+            .padding(.top, Layout.logoTop.v(scale))
 
             // MARK: 헤드라인 + 설명
             headline
                 .homeEntrance(order: 1, hasEntered: hasEntered)
-                .padding(.top, Layout.headlineTop)
+                .padding(.top, Layout.headlineTop.v(scale))
 
             Text("한 잔의 시작, 작은 소리부터 함께해요")
                 .font(.pretendard(.regular, size: 16))
                 .foregroundStyle(AppColors.darkSubtitle)
                 .homeEntrance(order: 2, hasEntered: hasEntered)
-                .padding(.top, Layout.subtitleTop)
+                .padding(.top, Layout.subtitleTop.v(scale))
 
             // MARK: 메인 연습 카드
             practiceCard
                 .homeEntrance(order: 3, hasEntered: hasEntered)
-                .padding(.top, Layout.heroCardTop)
+                .padding(.top, Layout.heroCardTop.v(scale))
 
-            // MARK: 하단 2열 카드 (워치 없이 연습 / 최근 연습)
-            HStack(spacing: Layout.subCardSpacing) {
-                Button {
-                    path.append(.checklist(usesWatch: false))
-                } label: {
-                    HomeSubCard(title: "워치 없이 연습", color: AppColors.homeWithoutWatchCard)
-                }
-                .buttonStyle(.plain)
+            // MARK: 기록 카드
+            recordCard
                 .homeEntrance(order: 4, hasEntered: hasEntered)
-
-                Button {
-                    path.append(.history)
-                } label: {
-                    HomeSubCard(title: "최근 연습", color: AppColors.homeRecentCard)
-                }
-                .buttonStyle(.plain)
-                .homeEntrance(order: 5, hasEntered: hasEntered)
-            }
-            .padding(.top, Layout.subCardsTop)
+                .padding(.top, Layout.recordCardTop.v(scale))
 
             Spacer(minLength: 0)
         }
-        .padding(.horizontal, Layout.horizontalPadding)
+        .padding(.horizontal, Layout.horizontalPadding.h(scale))
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+        .ignoresSafeArea()
         .background(
             LinearGradient(
-                colors: AppColors.homeBackgroundGradient,
+                stops: [
+                    .init(color: AppColors.homeBackgroundTop, location: 0),
+                    .init(color: AppColors.homeBackgroundMiddle, location: 0.68),
+                    .init(color: AppColors.homeBackgroundBottom, location: 1)
+                ],
                 startPoint: .top,
                 endPoint: .bottom
             )
@@ -130,7 +155,15 @@ struct HomeView: View {
     }
 
     /// 워치+피처 이미지 위로, 좌하단 안내 문구와 우하단 연습 버튼을 배치한 홈 카드
+    /// - 카드 어디를 눌러도 우하단 [연습하기 →]와 같은 동작을 한다 (카드 전체가 버튼)
     private var practiceCard: some View {
+        Button(action: startPractice) { practiceCardContent }
+            .buttonStyle(HomeCardPressStyle(reduceMotion: reduceMotion))
+            .accessibilityLabel("연습하기")
+            .accessibilityHint("애플 워치와 함께 스티밍 연습을 시작해요")
+    }
+
+    private var practiceCardContent: some View {
         HStack(alignment: .bottom, spacing: 0) {
             VStack(alignment: .leading, spacing: 4) {
                 Text("애플 워치와 함께")
@@ -141,12 +174,12 @@ struct HomeView: View {
 
             Spacer(minLength: 0)
 
-            HomePracticeButton(action: startPractice)
+            HomeCardCapsule(title: "연습하기", width: Layout.buttonWidth.h(scale))
         }
-        .padding(.leading, HeroCard.textLeading)
-        .padding(.trailing, HeroCard.buttonTrailing)
-        .padding(.bottom, HeroCard.contentBottom)
-        .frame(width: HeroCard.width, height: HeroCard.height, alignment: .bottom)
+        .padding(.leading, Layout.cardTextLeading.h(scale))
+        .padding(.trailing, Layout.cardButtonTrailing.h(scale))
+        .padding(.bottom, Layout.cardContentBottom.v(scale))
+        .frame(width: Layout.cardWidth.h(scale), height: Layout.heroCardHeight.v(scale), alignment: .bottom)
         .background {
             LinearGradient(
                 colors: AppColors.homePracticeCardGradient,
@@ -157,13 +190,53 @@ struct HomeView: View {
                 // 이미지는 카드보다 크게 그려 왼쪽(손목)과 위쪽(스팀 노즐)이 카드 밖으로 잘립니다. (Hi-Fi 그대로)
                 Image("HomeWatchPractice")
                     .resizable()
-                    .frame(width: HeroCard.imageSize.width, height: HeroCard.imageSize.height)
-                    .offset(HeroCard.imageOffset)
+                    // 카드 높이는 세로 비율로 줄므로 이미지도 가로·세로 중 작은 비율(fit)로 줄여야 SE처럼 짧은 화면에서 아래 문구를 덮지 않는다
+                    .frame(width: HeroImage.size.width * scale.fit, height: HeroImage.size.height * scale.fit)
+                    .offset(x: HeroImage.offset.width * scale.fit, y: HeroImage.offset.height * scale.fit)
                     .accessibilityHidden(true)
             }
             .allowsHitTesting(false)
         }
-        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+        .clipShape(RoundedRectangle(cornerRadius: Layout.cardCornerRadius, style: .continuous))
+        .contentShape(RoundedRectangle(cornerRadius: Layout.cardCornerRadius, style: .continuous))
+    }
+
+    /// "연습 기록 보러가기" + [기록 보기 →] 카드 (왼쪽 아래에 기록 링 에셋이 카드 밖으로 잘려 걸쳐 있음)
+    /// - 카드 어디를 눌러도 우하단 [기록 보기 →]와 같은 동작을 한다 (카드 전체가 버튼)
+    private var recordCard: some View {
+        Button { path.append(.history) } label: { recordCardContent }
+            .buttonStyle(HomeCardPressStyle(reduceMotion: reduceMotion))
+            .accessibilityLabel("기록 보기")
+            .accessibilityHint("연습 기록을 확인해요")
+    }
+
+    private var recordCardContent: some View {
+        HStack(alignment: .bottom, spacing: 0) {
+            Text("연습 기록 보러가기")
+                .font(.pretendard(.semibold, size: 20))
+                .foregroundStyle(AppColors.homeCardText)
+
+            Spacer(minLength: 0)
+
+            HomeCardCapsule(title: "기록 보기", width: Layout.buttonWidth.h(scale))
+        }
+        .padding(.leading, Layout.cardTextLeading.h(scale))
+        .padding(.trailing, Layout.cardButtonTrailing.h(scale))
+        .padding(.bottom, Layout.recordCardContentBottom.v(scale))
+        .frame(width: Layout.cardWidth.h(scale), height: Layout.recordCardHeight.v(scale), alignment: .bottom)
+        .background {
+            AppColors.homeRecentCard
+                .overlay(alignment: .topLeading) {
+                    Image("IllustRecordRing")
+                        .resizable()
+                        .frame(width: Layout.ringSize.h(scale), height: Layout.ringSize.h(scale))
+                        .offset(x: Layout.ringOffset.width.h(scale), y: Layout.ringOffset.height.v(scale))
+                        .accessibilityHidden(true)
+                }
+                .allowsHitTesting(false)
+        }
+        .clipShape(RoundedRectangle(cornerRadius: Layout.cardCornerRadius, style: .continuous))
+        .contentShape(RoundedRectangle(cornerRadius: Layout.cardCornerRadius, style: .continuous))
     }
 
     /// 홈 요소를 나타나게 해요. 동작 줄이기가 켜져 있으면 떠오르는 움직임 없이 바로 보여 줘요.
@@ -179,12 +252,12 @@ struct HomeView: View {
     }
 
     private func startPractice() {
-        path = [MicrophonePermission.isGranted ? .watchSetup : .microphone]
+        path = [MicrophonePermission.isGranted ? .prepGuide : .microphone]
     }
 
     /// "다음 **한잔**을 / 위한 작은 연습" — '한잔'만 강조색
     private var headline: some View {
-        VStack(alignment: .leading, spacing: 5) {
+        VStack(alignment: .leading, spacing: 3.3) { // Hi-Fi 253: 헤드라인 줄 간격 37
             HStack(spacing: 0) {
                 Text("다음 ")
                     .foregroundStyle(Color.white)
@@ -227,100 +300,121 @@ private extension View {
     }
 }
 
-// MARK: - 메인 카드 연습 버튼
+// MARK: - 카드 버튼
 
-/// 메인 카드 우측 하단의 검정 캡슐 버튼: "연습하기 →"
-private struct HomePracticeButton: View {
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            HStack(spacing: 4) {
-                Text("연습하기")
-                Image(systemName: "arrow.right")
-                    .font(.system(size: 14, weight: .bold))
-            }
-            .font(.pretendard(.bold, size: 16))
-            .foregroundStyle(AppColors.homePracticeButtonText)
-            .frame(width: 136, height: 44)
-            .background(Capsule().fill(AppColors.homePracticeButton))
-        }
-        .buttonStyle(.plain)
-    }
-}
-
-// MARK: - 하단 서브 카드
-
-/// 우측 상단 화살표와 좌측 하단 제목이 있는 홈 카드 (173 x 107)
-private struct HomeSubCard: View {
+/// 카드 우측 하단의 검정 캡슐: "연습하기 →" / "기록 보기 →" (136 x 44)
+/// - 카드 전체가 버튼이라 캡슐은 모양만 그린다 (따로 누르는 버튼이 아님, 접근성에서도 숨김)
+private struct HomeCardCapsule: View {
     let title: String
-    let color: Color
+    var width: CGFloat = 136
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            Image("HomeArrowUpRight")
-                .resizable()
-                .renderingMode(.template)
-                .scaledToFit()
-                .frame(width: 33, height: 33)
-                .foregroundStyle(AppColors.homeCardText)
-                .frame(maxWidth: .infinity, alignment: .trailing)
-                .accessibilityHidden(true)
-
-            Spacer()
-
+        HStack(spacing: 4) {
             Text(title)
-                .font(.pretendard(.semibold, size: 20))
-                .foregroundStyle(AppColors.homeCardText)
+            Image(systemName: "arrow.right")
+                .font(.system(size: 14, weight: .bold))
         }
-        .padding(15)
-        .frame(width: 173, height: 107)
-        .background(
-            RoundedRectangle(cornerRadius: 10, style: .continuous)
-                .fill(color)
-        )
+        .font(.pretendard(.bold, size: 16))
+        .foregroundStyle(AppColors.homePracticeButtonText)
+        .frame(width: width, height: 44)
+        .background(Capsule().fill(AppColors.homePracticeButton))
+        .accessibilityHidden(true)
     }
 }
 
-// MARK: - Layout
+/// 홈 카드를 누르는 동안 살짝 눌리는 느낌을 주는 스타일 (눌리면 98%로 줄고 조금 어두워짐)
+/// - 동작 줄이기가 켜져 있으면 크기는 그대로 두고 밝기만 바꾼다
+private struct HomeCardPressStyle: ButtonStyle {
+    let reduceMotion: Bool
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed && !reduceMotion ? 0.98 : 1)
+            .opacity(configuration.isPressed ? 0.88 : 1)
+            .animation(.easeOut(duration: 0.15), value: configuration.isPressed)
+    }
+}
+
+// MARK: - 워치 페어링 배지
+
+/// 상단 행의 "워치 페어링" 알약 (연결됨: 초록 테두리·진초록 채움·✓ / 안 됨: 회색 테두리·✕)
+/// - Hi-Fi 248·253: 91.5 x 27, 테두리 1.5, 아이콘 원 14, 글자 Regular 10
+private struct WatchPairingBadge: View {
+    let isConnected: Bool
+
+    var body: some View {
+        HStack(spacing: 6) {
+            ZStack {
+                Circle().fill(accent)
+                Image(systemName: isConnected ? "checkmark" : "xmark")
+                    .font(.system(size: 7, weight: .black))
+                    .foregroundStyle(AppColors.darkBackground)
+            }
+            .frame(width: 14, height: 14)
+
+            Text("워치 페어링")
+                .font(.pretendard(.regular, size: 10))
+                .foregroundStyle(accent)
+        }
+        .padding(.leading, 9.5)
+        .padding(.trailing, 10)
+        .frame(width: 91, height: 27)
+        .background(Capsule().fill(isConnected ? AppColors.homeBadgeConnectedFill : Color.clear))
+        .overlay(Capsule().strokeBorder(accent, lineWidth: 1.5))
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(isConnected ? "워치 페어링됨" : "워치 페어링 안 됨")
+    }
+
+    private var accent: Color {
+        isConnected ? AppColors.soundRolling : AppColors.homeBadgeDisconnected
+    }
+}
+
+// MARK: - Layout (iPhone 17 시안 측정값, pt)
 
 private enum Layout {
     static let horizontalPadding: CGFloat = 20
-    static let logoTop: CGFloat = 19      // 상태바 ↔ 로고
-    static let headlineTop: CGFloat = 50  // 로고 ↔ 헤드라인
-    static let subtitleTop: CGFloat = 10  // 헤드라인 ↔ 설명
-    static let heroCardTop: CGFloat = 44  // 설명 ↔ 메인 카드
-    static let subCardsTop: CGFloat = 16  // 메인 카드 ↔ 하단 2열 카드
-    static let subCardSpacing: CGFloat = 16
+    static let logoTop: CGFloat = 80           // 화면 위 ↔ 로고 (Hi-Fi 253: 로고 y0 80)
+    static let badgeToSettings: CGFloat = 14   // 배지 오른쪽 ↔ 설정 아이콘 (343.8 → 358)
+    static let headlineTop: CGFloat = 43.5     // 로고 아래(108.5) ↔ 헤드라인 (Hi-Fi: 155.5, 측정 보정)
+    static let subtitleTop: CGFloat = 10       // 헤드라인 ↔ 설명
+    static let heroCardTop: CGFloat = 53.5     // 설명 ↔ 메인 카드 (Hi-Fi: 252 → 305, 측정 보정)
+    static let recordCardTop: CGFloat = 17.5   // 메인 카드 ↔ 기록 카드 (Hi-Fi: 597.5 → 615)
+    static let cardWidth: CGFloat = 362.5      // Hi-Fi: 카드 폭
+    static let heroCardHeight: CGFloat = 292.5 // Hi-Fi 253: 305 ~ 597.5
+    static let recordCardHeight: CGFloat = 165.5 // Hi-Fi 253: 615 ~ 780.5
+    static let cardCornerRadius: CGFloat = 12
+    static let cardTextLeading: CGFloat = 19
+    static let cardButtonTrailing: CGFloat = 19.5
+    static let cardContentBottom: CGFloat = 17.5       // 연습하기 버튼 ↔ 메인 카드 아래 (Hi-Fi: 580 → 597.5)
+    static let recordCardContentBottom: CGFloat = 18   // 기록 보기 버튼 ↔ 기록 카드 아래 (Hi-Fi: 762.5 → 780.5)
+    static let buttonWidth: CGFloat = 136
+    static let ringSize: CGFloat = 155                 // `IllustRecordRing` 크기
+    static let ringOffset = CGSize(width: -20, height: 27) // 기록 카드 왼쪽 위 기준 (Hi-Fi 253: 링 위 642, 오른쪽 155)
 }
 
-/// 메인 연습 카드 치수 (Hi-Fi 측정값)
-private enum HeroCard {
-    static let width: CGFloat = 362
-    static let height: CGFloat = 341
-    /// 이미지 원본(@3x) 크기 그대로, 카드 왼쪽 위에서 (-42, -30) 만큼 밖으로 밀어 배치 (Hi-Fi와 겹쳐 맞춘 값)
-    static let imageSize = CGSize(width: 469, height: 284)
-    static let imageOffset = CGSize(width: -42, height: -30)
-    static let textLeading: CGFloat = 15     // 카드 왼쪽 ↔ 안내 문구
-    static let buttonTrailing: CGFloat = 23  // 연습 버튼 ↔ 카드 오른쪽
-    static let contentBottom: CGFloat = 25   // 연습 버튼 ↔ 카드 아래
+/// 메인 카드 사진: 원본(@3x) 크기 그대로, 카드 왼쪽 위에서 밀어 배치
+private enum HeroImage {
+    static let size = CGSize(width: 469, height: 284)
+    static let offset = CGSize(width: -42, height: -30)
 }
 
 // MARK: - 이 화면 전용 색상
 
 private extension AppColors {
-    static let homeBackgroundGradient: [Color] = [
-        Color(hex: 0x070B14),
-        Color(hex: 0x111721),
-        Color(hex: 0x0E131D)
-    ]
+    // Hi-Fi 253 배경 측정: y 5 `01030C` → y 600 `101521` → y 850 `080B16`
+    static let homeBackgroundTop = Color(hex: 0x01030C)
+    static let homeBackgroundMiddle = Color(hex: 0x101521)
+    static let homeBackgroundBottom = Color(hex: 0x080B16)
     static let homePracticeCardGradient: [Color] = [Color(hex: 0xA6DDF7), Color(hex: 0xF3F8FE)]
     static let homePracticeButton = Color(hex: 0x01030C)
     static let homePracticeButtonText = Color(hex: 0xF5FAFF)
-    static let homeWithoutWatchCard = Color(hex: 0x76CAF2)
     static let homeRecentCard = Color(hex: 0xF5FAFF)
     /// 밝은 카드 위 글자·화살표 색
     static let homeCardText = Color(hex: 0x01030C)
+    /// 워치 페어링 배지 — 연결됨 채움 / 안 됨 테두리·글자 (Hi-Fi 253·248 측정)
+    static let homeBadgeConnectedFill = Color(hex: 0x0A3A1B)
+    static let homeBadgeDisconnected = Color(hex: 0xCCCCCC)
 }
 
 struct HomeView_Previews: PreviewProvider {
