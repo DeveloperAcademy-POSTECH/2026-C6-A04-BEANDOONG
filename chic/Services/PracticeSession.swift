@@ -27,7 +27,7 @@ final class PracticeSession: ObservableObject {
     let connection: WatchConnection
     // 마이크 소리를 모델로 분석하는 담당이며 연습과 함께 시작·종료합니다.
     private var soundAnalyzer: SteamingAudioAnalyzer?
-    // 마이크 권한을 기다리는 동안 시작 버튼을 다시 눌러도 요청이 겹치지 않게 합니다.
+    // 마이크 권한이나 오디오 준비를 기다리는 동안 시작 요청(iPhone 버튼 · 워치)이 겹치지 않게 합니다.
     private var isStarting = false
     // 직전 연습의 오디오 정리(엔진 종료 · 세션 비활성화) 작업입니다. 새 연습은 이 작업이 끝난 뒤 시작합니다.
     private var audioTeardown: Task<Void, Never>?
@@ -65,18 +65,17 @@ final class PracticeSession: ObservableObject {
                 guard MicrophonePermission.isGranted else {
                     throw ConnectionError.message("iPhone에서 마이크 권한을 허용해주세요.")
                 }
+                // 오디오를 준비하는 동안 iPhone 버튼이 같은 시작을 겹쳐 요청하지 않게 합니다.
+                self.isStarting = true
+                defer { self.isStarting = false }
                 try await self.startAnalysis() // iPhone 버튼과 같은 시작 함수를 사용합니다.
             case .stop:
                 // 이전 연습의 종료 요청이 새 연습에 적용되지 않도록 확인합니다.
-                guard request.sessionID == self.state.sessionID else {
-                    throw ConnectionError.message("연습 상태가 변경되었어요. 다시 확인해주세요.")
-                }
+                try self.ensureCurrentSession(request)
                 self.stop()
             case .finishReview:
                 // 이전 결과 화면의 완료 요청이 새 연습에 적용되지 않도록 확인합니다.
-                guard request.sessionID == self.state.sessionID else {
-                    throw ConnectionError.message("연습 상태가 변경되었어요. 다시 확인해주세요.")
-                }
+                try self.ensureCurrentSession(request)
                 self.finishReview()
             }
             return self.connection.state // 동기화 응답에도 일반 전송과 같은 최신 워치 스냅샷을 사용합니다.
@@ -244,6 +243,13 @@ final class PracticeSession: ObservableObject {
 
     /// 연습을 시작할 수 없는 상태(앱이 앞에 없음)일 때의 안내입니다.
     private static let openAppMessage = "연습을 시작하려면 iPhone에서 chic 앱을 열어주세요."
+
+    /// 워치 요청이 지금 연습(sessionID)에 대한 것인지 확인합니다. 아니면 다시 확인하라고 안내합니다.
+    private func ensureCurrentSession(_ request: WatchRequest) throws {
+        guard request.sessionID == state.sessionID else {
+            throw ConnectionError.message("연습 상태가 변경되었어요. 다시 확인해주세요.")
+        }
+    }
 
     /// 분석기가 끝(자동 종료)이나 오류를 알렸을 때, 그 분석이 지금 진행 중인 연습의 것이면 종료합니다.
     private func stopIfCurrent(_ id: UUID, errorMessage message: String? = nil) {
