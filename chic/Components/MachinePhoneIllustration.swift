@@ -15,8 +15,8 @@ import SwiftUI
 ///     ┌ 베이스: 머신 + 컵 + 폰 (전파·신호 선만 뺀 이미지, IllustMachinePhoneBase)
 ///     └ 전파 3개 + 신호 선: 원본 일러스트에서 그대로 떼어 낸 이미지 (IllustMachinePhoneWave1~3 · IllustMachinePhoneSignal)
 ///
-/// - 조각 이미지는 `IllustMachinePhone`(연습 준비 1/3이 쓰는 원본)을 같은 크기 캔버스에서 나눈 것이라,
-///   다 켜진 모습이 Hi-Fi와 픽셀까지 같고 겹쳐 놓으면 원본과 똑같아요.
+/// - 조각 이미지는 Hi-Fi의 머신·폰 일러스트 한 장을 같은 크기 캔버스에서 나눈 것이라,
+///   전부 겹쳐 놓은 다 켜진 모습이 Hi-Fi와 픽셀까지 같아요.
 /// - 동작 줄이기(Reduce Motion)가 켜져 있으면 다 켜진 Hi-Fi 정지 화면으로 멈춰 있어요.
 struct MachinePhoneIllustration: View {
     private let timing = RadioRevealTiming.machinePhone
@@ -46,7 +46,7 @@ struct MachinePhoneIllustration: View {
 // MARK: - 사양
 
 private enum Spec {
-    /// 화면에 놓이는 크기(pt) — `IllustMachinePhone`과 같아요
+    /// 화면에 놓이는 크기(pt) — Hi-Fi 일러스트 크기와 같아요
     static let frameSize = CGSize(width: 304, height: 199)
     /// 켜지는 순서: 전파 안쪽 → 바깥쪽, 그다음 폰 위 신호 선 3개
     static let revealImages = ["IllustMachinePhoneWave1", "IllustMachinePhoneWave2", "IllustMachinePhoneWave3", "IllustMachinePhoneSignal"]
