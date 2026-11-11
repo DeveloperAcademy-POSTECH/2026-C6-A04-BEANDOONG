@@ -2,59 +2,37 @@
 //  HistoryDetailView.swift
 //
 //  히스토리 화면(HistoryView)에서 연습 기록 카드를 터치했을 때 이동하는 상세 화면입니다.
-//  `PracticeResult` 데이터를 받아 상단 도넛 요약 · 전체 타임라인 · 상태별 감지 시간 · 연습 가이드를
-//  공통 컴포넌트로 구성해 표시합니다.
+//  연습 직후 결과 화면(PracticeResultView)과 같은 리포트 본문(`PracticeReportScreen`)을 쓰고, 상단 문구만 다릅니다.
 //
 
 import SwiftUI
 
 /// 히스토리 연습 기록 상세 화면 (다크 테마)
+/// - Hi-Fi: iPhone 17 - 269(한 번에 보기) · 270(타임라인) · 271(상태별 감지시간) · 272(삭제 팝업)
 ///
-///     ┌ 상단 네비게이션 바: "9월 26일 1차"              ← 고정
-///     ├ 상단 히어로 요약: 타이틀 + 도넛 차트 + 3열 요약   ← 여기부터 스크롤
-///     ├ 스티밍 기록: 전체 타임라인 카드 + 상태별 감지 시간 카드
-///     ├ 연습 가이드 카드
-///     └ 하단 안내 문구
+///     ┌ 상단 바: < 9월 28일 - 1차                🗑
+///     ├ 히어로: "그날의 연습을 다시 살펴봐요" (타임라인·상태별은 "연습했던 순간을 다시 살펴봐요") + 도넛 + 3열 요약
+///     ├ 스티밍 기록: 탭 [한 번에 보기 | 타임라인 | 상태별 감지시간]
+///     └ 안내 문구
 struct HistoryDetailView: View {
+    @Environment(\.dismiss) private var dismiss
     let result: PracticeResult
+    /// 삭제 팝업에서 "기록 삭제"를 확인했을 때 (저장소에서 지우는 일은 바깥에서). 끝나면 이 화면을 닫는다
+    var onDelete: (() -> Void)? = nil
+    var initialTab: PracticeReportTab = .overview
+    var showsDeleteDialog = false
 
     var body: some View {
-        VStack(spacing: 0) {
-            // MARK: 상단 네비게이션 바 (스크롤해도 고정)
-            TopNavigationHeader(title: result.title, isDark: true)
-                .padding(.top, PracticeResultMetrics.headerTop)
-                .padding(.bottom, PracticeResultMetrics.headerBottom)
-
-            ScrollView {
-                VStack(alignment: .leading, spacing: 0) {
-                    // MARK: 상단 히어로 요약 (타이틀 + 도넛 차트 + 3열 요약)
-                    PracticeSummarySection(result: result)
-
-                    // MARK: 스티밍 기록 · 연습 가이드 · 안내 문구
-                    VStack(alignment: .leading, spacing: 0) {
-                        PracticeResultSectionTitle("스티밍 기록")
-                            .padding(.top, PracticeResultMetrics.firstSectionTitleTop)
-
-                        PracticeTimelineCard(result: result)
-                            .padding(.top, PracticeResultMetrics.sectionContentTop)
-
-                        DetectedDurationCard(result: result, headerTitleWeight: .semibold)
-                            .padding(.top, PracticeResultMetrics.cardSpacing)
-
-                        PracticeGuideSection()
-                            .padding(.top, PracticeResultMetrics.guideSectionTitleTop)
-
-                        PracticeResultFootnote()
-                            .padding(.top, PracticeResultMetrics.footnoteTop)
-                            .padding(.bottom, PracticeResultMetrics.footnoteBottom)
-                    }
-                    .padding(.horizontal, PracticeResultMetrics.horizontalPadding)
-                }
-            }
-            .scrollIndicators(.hidden)
-        }
-        .darkScreenBackground()
-        .toolbar(.hidden, for: .navigationBar)
+        PracticeReportScreen(
+            result: result,
+            headline: { tab in
+                tab == .overview ? "그날의 연습을\n다시 살펴봐요" : "연습했던 순간을\n다시 살펴봐요"
+            },
+            variant: .historyDetail,
+            onDelete: { onDelete?(); dismiss() },
+            initialTab: initialTab,
+            showsDeleteDialog: showsDeleteDialog
+        )
     }
 }
 
@@ -62,7 +40,7 @@ struct HistoryDetailView: View {
 
 #Preview("디자인 (24초)") {
     NavigationStack {
-        HistoryDetailView(result: .sample)
+        HistoryDetailView(result: .hifiSample)
     }
 }
 
