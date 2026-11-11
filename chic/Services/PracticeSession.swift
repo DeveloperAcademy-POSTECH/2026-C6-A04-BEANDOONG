@@ -23,6 +23,8 @@ final class PracticeSession: ObservableObject {
     @Published private(set) var result: PracticeResult?
     /// 스팀 소리가 끊긴 시각. 값이 있는 동안 화면에서 "스티밍이 끝났나요?"를 묻습니다. (iPhone에서만, 워치에는 보내지 않아요)
     @Published private(set) var silenceStartedAt: Date?
+    /// 이번 연습에서 공기 주입(파랑) 화면이 떠 있던 누적 시간. 연습 화면의 비커 수위가 이 값을 따라가요. (iPhone에서만)
+    @Published private(set) var aerationClock = AerationClock()
     private var historyStore: PracticeHistoryStore?
     private var timeline = PracticeTimeline()
     // 워치와 메시지를 주고받는 통신 담당입니다.
@@ -175,6 +177,7 @@ final class PracticeSession: ObservableObject {
         // 분석 시작에 성공한 뒤에만 새 연습 상태로 바꿉니다. 이전 기록 목록은 유지합니다.
         state.isWatchEnabled = usingWatch
         timeline = PracticeTimeline()
+        aerationClock = AerationClock()
         result = nil
         silenceStartedAt = nil
         state.sessionID = id
@@ -214,6 +217,7 @@ final class PracticeSession: ObservableObject {
         soundAnalyzer = nil
         audioTeardown = Self.tearDownAudio(analyzer)
         state.endedAt = endedAt
+        aerationClock.pause(at: endedAt)
         timeline.finish(at: max(0, endedAt.timeIntervalSince(startedAt)))
         state.phase = .finished
         let record = PracticeRecord(id: id, startedAt: startedAt, endedAt: endedAt)
@@ -253,6 +257,7 @@ final class PracticeSession: ObservableObject {
             if let startedAt = state.startedAt {
                 timeline.update(phase: phase, at: max(0, now.timeIntervalSince(startedAt)))
             }
+            if phase == .aeration { aerationClock.resume(at: now) } else { aerationClock.pause(at: now) }
             state.phase = phase
         } else {
             guard phase == .aeration, state.isWatchEnabled,
