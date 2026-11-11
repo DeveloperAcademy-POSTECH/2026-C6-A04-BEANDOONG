@@ -46,7 +46,8 @@ struct PracticeResultTests {
         try save(record: record, segments: timeline.segments, directory: directory)
         try verifyReload(record: record, expected: result, directory: directory)
         try verifyLegacyMigration(in: directory.appending(path: "migration"), start: start)
-        print("PracticeResultTests passed (timeline, summaries, SwiftData persistence, legacy migration)")
+        try verifyDelete(in: directory.appending(path: "delete"), segments: timeline.segments, start: start)
+        print("PracticeResultTests passed (timeline, summaries, SwiftData persistence, legacy migration, delete)")
     }
 
     private static func verifyInitialRolling(start: Date) {
@@ -88,6 +89,32 @@ struct PracticeResultTests {
         try store.save(record: record, dailyOrder: 1, segments: segments)
         let saved = try store.records()
         precondition(saved.count == 1)
+    }
+
+    /// 기록 삭제: 지정한 기록만 지워지고, 없는 id는 무시하며, 저장소를 다시 열어도 삭제가 유지됩니다.
+    @MainActor
+    private static func verifyDelete(in directory: URL, segments: [DetectedSegment], start: Date) throws {
+        let kept = PracticeRecord(id: UUID(), startedAt: start, endedAt: start.addingTimeInterval(25))
+        let removed = PracticeRecord(id: UUID(), startedAt: start.addingTimeInterval(60), endedAt: start.addingTimeInterval(85))
+        do {
+            let store = try PracticeHistoryStore(directory: directory)
+            try store.save(record: kept, dailyOrder: 1, segments: segments)
+            try store.save(record: removed, dailyOrder: 2, segments: segments)
+            let before = try store.records()
+            precondition(before.count == 2)
+
+            try store.delete(id: removed.id)
+            let afterDelete = try store.records().map(\.record)
+            precondition(afterDelete == [kept])
+
+            try store.delete(id: UUID()) // 없는 id는 아무것도 지우지 않습니다.
+            let afterUnknown = try store.records().map(\.record)
+            precondition(afterUnknown == [kept])
+        }
+        // 저장소를 다시 열어 확인합니다. (기록은 저장소가 살아 있는 동안에만 읽을 수 있어 저장소를 변수에 둡니다)
+        let reopened = try PracticeHistoryStore(directory: directory)
+        let afterReopen = try reopened.records().map(\.record)
+        precondition(afterReopen == [kept])
     }
 
     @MainActor
