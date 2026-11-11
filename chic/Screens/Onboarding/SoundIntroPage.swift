@@ -18,16 +18,16 @@ struct SoundIntroPage: View {
             SoundRippleIllustration()
                 .designScaled(width: 219, height: 153, scale)
                 .onboardingPart(motion.illustration)
-                .padding(.top, Metrics.illustrationTop)
+                .padding(.top, Metrics.illustrationTop.v(scale))
 
             // MARK: 타이틀 + 설명
             DarkScreenTitle("공기주입 상태를\n한눈에 확인해요")
                 .onboardingPart(motion.title)
-                .padding(.top, Metrics.titleTop)
+                .padding(.top, Metrics.titleTop.v(scale))
 
             DarkScreenSubtitle("스티밍 중 공기주입 상태를\n색상과 문구로 상태를 알려드려요")
                 .onboardingPart(motion.subtitle)
-                .padding(.top, Metrics.subtitleTop)
+                .padding(.top, Metrics.subtitleTop.v(scale))
         }
     }
 }
@@ -35,8 +35,8 @@ struct SoundIntroPage: View {
 // MARK: - Metrics
 
 private enum Metrics {
-    static let illustrationTop: CGFloat = 199  // 상단 바 ↔ 일러스트
-    static let titleTop: CGFloat = 92          // 일러스트 ↔ 타이틀
+    static let illustrationTop: CGFloat = 119  // 상단 바 ↔ 일러스트 (Hi-Fi 106: 일러스트 y0 223 − 104)
+    static let titleTop: CGFloat = 91          // 일러스트 ↔ 타이틀 (Hi-Fi 106: 376.5 → 471)
     static let subtitleTop: CGFloat = 11       // 타이틀 ↔ 설명
 }
 

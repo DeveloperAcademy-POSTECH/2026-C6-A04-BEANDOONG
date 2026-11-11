@@ -16,6 +16,7 @@ struct OnboardingView: View {
     var onSkip: () -> Void = {}
 
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.designScale) private var scale
     /// 지금 화면에 올라와 있는 쪽 (넘기는 중에는 나가는 쪽과 들어오는 쪽 두 개)
     @State private var visiblePages: [OnboardingPage]
     /// 쪽마다 일러스트 · 타이틀 · 설명이 지금 어디에 얼마나 보이는지
@@ -35,7 +36,7 @@ struct OnboardingView: View {
         VStack(spacing: 0) {
             // MARK: 상단 바
             OnboardingSkipTopBar(action: onSkip)
-                .padding(.top, Metrics.topBarTop)
+                .padding(.top, Metrics.topBarTop.v(scale))
 
             // MARK: 쪽 내용 (넘기는 동안에는 두 쪽이 겹쳐 있어요)
             ZStack(alignment: .top) {
@@ -47,11 +48,12 @@ struct OnboardingView: View {
 
             // MARK: 페이지 인디케이터 + 하단 버튼
             OnboardingPageIndicator(activeIndex: indicatorIndex)
-                .padding(.bottom, Metrics.indicatorBottom)
+                .padding(.bottom, Metrics.indicatorBottom.v(scale))
 
-            DarkPrimaryButton(title: "다음", action: onNext)
-                .padding(.bottom, Metrics.buttonBottom)
+            DarkPrimaryButton(title: "다음", width: Metrics.buttonWidth.h(scale), height: BottomButton.height, action: onNext)
+                .padding(.bottom, BottomButton.bottomGap.v(scale) + scale.fixedHeightAdjustment(BottomButton.height))
         }
+        .ignoresSafeArea()
         .darkScreenBackgroundWithTopGlow()
         .onChange(of: page) { oldPage, newPage in
             turnPage(from: oldPage, to: newPage)
@@ -179,9 +181,9 @@ extension View {
 
 /// 세 쪽이 같이 쓰는 고정 영역 간격 (Hi-Fi 기준)
 private enum Metrics {
-    static let topBarTop: CGFloat = 22         // 상태바 ↔ 상단 바
-    static let indicatorBottom: CGFloat = 28   // 인디케이터 ↔ 버튼
-    static let buttonBottom: CGFloat = 10      // 버튼 ↔ 화면 하단(안전 영역)
+    static let topBarTop: CGFloat = 84         // 화면 위 ↔ 상단 바 (Hi-Fi 108: 글자 y0 86.5 − 2.5)
+    static let indicatorBottom: CGFloat = 28   // 인디케이터 ↔ 버튼 (Hi-Fi 108: 인디케이터 y1 700 → 버튼 y0 728)
+    static let buttonWidth: CGFloat = 363      // Hi-Fi 버튼 폭
 }
 
 #Preview {
