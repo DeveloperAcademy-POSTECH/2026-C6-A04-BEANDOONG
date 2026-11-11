@@ -27,7 +27,13 @@ struct PracticeSessionView: View {
             case .finished:
                 FinishedPracticeView(result: practice.result, onClose: closeResult)
             default:
-                SteamingFeedbackView(feedback: feedback, onStop: practice.stop)
+                SteamingFeedbackView(
+                    feedback: feedback,
+                    onStop: practice.stop,
+                    showsEndDialog: practice.silenceStartedAt != nil,
+                    onContinue: practice.continueAfterSilence,
+                    onFinishAfterSilence: practice.finishAfterSilence
+                )
             }
         }
         .onChange(of: connection.isReachable) { wasReachable, reachable in
