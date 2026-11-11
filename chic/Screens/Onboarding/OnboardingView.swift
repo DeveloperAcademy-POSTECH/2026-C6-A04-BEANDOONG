@@ -17,16 +17,20 @@ struct OnboardingView: View {
     var onSkip: () -> Void = {}
     /// 좌우로 밀었을 때 (+1: 다음 쪽, -1: 이전 쪽). 첫·마지막 쪽 범위 처리는 바깥에서 한다
     var onSwipe: (Int) -> Void = { _ in }
+    /// 쪽 넘김이 다 끝나 한 쪽에 멈췄을 때
+    var onPageSettled: (OnboardingPage) -> Void = { _ in }
 
     @Environment(\.designScale) private var scale
     /// 페이지 인디케이터가 가리키는 쪽 (내용보다 조금 늦게 옮겨 가요)
     @State private var indicatorIndex: Int
 
-    init(page: OnboardingPage, onNext: @escaping () -> Void = {}, onSkip: @escaping () -> Void = {}, onSwipe: @escaping (Int) -> Void = { _ in }) {
+    init(page: OnboardingPage, onNext: @escaping () -> Void = {}, onSkip: @escaping () -> Void = {}, onSwipe: @escaping (Int) -> Void = { _ in },
+         onPageSettled: @escaping (OnboardingPage) -> Void = { _ in }) {
         self.page = page
         self.onNext = onNext
         self.onSkip = onSkip
         self.onSwipe = onSwipe
+        self.onPageSettled = onPageSettled
         _indicatorIndex = State(initialValue: page.rawValue)
     }
 
@@ -38,7 +42,10 @@ struct OnboardingView: View {
 
             // MARK: 쪽 내용 (넘김 애니메이션은 PageTurnStack 이 해요. 연습 준비 가이드와 같은 것)
             PageTurnStack(
-                page: page, indicatorIndex: $indicatorIndex, indexOf: \.rawValue
+                page: page, indicatorIndex: $indicatorIndex, indexOf: \.rawValue,
+                // 앞뒤 쪽을 미리 만들어 두어, 넘기기 시작할 때 버벅이지 않게 해요.
+                preloadedPages: { [$0.rawValue - 1, $0.rawValue + 1].compactMap(OnboardingPage.init(rawValue:)) },
+                onSettled: onPageSettled
             ) { visiblePage, motion in
                 pageContent(visiblePage, motion: motion)
             }
