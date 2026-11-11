@@ -148,10 +148,12 @@ import Foundation
         check([.air, .air, .metallic, .metallic, .air, .metallic, .metallic, .metallic],
               [.air, .air, .air, .air, .air, .air, .air, .metallic])
         check([.air, .air, .sputter, .sputter, .metallic, .sputter, .sputter, .sputter],
-              [.air, .air, .air, .air, .air, .air, .air, .sputter])
+              [.air, .air, .air, .sputter, .sputter, .sputter, .sputter, .sputter])
         check([.metallic, .metallic, .metallic, .sputter, .sputter, .sputter, .air, .air],
-              [nil, nil, .metallic, .metallic, .metallic, .sputter, .air, .air])
+              [nil, nil, .metallic, .metallic, .sputter, .sputter, .air, .air])
         check([.air, .sputter, .air, .sputter], [.air, .air, .air, .air])
+        check([.air, .sputter, .other, .sputter, .sputter], [.air, .air, .air, .air, .sputter])
+        check([.sputter, .sputter], [nil, .sputter])
         check([.air, .other, .other, .air], [.air, .air, .other, .air])
 
         var filter = ChicDisplayFilter()
