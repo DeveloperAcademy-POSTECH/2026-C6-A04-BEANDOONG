@@ -11,15 +11,14 @@ import SwiftUI
 struct SteamingFeedbackView: View {
     @Environment(\.designScale) private var scale
     let feedback: SteamingFeedback
+    /// 종료하기 버튼: 묻지 않고 바로 정지
     var onStop: () -> Void = {}
-    /// "스티밍이 끝났나요?" 팝업을 보여 주는 중인지
-    @State private var showsEndDialog: Bool
-
-    init(feedback: SteamingFeedback, onStop: @escaping () -> Void = {}, showsEndDialog: Bool = false) {
-        self.feedback = feedback
-        self.onStop = onStop
-        _showsEndDialog = State(initialValue: showsEndDialog)
-    }
+    /// 스팀 소리가 끊겨 "스티밍이 끝났나요?"를 묻는 중인지 (연습 관리자가 정해요)
+    var showsEndDialog = false
+    /// 팝업의 '계속 연습'
+    var onContinue: () -> Void = {}
+    /// 팝업의 '연습 종료' (소리가 끊긴 시각으로 종료)
+    var onFinishAfterSilence: () -> Void = {}
 
     var body: some View {
         ZStack {
@@ -60,8 +59,8 @@ struct SteamingFeedbackView: View {
             message: "스팀 소리가 감지되지 않아요\n연습을 마쳤다면 기록을 확인해 주세요",
             cancelTitle: "계속 연습",
             confirmTitle: "연습 종료",
-            onCancel: { showsEndDialog = false },
-            onConfirm: { showsEndDialog = false; onStop() }
+            onCancel: onContinue,
+            onConfirm: onFinishAfterSilence
         )
         .preferredColorScheme(.dark)
     }
@@ -152,3 +151,4 @@ private enum Layout {
 #Preview("bubble") { SteamingFeedbackView(feedback: .bubble) }
 #Preview("moreAir") { SteamingFeedbackView(feedback: .moreAir) }
 #Preview("milkFlow") { SteamingFeedbackView(feedback: .milkFlow) }
+#Preview("소리 끊김") { SteamingFeedbackView(feedback: .aeration, showsEndDialog: true) }

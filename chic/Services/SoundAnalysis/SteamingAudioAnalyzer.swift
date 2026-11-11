@@ -17,6 +17,8 @@ nonisolated final class SteamingAudioAnalyzer: @unchecked Sendable {
     private var endRule = ChicEndRule()
     private var isStopped = false
     private var hasTap = false
+    /// 종료 점수 한 번이 다루는 시간 (원본 프레임 10개 × 512 샘플 ÷ 48kHz ≈ 0.107초)
+    private static let scoreInterval: TimeInterval = 10 * 512 / 48_000
 
     init() throws {
         classifier = try ChicModelV3_5()
@@ -24,7 +26,12 @@ nonisolated final class SteamingAudioAnalyzer: @unchecked Sendable {
     }
 
     /// 오디오 세션은 연습 관리자가 활성화한 뒤 호출합니다.
+    /// - onSilence: 소리가 끊겼을 때 (끊긴 지 몇 초 지났는지). 분석은 계속해요.
+    /// - onSoundResumed: 끊겼던 소리가 다시 이어졌을 때
+    /// - onFinish: 종료음 · 청소음으로 자동 종료할 때
     func start(onResult: @escaping @Sendable (PracticePhase) -> Void,
+               onSilence: @escaping @Sendable (TimeInterval) -> Void,
+               onSoundResumed: @escaping @Sendable () -> Void,
                onFinish: @escaping @Sendable () -> Void,
                onError: @escaping @Sendable (String) -> Void) throws {
         let input = engine.inputNode
@@ -57,6 +64,8 @@ nonisolated final class SteamingAudioAnalyzer: @unchecked Sendable {
                 do {
                     var phase: PracticePhase?
                     var finished = false
+                    var silenced = false
+                    let wasSilent = self.endRule.isSilent
                     let pcm48 = try self.input48k.convert(samples, sampleRate: rate)
                     try self.endDetector.append(pcm48)
                     try self.classifier.consume(pcm48, sampleRate: 48_000) { frame in
@@ -67,7 +76,9 @@ nonisolated final class SteamingAudioAnalyzer: @unchecked Sendable {
                         self.logger.debug("종료 분석 active=\(self.endRule.isActive) work=\(scores.work) end=\(scores.end) purge=\(scores.purge) dBFS=\(scores.rmsDBFS) dropDB=\(scores.dropDB)")
                         #endif
                         if let reason = self.endRule.consume(work: scores.work, end: scores.end, purge: scores.purge) {
-                            self.logger.notice("자동 종료 reason=\(String(describing: reason), privacy: .public) work=\(scores.work) end=\(scores.end) purge=\(scores.purge) dBFS=\(scores.rmsDBFS) dropDB=\(scores.dropDB)")
+                            self.logger.notice("\(reason.finishes ? "자동 종료" : "소리 끊김", privacy: .public) reason=\(String(describing: reason), privacy: .public) work=\(scores.work) end=\(scores.end) purge=\(scores.purge) dBFS=\(scores.rmsDBFS) dropDB=\(scores.dropDB)")
+                            // 소리 끊김은 알리기만 하고 분석을 계속해요. (종료 여부는 사용자에게 물어요)
+                            guard reason.finishes else { silenced = true; return }
                             self.isStopped = true
                             finished = true
                             return
@@ -83,8 +94,13 @@ nonisolated final class SteamingAudioAnalyzer: @unchecked Sendable {
                             self.endRule.activate()
                         }
                     }
-                    if finished { onFinish() }
-                    else if let phase { onResult(phase) }
+                    if finished { onFinish(); return }
+                    if silenced {
+                        onSilence(Double(ChicEndRule.silenceCount) * Self.scoreInterval)
+                    } else if wasSilent, !self.endRule.isSilent {
+                        onSoundResumed()
+                    }
+                    if let phase { onResult(phase) }
                 } catch {
                     self.isStopped = true
                     onError(error.localizedDescription)
