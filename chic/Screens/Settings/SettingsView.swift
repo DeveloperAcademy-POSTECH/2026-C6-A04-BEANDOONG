@@ -4,15 +4,21 @@ import SwiftUI
 /// - 디자인: Hi-Fi iPhone 17 - 266(새 버전 있음) · 241(최신 버전 사용 중)
 ///
 ///     ┌ 상단 바: < 설정
-///     ├ 앱 아이콘 + 버전 정보 ("최신 버전 …" / "현재 버전 …")
+///     ├ 앱 아이콘 + 버전 정보 ("최신 버전 사용중" 또는 "최신 버전 1.00.3" / "현재 버전 1.00.0")
 ///     └ 정보 및 지원 카드: 개인정보 처리방침 · 문의하기
 struct SettingsView: View {
     @Environment(\.designScale) private var scale
     @Environment(\.openURL) private var openURL
     @State private var showsMailCompose = false
     @State private var showsNoMailAlert = false
-    /// 새 버전 번호. nil이면 "최신 버전 사용중"으로 표시 (버전 확인 기능은 아직 없음)
-    var latestVersion: String? = nil
+    /// App Store 최신 버전 확인 결과. 확인 전이거나 확인하지 못하면 nil (최신 버전 줄을 비워 둬요)
+    @State private var storeVersion: AppVersion?
+    /// 미리보기용: App Store 조회 대신 이 값을 최신 버전으로 써요 (예: "1.0.3")
+    private let storeVersionOverride: String?
+
+    init(storeVersionOverride: String? = nil) {
+        self.storeVersionOverride = storeVersionOverride
+    }
 
     /// 개인정보 처리방침 및 이용약관 (Notion 공개 페이지)
     static let privacyPolicyURL = URL(string: "https://continuous-aunt-5ff.notion.site/chic-40e194eb59d380eba395e8bc183cc53b")!
@@ -31,9 +37,12 @@ struct SettingsView: View {
                 .designScaled(width: Layout.iconSize, height: Layout.iconSize, scale)
                 .padding(.top, Layout.iconTop.v(scale))
 
-            Text(latestVersion.map { "최신 버전 \($0)" } ?? "최신 버전 사용중")
+            // 확인하기 전 · 확인하지 못했을 때는 같은 크기의 빈자리로 둬서, 결과가 나와도 아래 내용이 움직이지 않아요.
+            Text(latestVersionText ?? "최신 버전 사용중")
                 .font(.pretendard(.regular, size: 12))
                 .foregroundStyle(AppColors.guideStepNumber)
+                .opacity(latestVersionText == nil ? 0 : 1)
+                .accessibilityHidden(latestVersionText == nil)
                 .padding(.top, Layout.latestVersionTop.v(scale))
 
             Text("현재 버전 \(Self.currentVersion)")
@@ -82,9 +91,26 @@ struct SettingsView: View {
                 showsNoMailAlert = false
             }
         )
+        .task { await checkStoreVersion() }
         .sheet(isPresented: $showsMailCompose) {
             MailComposeView(recipient: Self.contactEmail, subject: "[chic] 문의", body: Self.mailBody)
                 .ignoresSafeArea()
+        }
+    }
+
+    /// 최신 버전 줄의 문구. App Store 버전이 지금 버전보다 높으면 그 버전을, 아니면 "최신 버전 사용중".
+    /// App Store 버전을 확인하지 못했으면 nil.
+    private var latestVersionText: String? {
+        guard let store = storeVersion, let current = AppVersion.current else { return nil }
+        return store > current ? "최신 버전 \(store.display)" : "최신 버전 사용중"
+    }
+
+    /// 화면이 열릴 때 App Store 최신 버전을 확인해요. (미리보기는 넘겨받은 값을 써요)
+    private func checkStoreVersion() async {
+        if let storeVersionOverride {
+            storeVersion = AppVersion(storeVersionOverride)
+        } else {
+            storeVersion = await AppStoreVersion.latest()
         }
     }
 
@@ -103,11 +129,9 @@ struct SettingsView: View {
         return "\n\n\n---\n앱 버전: \(currentVersion)\n기기: \(device.model) · iOS \(device.systemVersion)\n"
     }
 
-    /// Info.plist 버전(1.0.0)을 시안 표기(1.00.0)로 바꿔 보여 줍니다.
+    /// 지금 버전(Xcode의 Version)을 시안 표기(1.0.0 → 1.00.0)로 보여 줍니다.
     private static var currentVersion: String {
-        let raw = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "1.0.0"
-        let parts = raw.split(separator: ".").map { Int($0) ?? 0 } + [0, 0, 0]
-        return "\(parts[0]).\(String(format: "%02d", parts[1])).\(parts[2])"
+        AppVersion.current?.display ?? "-"
     }
 }
 
@@ -198,6 +222,10 @@ private extension AppColors {
     static let settingsDivider = Color(hex: 0x3C3E43)
 }
 
-#Preview {
-    SettingsView(latestVersion: "1.00.3")
+#Preview("새 버전 있음") {
+    SettingsView(storeVersionOverride: "1.0.3")
+}
+
+#Preview("최신 버전 사용중") {
+    SettingsView(storeVersionOverride: "1.0.0")
 }
