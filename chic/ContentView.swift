@@ -35,17 +35,18 @@ struct ContentView: View {
         reduceMotion ? .opacity : .opacity.combined(with: .scale(scale: OnboardingExit.scale))
     }
 
-    /// 온보딩 1/3 → 2/3 → 3/3. 쪽이 바뀔 때의 넘김 애니메이션은 OnboardingView 가 해요.
+    /// 온보딩 1/4 → 2/4 → 3/4 → 4/4. 쪽이 바뀔 때의 넘김 애니메이션은 OnboardingView 가 해요.
     private var onboarding: some View {
         OnboardingView(page: step, onNext: showNextStep, onSkip: completeOnboarding)
     }
 
-    /// 다음: 1/3 → 2/3 → 3/3, 마지막 쪽에서는 온보딩 완료
+    /// 다음: 1/4 → 2/4 → 3/4 → 4/4, 마지막 쪽에서는 온보딩 완료
     private func showNextStep() {
         switch step {
         case .watch: step = .placement
         case .placement: step = .sound
-        case .sound: completeOnboarding()
+        case .sound: step = .review
+        case .review: completeOnboarding()
         }
     }
 

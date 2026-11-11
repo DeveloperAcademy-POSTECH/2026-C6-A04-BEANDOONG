@@ -64,6 +64,7 @@ struct OnboardingView: View {
         case .watch: WatchIntroPage(motion: motion)
         case .placement: PlacementIntroPage(motion: motion)
         case .sound: SoundIntroPage(motion: motion)
+        case .review: ReviewIntroPage(motion: motion)
         }
     }
 
@@ -112,6 +113,7 @@ enum OnboardingPage: Int, CaseIterable {
     case watch
     case placement
     case sound
+    case review
 }
 
 /// 쪽 안에서 따로 움직이는 부분 (움직이는 순서대로)
