@@ -68,12 +68,11 @@ nonisolated final class SteamingAudioAnalyzer: @unchecked Sendable {
                     let wasSilent = self.endRule.isSilent
                     let pcm48 = try self.input48k.convert(samples, sampleRate: rate)
                     try self.endDetector.append(pcm48)
-                    try self.classifier.consume(pcm48, sampleRate: 48_000) { frame in
+                    try self.classifier.consume(pcm48, sampleRate: 48_000, onSpectrum: { spectrum in
                         guard !self.isStopped else { return }
-                        let display = self.displayFilter.consume(frame.state)
-                        guard let scores = try self.endDetector.consume(spectrum: frame.spectrum) else { return }
+                        guard let scores = try self.endDetector.consume(spectrum: spectrum) else { return }
                         #if DEBUG
-                        self.logger.debug("종료 분석 active=\(self.endRule.isActive) work=\(scores.work) end=\(scores.end) purge=\(scores.purge) dBFS=\(scores.rmsDBFS) dropDB=\(scores.dropDB)")
+                        self.logger.debug("분석 start=\(String(describing: self.classifier.startProbability)) active=\(self.endRule.isActive) work=\(scores.work) end=\(scores.end) purge=\(scores.purge) dBFS=\(scores.rmsDBFS)")
                         #endif
                         if let reason = self.endRule.consume(work: scores.work, end: scores.end, purge: scores.purge) {
                             self.logger.notice("\(reason.finishes ? "자동 종료" : "소리 끊김", privacy: .public) reason=\(String(describing: reason), privacy: .public) work=\(scores.work) end=\(scores.end) purge=\(scores.purge) dBFS=\(scores.rmsDBFS) dropDB=\(scores.dropDB)")
@@ -81,8 +80,16 @@ nonisolated final class SteamingAudioAnalyzer: @unchecked Sendable {
                             guard reason.finishes else { silenced = true; return }
                             self.isStopped = true
                             finished = true
-                            return
                         }
+                    }) { frame in
+                        guard !self.isStopped else { return }
+                        if let reason = frame.startReason {
+                            self.displayFilter.activate()
+                            self.endRule.activate()
+                            self.logger.notice("자동 시작 reason=\(reason.rawValue, privacy: .public) startSound=\(String(describing: self.classifier.startProbability)); 시작음 모델 추론 중단")
+                        }
+                        let display = self.displayFilter.consume(frame.state)
+                        guard self.classifier.isStarted else { return }
                         if let display {
                             switch display {
                             case .air: phase = .aeration
@@ -90,8 +97,6 @@ nonisolated final class SteamingAudioAnalyzer: @unchecked Sendable {
                             case .metallic: phase = .moreAir
                             case .other: phase = .milkFlow
                             }
-                            // 첫 피드백과 같은 시점에 시작하며, 그 이전 낮은 작업 점수는 세지 않습니다.
-                            self.endRule.activate()
                         }
                     }
                     if finished { onFinish(); return }
