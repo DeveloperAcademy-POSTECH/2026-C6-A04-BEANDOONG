@@ -125,6 +125,6 @@ struct OnboardingSkipTopBar: View {
             .buttonStyle(.plain)
         }
         .frame(height: 20)
-        .padding(.trailing, CGFloat(22).h(scale))
+        .padding(.trailing, CGFloat(21).h(scale)) // Hi-Fi 108: 글자 오른쪽 끝 380 (402 − 21 − 글자 폭 보정)
     }
 }
