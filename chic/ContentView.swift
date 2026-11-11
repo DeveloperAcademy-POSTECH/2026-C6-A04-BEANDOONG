@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct ContentView: View {
+    @EnvironmentObject private var practice: PracticeSession
+    @EnvironmentObject private var connection: WatchConnection
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     /// 지금 홈을 보여 주는지. 저장값(`hasCompletedOnboarding`)으로 시작하고, 온보딩을 마칠 때 애니메이션과 함께 바꿔요.
     /// (@AppStorage 값 변경은 withAnimation 의 전환 애니메이션이 전달되지 않아서 화면 전환은 이 값으로 해요)
@@ -60,7 +62,7 @@ struct ContentView: View {
 
     /// 온보딩 1/4 → 2/4 → 3/4 → 4/4. 쪽이 바뀔 때의 넘김 애니메이션은 OnboardingView 가 해요.
     private var onboarding: some View {
-        OnboardingView(page: step, onNext: showNextStep, onSkip: completeOnboarding, onSwipe: swipeStep,
+        OnboardingView(page: step, onNext: showNextStep, onSkip: skipToPractice, onSwipe: swipeStep,
                        onPageSettled: { page in if page == .review { preparesHome = true } })
     }
 
@@ -78,6 +80,12 @@ struct ContentView: View {
         case .sound: step = .review
         case .review: completeOnboarding()
         }
+    }
+
+    /// 건너뛰기: 온보딩을 마치고 바로 소리 인식(연습)을 시작한다
+    private func skipToPractice() {
+        completeOnboarding()
+        Task { await practice.start(usingWatch: connection.isReachable) }
     }
 
     private func completeOnboarding() {
