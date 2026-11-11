@@ -11,6 +11,8 @@ import SwiftUI
 ///       ○       ∘
 ///         ∘ ○ ◯
 ///
+/// - 값은 애니메이션 벤치(STM-01 '자리 이동')와 같아요: 1.4초에 한 바퀴, 점은 12칸에 고르게, Hi-Fi보다 10% 작게 그려 큰 점끼리 겹치지 않아요.
+/// - 점이 놓인 원의 중심은 화면 가로 가운데예요 (Hi-Fi 스피너는 오른쪽으로 6pt 치우쳐 있었어요).
 /// - 점은 이미지가 아니라 벡터로 그려서 테두리가 깨지지 않아요.
 /// - 점마다 위 → 아래 그라데이션이 들어 있고, 점이 돌지 않으니 그라데이션 방향도 항상 위 → 아래예요.
 /// - 레이아웃 크기는 기존 일러스트(`IllustSpinner`, 62×70)와 같아서 화면 배치가 바뀌지 않아요.
@@ -77,15 +79,18 @@ private enum SpinnerGeometry {
     /// 원 위에 점이 놓이는 칸 수
     static let slotCount = 12
     /// 점 중심이 놓이는 원의 반지름
-    static let ringRadius: CGFloat = 29
-    /// 레이아웃 영역 왼쪽 위 기준, 점이 놓인 원의 중심.
-    /// 가장 큰 점이 왼쪽에 있어서 원의 중심이 영역 가운데보다 조금 오른쪽에 있어요.
-    static let ringCenterInLayout = CGPoint(x: 37.6, y: 35)
+    static let ringRadius: CGFloat = 28.9
+    /// 레이아웃 영역 왼쪽 위 기준, 점이 놓인 원의 중심 = 영역 가운데 (화면 가로 가운데에 와요).
+    static let ringCenterInLayout = CGPoint(x: layoutSize.width / 2, y: layoutSize.height / 2)
 
+    /// Hi-Fi 스피너에서 잰 점 반지름 (가장 큰 점에서 0칸 ... 6칸 = 빈 칸)
+    private static let hiFiRadiusByDistance: [CGFloat] = [8.13, 6.8, 5.89, 5.28, 4.01, 2.96, 0]
+    /// 큰 점끼리 겹치지 않도록 Hi-Fi보다 작게 그리는 비율
+    private static let dotScale: CGFloat = 0.9
     /// 가장 큰 점에서 몇 칸 떨어졌는지에 따른 점 반지름 (0칸 ... 6칸 = 빈 칸)
-    static let radiusByDistance: [CGFloat] = [8.02, 6.72, 5.82, 5.12, 3.92, 2.91, 0]
+    static let radiusByDistance: [CGFloat] = hiFiRadiusByDistance.map { $0 * dotScale }
     /// 이보다 작은 점은 그리지 않아요 (빈 칸 근처에서 아주 작은 점이 깜빡이지 않게)
-    static let hiddenRadius: CGFloat = 0.2
+    static let hiddenRadius: CGFloat = 0.05
 
     /// 점 하나의 위 → 아래 색
     static let dotGradient = Gradient(colors: [Color(hex: 0x78CBF2), Color(hex: 0xEEF7FE)])
