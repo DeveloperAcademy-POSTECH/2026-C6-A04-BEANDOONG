@@ -173,40 +173,6 @@ extension View {
     }
 }
 
-// MARK: - 넘김 타이밍
-
-/// 쪽 넘김 사양 (애니메이션 벤치 ONB-TR)
-private enum PageTurnMotion {
-    /// 내용이 옆으로 밀리는 거리(pt)
-    static let slideDistance: CGFloat = 36
-
-    // 나가는 쪽: 0.28초 동안 점점 빨라지며 왼쪽으로, 부분마다 0.04초씩 늦게
-    static let leaveDuration: TimeInterval = 0.28
-    static let leaveStagger: TimeInterval = 0.04
-
-    // 들어오는 쪽: 나가는 글자와 겹치는 시간을 줄이려고 0.24초 뒤에 출발, 0.45초 동안 부드럽게 멈춤, 부분마다 0.05초씩 늦게
-    static let enterDelay: TimeInterval = 0.24
-    static let enterDuration: TimeInterval = 0.45
-    static let enterStagger: TimeInterval = 0.05
-
-    // 페이지 인디케이터: 0.12초 뒤에 0.38초 동안 다음 자리로
-    static let indicatorDelay: TimeInterval = 0.12
-    static let indicatorDuration: TimeInterval = 0.38
-
-    static func leave(order: Int) -> Animation {
-        Animation.timingCurve(MotionCurve.easeIn, duration: leaveDuration)
-            .delay(leaveStagger * Double(order))
-    }
-
-    static func enter(order: Int) -> Animation {
-        Animation.timingCurve(MotionCurve.easeOutExpo, duration: enterDuration)
-            .delay(enterDelay + enterStagger * Double(order))
-    }
-
-    static let indicator = Animation.timingCurve(MotionCurve.easeInOut, duration: indicatorDuration)
-        .delay(indicatorDelay)
-}
-
 // MARK: - Metrics
 
 /// 세 쪽이 같이 쓰는 고정 영역 간격 (Hi-Fi 기준)

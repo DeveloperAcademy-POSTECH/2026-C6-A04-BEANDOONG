@@ -16,11 +16,15 @@ struct HomeView: View {
     @State private var path: [Destination] = []
     /// 등장 애니메이션을 할지
     private let animatesEntrance: Bool
+    /// 화면이 실제로 보이고 있는지 (기본: 보임). 온보딩 아래에 미리 만들어 둘 때 false 로 두면,
+    /// true 가 되는 순간 등장 애니메이션이 출발해요.
+    private let isEntranceActive: Bool
     /// 홈 요소가 다 나타났는지 (등장 애니메이션을 하지 않으면 처음부터 true)
     @State private var hasEntered: Bool
 
-    init(animatesEntrance: Bool = false) {
+    init(animatesEntrance: Bool = false, isEntranceActive: Bool = true) {
         self.animatesEntrance = animatesEntrance
+        self.isEntranceActive = isEntranceActive
         _hasEntered = State(initialValue: !animatesEntrance)
     }
 
@@ -55,7 +59,10 @@ struct HomeView: View {
                     .toolbar(.hidden, for: .navigationBar)
                 }
         }
-        .onAppear(perform: enter)
+        .onAppear { if isEntranceActive { enter() } }
+        .onChange(of: isEntranceActive) { _, isActive in
+            if isActive { enter() }
+        }
         .onChange(of: practice.state.phase) { previous, current in
             // 결과 화면의 '다시 연습'으로 종료 상태를 벗어날 때만 준비 화면으로 이동합니다.
             // 최초 연습을 어느 화면에서 시작했든 준비 화면을 목적지로 명시합니다.
