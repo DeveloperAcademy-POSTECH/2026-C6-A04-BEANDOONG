@@ -7,7 +7,7 @@ import SwiftUI
 ///     ├ 상단 바: 스티밍 연습
 ///     ├ 타이틀 + 설명
 ///     ├ 피드백별 우유 일러스트
-///     └ 하단 중앙: 종료하기 버튼 (누르면 "스티밍이 끝났나요?" 팝업)
+///     └ 하단 중앙: 종료하기 버튼 (누르면 바로 정지. "스티밍이 끝났나요?" 팝업은 소리가 끊겼을 때만)
 struct SteamingFeedbackView: View {
     @Environment(\.designScale) private var scale
     let feedback: SteamingFeedback
@@ -48,9 +48,8 @@ struct SteamingFeedbackView: View {
                 Spacer(minLength: 0)
 
                 // MARK: 종료하기 버튼
-                SteamingEndButton(squareColor: feedback.stopSquareColor, width: Layout.endButtonWidth.h(scale)) {
-                    showsEndDialog = true
-                }
+                // 직접 누르면 묻지 않고 바로 정지해요. (팝업은 소리가 끊겼을 때만)
+                SteamingEndButton(squareColor: feedback.stopSquareColor, width: Layout.endButtonWidth.h(scale), action: onStop)
                 .padding(.bottom, Layout.endButtonBottom.v(scale))
             }
             .ignoresSafeArea()
