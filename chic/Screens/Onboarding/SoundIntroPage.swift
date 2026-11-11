@@ -10,11 +10,13 @@ import SwiftUI
 /// `motion`: 쪽을 넘길 때 부분마다 옆으로 밀리고 투명해지는 정도. 평소에는 제자리(`.resting`)예요.
 struct SoundIntroPage: View {
     var motion: OnboardingPageMotion = .resting
+    @Environment(\.designScale) private var scale
 
     var body: some View {
         VStack(spacing: 0) {
             // MARK: 일러스트
-            SoundRippleIllustration(spec: .soundWave)
+            SoundRippleIllustration()
+                .designScaled(width: 219, height: 153, scale)
                 .onboardingPart(motion.illustration)
                 .padding(.top, Metrics.illustrationTop)
 
