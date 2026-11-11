@@ -3,7 +3,8 @@ import Foundation
 import OSLog
 
 /// 마이크 PCM 분석을 별도 큐에서 실행하고 결과만 연습 관리자에게 전달합니다.
-// 엔진 시작·종료는 메인 액터에서, 특징·모델·종료 플래그 접근은 분석 큐에서 직렬화합니다.
+// 엔진 시작·종료는 연습 관리자의 백그라운드 작업에서 순서대로(동시에 부르지 않음), 특징·모델·종료 플래그 접근은 분석 큐에서 직렬화합니다.
+// 모델 로드와 엔진 시작은 오래 걸려서, 메인 스레드에서 하면 시작 버튼을 누른 순간 화면이 멈춰요.
 nonisolated final class SteamingAudioAnalyzer: @unchecked Sendable {
     private let logger = Logger(subsystem: "com.beandoong.cheek", category: "SteamingEnd")
     private let engine = AVAudioEngine()
@@ -17,14 +18,12 @@ nonisolated final class SteamingAudioAnalyzer: @unchecked Sendable {
     private var isStopped = false
     private var hasTap = false
 
-    @MainActor
     init() throws {
         classifier = try ChicModelV3_5()
         endDetector = try ChicEndDetector()
     }
 
     /// 오디오 세션은 연습 관리자가 활성화한 뒤 호출합니다.
-    @MainActor
     func start(onResult: @escaping @Sendable (PracticePhase) -> Void,
                onFinish: @escaping @Sendable () -> Void,
                onError: @escaping @Sendable (String) -> Void) throws {
@@ -103,7 +102,7 @@ nonisolated final class SteamingAudioAnalyzer: @unchecked Sendable {
     }
 
     /// 입력을 중지하고 큐에 남은 분석 결과를 폐기합니다.
-    @MainActor
+    /// queue.sync 를 쓰므로 분석 큐 안에서 부르면 안 됩니다.
     func stop() {
         engine.stop()
         if hasTap { engine.inputNode.removeTap(onBus: 0); hasTap = false }

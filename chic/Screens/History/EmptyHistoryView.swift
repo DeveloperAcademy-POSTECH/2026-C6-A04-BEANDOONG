@@ -8,31 +8,34 @@ import SwiftUI
 ///     ├ 타이틀 + 설명
 ///     └ 하단 버튼: [첫 연습 시작하기]
 struct EmptyHistoryView: View {
+    @Environment(\.designScale) private var scale
     let onStartPractice: () -> Void
 
     var body: some View {
         VStack(spacing: 0) {
             // MARK: 상단 네비게이션 바
             TopNavigationHeader(title: "히스토리", isDark: true)
-                .padding(.top, Layout.headerTop)
+                .padding(.top, Layout.headerTop.v(scale))
 
             // MARK: 일러스트
             AssetImageView(name: "IllustEmptyBox", width: 166, height: 122)
-                .padding(.top, Layout.illustrationTop)
+                .designScaled(width: 166, height: 122, scale)
+                .padding(.top, Layout.illustrationTop.v(scale))
 
             // MARK: 타이틀 + 설명
             DarkScreenTitle("연습 내역이 없어요")
-                .padding(.top, Layout.titleTop)
+                .padding(.top, Layout.titleTop.v(scale))
 
             DarkScreenSubtitle("첫 연습을 통해\n기록을 쌓아볼까요?")
-                .padding(.top, Layout.subtitleTop)
+                .padding(.top, Layout.subtitleTop.v(scale))
 
             Spacer(minLength: 0)
 
             // MARK: 하단 버튼
-            DarkPrimaryButton(title: "첫 연습 시작하기", action: onStartPractice)
-                .padding(.bottom, Layout.buttonBottom)
+            DarkPrimaryButton(title: "첫 연습 시작하기", width: Layout.buttonWidth.h(scale), height: BottomButton.height, action: onStartPractice)
+                .padding(.bottom, BottomButton.bottomGap.v(scale) + scale.fixedHeightAdjustment(BottomButton.height))
         }
+        .ignoresSafeArea()
         .darkScreenBackgroundWithTopGlow()
     }
 }
@@ -40,11 +43,12 @@ struct EmptyHistoryView: View {
 // MARK: - Layout
 
 private enum Layout {
-    static let headerTop: CGFloat = 22         // 상태바 ↔ 네비게이션 바
+    // 안전 영역을 무시하고 화면 맨 위·아래 기준으로 잰다. iPhone 17 안전 영역(위 62·아래 34)을 더한 값이라 17에서는 예전과 같다.
+    static let headerTop: CGFloat = 84         // 화면 위 ↔ 네비게이션 바 (62 + 22)
     static let illustrationTop: CGFloat = 240  // 네비게이션 바 ↔ 일러스트
     static let titleTop: CGFloat = 55          // 일러스트 ↔ 타이틀
     static let subtitleTop: CGFloat = 10       // 타이틀 ↔ 설명
-    static let buttonBottom: CGFloat = 10      // 버튼 ↔ 화면 하단(안전 영역)
+    static let buttonWidth: CGFloat = 363      // 버튼 폭
 }
 
 struct EmptyHistoryView_Previews: PreviewProvider {

@@ -8,9 +8,12 @@ import SwiftUI
 /// 다크 화면 큰 제목 (Bold 26, 흰색 / 여러 줄이면 가운데 정렬 + 줄간격 3)
 struct DarkScreenTitle: View {
     let text: String
+    /// 여러 줄일 때의 줄간격 (기본 3, 스티밍 피드백·청취 시안은 줄 높이 36pt라 4.7)
+    let lineSpacing: CGFloat
 
-    init(_ text: String) {
+    init(_ text: String, lineSpacing: CGFloat = 3) {
         self.text = text
+        self.lineSpacing = lineSpacing
     }
 
     var body: some View {
@@ -18,7 +21,7 @@ struct DarkScreenTitle: View {
             Text(text)
                 .font(.pretendard(.bold, size: 26))
                 .multilineTextAlignment(.center)
-                .lineSpacing(3)
+                .lineSpacing(lineSpacing)
                 .foregroundStyle(Color.white)
         } else {
             Text(text)

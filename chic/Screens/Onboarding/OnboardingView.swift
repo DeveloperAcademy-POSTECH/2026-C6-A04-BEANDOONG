@@ -8,26 +8,29 @@ import SwiftUI
 ///     ├ 페이지 인디케이터                  ← 고정 (캡슐이 다음 자리로 옮겨 감)
 ///     └ 하단 버튼: 다음                    ← 고정
 ///
-/// 어느 쪽을 보여 줄지(`page`)와 버튼 동작은 바깥(`ContentView`)에서 정해요.
-/// 이 화면은 `page`가 바뀌면 넘김 애니메이션만 해요.
+/// 쪽 이동: 좌우 스와이프 · "다음" 버튼 (마지막 쪽 버튼은 온보딩을 마치고 나가요)
+/// 어느 쪽을 보여 줄지(`page`)와 버튼·스와이프 동작은 바깥(`ContentView`)에서 정해요.
+/// 이 화면은 `page`가 바뀌면 넘김 애니메이션만 해요 (`PageTurnStack`).
 struct OnboardingView: View {
     let page: OnboardingPage
     var onNext: () -> Void = {}
     var onSkip: () -> Void = {}
+    /// 좌우로 밀었을 때 (+1: 다음 쪽, -1: 이전 쪽). 첫·마지막 쪽 범위 처리는 바깥에서 한다
+    var onSwipe: (Int) -> Void = { _ in }
+    /// 쪽 넘김이 다 끝나 한 쪽에 멈췄을 때
+    var onPageSettled: (OnboardingPage) -> Void = { _ in }
 
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    /// 지금 화면에 올라와 있는 쪽 (넘기는 중에는 나가는 쪽과 들어오는 쪽 두 개)
-    @State private var visiblePages: [OnboardingPage]
-    /// 쪽마다 일러스트 · 타이틀 · 설명이 지금 어디에 얼마나 보이는지
-    @State private var motions: [OnboardingPage: OnboardingPageMotion] = [:]
+    @Environment(\.designScale) private var scale
     /// 페이지 인디케이터가 가리키는 쪽 (내용보다 조금 늦게 옮겨 가요)
     @State private var indicatorIndex: Int
 
-    init(page: OnboardingPage, onNext: @escaping () -> Void = {}, onSkip: @escaping () -> Void = {}) {
+    init(page: OnboardingPage, onNext: @escaping () -> Void = {}, onSkip: @escaping () -> Void = {}, onSwipe: @escaping (Int) -> Void = { _ in },
+         onPageSettled: @escaping (OnboardingPage) -> Void = { _ in }) {
         self.page = page
         self.onNext = onNext
         self.onSkip = onSkip
-        _visiblePages = State(initialValue: [page])
+        self.onSwipe = onSwipe
+        self.onPageSettled = onPageSettled
         _indicatorIndex = State(initialValue: page.rawValue)
     }
 
@@ -35,27 +38,41 @@ struct OnboardingView: View {
         VStack(spacing: 0) {
             // MARK: 상단 바
             OnboardingSkipTopBar(action: onSkip)
-                .padding(.top, Metrics.topBarTop)
+                .padding(.top, Metrics.topBarTop.v(scale))
 
-            // MARK: 쪽 내용 (넘기는 동안에는 두 쪽이 겹쳐 있어요)
-            ZStack(alignment: .top) {
-                ForEach(visiblePages, id: \.self) { visiblePage in
-                    pageContent(visiblePage, motion: motions[visiblePage] ?? .resting)
-                }
+            // MARK: 쪽 내용 (넘김 애니메이션은 PageTurnStack 이 해요. 연습 준비 가이드와 같은 것)
+            PageTurnStack(
+                page: page, indicatorIndex: $indicatorIndex, indexOf: \.rawValue,
+                // 앞뒤 쪽을 미리 만들어 두어, 넘기기 시작할 때 버벅이지 않게 해요.
+                preloadedPages: { [$0.rawValue - 1, $0.rawValue + 1].compactMap(OnboardingPage.init(rawValue:)) },
+                onSettled: onPageSettled
+            ) { visiblePage, motion in
+                pageContent(visiblePage, motion: motion)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+            .contentShape(Rectangle())
+            .gesture(swipe)
 
             // MARK: 페이지 인디케이터 + 하단 버튼
             OnboardingPageIndicator(activeIndex: indicatorIndex)
-                .padding(.bottom, Metrics.indicatorBottom)
+                .padding(.bottom, Metrics.indicatorBottom.v(scale))
 
-            DarkPrimaryButton(title: "다음", action: onNext)
-                .padding(.bottom, Metrics.buttonBottom)
+            DarkPrimaryButton(title: "다음", width: Metrics.buttonWidth.h(scale), height: BottomButton.height, action: onNext)
+                .padding(.bottom, BottomButton.bottomGap.v(scale) + scale.fixedHeightAdjustment(BottomButton.height))
         }
+        .ignoresSafeArea()
         .darkScreenBackgroundWithTopGlow()
-        .onChange(of: page) { oldPage, newPage in
-            turnPage(from: oldPage, to: newPage)
-        }
+    }
+
+    /// 좌우 스와이프: 왼쪽으로 밀면 다음 쪽(+1), 오른쪽으로 밀면 이전 쪽(-1). 세로로 더 많이 움직인 제스처는 무시한다.
+    /// 쪽을 바꾸는 일은 바깥에서 정하고, 바뀌면 `PageTurnStack`이 넘김 애니메이션을 한다.
+    private var swipe: some Gesture {
+        DragGesture(minimumDistance: 24)
+            .onEnded { value in
+                let dx = value.translation.width
+                guard abs(dx) > abs(value.translation.height), abs(dx) > 50 else { return }
+                onSwipe(dx < 0 ? 1 : -1)
+            }
     }
 
     @ViewBuilder
@@ -64,43 +81,7 @@ struct OnboardingView: View {
         case .watch: WatchIntroPage(motion: motion)
         case .placement: PlacementIntroPage(motion: motion)
         case .sound: SoundIntroPage(motion: motion)
-        }
-    }
-
-    /// 쪽 넘김: 나가는 쪽은 왼쪽으로 밀리며 사라지고, 들어오는 쪽은 조금 겹쳐서 오른쪽에서 들어와요.
-    /// 일러스트 → 타이틀 → 설명 순서로 조금씩 늦게 움직여요.
-    private func turnPage(from oldPage: OnboardingPage, to newPage: OnboardingPage) {
-        // 동작 줄이기: 옆으로 밀지 않고 투명도로만 바꿔요.
-        let slide: CGFloat = reduceMotion ? 0 : PageTurnMotion.slideDistance
-
-        // 들어올 쪽을 오른쪽에 투명하게 올려 두기 (애니메이션 없이)
-        var placement = Transaction()
-        placement.disablesAnimations = true
-        withTransaction(placement) {
-            motions[newPage] = .waiting(offsetX: slide)
-            // 넘기는 도중에 또 넘기면, 그 전에 나가던 쪽은 바로 내리고 지금 쪽부터 다시 넘겨요.
-            visiblePages = [oldPage, newPage]
-        }
-
-        for (order, part) in OnboardingPagePart.allCases.enumerated() {
-            withAnimation(PageTurnMotion.leave(order: order)) {
-                motions[oldPage, default: .resting][part] = OnboardingPartMotion(offsetX: -slide, opacity: 0)
-            }
-
-            let isLastPart = order == OnboardingPagePart.allCases.count - 1
-            withAnimation(PageTurnMotion.enter(order: order)) {
-                motions[newPage, default: .resting][part] = .resting
-            } completion: {
-                // 마지막 부분까지 들어오면 나간 쪽을 화면에서 내려요.
-                // (그사이 다음 쪽으로 또 넘어갔다면 그 넘김이 정리하도록 그냥 둬요)
-                guard isLastPart, visiblePages.last == newPage else { return }
-                visiblePages = [newPage]
-                motions = [newPage: .resting]
-            }
-        }
-
-        withAnimation(PageTurnMotion.indicator) {
-            indicatorIndex = newPage.rawValue
+        case .review: ReviewIntroPage(motion: motion)
         }
     }
 }
@@ -108,10 +89,13 @@ struct OnboardingView: View {
 // MARK: - 온보딩 쪽
 
 /// 온보딩 쪽 순서 (0부터 시작하는 번호 = 페이지 인디케이터 위치)
-enum OnboardingPage: Int, CaseIterable {
+enum OnboardingPage: Int, CaseIterable, Comparable {
     case watch
     case placement
     case sound
+    case review
+
+    static func < (lhs: OnboardingPage, rhs: OnboardingPage) -> Bool { lhs.rawValue < rhs.rawValue }
 }
 
 /// 쪽 안에서 따로 움직이는 부분 (움직이는 순서대로)
@@ -173,54 +157,20 @@ extension View {
     }
 }
 
-// MARK: - 넘김 타이밍
-
-/// 쪽 넘김 사양 (애니메이션 벤치 ONB-TR)
-private enum PageTurnMotion {
-    /// 내용이 옆으로 밀리는 거리(pt)
-    static let slideDistance: CGFloat = 36
-
-    // 나가는 쪽: 0.28초 동안 점점 빨라지며 왼쪽으로, 부분마다 0.04초씩 늦게
-    static let leaveDuration: TimeInterval = 0.28
-    static let leaveStagger: TimeInterval = 0.04
-
-    // 들어오는 쪽: 나가는 글자와 겹치는 시간을 줄이려고 0.24초 뒤에 출발, 0.45초 동안 부드럽게 멈춤, 부분마다 0.05초씩 늦게
-    static let enterDelay: TimeInterval = 0.24
-    static let enterDuration: TimeInterval = 0.45
-    static let enterStagger: TimeInterval = 0.05
-
-    // 페이지 인디케이터: 0.12초 뒤에 0.38초 동안 다음 자리로
-    static let indicatorDelay: TimeInterval = 0.12
-    static let indicatorDuration: TimeInterval = 0.38
-
-    static func leave(order: Int) -> Animation {
-        Animation.timingCurve(MotionCurve.easeIn, duration: leaveDuration)
-            .delay(leaveStagger * Double(order))
-    }
-
-    static func enter(order: Int) -> Animation {
-        Animation.timingCurve(MotionCurve.easeOutExpo, duration: enterDuration)
-            .delay(enterDelay + enterStagger * Double(order))
-    }
-
-    static let indicator = Animation.timingCurve(MotionCurve.easeInOut, duration: indicatorDuration)
-        .delay(indicatorDelay)
-}
-
 // MARK: - Metrics
 
 /// 세 쪽이 같이 쓰는 고정 영역 간격 (Hi-Fi 기준)
 private enum Metrics {
-    static let topBarTop: CGFloat = 22         // 상태바 ↔ 상단 바
-    static let indicatorBottom: CGFloat = 28   // 인디케이터 ↔ 버튼
-    static let buttonBottom: CGFloat = 10      // 버튼 ↔ 화면 하단(안전 영역)
+    static let topBarTop: CGFloat = 84         // 화면 위 ↔ 상단 바 (Hi-Fi 108: 글자 y0 86.5 − 2.5)
+    static let indicatorBottom: CGFloat = 28   // 인디케이터 ↔ 버튼 (Hi-Fi 108: 인디케이터 y1 700 → 버튼 y0 728)
+    static let buttonWidth: CGFloat = 363      // Hi-Fi 버튼 폭
 }
 
 #Preview {
     @Previewable @State var page = OnboardingPage.watch
 
-    OnboardingView(page: page) {
+    OnboardingView(page: page, onNext: {
         let next = OnboardingPage(rawValue: page.rawValue + 1) ?? .watch
         page = next
-    }
+    })
 }

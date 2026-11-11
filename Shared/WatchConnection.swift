@@ -20,7 +20,8 @@ final class WatchConnection: NSObject, ObservableObject {
     @Published var errorMessage: String?
     @Published private(set) var isSending = false
 
-    var onCommand: ((WatchRequest) throws -> PracticeState)?
+    // iPhone의 연습 시작은 오디오 준비를 기다려야 해서 async 입니다.
+    var onCommand: ((WatchRequest) async throws -> PracticeState)?
     // 워치의 알림 처리는 화면 생성과 분리해 상태 수신 시 한 번만 실행합니다.
     var onStateChange: ((PracticeState, PracticeState) async -> Void)?
     private var pending: [UUID: (Result<PracticeState, Error>) -> Void] = [:]
@@ -141,7 +142,7 @@ final class WatchConnection: NSObject, ObservableObject {
                     throw ConnectionError.message("요청 시간이 지났어요. 다시 시도해주세요.")
                 }
                 #if os(iOS)
-                let current = try onCommand?(request) ?? state
+                let current = try await onCommand?(request) ?? state
                 #else
                 hasSynced = true
                 let current = state

@@ -1,16 +1,25 @@
 import SwiftUI
 
 /// 스티밍 연습 – 모델 피드백 화면 (피드백 종류에 따라 색상·텍스트·일러스트만 변경)
-/// - 디자인: Hi-Fi 변경사항 07~11
+/// - 디자인: Hi-Fi iPhone 17 - 160 · 188 · 189 · 190 · 265
 ///
 ///     ┌ 배경: 피드백별 위 → 아래 그라데이션
 ///     ├ 상단 바: 스티밍 연습
 ///     ├ 타이틀 + 설명
 ///     ├ 피드백별 우유 일러스트
-///     └ 하단 중앙: 정지 버튼
+///     └ 하단 중앙: 종료하기 버튼 (누르면 "스티밍이 끝났나요?" 팝업)
 struct SteamingFeedbackView: View {
+    @Environment(\.designScale) private var scale
     let feedback: SteamingFeedback
     var onStop: () -> Void = {}
+    /// "스티밍이 끝났나요?" 팝업을 보여 주는 중인지
+    @State private var showsEndDialog: Bool
+
+    init(feedback: SteamingFeedback, onStop: @escaping () -> Void = {}, showsEndDialog: Bool = false) {
+        self.feedback = feedback
+        self.onStop = onStop
+        _showsEndDialog = State(initialValue: showsEndDialog)
+    }
 
     var body: some View {
         ZStack {
@@ -21,26 +30,40 @@ struct SteamingFeedbackView: View {
             VStack(spacing: 0) {
                 // MARK: 상단 바
                 SteamingPracticeTopBar()
-                    .padding(.top, Layout.topBarTop)
+                    .padding(.top, Layout.topBarTop.v(scale))
 
                 // MARK: 타이틀 + 설명
-                DarkScreenTitle(feedback.title)
-                    .padding(.top, Layout.titleTop)
+                DarkScreenTitle(feedback.title, lineSpacing: Layout.titleLineSpacing)
+                    .padding(.top, Layout.titleTop.v(scale))
 
                 DarkScreenSubtitle(feedback.subtitle, color: Color.white)
-                    .padding(.top, Layout.subtitleTop)
+                    .padding(.top, Layout.subtitleTop.v(scale))
 
                 // MARK: 일러스트
                 AssetImageView(name: feedback.illustration, width: Layout.illustrationSize, height: Layout.illustrationSize)
-                    .padding(.top, Layout.illustrationTop)
+                    .designScaled(width: Layout.illustrationSize, height: Layout.illustrationSize, scale)
+                    .offset(x: feedback.illustrationOffsetX.h(scale))
+                    .padding(.top, Layout.illustrationTop.v(scale))
 
                 Spacer(minLength: 0)
 
-                // MARK: 정지 버튼
-                SteamingStopButton(squareColor: feedback.stopSquareColor, action: onStop)
-                    .padding(.bottom, Layout.stopButtonBottom)
+                // MARK: 종료하기 버튼
+                SteamingEndButton(squareColor: feedback.stopSquareColor, width: Layout.endButtonWidth.h(scale)) {
+                    showsEndDialog = true
+                }
+                .padding(.bottom, Layout.endButtonBottom.v(scale))
             }
+            .ignoresSafeArea()
         }
+        .chicAlert(
+            isPresented: showsEndDialog,
+            title: "스티밍이 끝났나요?",
+            message: "스팀 소리가 감지되지 않아요\n연습을 마쳤다면 기록을 확인해 주세요",
+            cancelTitle: "계속 연습",
+            confirmTitle: "연습 종료",
+            onCancel: { showsEndDialog = false },
+            onConfirm: { showsEndDialog = false; onStop() }
+        )
         .preferredColorScheme(.dark)
     }
 }
@@ -94,33 +117,39 @@ enum SteamingFeedback: CaseIterable {
         }
     }
 
-    /// 정지 버튼 가운데 사각형 색 = 배경 그라데이션의 위쪽 색
+    /// 일러스트 가로 위치 보정 (Hi-Fi 190: 공기 부족 일러스트만 가운데보다 8pt 왼쪽에 있음)
+    var illustrationOffsetX: CGFloat {
+        switch self {
+        case .moreAir: -8
+        default: 0
+        }
+    }
+
+    /// 종료하기 버튼 사각형 색 = 상태 팔레트 색 (배경 그라데이션의 아래쪽 색)
     var stopSquareColor: Color {
         switch self {
-        case .aeration: AppColors.aerationTop
-        case .bubble: AppColors.bubbleTop
-        case .moreAir: AppColors.moreAirTop
-        case .milkFlow: AppColors.milkFlowTop
+        case .aeration: AppColors.soundNormalAeration
+        case .bubble: AppColors.soundOverAeration
+        case .moreAir: AppColors.soundLackOfAir
+        case .milkFlow: AppColors.soundRolling
         }
     }
 }
 
-// MARK: - Layout
+// MARK: - Layout (iPhone 17 시안 측정값, pt)
 
 private enum Layout {
-    static let topBarTop: CGFloat = 13          // 상태바 ↔ 상단 바
-    static let titleTop: CGFloat = 79           // 상단 바 ↔ 타이틀
-    static let subtitleTop: CGFloat = 16        // 타이틀 ↔ 설명
-    static let illustrationTop: CGFloat = 75    // 설명 ↔ 일러스트
-    static let illustrationSize: CGFloat = 258  // 일러스트 가로·세로
-    static let stopButtonBottom: CGFloat = 74   // 정지 버튼 ↔ 화면 하단(안전 영역)
+    static let topBarTop: CGFloat = 72           // 화면 위 ↔ 상단 바 (Hi-Fi 160: 글자 y0 75 − 3)
+    static let titleTop: CGFloat = 75.5          // 상단 바 ↔ 타이틀 (Hi-Fi 160: 90 → 171)
+    static let titleLineSpacing: CGFloat = 4.7   // Hi-Fi 160: 타이틀 줄 높이 36 (171 → 207)
+    static let subtitleTop: CGFloat = 14         // 타이틀 ↔ 설명
+    static let illustrationTop: CGFloat = 76     // 설명 ↔ 일러스트 (Hi-Fi 160 343 / 188·189·190 344의 중간)
+    static let illustrationSize: CGFloat = 258   // 일러스트 가로·세로 (Hi-Fi 160: 258.5)
+    static let endButtonWidth: CGFloat = 274     // Hi-Fi 160: 캡슐 폭 274.5
+    static let endButtonBottom: CGFloat = 94     // 종료하기 버튼 ↔ 화면 하단 (Hi-Fi 160: 874 − 780)
 }
 
-struct SteamingFeedbackView_Previews: PreviewProvider {
-    static var previews: some View {
-        ForEach(SteamingFeedback.allCases, id: \.self) { feedback in
-            SteamingFeedbackView(feedback: feedback)
-                .previewDisplayName("\(feedback)")
-        }
-    }
-}
+#Preview("aeration") { SteamingFeedbackView(feedback: .aeration) }
+#Preview("bubble") { SteamingFeedbackView(feedback: .bubble) }
+#Preview("moreAir") { SteamingFeedbackView(feedback: .moreAir) }
+#Preview("milkFlow") { SteamingFeedbackView(feedback: .milkFlow) }
