@@ -6,6 +6,7 @@ import SwiftUI
 //  연습 직후 결과(PracticeResultView)와 기록 상세(HistoryDetailView)가 함께 쓰는 리포트 화면입니다.
 //  - 상단 히어로: 타이틀 + 도넛(주의 소리 비율) + 3열 요약
 //  - "스티밍 기록": 탭 3개 (한 번에 보기 / 타임라인 / 상태별 감지시간)
+//  - "연습 가이드": 비커 그림 + 공기 주입 시간에 따른 안내 카드 (`PracticeGuide`)
 //  - 하단 안내 문구
 //  Hi-Fi: 255 · 243 · 257 · 267 (연습 직후), 269 · 270 · 271 · 272 (기록 상세)
 //
@@ -135,7 +136,20 @@ struct PracticeReportPage: View {
     var onSelectTab: (PracticeReportTab) -> Void = { _ in }
 
     private var pageHeight: CGFloat {
-        tab == .durations ? ReportLayout.durationsPageHeight : ReportLayout.pageHeight
+        switch tab {
+        case .overview: ReportLayout.pageHeight
+        case .timeline: ReportLayout.timelinePageHeight
+        case .durations: ReportLayout.durationsPageHeight
+        }
+    }
+
+    /// 안내 문구 위치: 연습 가이드가 있는 탭은 그 아래, 타임라인은 차트 바로 아래
+    private var footnoteY: CGFloat {
+        switch tab {
+        case .overview: ReportLayout.footnoteY
+        case .timeline: ReportLayout.timelineFootnoteY
+        case .durations: ReportLayout.durationsFootnoteY
+        }
     }
 
     var body: some View {
@@ -159,8 +173,15 @@ struct PracticeReportPage: View {
                 }
             }
 
+            // 연습 가이드: 한 번에 보기 · 상태별 감지시간에서만 보여요 (타임라인에는 없음). 차트 바로 아래에서 시작해요.
+            if tab != .timeline {
+                ReportGuideSection(guide: PracticeGuide(result: result),
+                                   aerationSeconds: Double(result.detectedSeconds(of: .normalAeration)))
+                    .at(x: 0, y: tab == .durations ? ReportLayout.durationsGuideY : ReportLayout.guideY, scale)
+            }
+
             ReportFootnote()
-                .at(x: 0, y: tab == .durations ? ReportLayout.durationsFootnoteY : ReportLayout.footnoteY, scale)
+                .at(x: 0, y: footnoteY, scale)
         }
         .frame(maxWidth: .infinity, alignment: .topLeading)
         .frame(height: pageHeight.v(scale), alignment: .topLeading)
@@ -314,6 +335,137 @@ private struct ReportTabBar: View {
 
     private func index(of tab: PracticeReportTab) -> Int {
         PracticeReportTab.allCases.firstIndex(of: tab) ?? 0
+    }
+}
+
+// MARK: - 연습 가이드
+
+/// "연습 가이드" 제목 + 비커 그림 + 안내 카드. 위치는 섹션 맨 위(제목 글자 상자 위) 기준 (Hi-Fi 연습 가이드 3종)
+private struct ReportGuideSection: View {
+    @Environment(\.designScale) private var scale
+    let guide: PracticeGuide
+    /// 이번 연습의 공기 주입 시간 (초). 비커 우유 높이가 이 값을 따라가요.
+    let aerationSeconds: Double
+
+    var body: some View {
+        ZStack(alignment: .topLeading) {
+            Text("연습 가이드")
+                .font(.pretendard(.bold, size: 20))
+                .foregroundStyle(Color.white)
+                .at(x: ReportLayout.sectionTitleX, y: 0, scale)
+
+            ReportGuidePitcher(milkTop: GuideMilkLevel.top(forAeration: aerationSeconds))
+                .designScaled(width: ReportLayout.guidePitcherSize.width, height: ReportLayout.guidePitcherSize.height, scale)
+                .at(x: ReportLayout.guidePitcherX, y: ReportLayout.guidePitcherTop, scale)
+                .accessibilityHidden(true)
+
+            ReportGuideCard(guide: guide)
+                .at(x: ReportLayout.guideCardX, y: ReportLayout.guideCardTop, scale)
+        }
+        .frame(maxWidth: .infinity, alignment: .topLeading)
+    }
+}
+
+/// 가이드 비커: 빈 비커 그림 위에 공기 주입한 만큼 우유를 채우고, 두 점선(2초 · 5초)을 그려요.
+/// 좌표는 비커 그림(289.7×217pt) 기준, Hi-Fi 260과 3x 에셋에서 잰 값이에요.
+private struct ReportGuidePitcher: View {
+    let milkTop: CGFloat
+
+    var body: some View {
+        ZStack(alignment: .topLeading) {
+            Image("IllustPracticeGuidePitcher")
+                .resizable()
+                .frame(width: ReportLayout.guidePitcherSize.width, height: ReportLayout.guidePitcherSize.height)
+
+            GuideMilkShape(top: milkTop)
+                .fill(PracticeResultColors.guideMilk)
+
+            GuideDashLine(y: GuideMilkLevel.upperLine, from: 15.5, to: 161.5)
+                .stroke(AppColors.darkSecondaryButton, style: Self.lineStyle(phase: 2.33))
+            GuideDashLine(y: GuideMilkLevel.lowerLine, from: 13.5, to: 165.8)
+                .stroke(AppColors.darkSecondaryButton, style: Self.lineStyle(phase: 2.67))
+        }
+        .frame(width: ReportLayout.guidePitcherSize.width, height: ReportLayout.guidePitcherSize.height, alignment: .topLeading)
+    }
+
+    /// 점선: 두께 7px, 선 22px · 틈 9px (3x 에셋), 끝이 둥근 점선
+    private static func lineStyle(phase: CGFloat) -> StrokeStyle {
+        StrokeStyle(lineWidth: 7.0 / 3, lineCap: .round, dash: [5, 16.0 / 3], dashPhase: phase)
+    }
+}
+
+/// 가이드 비커 안쪽 벽 (Hi-Fi 260): 왼쪽 x = 32.9 − 0.1417y, 오른쪽 x = 149.85 + 0.1083y
+private struct GuideMilkShape: Shape {
+    let top: CGFloat
+
+    func path(in rect: CGRect) -> Path {
+        let bottom = GuideMilkLevel.bottom
+        let top = min(self.top, bottom - 1)
+        let height = bottom - top
+        let topR = min(3, height / 2)
+        let bottomR = min(10, height / 2)
+        func left(_ y: CGFloat) -> CGFloat { 32.9 - 0.1417 * y }
+        func right(_ y: CGFloat) -> CGFloat { 149.85 + 0.1083 * y }
+        let topLeft = CGPoint(x: left(top), y: top)
+        let topRight = CGPoint(x: right(top), y: top)
+        let bottomRight = CGPoint(x: right(bottom), y: bottom)
+        let bottomLeft = CGPoint(x: left(bottom), y: bottom)
+        var path = Path()
+        path.move(to: CGPoint(x: (topLeft.x + topRight.x) / 2, y: top))
+        path.addArc(tangent1End: topRight, tangent2End: bottomRight, radius: topR)
+        path.addArc(tangent1End: bottomRight, tangent2End: bottomLeft, radius: bottomR)
+        path.addArc(tangent1End: bottomLeft, tangent2End: topLeft, radius: bottomR)
+        path.addArc(tangent1End: topLeft, tangent2End: topRight, radius: topR)
+        path.closeSubpath()
+        return path
+    }
+}
+
+private struct GuideDashLine: Shape {
+    let y: CGFloat
+    let from: CGFloat
+    let to: CGFloat
+
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        path.move(to: CGPoint(x: from, y: y))
+        path.addLine(to: CGPoint(x: to, y: y))
+        return path
+    }
+}
+
+/// 안내 카드: 왼쪽 아이콘 + 제목 + 설명
+private struct ReportGuideCard: View {
+    @Environment(\.designScale) private var scale
+    let guide: PracticeGuide
+
+    var body: some View {
+        ZStack(alignment: .topLeading) {
+            RoundedRectangle(cornerRadius: ReportLayout.guideCardRadius, style: .continuous)
+                .fill(PracticeResultColors.cardBackground)
+
+            Image(systemName: guide.systemImage)
+                .font(.system(size: guide == .onTarget ? 19 : 22, weight: guide == .onTarget ? .semibold : .regular))
+                .foregroundStyle(Color.white)
+                .frame(width: 28, height: 28)
+                .position(x: ReportLayout.guideIconCenter.x.h(scale), y: ReportLayout.guideIconCenter.y.v(scale))
+                .accessibilityHidden(true)
+
+            VStack(alignment: .leading, spacing: ReportLayout.guideTitleToMessage.v(scale)) {
+                Text(guide.title)
+                    .font(.pretendard(.semibold, size: 16))
+                    .foregroundStyle(Color.white)
+                Text(guide.message)
+                    .font(.pretendard(.regular, size: 12))
+                    .lineSpacing(ReportLayout.guideMessageLineSpacing)
+                    .foregroundStyle(PracticeResultColors.guideMessage)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .frame(width: ReportLayout.guideTextWidth.h(scale), alignment: .leading)
+            .at(x: ReportLayout.guideTextX, y: ReportLayout.guideTextTop, scale)
+        }
+        .frame(width: ReportLayout.guideCardWidth.h(scale), height: ReportLayout.guideCardHeight.v(scale), alignment: .topLeading)
+        .accessibilityElement(children: .combine)
     }
 }
 
@@ -645,9 +797,12 @@ enum ReportColors {
 // MARK: - Layout (iPhone 17 시안 측정값, pt · 왼쪽 위 기준 절대 좌표)
 
 enum ReportLayout {
-    // 페이지 높이: Hi-Fi 255 · 243 (1079) / 257 (1568)
-    static let pageHeight: CGFloat = 1079
-    static let durationsPageHeight: CGFloat = 1568
+    // 페이지 높이: Hi-Fi 255 · 243 (1079) / 257 (1568)에 연습 가이드(+383)를 더함 (Hi-Fi 연습 가이드: 1462)
+    static let guideSectionHeight: CGFloat = 383
+    static let pageHeight: CGFloat = 1079 + guideSectionHeight
+    /// 타임라인은 연습 가이드가 없어 예전 높이 그대로 (Hi-Fi 243)
+    static let timelinePageHeight: CGFloat = 1079
+    static let durationsPageHeight: CGFloat = 1568 + guideSectionHeight
 
     // 상단 바
     static let topBarBottomPadding: CGFloat = 16 // 상단 바 아래 배경 여유
@@ -721,7 +876,27 @@ enum ReportLayout {
     static let legendRowHeight: CGFloat = 28.5
     static let legendRowAdjust: [CGFloat] = [-1.5, 1.5, 0] // 줄마다 아이콘 높이가 달라 위쪽 끝이 시안과 맞도록 보정
 
-    // 안내 문구
-    static let footnoteY: CGFloat = 1020
-    static let durationsFootnoteY: CGFloat = 1509.5
+    // 연습 가이드 (Hi-Fi 연습 가이드 3종, 섹션 맨 위 = 제목 글자 상자 위 기준)
+    // 예전 안내 문구 자리(1020 / 1509.5)에서 16.3pt 위에서 시작해요 (Hi-Fi: 제목 글자 윗선 1006.5 − 2.8)
+    static let guideY: CGFloat = 1020 - 16.3
+    static let durationsGuideY: CGFloat = 1509.5 - 16.3
+    static let guidePitcherX: CGFloat = 112.7             // 비커 그림 왼쪽 (Hi-Fi 260: 비커 바닥 왼쪽 114 − 에셋 여백 1.3, 노즐이 화면 오른쪽 끝까지)
+    static let guidePitcherTop: CGFloat = 1045.8 - 1003.7 // 제목 ↔ 비커 그림 위 (Hi-Fi 260: 노즐 위 1046)
+    static let guidePitcherSize = CGSize(width: 869.0 / 3, height: 651.0 / 3)
+    static let guideCardX: CGFloat = 19.7
+    static let guideCardTop: CGFloat = 1289.3 - 1003.7
+    static let guideCardWidth: CGFloat = 362.6
+    static let guideCardHeight: CGFloat = 87.7
+    static let guideCardRadius: CGFloat = 10
+    static let guideIconCenter = CGPoint(x: 51.8 - 19.7, y: 1316.6 - 1289.3)
+    static let guideTextX: CGFloat = 78.9 - 19.7
+    static let guideTextTop: CGFloat = 15.6           // 카드 위 ↔ 제목 글자 상자 (Hi-Fi: 글자 윗선 16.8)
+    static let guideTextWidth: CGFloat = 290
+    static let guideTitleToMessage: CGFloat = 7.4     // Hi-Fi: 설명 글자 윗선 43.1
+    static let guideMessageLineSpacing: CGFloat = 1.8 // Hi-Fi: 설명 줄 높이 16.1
+
+    // 안내 문구 (연습 가이드 아래로 내려감)
+    static let footnoteY: CGFloat = 1020 + 392.7
+    static let timelineFootnoteY: CGFloat = 1020
+    static let durationsFootnoteY: CGFloat = 1509.5 + 392.7
 }

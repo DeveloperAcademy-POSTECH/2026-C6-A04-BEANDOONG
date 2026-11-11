@@ -48,7 +48,26 @@ struct PracticeResultTests {
         try verifyReload(record: record, expected: result, directory: directory)
         try verifyLegacyMigration(in: directory.appending(path: "migration"), start: start)
         try verifyDelete(in: directory.appending(path: "delete"), segments: timeline.segments, start: start)
-        print("PracticeResultTests passed (timeline, summaries, SwiftData persistence, legacy migration, delete)")
+        // 연습 가이드: 공기 주입 2~5초면 기준 안, 그보다 짧거나 길면 안내가 달라져요 (연습 중 비커 점선과 같은 기준).
+        precondition(PracticeGuide.aerationRange == 2...5)
+        precondition(PracticeGuide(aerationSeconds: 0) == .aerationTooShort)
+        precondition(PracticeGuide(aerationSeconds: 1) == .aerationTooShort)
+        precondition(PracticeGuide(aerationSeconds: 2) == .onTarget)
+        precondition(PracticeGuide(aerationSeconds: 5) == .onTarget)
+        precondition(PracticeGuide(aerationSeconds: 6) == .aerationTooLong)
+        precondition(PracticeGuide(result: result) == .onTarget)                    // 공기 주입 4초
+        precondition(PracticeGuide(result: .sample) == .aerationTooLong)            // 시안 데이터: 공기 주입 6초
+        precondition(PracticeGuide(result: .empty) == .aerationTooShort)
+        // 가이드 비커 수위: 2초 아래 점선, 5초 위 점선, 3.5초 그 사이, 0초 바닥 근처, 오래 하면 점선 위로
+        func near(_ a: CGFloat, _ b: CGFloat) -> Bool { abs(a - b) < 0.01 }
+        precondition(near(GuideMilkLevel.top(forAeration: 2), GuideMilkLevel.lowerLine))
+        precondition(near(GuideMilkLevel.top(forAeration: 5), GuideMilkLevel.upperLine))
+        let midLevel = GuideMilkLevel.top(forAeration: 3.5)
+        precondition(midLevel < GuideMilkLevel.lowerLine && midLevel > GuideMilkLevel.upperLine)
+        precondition(GuideMilkLevel.top(forAeration: 0) > GuideMilkLevel.lowerLine && GuideMilkLevel.top(forAeration: 0) < GuideMilkLevel.bottom)
+        precondition(GuideMilkLevel.top(forAeration: 9) < GuideMilkLevel.upperLine)
+
+        print("PracticeResultTests passed (timeline, summaries, guide, SwiftData persistence, legacy migration, delete)")
     }
 
     /// 소리가 끊긴 시각(마지막 기록보다 앞)으로 끝내면 그 뒤 구간을 잘라 냅니다.

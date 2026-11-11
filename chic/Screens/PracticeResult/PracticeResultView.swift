@@ -18,6 +18,7 @@ import SwiftUI
 ///     ┌ 상단 바: < 연습 결과                🗑
 ///     ├ 히어로: "이번 연습을 함께 돌아볼까요?" + 도넛 + 3열 요약
 ///     ├ 스티밍 기록: 탭 [한 번에 보기 | 타임라인 | 상태별 감지시간]
+///     ├ 연습 가이드: 비커 그림 + 공기 주입 시간 안내 카드 (기준 안 · 너무 김 · 너무 짧음)
 ///     └ 안내 문구
 /// 공통 본문은 `PracticeReportScreen`이 그립니다. (기록 상세 `HistoryDetailView`와 같은 구성)
 struct PracticeResultView: View {
@@ -67,6 +68,10 @@ enum PracticeResultColors {
     static let tickLine = Color(hex: 0x78797B)
     /// 하단 안내 문구
     static let footnote = Color(hex: 0x98A2B3)
+    /// 연습 가이드 비커의 우유 (Hi-Fi 260)
+    static let guideMilk = Color(hex: 0x686E79)
+    /// 연습 가이드 카드 설명 (Hi-Fi 연습 가이드: 182,184,188)
+    static let guideMessage = Color(hex: 0xB6B8BC)
 }
 
 // MARK: - 미리보기
