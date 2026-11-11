@@ -21,7 +21,8 @@ final class PracticeSession: ObservableObject {
     @Published var errorMessage: String?
     @Published private(set) var history: [PracticeRecordEntity] = []
     @Published private(set) var result: PracticeResult?
-    /// 스팀 소리가 끊긴 시각. 값이 있는 동안 화면에서 "스티밍이 끝났나요?"를 묻습니다. (iPhone에서만, 워치에는 보내지 않아요)
+    /// 연습이 끝난 것 같은 시각 (소리 끊김 · 종료음 · 청소음). 값이 있는 동안 화면에서 "스티밍이 끝났나요?"를 묻습니다.
+    /// 소리로는 자동 종료하지 않아요. (iPhone에서만, 워치에는 보내지 않아요)
     @Published private(set) var silenceStartedAt: Date?
     /// 이번 연습에서 공기 주입(파랑) 화면이 떠 있던 누적 시간. 연습 화면의 비커 수위가 이 값을 따라가요. (iPhone에서만)
     @Published private(set) var aerationClock = AerationClock()
@@ -145,9 +146,6 @@ final class PracticeSession: ObservableObject {
                 self.silenceStartedAt = nil
             }
         }
-        let onFinish: @Sendable () -> Void = { [weak self] in
-            Task { @MainActor [weak self] in self?.stopIfCurrent(id) }
-        }
         let onError: @Sendable (String) -> Void = { [weak self] message in
             Task { @MainActor [weak self] in self?.stopIfCurrent(id, errorMessage: message) }
         }
@@ -159,7 +157,7 @@ final class PracticeSession: ObservableObject {
             try audio.setActive(true)
             do {
                 try analyzer.start(onResult: onResult, onSilence: onSilence, onSoundResumed: onSoundResumed,
-                                   onFinish: onFinish, onError: onError)
+                                   onError: onError)
             } catch {
                 analyzer.stop()
                 // 분석 시작에 실패하면 오디오 세션을 정리하고 오류를 호출자에게 전달합니다.
@@ -187,7 +185,7 @@ final class PracticeSession: ObservableObject {
         publish()
     }
 
-    /// 자동 종료, iPhone 정지 버튼, 워치 종료 요청 또는 오디오 중단·오류 시 호출합니다.
+    /// iPhone 정지 버튼, 워치 종료 요청 또는 오디오 중단·오류 시 호출합니다. (소리로는 자동 종료하지 않고 먼저 물어요)
     /// 분석을 끝내고 결과를 저장하며, .finished로 바꿔 결과 화면을 표시하게 합니다.
     func stop() {
         finish(endedAt: Date())
@@ -212,7 +210,7 @@ final class PracticeSession: ObservableObject {
               let startedAt = state.startedAt else { return }
         let endedAt = max(startedAt, min(requestedEnd, Date()))
         // 엔진 종료와 오디오 세션 비활성화는 오래 걸릴 수 있어 메인 스레드 밖에서 합니다.
-        // 그사이 도착한 분석 결과는 updateFeedback · onFinish 의 phase · sessionID 검사로 버려집니다.
+        // 그사이 도착한 분석 결과는 updateFeedback 의 phase · sessionID 검사로 버려집니다.
         let analyzer = soundAnalyzer
         soundAnalyzer = nil
         audioTeardown = Self.tearDownAudio(analyzer)
@@ -314,7 +312,7 @@ final class PracticeSession: ObservableObject {
         }
     }
 
-    /// 분석기가 끝(자동 종료)이나 오류를 알렸을 때, 그 분석이 지금 진행 중인 연습의 것이면 종료합니다.
+    /// 분석기가 오류를 알렸을 때, 그 분석이 지금 진행 중인 연습의 것이면 종료합니다.
     private func stopIfCurrent(_ id: UUID, errorMessage message: String? = nil) {
         guard state.sessionID == id, state.phase.isRunning else { return }
         stop()
