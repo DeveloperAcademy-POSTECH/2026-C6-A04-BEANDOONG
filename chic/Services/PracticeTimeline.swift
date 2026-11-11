@@ -13,9 +13,15 @@ struct PracticeTimeline {
         sound = next
     }
 
+    /// 끝 시각에서 구간을 닫습니다. 소리가 끊긴 시각처럼 마지막 기록보다 앞선 시각으로 끝내면, 그 뒤 구간은 잘라 냅니다.
     mutating func finish(at time: TimeInterval) {
         closeSegment(at: time)
         sound = nil
+        guard segments.contains(where: { $0.end > time }) else { return }
+        segments = segments.compactMap { segment in
+            guard segment.start < time else { return nil }
+            return segment.end > time ? DetectedSegment(sound: segment.sound, start: segment.start, end: time) : segment
+        }
     }
 
     private mutating func closeSegment(at time: TimeInterval) {

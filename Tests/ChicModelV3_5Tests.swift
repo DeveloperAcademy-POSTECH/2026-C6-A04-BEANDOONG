@@ -184,8 +184,26 @@ import Foundation
         precondition(rule.consume(work: 0.3, end: 0, purge: 0) == nil)
         for _ in 0..<19 { precondition(rule.consume(work: 0.299, end: 0, purge: 0) == nil) }
         precondition(rule.consume(work: 0.299, end: 0, purge: 0) == .disappearance)
-        rule.activate()
-        precondition(rule.consume(work: 0, end: 1, purge: 1) == nil)
+        // 소리 끊김은 끝내지 않고 한 번만 알림: 계속 조용해도 다시 알리지 않음
+        precondition(rule.isSilent && !rule.isFinished && rule.isActive)
+        for _ in 0..<60 { precondition(rule.consume(work: 0, end: 0, purge: 0) == nil) }
+        // 작업 점수가 2번만 이어지면 아직 끊김 그대로 → 다시 20번 낮아도 알리지 않음
+        for _ in 0..<2 { precondition(rule.consume(work: 0.3, end: 0, purge: 0) == nil) }
+        for _ in 0..<20 { precondition(rule.consume(work: 0, end: 0, purge: 0) == nil) }
+        precondition(rule.isSilent)
+        // 3번 이어지면 소리가 다시 이어진 것 → 다음 끊김을 다시 알림
+        for _ in 0..<3 { precondition(rule.consume(work: 0.5, end: 0, purge: 0) == nil) }
+        precondition(!rule.isSilent)
+        for _ in 0..<19 { precondition(rule.consume(work: 0, end: 0, purge: 0) == nil) }
+        precondition(rule.consume(work: 0, end: 0, purge: 0) == .disappearance)
+        // 끊김 중에도 종료음 · 청소음은 바로 종료하고, 그 뒤로는 아무것도 반환하지 않음
+        var silentEnd = rule
+        precondition(silentEnd.consume(work: 0, end: 1, purge: 0) == .endSound && silentEnd.isFinished)
+        silentEnd.activate()
+        precondition(silentEnd.consume(work: 0, end: 1, purge: 1) == nil)
+        for _ in 0..<2 { precondition(rule.consume(work: 0, end: 0, purge: 1) == nil) }
+        precondition(rule.consume(work: 0, end: 0, purge: 1) == .cleaning && rule.isFinished)
+        precondition(ChicEndRule.Reason.endSound.finishes && ChicEndRule.Reason.cleaning.finishes && !ChicEndRule.Reason.disappearance.finishes)
         var end = ChicEndRule(); end.activate()
         precondition(end.consume(work: 0.1, end: 0.599999, purge: 0) == nil)
         precondition(end.consume(work: 0.1, end: 0.6, purge: 0) == .endSound)
@@ -206,6 +224,7 @@ import Foundation
         for i in 0..<60 { precondition(alternating.consume(work: i % 2 == 0 ? 0 : 1, end: 0, purge: 0) == nil) }
         print("PASS work >=0.3 suppresses disappearance for 60 updates; nonconsecutive low work does not finish")
         print("PASS first-feedback activation, strict <0.3 x20, reset at 0.3, priority and single completion")
+        print("PASS silence is reported once without finishing, re-armed after 3 working updates; end/cleaning still finish")
     }
 
     /// 실제 PCM 뒤 무음을 붙인 독립 Python 점수와 두 버퍼 방식의 출력이 일치하는지 확인합니다.

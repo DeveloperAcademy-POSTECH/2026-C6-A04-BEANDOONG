@@ -51,13 +51,8 @@ struct PracticeReportScreen: View {
     var onBack: (() -> Void)? = nil
     /// 삭제 팝업에서 "기록 삭제"를 확인했을 때
     var onDelete: (() -> Void)? = nil
-    /// 화면이 실제로 보이고 있는지 (기본: 보임). 미리 만들어 둘 때 false 로 두면, true 가 되는 순간 등장 애니메이션이 출발해요.
-    var isRevealActive: Bool = true
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var tab: PracticeReportTab
     @State private var showsDeleteDialog: Bool
-    /// 위 도넛 · 막대 · 원의 등장 애니메이션 진행 (ReportReveal.swift)
-    @State private var reveal: ReportReveal
 
     init(
         result: PracticeResult,
@@ -67,8 +62,7 @@ struct PracticeReportScreen: View {
         onBack: (() -> Void)? = nil,
         onDelete: (() -> Void)? = nil,
         initialTab: PracticeReportTab = .overview,
-        showsDeleteDialog: Bool = false,
-        isRevealActive: Bool = true
+        showsDeleteDialog: Bool = false
     ) {
         self.result = result
         self.headline = headline
@@ -78,8 +72,6 @@ struct PracticeReportScreen: View {
         self.onDelete = onDelete
         _tab = State(initialValue: initialTab)
         _showsDeleteDialog = State(initialValue: showsDeleteDialog)
-        self.isRevealActive = isRevealActive
-        _reveal = State(initialValue: ReportReveal(initialTab: initialTab, isActive: isRevealActive))
     }
 
     var body: some View {
@@ -90,7 +82,6 @@ struct PracticeReportScreen: View {
                     // (짧은 탭으로 바꾸면 영역이 줄면서 스크롤 위치가 당겨져 탭 바가 갑자기 아래로 튀었어요)
                     .frame(height: ReportLayout.durationsPageHeight.v(scale), alignment: .top)
             }
-            .environment(\.reportReveal, reveal)
             .scrollIndicators(.hidden)
             .ignoresSafeArea()
 
@@ -124,20 +115,11 @@ struct PracticeReportScreen: View {
         )
         .toolbar(.hidden, for: .navigationBar)
         .swipeBackDisabled(showsDeleteDialog)
-        .onAppear {
-            reveal.reduceMotion = reduceMotion
-            reveal.startHero()
-        }
-        .onChange(of: reduceMotion) { _, newValue in reveal.reduceMotion = newValue }
-        .onChange(of: isRevealActive) { _, isActive in
-            if isActive { reveal.activate() }
-        }
     }
 
-    /// 탭을 눌렀을 때: 내용을 바꾸고, 그 탭의 막대·원을 처음부터 다시 나오게 해요 (같은 탭을 다시 눌러도 다시 나와요).
+    /// 탭을 눌렀을 때: 내용을 바로 바꿔요.
     private func selectTab(_ newTab: PracticeReportTab) {
         tab = newTab
-        reveal.select(newTab)
     }
 }
 
@@ -151,10 +133,6 @@ struct PracticeReportPage: View {
     let headline: String
     var variant: ReportVariant = .practiceResult
     var onSelectTab: (PracticeReportTab) -> Void = { _ in }
-
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
-
-    private static let contentTransition = AnyTransition.asymmetric(insertion: .opacity, removal: .identity)
 
     private var pageHeight: CGFloat {
         tab == .durations ? ReportLayout.durationsPageHeight : ReportLayout.pageHeight
@@ -172,15 +150,14 @@ struct PracticeReportPage: View {
             ReportTabBar(selected: tab, onSelect: onSelectTab)
                 .at(x: ReportLayout.tabBarX, y: ReportLayout.tabBarY, scale)
 
-            // 새 탭 내용은 0.18초 동안 나타나고, 이전 내용은 바로 사라져요
+            // 탭을 바꾸면 내용이 바로 바뀌어요 (나타나는 효과 없음)
             ZStack(alignment: .topLeading) {
                 switch tab {
-                case .overview: ReportOverviewChart(result: result, shiftX: variant.overviewShiftX).transition(Self.contentTransition)
-                case .timeline: ReportTimelineChart(result: result).transition(Self.contentTransition)
-                case .durations: ReportDurationsChart(result: result).transition(Self.contentTransition)
+                case .overview: ReportOverviewChart(result: result, shiftX: variant.overviewShiftX)
+                case .timeline: ReportTimelineChart(result: result)
+                case .durations: ReportDurationsChart(result: result)
                 }
             }
-            .animation(reduceMotion ? nil : ReportMotion.contentFade, value: tab)
 
             ReportFootnote()
                 .at(x: 0, y: tab == .durations ? ReportLayout.durationsFootnoteY : ReportLayout.footnoteY, scale)
@@ -222,12 +199,10 @@ private struct ReportHero: View {
 
             // 도넛: 주의 소리 비율
             ZStack {
-                // 화면이 열리면 분홍 호가 시계 방향으로 차올라요 (ReportReveal.swift)
-                ReportRevealProgress(section: .heroRing) { progress in
-                    ArcRing(ratio: result.cautionRatio * ReportMotion.easeOutQuart(progress), lineWidth: ReportLayout.donutLineWidth,
-                            color: AppColors.soundCaution, introTarget: result.cautionRatio)
-                        .frame(width: ReportLayout.donutDiameter.h(scale), height: ReportLayout.donutDiameter.h(scale))
-                }
+                // 분홍 호는 처음부터 다 그려져 있어요. (introTarget: 아주 작은 비율도 둥근 끝 하나 크기의 점으로 보여요)
+                ArcRing(ratio: result.cautionRatio, lineWidth: ReportLayout.donutLineWidth,
+                        color: AppColors.soundCaution, introTarget: result.cautionRatio)
+                    .frame(width: ReportLayout.donutDiameter.h(scale), height: ReportLayout.donutDiameter.h(scale))
                 VStack(spacing: ReportLayout.donutTextSpacing) {
                     Text("\(Int((result.cautionRatio * 100).rounded()))%")
                         .font(.pretendard(.bold, size: 36))
@@ -305,7 +280,7 @@ private struct ReportTabBar: View {
     let selected: PracticeReportTab
     let onSelect: (PracticeReportTab) -> Void
 
-    /// 알약과 글자의 가운데 x (탭 바 왼쪽 기준). 글자는 어느 탭이 선택돼도 제자리에 있고 알약만 미끄러져요 (애니메이션 벤치와 같아요).
+    /// 알약과 글자의 가운데 x (탭 바 왼쪽 기준). 글자는 어느 탭이 선택돼도 제자리에 있고 알약만 옮겨 가요.
     /// 시안은 선택된 탭에 따라 글자 위치를 최대 17pt 다르게 그려 두었지만, 글자가 같이 움직여 어색해서 알약 가운데로 고정했어요.
     private static let pillCenters: [CGFloat] = [58.5, 180.5, 302.5]
 
@@ -313,13 +288,12 @@ private struct ReportTabBar: View {
         ZStack(alignment: .topLeading) {
             Capsule().fill(ReportColors.tabBarBackground)
 
-            // 선택 표시는 0.32초 동안 미끄러져요 (글자는 바로 바뀌고, 위치만 같은 곡선으로 옮겨 가요)
+            // 선택 표시는 누른 탭으로 바로 옮겨 가요 (미끄러지는 효과 없음)
             Capsule()
                 .fill(ReportColors.tabSelected)
                 .frame(width: ReportLayout.tabPillWidth.h(scale), height: ReportLayout.tabPillHeight.v(scale))
                 .offset(x: (Self.pillCenters[index(of: selected)] - ReportLayout.tabPillWidth / 2).h(scale),
                         y: ReportLayout.tabPillTop.v(scale))
-                .animation(ReportMotion.tabSlide, value: selected)
 
             ForEach(Array(PracticeReportTab.allCases.enumerated()), id: \.offset) { index, tab in
                 let isSelected = tab == selected
@@ -327,7 +301,6 @@ private struct ReportTabBar: View {
                     Text(tab.title(isSelected: isSelected))
                         .font(.pretendard(.semibold, size: 12))
                         .foregroundStyle(Color.white)
-                        .contentTransition(.identity) // 글자는 바로 바뀌고 위치만 미끄러져요
                         .fixedSize()
                         .frame(width: CGFloat(130).h(scale), height: ReportLayout.tabBarHeight.v(scale))
                 }
@@ -393,8 +366,7 @@ private struct ReportOverviewChart: View {
 
                 rowText(row.0, color: .white, x: ReportLayout.overviewLabelX, y: y)
 
-                ReportBar(result: result, sounds: [row.1], width: ReportLayout.overviewTrackWidth.h(scale), height: ReportLayout.overviewBarHeight.v(scale),
-                          section: .bar(.overview, index))
+                ReportBar(result: result, sounds: [row.1], width: ReportLayout.overviewTrackWidth.h(scale), height: ReportLayout.overviewBarHeight.v(scale))
                     .at(x: ReportLayout.overviewTrackX, y: y, scale)
 
                 rowText(Self.percentText(seconds: seconds, total: result.totalSeconds), color: ReportColors.summaryLabel,
@@ -448,8 +420,7 @@ private struct ReportTimelineChart: View {
                     .foregroundStyle(Color.white)
                     .at(x: ReportLayout.timelineTrackX, y: top, scale)
 
-                ReportBar(result: result, sounds: group.1, width: ReportLayout.timelineTrackWidth.h(scale), height: ReportLayout.timelineBarHeight.v(scale),
-                          section: .bar(.timeline, index))
+                ReportBar(result: result, sounds: group.1, width: ReportLayout.timelineTrackWidth.h(scale), height: ReportLayout.timelineBarHeight.v(scale))
                     .at(x: ReportLayout.timelineTrackX, y: top + ReportLayout.timelineLabelToBar, scale)
 
                 ReportAxis(width: ReportLayout.timelineTrackWidth.h(scale), ticks: result.tickLabels)
@@ -462,32 +433,13 @@ private struct ReportTimelineChart: View {
 // MARK: - 막대 · 눈금
 
 /// 어두운 트랙 위에 소리 구간을 칠하고, 눈금 위치(8 · 12 · 16 · 20)에 가는 선을 긋는 막대
-/// - `section`을 주면 등장 애니메이션을 해요: 줄 전체(트랙 · 소리 구간 · 눈금선)가 왼쪽에서 오른쪽으로 드러나요 (ReportReveal.swift).
 private struct ReportBar: View {
-    @Environment(\.reportReveal) private var reveal
     let result: PracticeResult
     let sounds: [DetectedSound]
     let width: CGFloat
     let height: CGFloat
-    var section: ReportReveal.Section? = nil
 
     var body: some View {
-        if let section {
-            ReportRevealProgress(section: section) { progress in
-                bar
-                    // 막대 오른쪽 끝의 번짐까지 드러나도록 1pt 더 여유를 둬요
-                    .mask(alignment: .leading) {
-                        Rectangle().frame(width: (width + 1) * ReportMotion.easeOutCubic(progress))
-                    }
-            }
-            .frame(width: width, height: height)
-            .revealsWhenVisible(section, in: reveal)
-        } else {
-            bar
-        }
-    }
-
-    private var bar: some View {
         let length = max(result.timelineLength, 1)
         return ZStack(alignment: .topLeading) {
             Rectangle().fill(ReportColors.track)
@@ -568,16 +520,13 @@ private struct ReportDurationsChart: View {
         (.lackOfAir, "공기 부족", "waveform.path.ecg", AppColors.soundLackOfAir)
     ]
 
-    @Environment(\.reportReveal) private var reveal
-
     var body: some View {
         let seconds = Self.slices.map { result.detectedSeconds(of: $0.0) }
         let aerationTotal = seconds.reduce(0, +)
         ZStack(alignment: .topLeading) {
-            // 공기 주입 도넛 (정상 · 과다 · 부족): 시계 방향으로 차올라요
-            ReportSliceDonut(values: seconds.map(Double.init), colors: Self.slices.map(\.3), symbols: Self.slices.map(\.2), section: .donut(0))
+            // 공기 주입 도넛 (정상 · 과다 · 부족)
+            ReportSliceDonut(values: seconds.map(Double.init), colors: Self.slices.map(\.3), symbols: Self.slices.map(\.2))
                 .frame(width: ReportLayout.durationsDonutDiameter.h(scale), height: ReportLayout.durationsDonutDiameter.h(scale))
-                .revealsWhenVisible(.donut(0), in: reveal)
                 .overlay { donutCaption(seconds: aerationTotal, label: "전체 공기주입", labelSize: 12) }
                 .at(x: ReportLayout.durationsDonutX, y: ReportLayout.durationsDonut1Y, scale)
 
@@ -601,14 +550,10 @@ private struct ReportDurationsChart: View {
                 .at(x: ReportLayout.legendX, y: ReportLayout.legendFirstY + CGFloat(index) * ReportLayout.legendPitch + ReportLayout.legendRowAdjust[index], scale)
             }
 
-            // 롤링 도넛: 한 바퀴가 시계 방향으로 차올라요
-            ReportRevealProgress(section: .donut(1)) { progress in
-                ArcFill(seenDegrees: 360 * ReportMotion.easeOutQuart(progress), startDegrees: ReportLayout.durationsRingStartDegrees,
-                        lineWidth: ReportLayout.donutLineWidth, color: AppColors.soundRolling, closed: true)
-                    .frame(width: ReportLayout.durationsDonutDiameter.h(scale), height: ReportLayout.durationsDonutDiameter.h(scale))
-            }
-            .frame(width: ReportLayout.durationsDonutDiameter.h(scale), height: ReportLayout.durationsDonutDiameter.h(scale))
-            .revealsWhenVisible(.donut(1), in: reveal)
+            // 롤링 도넛: 한 바퀴
+            ArcFill(seenDegrees: 360, startDegrees: ReportLayout.durationsRingStartDegrees,
+                    lineWidth: ReportLayout.donutLineWidth, color: AppColors.soundRolling, closed: true)
+                .frame(width: ReportLayout.durationsDonutDiameter.h(scale), height: ReportLayout.durationsDonutDiameter.h(scale))
                 .overlay { donutCaption(seconds: result.detectedSeconds(of: .rolling), label: "롤링 소리", labelSize: 14) }
                 .at(x: ReportLayout.durationsDonutX, y: ReportLayout.durationsDonut2Y, scale)
         }
@@ -630,25 +575,15 @@ private struct ReportDurationsChart: View {
 /// 값 비율대로 나뉜 둥근 호들 (호끼리 맞닿고, 호 끝에 아이콘)
 /// - 보이는 호(둥근 끝 포함)가 12시 방향(0°)에서 시작해 (Hi-Fi 257 측정은 −23.5°였으나 새 요청으로 12시부터 시작) `비율 × 360°`씩 이어지고, 호 사이는 0.4°만 비어 있다.
 ///   (파랑 216.6° · 주황 71.4° · 보라 70.7° = 6 : 2 : 2). 아이콘은 각 호의 끝 둥근 끝 중심에 놓인다.
-/// - 등장 애니메이션: 호들이 이어서 시계 방향으로 차오르고(1초), 아이콘은 자기 호가 끝나기 조금 전부터 나타나요.
-///   다 차오른 모습은 위 측정값 그대로예요 (ReportReveal.swift).
 private struct ReportSliceDonut: View {
     let values: [Double]
     let colors: [Color]
     let symbols: [String]
-    let section: ReportReveal.Section
 
     private let lineWidth = ReportLayout.donutLineWidth
     private let gapDegrees = 0.4
 
     var body: some View {
-        ReportRevealProgress(section: section) { progress in
-            donut(seen: 360 * ReportMotion.easeOutQuart(progress))
-        }
-    }
-
-    /// 처음부터 `seen`도까지 차오른 모습
-    private func donut(seen: Double) -> some View {
         GeometryReader { proxy in
             let diameter = min(proxy.size.width, proxy.size.height)
             let radius = (diameter - lineWidth) / 2
@@ -659,17 +594,14 @@ private struct ReportSliceDonut: View {
                     // 감지되지 않은(0초) 항목은 호도 아이콘도 그리지 않아요.
                     if value > 0 {
                         let visible = visibleRange(index: index, total: total)
-                        let from = visible.lowerBound - ReportLayout.durationsRingStartDegrees
                         let full = visible.upperBound - visible.lowerBound
                         let arc = centerline(of: visible, capDegrees: capDegrees)
-                        let iconAt = from + full - ReportMotion.iconLeadDegrees
-                        ArcFill(seenDegrees: min(full, max(0, seen - from)), startDegrees: visible.lowerBound,
+                        ArcFill(seenDegrees: full, startDegrees: visible.lowerBound,
                                 lineWidth: lineWidth, color: colors[index], fullDegrees: full)
                         Image(systemName: symbols[index])
                             .font(.system(size: 20, weight: .bold))
                             .foregroundStyle(Color.white)
                             .position(iconPoint(diameter: diameter, radius: radius, degrees: arc.upperBound))
-                            .opacity(ReportMotion.smoothstep((seen - iconAt) / min(ReportMotion.iconFadeDegrees, 360 - iconAt)))
                     }
                 }
             }

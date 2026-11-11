@@ -25,6 +25,7 @@ struct PracticeResultTests {
         precondition(result.detectedSeconds(of: .lackOfAir) == 3)
         precondition(result.detectedSeconds(of: .rolling) == 6)
         verifyInitialRolling(start: start)
+        verifyEarlierFinish()
         precondition(SteamingStage.rolling.sounds == [.rolling])
         precondition(PracticeResult.sample.normalSeconds + PracticeResult.sample.cautionSeconds == PracticeResult.sample.totalSeconds)
 
@@ -48,6 +49,19 @@ struct PracticeResultTests {
         try verifyLegacyMigration(in: directory.appending(path: "migration"), start: start)
         try verifyDelete(in: directory.appending(path: "delete"), segments: timeline.segments, start: start)
         print("PracticeResultTests passed (timeline, summaries, SwiftData persistence, legacy migration, delete)")
+    }
+
+    /// 소리가 끊긴 시각(마지막 기록보다 앞)으로 끝내면 그 뒤 구간을 잘라 냅니다.
+    private static func verifyEarlierFinish() {
+        var timeline = PracticeTimeline()
+        timeline.update(phase: .aeration, at: 2)
+        timeline.update(phase: .bubble, at: 6)
+        timeline.update(phase: .milkFlow, at: 10)
+        timeline.finish(at: 8)
+        precondition(timeline.segments.map(\.sound) == [.normalAeration, .overAeration])
+        precondition(timeline.segments.map(\.start) == [2, 6] && timeline.segments.map(\.end) == [6, 8])
+        timeline.finish(at: 8)
+        precondition(timeline.segments.count == 2)
     }
 
     private static func verifyInitialRolling(start: Date) {
