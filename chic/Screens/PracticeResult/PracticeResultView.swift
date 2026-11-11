@@ -27,8 +27,6 @@ struct PracticeResultView: View {
     var onDelete: (() -> Void)? = nil
     var initialTab: PracticeReportTab = .overview
     var showsDeleteDialog = false
-    /// 화면이 실제로 보이고 있는지 (기본: 보임). 로딩 화면 아래에 미리 만들어 둘 때 false 예요.
-    var isRevealActive = true
 
     var body: some View {
         PracticeReportScreen(
@@ -38,8 +36,7 @@ struct PracticeResultView: View {
             onBack: onClose,
             onDelete: { onDelete?(); onClose?() },
             initialTab: initialTab,
-            showsDeleteDialog: showsDeleteDialog,
-            isRevealActive: isRevealActive
+            showsDeleteDialog: showsDeleteDialog
         )
     }
 }

@@ -121,13 +121,13 @@ private struct FinishedPracticeView: View {
     var body: some View {
         // 결과가 준비되면 로딩 화면 아래에 결과 화면을 미리 만들어 둬요. 보여 줄 때가 되면 같은 순간에
         // 로딩 화면을 걷고 결과 화면을 보이게 해서(전과 같이 바로 바뀜), 결과 화면을 처음 만드는 무거운 일이
-        // 바뀌는 순간과 겹치지 않아요. 등장 애니메이션(도넛 · 막대)은 보이기 시작할 때 출발해요.
+        // 바뀌는 순간과 겹치지 않아요.
         ZStack {
             if let result {
                 PracticeResultView(result: result, onClose: onClose, onDelete: {
                     // 방금 저장된 이번 연습 기록을 지웁니다 (기록 id = 세션 id).
                     if let id = practice.state.sessionID { practice.deleteRecord(id: id) }
-                }, isRevealActive: showsResult)
+                })
                 .opacity(showsResult ? 1 : 0)
                 .allowsHitTesting(showsResult)
                 .accessibilityHidden(!showsResult)

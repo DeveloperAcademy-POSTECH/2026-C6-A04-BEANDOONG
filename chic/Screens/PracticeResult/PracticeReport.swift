@@ -51,13 +51,8 @@ struct PracticeReportScreen: View {
     var onBack: (() -> Void)? = nil
     /// 삭제 팝업에서 "기록 삭제"를 확인했을 때
     var onDelete: (() -> Void)? = nil
-    /// 화면이 실제로 보이고 있는지 (기본: 보임). 미리 만들어 둘 때 false 로 두면, true 가 되는 순간 등장 애니메이션이 출발해요.
-    var isRevealActive: Bool = true
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var tab: PracticeReportTab
     @State private var showsDeleteDialog: Bool
-    /// 위 도넛 · 막대 · 원의 등장 애니메이션 진행 (ReportReveal.swift)
-    @State private var reveal: ReportReveal
 
     init(
         result: PracticeResult,
@@ -67,8 +62,7 @@ struct PracticeReportScreen: View {
         onBack: (() -> Void)? = nil,
         onDelete: (() -> Void)? = nil,
         initialTab: PracticeReportTab = .overview,
-        showsDeleteDialog: Bool = false,
-        isRevealActive: Bool = true
+        showsDeleteDialog: Bool = false
     ) {
         self.result = result
         self.headline = headline
@@ -78,8 +72,6 @@ struct PracticeReportScreen: View {
         self.onDelete = onDelete
         _tab = State(initialValue: initialTab)
         _showsDeleteDialog = State(initialValue: showsDeleteDialog)
-        self.isRevealActive = isRevealActive
-        _reveal = State(initialValue: ReportReveal(initialTab: initialTab, isActive: isRevealActive))
     }
 
     var body: some View {
@@ -90,7 +82,6 @@ struct PracticeReportScreen: View {
                     // (짧은 탭으로 바꾸면 영역이 줄면서 스크롤 위치가 당겨져 탭 바가 갑자기 아래로 튀었어요)
                     .frame(height: ReportLayout.durationsPageHeight.v(scale), alignment: .top)
             }
-            .environment(\.reportReveal, reveal)
             .scrollIndicators(.hidden)
             .ignoresSafeArea()
 
@@ -124,20 +115,11 @@ struct PracticeReportScreen: View {
         )
         .toolbar(.hidden, for: .navigationBar)
         .swipeBackDisabled(showsDeleteDialog)
-        .onAppear {
-            reveal.reduceMotion = reduceMotion
-            reveal.startHero()
-        }
-        .onChange(of: reduceMotion) { _, newValue in reveal.reduceMotion = newValue }
-        .onChange(of: isRevealActive) { _, isActive in
-            if isActive { reveal.activate() }
-        }
     }
 
-    /// 탭을 눌렀을 때: 내용을 바꾸고, 그 탭의 막대·원을 처음부터 다시 나오게 해요 (같은 탭을 다시 눌러도 다시 나와요).
+    /// 탭을 눌렀을 때: 내용을 바로 바꿔요.
     private func selectTab(_ newTab: PracticeReportTab) {
         tab = newTab
-        reveal.select(newTab)
     }
 }
 
