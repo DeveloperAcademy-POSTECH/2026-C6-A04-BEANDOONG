@@ -52,6 +52,8 @@ struct AppRootView: View {
 
     /// 스플래시를 정해진 시간만큼 보여 준 뒤 서서히 걷어 내요.
     private func hideSplashAfterDisplay() async {
+        // 로고 애니메이션과 같은 기준(첫 프레임이 그려진 뒤)에서 시간을 재요.
+        await FrameClock.nextFrame()
         try? await Task.sleep(for: .seconds(SplashTiming.displayDuration))
         withAnimation(.easeOut(duration: SplashTiming.fadeOutDuration)) {
             showsSplash = false
