@@ -18,18 +18,15 @@ struct HomeView: View {
     @State private var path: [Destination] = []
     /// 등장 애니메이션을 할지
     private let animatesEntrance: Bool
-    /// 시안 캡처용: 워치 연결 상태를 고정 (nil이면 실제 연결 상태 사용)
-    private let watchConnectedOverride: Bool?
     /// 화면이 실제로 보이고 있는지 (기본: 보임). 온보딩 아래에 미리 만들어 둘 때 false 로 두면,
     /// true 가 되는 순간 등장 애니메이션이 출발해요.
     private let isEntranceActive: Bool
     /// 홈 요소가 다 나타났는지 (등장 애니메이션을 하지 않으면 처음부터 true)
     @State private var hasEntered: Bool
 
-    init(animatesEntrance: Bool = false, isEntranceActive: Bool = true, watchConnectedOverride: Bool? = nil) {
+    init(animatesEntrance: Bool = false, isEntranceActive: Bool = true) {
         self.animatesEntrance = animatesEntrance
         self.isEntranceActive = isEntranceActive
-        self.watchConnectedOverride = watchConnectedOverride
         _hasEntered = State(initialValue: !animatesEntrance)
     }
 
@@ -39,10 +36,6 @@ struct HomeView: View {
         case watchSetup     // 워치 연결 과정 (상단 "워치 페어링" 배지에서만 진입)
         case history
         case settings
-    }
-
-    private var isWatchConnected: Bool {
-        watchConnectedOverride ?? connection.isReachable
     }
 
     var body: some View {
@@ -95,7 +88,7 @@ struct HomeView: View {
                 AssetImageView(name: "ChicLogo", width: 82, height: 28)
                 Spacer(minLength: 0)
                 Button { path.append(.watchSetup) } label: {
-                    WatchPairingBadge(isConnected: isWatchConnected)
+                    WatchPairingBadge(isConnected: connection.isReachable)
                 }
                 .buttonStyle(.plain)
                 .accessibilityHint("워치 연결 과정을 시작해요")
