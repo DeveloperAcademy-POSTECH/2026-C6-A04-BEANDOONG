@@ -43,10 +43,15 @@ final class PracticeHistoryStore {
         try context.fetch(FetchDescriptor<PracticeRecordEntity>(sortBy: [SortDescriptor(\.startedAt, order: .reverse)]))
     }
 
-    func save(record: PracticeRecord, dailyOrder: Int, segments: [DetectedSegment]) throws {
-        guard try !records().contains(where: { $0.id == record.id }) else { return }
-        context.insert(PracticeRecordEntity(record: record, dailyOrder: dailyOrder, segments: segments))
+    /// 기록 하나를 저장하고, 새로 넣은 기록을 돌려줍니다. 같은 id가 이미 있으면 아무것도 하지 않고 nil을 돌려줍니다.
+    @discardableResult
+    func save(record: PracticeRecord, dailyOrder: Int, segments: [DetectedSegment]) throws -> PracticeRecordEntity? {
+        // 같은 id가 있는지는 개수만 셉니다. (기록 전체를 불러오지 않아 연습 결과 로딩 중 화면이 버벅이지 않게)
+        guard try !contains(id: record.id) else { return nil }
+        let entity = PracticeRecordEntity(record: record, dailyOrder: dailyOrder, segments: segments)
+        context.insert(entity)
         try commit()
+        return entity
     }
 
     /// 연습 기록 하나와 그 소리 구간을 삭제합니다. 없는 id면 아무것도 하지 않습니다.
@@ -69,6 +74,11 @@ final class PracticeHistoryStore {
                                               ofItemAtPath: url.path)
     }
     #endif
+
+    /// 이 id의 기록이 있는지 (기록 전체를 불러오지 않고 개수만 셉니다)
+    private func contains(id: UUID) throws -> Bool {
+        try context.fetchCount(descriptor(id: id)) > 0
+    }
 
     /// 이 id의 기록 하나만 불러옵니다.
     private func entity(id: UUID) throws -> PracticeRecordEntity? {

@@ -184,8 +184,14 @@ final class PracticeSession: ObservableObject {
             await Task.yield()
             do {
                 guard let historyStore else { throw ConnectionError.message("저장소를 열 수 없어요.") }
-                try historyStore.save(record: record, dailyOrder: dailyOrder, segments: segments)
-                setHistory(try historyStore.records())
+                if let saved = try historyStore.save(record: record, dailyOrder: dailyOrder, segments: segments) {
+                    // 새 기록만 목록에 끼워 넣습니다. 저장소를 다시 다 불러온 것(records(): 시작 시각 최신순)과 같은 목록이에요.
+                    var updated = history
+                    updated.insert(saved, at: updated.firstIndex { $0.startedAt < saved.startedAt } ?? updated.endIndex)
+                    setHistory(updated)
+                } else {
+                    setHistory(try historyStore.records())
+                }
                 publish()
             } catch {
                 errorMessage = "연습 결과 저장에 실패했어요."
