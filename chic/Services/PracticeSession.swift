@@ -41,8 +41,7 @@ final class PracticeSession: ObservableObject {
             let store = try PracticeHistoryStore(
                 legacyDirectory: URL.documentsDirectory.appending(path: "PracticeRecordings", directoryHint: .isDirectory)
             )
-            history = try store.records()
-            state.records = history.map(\.record)
+            setHistory(try store.records())
             historyStore = store
         } catch { errorMessage = "연습 기록 저장소를 열 수 없어요. 앱을 다시 실행해 주세요." }
         // WatchConnection이 워치 요청을 받으면 이 클로저를 실행합니다.
@@ -185,9 +184,14 @@ final class PracticeSession: ObservableObject {
             await Task.yield()
             do {
                 guard let historyStore else { throw ConnectionError.message("저장소를 열 수 없어요.") }
-                try historyStore.save(record: record, dailyOrder: dailyOrder, segments: segments)
-                history = try historyStore.records()
-                state.records = history.map(\.record)
+                if let saved = try historyStore.save(record: record, dailyOrder: dailyOrder, segments: segments) {
+                    // 새 기록만 목록에 끼워 넣습니다. 저장소를 다시 다 불러온 것(records(): 시작 시각 최신순)과 같은 목록이에요.
+                    var updated = history
+                    updated.insert(saved, at: updated.firstIndex { $0.startedAt < saved.startedAt } ?? updated.endIndex)
+                    setHistory(updated)
+                } else {
+                    setHistory(try historyStore.records())
+                }
                 publish()
             } catch {
                 errorMessage = "연습 결과 저장에 실패했어요."
@@ -221,6 +225,27 @@ final class PracticeSession: ObservableObject {
         // 워치 제외는 이번 연습에만 적용합니다. 다시 연습을 선택하면 다음 연습을 준비합니다.
         state.isWatchEnabled = true
         publish()
+    }
+
+    /// 저장된 연습 기록 하나를 삭제하고 목록과 워치에 보내는 기록을 갱신합니다.
+    func deleteRecord(id: UUID) {
+        guard let historyStore else {
+            errorMessage = "저장소를 열 수 없어요."
+            return
+        }
+        do {
+            try historyStore.delete(id: id)
+            setHistory(try historyStore.records())
+            publish()
+        } catch {
+            errorMessage = "기록을 삭제하지 못했어요."
+        }
+    }
+
+    /// 저장된 기록 목록을 바꾸고, 워치에 보내는 기록도 같은 목록으로 맞춥니다.
+    private func setHistory(_ records: [PracticeRecordEntity]) {
+        history = records
+        state.records = records.map(\.record)
     }
 
     /// 연결이 끊긴 연습을 워치 없이 계속합니다. 진행 중인 iPhone 분석은 유지합니다.

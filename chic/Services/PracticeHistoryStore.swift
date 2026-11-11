@@ -20,8 +20,7 @@ final class PracticeHistoryStore {
         try protectedDirectory.setResourceValues(values)
         #if os(iOS)
         // 잠긴 상태에서 워치로 종료해도 기록을 저장할 수 있습니다.
-        try files.setAttributes([.protectionKey: FileProtectionType.completeUntilFirstUserAuthentication],
-                                ofItemAtPath: directory.path)
+        try Self.protect(directory)
         #endif
 
         let configuration = ModelConfiguration(url: directory.appending(path: "history.store"), cloudKitDatabase: .none)
@@ -35,8 +34,7 @@ final class PracticeHistoryStore {
         #if os(iOS)
         for url in try files.contentsOfDirectory(at: directory, includingPropertiesForKeys: nil)
             where url.pathExtension != "m4a" {
-            try files.setAttributes([.protectionKey: FileProtectionType.completeUntilFirstUserAuthentication],
-                                    ofItemAtPath: url.path)
+            try Self.protect(url)
         }
         #endif
     }
@@ -45,11 +43,52 @@ final class PracticeHistoryStore {
         try context.fetch(FetchDescriptor<PracticeRecordEntity>(sortBy: [SortDescriptor(\.startedAt, order: .reverse)]))
     }
 
-    func save(record: PracticeRecord, dailyOrder: Int, segments: [DetectedSegment]) throws {
-        guard try !records().contains(where: { $0.id == record.id }) else { return }
-        context.insert(PracticeRecordEntity(record: record, dailyOrder: dailyOrder, segments: segments))
+    /// 기록 하나를 저장하고, 새로 넣은 기록을 돌려줍니다. 같은 id가 이미 있으면 아무것도 하지 않고 nil을 돌려줍니다.
+    @discardableResult
+    func save(record: PracticeRecord, dailyOrder: Int, segments: [DetectedSegment]) throws -> PracticeRecordEntity? {
+        // 같은 id가 있는지는 개수만 셉니다. (기록 전체를 불러오지 않아 연습 결과 로딩 중 화면이 버벅이지 않게)
+        guard try !contains(id: record.id) else { return nil }
+        let entity = PracticeRecordEntity(record: record, dailyOrder: dailyOrder, segments: segments)
+        context.insert(entity)
+        try commit()
+        return entity
+    }
+
+    /// 연습 기록 하나와 그 소리 구간을 삭제합니다. 없는 id면 아무것도 하지 않습니다.
+    func delete(id: UUID) throws {
+        guard let entity = try entity(id: id) else { return }
+        context.delete(entity)
+        try commit()
+    }
+
+    /// 바뀐 내용을 저장합니다. 저장에 실패하면 바뀐 내용을 되돌리고 오류를 그대로 전달합니다.
+    private func commit() throws {
         do { try context.save() }
         catch { context.rollback(); throw error }
+    }
+
+    #if os(iOS)
+    /// 기기를 처음 잠금 해제한 뒤에는 잠긴 상태에서도 읽고 쓸 수 있게 파일 보호 등급을 정합니다.
+    private static func protect(_ url: URL) throws {
+        try FileManager.default.setAttributes([.protectionKey: FileProtectionType.completeUntilFirstUserAuthentication],
+                                              ofItemAtPath: url.path)
+    }
+    #endif
+
+    /// 이 id의 기록이 있는지 (기록 전체를 불러오지 않고 개수만 셉니다)
+    private func contains(id: UUID) throws -> Bool {
+        try context.fetchCount(descriptor(id: id)) > 0
+    }
+
+    /// 이 id의 기록 하나만 불러옵니다.
+    private func entity(id: UUID) throws -> PracticeRecordEntity? {
+        try context.fetch(descriptor(id: id)).first
+    }
+
+    private func descriptor(id: UUID) -> FetchDescriptor<PracticeRecordEntity> {
+        var descriptor = FetchDescriptor<PracticeRecordEntity>(predicate: #Predicate { $0.id == id })
+        descriptor.fetchLimit = 1
+        return descriptor
     }
 
     private func migrateLegacyRecords(in directory: URL) throws {
