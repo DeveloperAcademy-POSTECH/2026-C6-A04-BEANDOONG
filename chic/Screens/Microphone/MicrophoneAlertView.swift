@@ -11,6 +11,8 @@ struct MicrophoneAlertView: View {
     var body: some View {
         MicrophoneAccessView(onOpenSettings: openSettings)
         .disabled(isRequesting)
+        // 권한 요청이 끝나면 알아서 다음 화면으로 바뀌는 중간 화면이라, 스와이프로 나가지 못하게 해요.
+        .swipeBackDisabled()
         .task {
             isRequesting = true
             defer { isRequesting = false }
