@@ -7,6 +7,123 @@ import Foundation
     struct Expected: Decodable { let gate, state: String; let sputter: Double?; let display: String? }
     struct EndExpected: Decodable { let extraSilentSamples: Int; let probabilities: [[Double]]; let times: [Double] }
 
+    struct StartExpected: Decodable {
+        let audio, startReason: String
+        let frames, startFrame: Int
+        let startScore, highProbability, lowProbability: Double
+        let highFeatures, lowFeatures: [Double]
+        let states: [Expected]
+    }
+
+    /// 공기주입과 시작음은 서로의 점수나 판정에 의존하지 않는 OR입니다.
+    static func checkStartRule() {
+        var air = ChicStartRule()
+        for _ in 0..<9 { precondition(air.consume(0, state: .air) == nil) }
+        precondition(air.consume(0, state: .air) == .air)
+        precondition(air.isStarted && air.meanScore == 0)
+        for _ in 0..<100 { precondition(air.consume(1, state: .other) == nil) }
+        var sound = ChicStartRule()
+        for _ in 0..<9 { precondition(sound.consume(0.86, state: .other) == nil) }
+        precondition(sound.consume(0.86, state: .other) == .startSound)
+        var average = ChicStartRule()
+        for _ in 0..<9 { precondition(average.consume(0.9, state: .other) == nil) }
+        precondition(average.consume(0, state: .other) == nil)
+        for _ in 0..<9 { precondition(average.consume(0.86, state: .other) == nil) }
+        precondition(average.consume(0.86, state: .other) == .startSound)
+        for state in [ChicModelV3_5.State.other, .sputter, .metallic] {
+            var idle = ChicStartRule()
+            for _ in 0..<40 { precondition(idle.consume(0, state: state) == nil) }
+            precondition(!idle.isStarted)
+        }
+        var simultaneous = ChicStartRule()
+        for _ in 0..<9 { precondition(simultaneous.consume(1, state: .air) == nil) }
+        precondition(simultaneous.consume(1, state: .air) == .air)
+        var tied = ChicStartRule()
+        for _ in 0..<5 { precondition(tied.consume(0, state: .other) == nil) }
+        for _ in 0..<4 { precondition(tied.consume(0, state: .air) == nil) }
+        precondition(tied.consume(0, state: .air) == .air)
+        var reverse = ChicStartRule()
+        for _ in 0..<5 { precondition(reverse.consume(0, state: .air) == nil) }
+        for _ in 0..<5 { precondition(reverse.consume(0, state: .other) == nil) }
+        precondition(!reverse.isStarted)
+        print("PASS independent air OR start sound, mean, tie, no other-state start and one shot")
+    }
+
+    /// 실제 모델에서도 어느 경로로 시작했든 추론을 다시 호출하지 않습니다.
+    static func checkStartModel(_ expected: StartExpected, url: URL) throws {
+        precondition(expected.highProbability > ChicStartRule.threshold)
+        precondition(expected.lowProbability < ChicStartRule.threshold)
+        for (features, state, reason) in [(expected.highFeatures, ChicModelV3_5.State.other, ChicStartRule.Reason.startSound),
+                                         (expected.lowFeatures, .air, .air)] {
+            let gate = try ChicStartGate(url: url)
+            for _ in 0..<9 { let result = try gate.consume(features, state: state); precondition(result == nil) }
+            let result = try gate.consume(features, state: state)
+            precondition(result == reason && gate.isStarted)
+            let probability = reason == .air ? expected.lowProbability : expected.highProbability
+            precondition(abs(gate.meanScore! - probability) < 1e-8)
+            // 빈 특징은 추론 시 오류여야 하므로 양 경로 모두 호출 중단을 검증합니다.
+            for _ in 0..<100 { let repeated = try gate.consume([], state: .other); precondition(repeated == nil) }
+        }
+        let idle = try ChicStartGate(url: url)
+        for _ in 0..<30 { let result = try idle.consume(expected.lowFeatures, state: .other); precondition(result == nil) }
+        precondition(!idle.isStarted)
+        print("PASS real start sound and low-score air both stop further model calls")
+    }
+
+    /// 실제 공기주입 누락 회귀와 일정·불규칙 버퍼의 OR·분류·종료 시간축을 확인합니다.
+    static func checkStartPipeline(fixture: URL, compiled: URL) throws {
+        let url = compiled.appendingPathComponent("ChicStartSoundV1.mlmodelc")
+        for name in ["start-reference.json", "air-start-reference.json", "sound-start-reference.json"] {
+            let expected = try JSONDecoder().decode(StartExpected.self, from: Data(contentsOf: fixture.appendingPathComponent(name)))
+            if name == "sound-start-reference.json" { try checkStartModel(expected, url: url) }
+            let file = try AVAudioFile(forReading: fixture.appendingPathComponent(expected.audio))
+            let buffer = AVAudioPCMBuffer(pcmFormat: file.processingFormat, frameCapacity: UInt32(file.length))!
+            try file.read(into: buffer)
+            let samples = Array(UnsafeBufferPointer(start: buffer.floatChannelData![0], count: Int(buffer.frameLength)))
+            for chunks in [[4800], [1, 127, 513, 1024, 4097]] {
+                let stream = try ChicModelV3_5(gateURL: compiled.appendingPathComponent("ChicModelV3_5Gate.mlmodelc"),
+                    airURL: compiled.appendingPathComponent("ChicModelV3_5Air.mlmodelc"),
+                    rollingURL: compiled.appendingPathComponent("ChicModelV3_5Metallic.mlmodelc"), startURL: url)
+                let end = try ChicEndDetector(modelURL: compiled.appendingPathComponent("ChicAudioFeatures.mlmodelc"), classifierURL: compiled.appendingPathComponent("ChicEndV3_5.mlmodelc"))
+                var display = ChicDisplayFilter(), endRule = ChicEndRule()
+                var offset = 0, chunk = 0, spectra = 0, frames = 0, starts = 0, endScores = 0
+                while offset < samples.count {
+                    let stop = min(samples.count, offset + chunks[chunk % chunks.count])
+                    let block = Array(samples[offset..<stop])
+                    try end.append(block)
+                    try stream.consume(block, sampleRate: 48000, onSpectrum: { power in
+                        spectra += 1
+                        if let score = try end.consume(spectrum: power) {
+                            endScores += 1
+                            if starts == 0 { precondition(!endRule.isActive) }
+                            _ = endRule.consume(work: score.work, end: score.end, purge: score.purge)
+                        }
+                    }) { frame in
+                        if let reason = frame.startReason {
+                            precondition(starts == 0 && frames == expected.startFrame)
+                            precondition(reason.rawValue == expected.startReason)
+                            precondition(abs(stream.startProbability! - expected.startScore) < 1e-8)
+                            starts += 1
+                            display.activate()
+                            endRule.activate()
+                        }
+                        precondition(stream.isStarted == (expected.startFrame >= 0 && frames >= expected.startFrame))
+                        let reference = expected.states[frames]
+                        precondition(frame.state.rawValue == reference.state && frame.gateLabel == reference.gate)
+                        let actual = display.consume(frame.state)
+                        precondition((stream.isStarted ? actual?.rawValue : nil) == reference.display)
+                        if let score = reference.sputter { precondition(abs(score - frame.sputterScore!) < 1e-6) }
+                        frames += 1
+                    }
+                    offset = stop; chunk += 1
+                }
+                precondition(spectra == expected.frames && frames == expected.frames && starts == (expected.startFrame >= 0 ? 1 : 0))
+                precondition(endScores == expected.frames / 10)
+                print("PASS OR pipeline: \(name), \(spectra) frames, start=\(expected.startReason) @\(expected.startFrame), chunks \(chunks)")
+            }
+        }
+    }
+
     /// 롤링 우세·동률과 공기주입 0.5 초과 경계, 문턱 미달 시 롤링 전환을 확인합니다.
     static func checkAirRolling() {
         precondition(ChicModelV3_5.airState(air: 0.2, sputter: 0.3, rolling: 0.5) == .other)
@@ -176,10 +293,12 @@ import Foundation
         check([.air, .air, .metallic, .metallic, .air, .metallic, .metallic, .metallic],
               [.air, .air, .air, .air, .air, .air, .air, .metallic])
         check([.air, .air, .sputter, .sputter, .metallic, .sputter, .sputter, .sputter],
-              [.air, .air, .air, .air, .air, .air, .air, .sputter])
+              [.air, .air, .air, .sputter, .sputter, .sputter, .sputter, .sputter])
         check([.metallic, .metallic, .metallic, .sputter, .sputter, .sputter, .air, .air],
-              [nil, nil, .metallic, .metallic, .metallic, .sputter, .air, .air])
+              [nil, nil, .metallic, .metallic, .sputter, .sputter, .air, .air])
         check([.air, .sputter, .air, .sputter], [.air, .air, .air, .air])
+        check([.air, .sputter, .other, .sputter, .sputter], [.air, .air, .air, .air, .sputter])
+        check([.sputter, .sputter], [nil, .sputter])
         check([.air, .other, .other, .air], [.air, .air, .other, .air])
 
         var filter = ChicDisplayFilter()
@@ -196,6 +315,7 @@ import Foundation
     }
     /// 같은 소리를 서로 다른 버퍼 크기로 나눠도 결과가 같은지 확인합니다.
     static func main() throws {
+        checkStartRule()
         checkAirRolling()
         checkDisplayFilter()
         checkEndRule()
@@ -207,6 +327,7 @@ import Foundation
         let buf = AVAudioPCMBuffer(pcmFormat: file.processingFormat, frameCapacity: UInt32(file.length))!
         try file.read(into: buf)
         let x = Array(UnsafeBufferPointer(start: buf.floatChannelData![0], count: Int(buf.frameLength)))
+        try checkStartPipeline(fixture: dir, compiled: compiled)
         try checkEndClassifier(fixture: dir, compiled: compiled)
         try checkEndDetector(x, fixture: dir, compiled: compiled)
         try checkEndDetector(x, fixture: dir, compiled: compiled, gain: Float(pow(10.0, -24.0 / 20)), referenceName: "expected-end-low-gain.json")

@@ -2,19 +2,20 @@
   "version": "3.5",
   "frames": 817,
   "fixtureSHA256": "e427952cb487b0beba88ec10b2dcfc1ea394a7e3e07d8b120bf418fd15cabfa2",
-  "expectedSHA256": "cea6e68d05f2d96bce9c074ddaff7e06a20d2fae1eb632bdf5a8a2b57cba7f0b",
+  "expectedSHA256": "8171d7a407a4415696f078e94e22cc34b113deabc3ce7859df86800bf7322478",
   "models": {
-    "ChicModelV3_5Air.mlmodel": "1e3cab5caf996e2f45c88a2640da17b76de4c7a0e594824f2ea2491bb5f0a7b0",
-    "ChicModelV3_5Gate.mlmodel": "31237ef2f5c9627cc934314d98fd02e6e3b3d40a528f19a811e572505e3f2556",
+    "ChicModelV3_5Air.mlmodel": "05f0d3fd96219c4e22059293a175c6eece7f5acd2e73b281cea13cf0fc0a5ea6",
+    "ChicModelV3_5Gate.mlmodel": "2ca6b159f43986472b4426197513bb8d9410b84d5f5b7cb9a44b812aed13ca03",
     "ChicModelV3_5Metallic.mlmodel": "1dbe325ecafdc60e42abbbdabb6d7f4d2197203420446c7ebb59b77d84f7c709"
   },
   "reference": "Separate raw Core ML scorers; independent Python run-group display reference. Regression fixture, not a new accuracy validation set.",
   "resources": {
     "ChicAudioFeatures.mlmodel": "8ec2d0e5c6add578f16d3d8ade3c947b8e5a2c0e5531cdd6e807fa45d3ed89cb",
     "ChicEndV3_5.mlmodel": "46eb10799c0683e8b22fe67b72c6315a3a4bb5949f0a3395dbb0f77a3e69d8c4",
-    "ChicModelV3_5Air.mlmodel": "1e3cab5caf996e2f45c88a2640da17b76de4c7a0e594824f2ea2491bb5f0a7b0",
-    "ChicModelV3_5Gate.mlmodel": "31237ef2f5c9627cc934314d98fd02e6e3b3d40a528f19a811e572505e3f2556",
-    "ChicModelV3_5Metallic.mlmodel": "1dbe325ecafdc60e42abbbdabb6d7f4d2197203420446c7ebb59b77d84f7c709"
+    "ChicModelV3_5Air.mlmodel": "05f0d3fd96219c4e22059293a175c6eece7f5acd2e73b281cea13cf0fc0a5ea6",
+    "ChicModelV3_5Gate.mlmodel": "2ca6b159f43986472b4426197513bb8d9410b84d5f5b7cb9a44b812aed13ca03",
+    "ChicModelV3_5Metallic.mlmodel": "1dbe325ecafdc60e42abbbdabb6d7f4d2197203420446c7ebb59b77d84f7c709",
+    "ChicStartSoundV1.mlmodel": "67ce7d21c75104bf59ecc3b49cef21881a4918a4f153402a24161c7a04465fa0"
   },
   "endExpectedSHA256": "22ae91050c7939ef4c4d410b2e776679a4da7945b760e64ceb10c610a7f1b07b",
   "endAudioWindowSeconds": 0.5,
@@ -30,5 +31,31 @@
     -24
   ],
   "endRevision": "20261109-gain200-repair",
-  "activityClassifier": "frozen gradient boosted trees, 100 rounds, depth 3"
+  "activityClassifier": "frozen gradient boosted trees, 100 rounds, depth 3",
+  "phaseRevision": "20261111-gate-air-sputter2",
+  "displayConsecutive": {
+    "air": 1,
+    "other": 2,
+    "sputter": 2,
+    "metallic": 3
+  },
+  "startGate": {
+    "logic": "existing air representative OR independent start sound",
+    "classes": [
+      "not_start",
+      "start"
+    ],
+    "soundThreshold": 0.85,
+    "meanFrames": 10,
+    "soundConsecutive": 1,
+    "airConsecutive": 1,
+    "airThreshold": "existing phase air > 0.5, rolling/sputter precedence preserved",
+    "oneShot": true,
+    "referenceSHA256": "f51c3ac856bcaca235e6d0265efbf475080827af79a722cb761862e009eaa268",
+    "audioSHA256": "e4fb2e1df55d426420744ec612f459bd1c8a568c420d450afe6db0a075291f84",
+    "airReferenceSHA256": "c2ac031261c05cfa86eda48f18cd423e6c837354e59ae38fd904fcd8fb80727f",
+    "airAudioSHA256": "f0b8f12d68dc9dfcc031b92de0b3ef524cf3d189432c42abb32c662eabc12d15",
+    "soundReferenceSHA256": "0bc7ed7b13aa8d808bdf794e67052efa90f35e660551e849d6253784d8ac4459",
+    "soundAudioSHA256": "38b9923bca2b220f221bf1337a61623bd9f28e9bc094145a6677d6e16cbc6940"
+  }
 }
