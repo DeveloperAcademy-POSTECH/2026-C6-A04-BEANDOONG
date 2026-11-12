@@ -21,9 +21,9 @@ final class PracticeSession: ObservableObject {
     @Published var errorMessage: String?
     @Published private(set) var history: [PracticeRecordEntity] = []
     @Published private(set) var result: PracticeResult?
-    /// 연습이 끝난 것 같은 시각 (소리 끊김 · 종료음 · 청소음). 값이 있는 동안 화면에서 "스티밍이 끝났나요?"를 묻습니다.
+    /// "스티밍이 끝났나요?" 묻기 (소리 끊김 · 종료음 · 청소음). 묻는 동안 화면에 창이 떠 있고, 사용자가 답할 때까지 닫지 않아요.
     /// 소리로는 자동 종료하지 않아요. (iPhone에서만, 워치에는 보내지 않아요)
-    @Published private(set) var silenceStartedAt: Date?
+    @Published private(set) var endQuestion = EndQuestion()
     /// 이번 연습에서 공기 주입(파랑) 화면이 떠 있던 누적 시간. 연습 화면의 비커 수위가 이 값을 따라가요. (iPhone에서만)
     @Published private(set) var aerationClock = AerationClock()
     private var historyStore: PracticeHistoryStore?
@@ -137,13 +137,7 @@ final class PracticeSession: ObservableObject {
         let onSilence: @Sendable (TimeInterval) -> Void = { [weak self] elapsed in
             Task { @MainActor [weak self] in
                 guard let self, self.state.sessionID == id, self.state.phase.isRunning else { return }
-                self.silenceStartedAt = Date().addingTimeInterval(-elapsed)
-            }
-        }
-        let onSoundResumed: @Sendable () -> Void = { [weak self] in
-            Task { @MainActor [weak self] in
-                guard let self, self.state.sessionID == id else { return }
-                self.silenceStartedAt = nil
+                self.endQuestion.ask(endedAt: Date().addingTimeInterval(-elapsed))
             }
         }
         let onError: @Sendable (String) -> Void = { [weak self] message in
@@ -156,8 +150,7 @@ final class PracticeSession: ObservableObject {
             try audio.setCategory(.record, mode: .measurement)
             try audio.setActive(true)
             do {
-                try analyzer.start(onResult: onResult, onSilence: onSilence, onSoundResumed: onSoundResumed,
-                                   onError: onError)
+                try analyzer.start(onResult: onResult, onSilence: onSilence, onError: onError)
             } catch {
                 analyzer.stop()
                 // 분석 시작에 실패하면 오디오 세션을 정리하고 오류를 호출자에게 전달합니다.
@@ -177,7 +170,7 @@ final class PracticeSession: ObservableObject {
         timeline = PracticeTimeline()
         aerationClock = AerationClock()
         result = nil
-        silenceStartedAt = nil
+        endQuestion.close()
         state.sessionID = id
         state.startedAt = Date()
         state.endedAt = nil // 이전 연습의 종료 시간이 새 연습에 남지 않게 합니다.
@@ -192,19 +185,19 @@ final class PracticeSession: ObservableObject {
     }
 
     /// "스티밍이 끝났나요?"에서 '계속 연습': 묻기를 닫고 연습을 이어갑니다.
-    /// 소리가 다시 이어진 뒤 또 끊기면 다시 묻습니다.
+    /// 스팀 소리가 다시 이어진 뒤 또 끝난 것 같으면 다시 묻습니다.
     func continueAfterSilence() {
-        silenceStartedAt = nil
+        endQuestion.close()
     }
 
-    /// "스티밍이 끝났나요?"에서 '연습 종료': 소리가 끊긴 시각을 종료 시각으로 기록합니다.
+    /// "스티밍이 끝났나요?"에서 '연습 종료': 처음 물어본 시각(끝난 것 같은 시각)을 종료 시각으로 기록합니다.
     /// (묻기를 보며 머문 시간은 연습 시간에 넣지 않아요)
     func finishAfterSilence() {
-        finish(endedAt: silenceStartedAt ?? Date())
+        finish(endedAt: endQuestion.endedAt ?? Date())
     }
 
     private func finish(endedAt requestedEnd: Date) {
-        silenceStartedAt = nil
+        endQuestion.close()
         // 이미 종료된 연습이면 다시 저장하지 않습니다.
         guard state.phase.isRunning, let id = state.sessionID,
               let startedAt = state.startedAt else { return }
