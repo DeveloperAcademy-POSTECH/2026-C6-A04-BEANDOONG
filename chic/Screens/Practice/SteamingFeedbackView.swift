@@ -6,7 +6,7 @@ import SwiftUI
 ///     ┌ 배경: 피드백별 위 → 아래 그라데이션 + 반투명 큰 기호 (↓ · ↑ · ✓ · 소용돌이)
 ///     ├ 상단 바: 스티밍 연습
 ///     ├ 타이틀 (+ 설명: 보라·주황만)
-///     ├ 비커: 누적 공기 주입 시간만큼 우유 수위가 부드럽게 올라감 (2~5초면 두 점선 사이, 공기 주입 중 잔물결)
+///     ├ 비커: 누적 공기 주입 시간만큼 우유 수위가 부드럽게 올라감 (2~4초면 두 점선 사이, 공기 주입 중 잔물결)
 ///     ※ 색이 바뀌면 배경·기호·문구·점선 색이 0.4초 동안 섞이며 바뀜
 ///     └ 하단 중앙: 종료하기 버튼 (누르면 바로 정지. "스티밍이 끝났나요?" 팝업은 끝난 것 같을 때만)
 ///     ※ 타이틀·종료하기 버튼 위치는 4종 모두 같음
@@ -161,7 +161,7 @@ private final class PitcherMotion {
 ///     ┌ 비커 + 스팀 노즐 (`IllustSteamingPitcher`, 반투명 흰색)
 ///     ├ 우유 (윗면 = `milkTop`, 비커 안쪽 벽을 따라 사다리꼴)
 ///     ├ 적정 구간 (두 점선 사이를 상태 색으로 옅게 칠함)
-///     ├ 점선 2줄 (위 = 5초, 아래 = 2초)
+///     ├ 점선 2줄 (위 = 4초, 아래 = 2초)
 ///     └ 상태별 장식 (보라: 물방울 · 주황: 기포)
 private struct SteamingPitcher: View {
     static let size = CGSize(width: 322, height: 294)
@@ -433,9 +433,9 @@ private extension AppColors {
     static let steamingBandMilkFlow = Color(hex: 0x209D2C).opacity(0.408)
 }
 
-#Preview("aeration") { SteamingFeedbackView(feedback: .aeration, aerationClock: AerationClock(accumulated: 3.5)) }
-#Preview("bubble") { SteamingFeedbackView(feedback: .bubble, aerationClock: AerationClock(accumulated: 3.5)) }
-#Preview("moreAir") { SteamingFeedbackView(feedback: .moreAir, aerationClock: AerationClock(accumulated: 3.5)) }
-#Preview("milkFlow") { SteamingFeedbackView(feedback: .milkFlow, aerationClock: AerationClock(accumulated: 3.5)) }
+#Preview("aeration") { SteamingFeedbackView(feedback: .aeration, aerationClock: AerationClock(accumulated: 3)) }
+#Preview("bubble") { SteamingFeedbackView(feedback: .bubble, aerationClock: AerationClock(accumulated: 3)) }
+#Preview("moreAir") { SteamingFeedbackView(feedback: .moreAir, aerationClock: AerationClock(accumulated: 3)) }
+#Preview("milkFlow") { SteamingFeedbackView(feedback: .milkFlow, aerationClock: AerationClock(accumulated: 3)) }
 #Preview("시작 (0초)") { SteamingFeedbackView(feedback: .aeration) }
 #Preview("소리 끊김") { SteamingFeedbackView(feedback: .aeration, showsEndDialog: true) }

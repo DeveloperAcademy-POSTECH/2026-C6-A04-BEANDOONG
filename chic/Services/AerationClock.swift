@@ -40,8 +40,8 @@ nonisolated struct AerationClock: Equatable {
 /// 값은 비커 그림(`IllustSteamingPitcher`, 322×294pt) 위쪽에서 잰 우유 윗면의 y (pt)예요. 작을수록 수위가 높아요.
 /// - 0초: 바닥 근처에서 시작
 /// - 2초: 아래 점선
-/// - 2~5초: 두 점선 사이 (적정 구간)
-/// - 5초 이후: 같은 속도로 넘어선 뒤 입구(`highest`)에 가까워질수록 점점 느려져요. 입구에 닿지는 않아요 (넘치기 직전).
+/// - 2~4초: 두 점선 사이 (적정 구간)
+/// - 4초 이후: 같은 속도로 넘어선 뒤 입구(`highest`)에 가까워질수록 점점 느려져요. 입구에 닿지는 않아요 (넘치기 직전).
 nonisolated enum MilkLevel {
     /// 우유 바닥 (Hi-Fi: 865px / 3)
     static let bottom: CGFloat = 288.3
@@ -57,7 +57,7 @@ nonisolated enum MilkLevel {
     /// 아래 점선에 닿는 누적 시간 (초)
     static let lowerLineSeconds: TimeInterval = 2
     /// 위 점선에 닿는 누적 시간 (초)
-    static let upperLineSeconds: TimeInterval = 5
+    static let upperLineSeconds: TimeInterval = 4
 
     /// 두 점선 사이를 지나는 속도 (pt/초)
     private static var risePerSecond: CGFloat {

@@ -37,19 +37,19 @@ struct AerationClockTests {
         early.pause(at: at(8))
         precondition(near(early.seconds(at: at(20)), 1))
 
-        // 수위: 0초 바닥 근처 → 2초 아래 점선 → 5초 위 점선 → 입구에 가까워질수록 느려짐 (닿지는 않음)
+        // 수위: 0초 바닥 근처 → 2초 아래 점선 → 4초 위 점선 → 입구에 가까워질수록 느려짐 (닿지는 않음)
         precondition(MilkLevel.top(forAeration: 0) == MilkLevel.start)
         precondition(MilkLevel.top(forAeration: -1) == MilkLevel.start)
         precondition(near(MilkLevel.top(forAeration: 2), MilkLevel.lowerLine))
-        precondition(near(MilkLevel.top(forAeration: 5), MilkLevel.upperLine))
-        let mid = MilkLevel.top(forAeration: 3.5)
-        precondition(mid < MilkLevel.lowerLine && mid > MilkLevel.upperLine)   // 2~5초는 두 점선 사이
+        precondition(near(MilkLevel.top(forAeration: 4), MilkLevel.upperLine))
+        let mid = MilkLevel.top(forAeration: 3)
+        precondition(mid < MilkLevel.lowerLine && mid > MilkLevel.upperLine)   // 2~4초는 두 점선 사이
         precondition(MilkLevel.top(forAeration: 6) < MilkLevel.upperLine)
         let far = MilkLevel.top(forAeration: 60)
         precondition(far > MilkLevel.highest && far - MilkLevel.highest < 0.5)
-        // 5초 앞뒤로 오르는 속도가 끊기지 않고, 그 뒤로는 점점 느려져요.
-        let before = MilkLevel.top(forAeration: 4.99) - MilkLevel.top(forAeration: 5)
-        let after = MilkLevel.top(forAeration: 5) - MilkLevel.top(forAeration: 5.01)
+        // 4초 앞뒤로 오르는 속도가 끊기지 않고, 그 뒤로는 점점 느려져요.
+        let before = MilkLevel.top(forAeration: 3.99) - MilkLevel.top(forAeration: 4)
+        let after = MilkLevel.top(forAeration: 4) - MilkLevel.top(forAeration: 4.01)
         precondition(abs(before - after) < 0.01)
         let later = MilkLevel.top(forAeration: 9) - MilkLevel.top(forAeration: 9.01)
         precondition(later < after)
@@ -80,6 +80,6 @@ struct AerationClockTests {
         paused.step(toward: 100, dt: 0)
         precondition(paused.step(toward: 0, dt: 30) > 10)
 
-        print("AerationClockTests passed (누적 시간, 수위 0·2·3.5·5초, 입구 감속, 부드럽게 따라가기)")
+        print("AerationClockTests passed (누적 시간, 수위 0·2·3·4초, 입구 감속, 부드럽게 따라가기)")
     }
 }

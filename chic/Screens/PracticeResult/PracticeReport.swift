@@ -351,7 +351,7 @@ private struct ReportGuideSection: View {
     }
 }
 
-/// 가이드 비커: 빈 비커 그림 위에 공기 주입한 만큼 우유를 채우고, 두 점선(2초 · 5초)을 그려요.
+/// 가이드 비커: 빈 비커 그림 위에 공기 주입한 만큼 우유를 채우고, 두 점선(2초 · 4초)을 그려요.
 /// 좌표는 비커 그림(289.7×217pt) 기준, Hi-Fi 260과 3x 에셋에서 잰 값이에요.
 private struct ReportGuidePitcher: View {
     let milkTop: CGFloat
