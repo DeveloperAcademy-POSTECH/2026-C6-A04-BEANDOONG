@@ -136,20 +136,7 @@ struct PracticeReportPage: View {
     var onSelectTab: (PracticeReportTab) -> Void = { _ in }
 
     private var pageHeight: CGFloat {
-        switch tab {
-        case .overview: ReportLayout.pageHeight
-        case .timeline: ReportLayout.timelinePageHeight
-        case .durations: ReportLayout.durationsPageHeight
-        }
-    }
-
-    /// 안내 문구 위치: 연습 가이드가 있는 탭은 그 아래, 타임라인은 차트 바로 아래
-    private var footnoteY: CGFloat {
-        switch tab {
-        case .overview: ReportLayout.footnoteY
-        case .timeline: ReportLayout.timelineFootnoteY
-        case .durations: ReportLayout.durationsFootnoteY
-        }
+        tab == .durations ? ReportLayout.durationsPageHeight : ReportLayout.pageHeight
     }
 
     var body: some View {
@@ -173,15 +160,13 @@ struct PracticeReportPage: View {
                 }
             }
 
-            // 연습 가이드: 한 번에 보기 · 상태별 감지시간에서만 보여요 (타임라인에는 없음). 차트 바로 아래에서 시작해요.
-            if tab != .timeline {
-                ReportGuideSection(guide: PracticeGuide(result: result),
-                                   aerationSeconds: Double(result.detectedSeconds(of: .normalAeration)))
-                    .at(x: 0, y: tab == .durations ? ReportLayout.durationsGuideY : ReportLayout.guideY, scale)
-            }
+            // 연습 가이드: 세 탭 모두 보여요. 탭마다 차트 길이가 달라, 차트 바로 아래에서 시작해요.
+            ReportGuideSection(guide: PracticeGuide(result: result),
+                               aerationSeconds: Double(result.detectedSeconds(of: .normalAeration)))
+                .at(x: 0, y: tab == .durations ? ReportLayout.durationsGuideY : ReportLayout.guideY, scale)
 
             ReportFootnote()
-                .at(x: 0, y: footnoteY, scale)
+                .at(x: 0, y: tab == .durations ? ReportLayout.durationsFootnoteY : ReportLayout.footnoteY, scale)
         }
         .frame(maxWidth: .infinity, alignment: .topLeading)
         .frame(height: pageHeight.v(scale), alignment: .topLeading)
@@ -800,8 +785,6 @@ enum ReportLayout {
     // 페이지 높이: Hi-Fi 255 · 243 (1079) / 257 (1568)에 연습 가이드(+383)를 더함 (Hi-Fi 연습 가이드: 1462)
     static let guideSectionHeight: CGFloat = 383
     static let pageHeight: CGFloat = 1079 + guideSectionHeight
-    /// 타임라인은 연습 가이드가 없어 예전 높이 그대로 (Hi-Fi 243)
-    static let timelinePageHeight: CGFloat = 1079
     static let durationsPageHeight: CGFloat = 1568 + guideSectionHeight
 
     // 상단 바
@@ -897,6 +880,5 @@ enum ReportLayout {
 
     // 안내 문구 (연습 가이드 아래로 내려감)
     static let footnoteY: CGFloat = 1020 + 392.7
-    static let timelineFootnoteY: CGFloat = 1020
     static let durationsFootnoteY: CGFloat = 1509.5 + 392.7
 }
