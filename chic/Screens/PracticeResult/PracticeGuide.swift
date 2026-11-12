@@ -57,6 +57,24 @@ enum PracticeGuide: Equatable {
         }
     }
 
+    /// 연습 직후 결과(`PracticeResultView`) 히어로 타이틀 (Hi-Fi 연습가이드 공기 적정 · 과도 · 부족)
+    var resultHeadline: String {
+        switch self {
+        case .onTarget: "좋은 흐름으로\n스티밍 했어요"
+        case .aerationTooLong: "공기 주입량이\n많았어요"
+        case .aerationTooShort: "공기 주입량이\n부족했어요"
+        }
+    }
+
+    /// 기록 상세(`HistoryDetailView`) 히어로 타이틀 (Hi-Fi 같은 이름 -1. 부족만 문구가 조금 달라요)
+    var historyHeadline: String {
+        switch self {
+        case .onTarget: "좋은 흐름으로\n스티밍 했어요"
+        case .aerationTooLong: "공기 주입량이\n많았어요"
+        case .aerationTooShort: "공기 주입이\n부족했어요"
+        }
+    }
+
     /// 왼쪽 아이콘 (SF Symbol)
     var systemImage: String {
         switch self {

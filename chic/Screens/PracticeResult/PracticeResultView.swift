@@ -2,7 +2,7 @@
 //  PracticeResultView.swift
 //
 //  연습이 끝난 뒤, 이번 연습에서 감지된 소리를 돌아보는 화면입니다.
-//  `PracticeResult` 하나만 받아 `PracticeReportScreen`(도넛 요약 + 탭 3개)으로 그립니다.
+//  `PracticeResult` 하나만 받아 `PracticeReportScreen`(도넛 요약 + 소리 유형별 표 + 연습 가이드)으로 그립니다.
 //
 //  [구성]
 //  - PracticeResult.swift  : 화면에 넘기는 데이터 + 더미 데이터
@@ -13,11 +13,11 @@
 import SwiftUI
 
 /// 연습 결과 화면 — 연습이 끝난 직후 이번 연습을 돌아본다 (다크 테마)
-/// - Hi-Fi: iPhone 17 - 255(한 번에 보기) · 243(타임라인) · 257(상태별 감지시간) · 267(삭제 팝업)
+/// - Hi-Fi: 연습가이드 공기 적정 · 과도 · 부족 (2026-11-13) · 267(삭제 팝업)
 ///
-///     ┌ 상단 바: < 연습 결과                🗑
-///     ├ 히어로: "이번 연습을 함께 돌아볼까요?" + 도넛 + 3열 요약
-///     ├ 스티밍 기록: 탭 [한 번에 보기 | 타임라인 | 상태별 감지시간]
+///     ┌ 상단 바: < 스티밍 결과                🗑
+///     ├ 히어로: 결과에 따른 타이틀(`PracticeGuide.resultHeadline`) + 소리 종류별 도넛 + 3열 요약
+///     ├ 스티밍 기록: 소리 유형별 막대 표
 ///     ├ 연습 가이드: 비커 그림 + 공기 주입 시간 안내 카드 (기준 안 · 너무 김 · 너무 짧음)
 ///     └ 안내 문구
 /// 공통 본문은 `PracticeReportScreen`이 그립니다. (기록 상세 `HistoryDetailView`와 같은 구성)
@@ -26,17 +26,15 @@ struct PracticeResultView: View {
     var onClose: (() -> Void)? = nil
     /// 삭제 팝업에서 "기록 삭제"를 확인했을 때 (저장소에서 지우는 일은 바깥에서). 끝나면 `onClose`로 닫는다
     var onDelete: (() -> Void)? = nil
-    var initialTab: PracticeReportTab = .overview
     var showsDeleteDialog = false
 
     var body: some View {
         PracticeReportScreen(
             result: result,
-            headline: { _ in "이번 연습을\n함께 돌아볼까요?" },
-            barTitle: "연습 결과",
+            headline: PracticeGuide(result: result).resultHeadline,
+            barTitle: "스티밍 결과",
             onBack: onClose,
             onDelete: { onDelete?(); onClose?() },
-            initialTab: initialTab,
             showsDeleteDialog: showsDeleteDialog
         )
     }
@@ -54,6 +52,8 @@ enum PracticeResultColors {
     static let primaryText = Color(hex: 0xDBECFF)
     /// 설명 · 작은 라벨 · 눈금 숫자
     static let secondaryText = Color(hex: 0x919296)
+    /// 주의 소리가 없을 때 도넛 가운데 "100%" (Hi-Fi 연습가이드 공기 적정)
+    static let normalRatioText = Color(hex: 0x5F94D5)
     /// 도넛 바깥 링 · 요약 "정상소리" 숫자
     static let normalSound = Color(hex: 0x76CAF2)
     /// 도넛 안쪽 링 · 요약 "주의 소리" 숫자
@@ -61,9 +61,9 @@ enum PracticeResultColors {
     /// 상단 요약 바 세로 구분선
     static let summaryDivider = Color(hex: 0x798494)
     /// 상단 히어로 요약 컨테이너 하단 가장자리 그라데이션 색상
-    static let heroGradientEdgeBottom = Color(hex: 0x191F2D)
+    static let heroGradientEdgeBottom = Color(hex: 0x141A27) // Hi-Fi 연습가이드: 아래 가장자리 x 8 → 0x151B28
     /// 상단 히어로 요약 컨테이너 하단 중앙 글로우 색상
-    static let heroGradientCenterBottom = Color(hex: 0x242D3C)
+    static let heroGradientCenterBottom = Color(hex: 0x2C3546) // Hi-Fi 연습가이드: 아래 가운데 0x212938 (글로우 60%와 섞인 값)
     /// 타임라인 눈금 선
     static let tickLine = Color(hex: 0x78797B)
     /// 하단 안내 문구
