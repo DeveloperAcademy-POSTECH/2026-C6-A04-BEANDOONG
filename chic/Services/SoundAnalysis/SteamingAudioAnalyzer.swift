@@ -26,13 +26,12 @@ nonisolated final class SteamingAudioAnalyzer: @unchecked Sendable {
     }
 
     /// 오디오 세션은 연습 관리자가 활성화한 뒤 호출합니다.
-    /// - onSilence: 소리가 끊겼을 때 (끊긴 지 몇 초 지났는지). 분석은 계속해요.
-    /// - onSoundResumed: 끊겼던 소리가 다시 이어졌을 때
-    /// - onFinish: 종료음 · 청소음으로 자동 종료할 때
+    /// - onSilence: 연습이 끝난 것 같을 때 (소리 끊김 · 종료음 · 청소음, 끝난 것으로 볼 시각이 몇 초 전인지).
+    ///   자동으로 끝내지 않고 분석을 계속해요. 종료 여부는 사용자에게 물어요.
+    /// - onSoundResumed: 물어본 뒤 스티밍 소리가 다시 이어졌을 때
     func start(onResult: @escaping @Sendable (PracticePhase) -> Void,
                onSilence: @escaping @Sendable (TimeInterval) -> Void,
                onSoundResumed: @escaping @Sendable () -> Void,
-               onFinish: @escaping @Sendable () -> Void,
                onError: @escaping @Sendable (String) -> Void) throws {
         let input = engine.inputNode
         let format = input.outputFormat(forBus: 0)
@@ -63,9 +62,8 @@ nonisolated final class SteamingAudioAnalyzer: @unchecked Sendable {
                 guard !self.isStopped else { return }
                 do {
                     var phase: PracticePhase?
-                    var finished = false
-                    var silenced = false
-                    let wasSilent = self.endRule.isSilent
+                    var askReason: ChicEndRule.Reason?
+                    let wasAsking = self.endRule.isAsking
                     let pcm48 = try self.input48k.convert(samples, sampleRate: rate)
                     try self.endDetector.append(pcm48)
                     try self.classifier.consume(pcm48, sampleRate: 48_000, onSpectrum: { spectrum in
@@ -75,11 +73,9 @@ nonisolated final class SteamingAudioAnalyzer: @unchecked Sendable {
                         self.logger.debug("분석 start=\(String(describing: self.classifier.startProbability)) active=\(self.endRule.isActive) work=\(scores.work) end=\(scores.end) purge=\(scores.purge) dBFS=\(scores.rmsDBFS)")
                         #endif
                         if let reason = self.endRule.consume(work: scores.work, end: scores.end, purge: scores.purge) {
-                            self.logger.notice("\(reason.finishes ? "자동 종료" : "소리 끊김", privacy: .public) reason=\(String(describing: reason), privacy: .public) work=\(scores.work) end=\(scores.end) purge=\(scores.purge) dBFS=\(scores.rmsDBFS) dropDB=\(scores.dropDB)")
-                            // 소리 끊김은 알리기만 하고 분석을 계속해요. (종료 여부는 사용자에게 물어요)
-                            guard reason.finishes else { silenced = true; return }
-                            self.isStopped = true
-                            finished = true
+                            self.logger.notice("종료 확인 요청 reason=\(String(describing: reason), privacy: .public) work=\(scores.work) end=\(scores.end) purge=\(scores.purge) dBFS=\(scores.rmsDBFS) dropDB=\(scores.dropDB)")
+                            // 알리기만 하고 분석을 계속해요. (종료 여부는 사용자에게 물어요)
+                            askReason = reason
                         }
                     }) { frame in
                         guard !self.isStopped else { return }
@@ -99,10 +95,9 @@ nonisolated final class SteamingAudioAnalyzer: @unchecked Sendable {
                             }
                         }
                     }
-                    if finished { onFinish(); return }
-                    if silenced {
-                        onSilence(Double(ChicEndRule.silenceCount) * Self.scoreInterval)
-                    } else if wasSilent, !self.endRule.isSilent {
+                    if let askReason {
+                        onSilence(Double(askReason.lookbackCount) * Self.scoreInterval)
+                    } else if wasAsking, !self.endRule.isAsking {
                         onSoundResumed()
                     }
                     if let phase { onResult(phase) }

@@ -14,6 +14,8 @@ xcrun swiftc -module-cache-path "$work/cache" \
     "$root/chic/Screens/PracticeResult/PracticeResult.swift" \
     "$root/chic/Models/PracticeRecordEntity.swift" \
     "$root/chic/Services/PracticeTimeline.swift" \
+    "$root/chic/Services/AerationClock.swift" \
+    "$root/chic/Screens/PracticeResult/PracticeGuide.swift" \
     "$root/chic/Services/PracticeHistoryStore.swift" \
     "$root/Tests/PracticeResultTests.swift" -o "$work/check"
 "$work/check"
