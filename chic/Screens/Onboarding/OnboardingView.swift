@@ -1,12 +1,12 @@
 import SwiftUI
 
-/// 온보딩 1/3 → 2/3 → 3/3 을 담는 화면 (ONB-TR 페이지 전환)
-/// - 디자인: Hi-Fi/iPhone 17 - 108.png · 109.png · 106.png
+/// 온보딩 1/5 → 5/5 를 담는 화면 (ONB-TR 페이지 전환)
+/// - 디자인: Hi-Fi/iPhone 17 - 108.png · 109.png · 106.png · 302.png · 237.png (2026-11-13: 302 추가로 5쪽)
 ///
 ///     ┌ 상단 바: 건너뛰기                 ← 고정
 ///     ├ 쪽 내용: 일러스트 + 타이틀 + 설명    ← 쪽마다 바뀜 (옆으로 밀리며 넘어감)
 ///     ├ 페이지 인디케이터                  ← 고정 (캡슐이 다음 자리로 옮겨 감)
-///     └ 하단 버튼: 다음                    ← 고정
+///     └ 하단 버튼: 다음 (마지막 쪽은 "홈으로 가기") ← 고정
 ///
 /// 쪽 이동: 좌우 스와이프 · "다음" 버튼 (마지막 쪽 버튼은 온보딩을 마치고 나가요)
 /// 어느 쪽을 보여 줄지(`page`)와 버튼·스와이프 동작은 바깥(`ContentView`)에서 정해요.
@@ -54,10 +54,10 @@ struct OnboardingView: View {
             .gesture(swipe)
 
             // MARK: 페이지 인디케이터 + 하단 버튼
-            OnboardingPageIndicator(activeIndex: indicatorIndex)
+            OnboardingPageIndicator(activeIndex: indicatorIndex, pageCount: OnboardingPage.allCases.count)
                 .padding(.bottom, Metrics.indicatorBottom.v(scale))
 
-            DarkPrimaryButton(title: "다음", width: Metrics.buttonWidth.h(scale), height: BottomButton.height, action: onNext)
+            DarkPrimaryButton(title: page == OnboardingPage.allCases.last ? "홈으로 가기" : "다음", width: Metrics.buttonWidth.h(scale), height: BottomButton.height, action: onNext)
                 .padding(.bottom, BottomButton.bottomGap.v(scale) + scale.fixedHeightAdjustment(BottomButton.height))
         }
         .ignoresSafeArea()
@@ -81,6 +81,7 @@ struct OnboardingView: View {
         case .watch: WatchIntroPage(motion: motion)
         case .placement: PlacementIntroPage(motion: motion)
         case .sound: SoundIntroPage(motion: motion)
+        case .milkLevel: MilkLevelIntroPage(motion: motion)
         case .review: ReviewIntroPage(motion: motion)
         }
     }
@@ -93,6 +94,7 @@ enum OnboardingPage: Int, CaseIterable, Comparable {
     case watch
     case placement
     case sound
+    case milkLevel
     case review
 
     static func < (lhs: OnboardingPage, rhs: OnboardingPage) -> Bool { lhs.rawValue < rhs.rawValue }
