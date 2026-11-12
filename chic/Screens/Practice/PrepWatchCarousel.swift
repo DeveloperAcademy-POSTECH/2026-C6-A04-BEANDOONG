@@ -4,12 +4,13 @@ import SwiftUI
 /// - 디자인: 대화로 받은 시안 4장(파랑·주황·보라·초록), 움직임은 레퍼런스 영상(아이폰 동작 버튼 설정 화면)
 ///
 ///     ┌ 워치 (가운데 고정): 검정 테 + 상태색 화면 + [종료] 알약
-///     │   └ 화면 안의 글자·원은 옆 칸에서 미끄러져 들어오고, 나간 칸은 회색으로 옅어짐 (이웃 칸이 양옆에 살짝 보이고, 첫 칸의 왼쪽·마지막 칸의 오른쪽은 비어 있음)
-///     ├ 페이지 점 4개: 캡슐이 손가락을 따라 이어서 옮겨 감
+///     │   └ 화면 안의 글자·원은 옆 칸에서 미끄러져 들어오고, 나간 칸은 회색으로 옅어짐 (이웃 칸이 양옆에 살짝 보임)
+///     ├ 페이지 점 4개: 캡슐이 손가락을 따라 이어서 옮겨 감 (롤링 → 정상은 4번째가 줄어드는 동안 1번째가 늘어남)
 ///     ├ 타이틀: 상태 이름 (옆 칸으로 넘어가는 동안 짧게 흐려졌다 나타남)
 ///     └ 설명
 ///
-/// `position`: 지금 가운데에 오는 칸 번호(0~3, 소수 가능). 손가락을 따라 움직일 때와 넘김 애니메이션이 같은 값을 쓰도록
+/// 칸은 원형으로 이어져 있어요: 롤링 오른쪽에 정상, 정상 왼쪽에 롤링 (2026-11-13: 끝에서 처음으로 돌아갈 때도 같은 움직임).
+/// `position`: 지금 가운데에 오는 칸 번호(소수 가능, 4칸마다 한 바퀴라 4 이상 · 0 미만도 그대로 써요). 손가락을 따라 움직일 때와 넘김 애니메이션이 같은 값을 쓰도록
 /// 이 뷰가 `Animatable`이라서, `withAnimation { position = 2 }`처럼 바꾸면 중간값으로 매 프레임 다시 그려요.
 struct PrepWatchCarousel: View, Animatable {
     var position: Double
@@ -134,9 +135,16 @@ struct PrepWatchCarousel: View, Animatable {
 
     // MARK: 칸 위치 계산
 
-    /// 가운데 기준 칸의 위치 (0 = 가운데, ±1 = 양옆). 이어 붙이지 않아서 첫 칸의 왼쪽과 마지막 칸의 오른쪽에는 아무것도 없다
+    /// 가운데 기준 칸의 위치 (0 = 가운데, ±1 = 양옆). 원형이라 가장 가까운 쪽으로 잰다 (−2 ~ +2)
     static func offset(of state: PrepWatchState, position: Double) -> Double {
-        Double(state.rawValue) - position
+        circularDistance(Double(state.rawValue) - position)
+    }
+
+    /// 칸 수(4)로 감싼 거리: −2 이상 +2 미만
+    static func circularDistance(_ raw: Double) -> Double {
+        let count = Double(PrepWatchState.allCases.count)
+        let wrapped = (raw.truncatingRemainder(dividingBy: count) + count).truncatingRemainder(dividingBy: count)
+        return wrapped >= count / 2 ? wrapped - count : wrapped
     }
 
     /// 상태색 화면의 보이는 정도: 가운데에 올수록 1, 한 칸 떨어지면 0
@@ -151,14 +159,15 @@ struct PrepWatchCarousel: View, Animatable {
 
 // MARK: - 페이지 점
 
-/// 점 4개. 캡슐(38x11)은 `position`을 따라 연속으로 옮겨 가고, 나머지는 점(11x11)
+/// 점 4개. 캡슐(38x11)은 `position`을 따라 연속으로 옮겨 가고, 나머지는 점(11x11).
+/// 원형 거리로 재서 롤링 → 정상일 때는 끝 점이 줄어드는 동안 첫 점이 늘어난다
 private struct PrepDots: View {
     let position: Double
 
     var body: some View {
         HStack(spacing: 7) {
             ForEach(0..<PrepWatchState.allCases.count, id: \.self) { index in
-                let weight = max(0, 1 - abs(position - Double(index)))
+                let weight = max(0, 1 - abs(PrepWatchCarousel.circularDistance(Double(index) - position)))
                 Capsule()
                     .fill(AppColors.pageIndicatorInactive)
                     .overlay { Capsule().fill(AppColors.pageIndicatorActive).opacity(weight) }
