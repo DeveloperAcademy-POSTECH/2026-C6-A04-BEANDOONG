@@ -1,11 +1,12 @@
 import SwiftUI
 
 /// 설정 화면
-/// - 디자인: Hi-Fi iPhone 17 - 266(새 버전 있음) · 241(최신 버전 사용 중)
+/// - 디자인: Hi-Fi iPhone 17 - 266(새 버전 있음) · 241(최신 버전 사용 중) · 설정 워치 페어링(2026-11-13, 대화로 받은 시안)
 ///
 ///     ┌ 상단 바: < 설정
 ///     ├ 앱 아이콘 + 버전 정보 ("최신 버전 사용중" 또는 "최신 버전 1.0.3" / "현재 버전 1.0.0")
-///     └ 정보 및 지원 카드: 개인정보 처리방침 · 문의하기
+///     ├ 정보 및 지원 카드: 개인정보 처리방침 · 문의하기
+///     └ 워치 페어링 카드: 애플 워치 연결 (예전 홈 "워치 페어링" 배지가 하던 워치 연결 과정을 시작)
 struct SettingsView: View {
     @Environment(\.designScale) private var scale
     @Environment(\.openURL) private var openURL
@@ -15,9 +16,12 @@ struct SettingsView: View {
     @State private var storeVersion: AppVersion?
     /// 미리보기용: App Store 조회 대신 이 값을 최신 버전으로 써요 (예: "1.0.3")
     private let storeVersionOverride: String?
+    /// "애플 워치 연결"을 눌렀을 때: 워치 연결 과정 화면으로 (경로는 홈이 관리해요)
+    private let onWatchPairing: () -> Void
 
-    init(storeVersionOverride: String? = nil) {
+    init(storeVersionOverride: String? = nil, onWatchPairing: @escaping () -> Void = {}) {
         self.storeVersionOverride = storeVersionOverride
+        self.onWatchPairing = onWatchPairing
     }
 
     /// 개인정보 처리방침 및 이용약관 (Notion 공개 페이지)
@@ -66,12 +70,20 @@ struct SettingsView: View {
                     .padding(.trailing, Layout.dividerTrailing)
                 SettingsRow(symbol: "envelope", title: "문의하기") { contact() }
             }
-            .padding(.vertical, Layout.cardVerticalPadding)
-            .background(
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .fill(AppColors.darkCard)
-            )
+            .settingsCard()
             .padding(.top, Layout.cardTop.v(scale))
+
+            // MARK: 워치 페어링
+            Text("워치 페어링")
+                .font(.pretendard(.bold, size: 16))
+                .foregroundStyle(Color.white)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.top, Layout.watchSectionTitleTop.v(scale))
+
+            SettingsRow(symbol: "watch.analog", title: "애플 워치 연결", action: onWatchPairing)
+                .accessibilityHint("워치 연결 과정을 시작해요")
+                .settingsCard()
+                .padding(.top, Layout.cardTop.v(scale))
 
             Spacer(minLength: 0)
             }
@@ -160,6 +172,20 @@ private struct SettingsAppIcon: View {
     }
 }
 
+// MARK: - 목록 카드
+
+private extension View {
+    /// 목록 줄들을 감싸는 둥근 카드 (위아래 여백 3)
+    func settingsCard() -> some View {
+        self
+            .padding(.vertical, Layout.cardVerticalPadding)
+            .background(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .fill(AppColors.darkCard)
+            )
+    }
+}
+
 // MARK: - 목록 한 줄
 
 private struct SettingsRow: View {
@@ -213,6 +239,7 @@ private enum Layout {
     static let cardVerticalPadding: CGFloat = 3
     static let dividerLeading: CGFloat = 57      // Hi-Fi 266: 구분선 x 77 (카드 왼쪽 20)
     static let dividerTrailing: CGFloat = 12
+    static let watchSectionTitleTop: CGFloat = 20 // 정보 및 지원 카드 아래 490.5 ↔ "워치 페어링" 글자 y0 513 (캡처 보정)
 }
 
 // MARK: - 이 화면 전용 색상

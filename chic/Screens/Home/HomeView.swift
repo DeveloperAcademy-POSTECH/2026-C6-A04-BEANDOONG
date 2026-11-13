@@ -3,7 +3,7 @@ import SwiftUI
 /// 홈 화면
 /// - 디자인: Hi-Fi iPhone 17 - 248(워치 미연결) · 253(워치 연결됨)
 ///
-///     ┌ 상단 행: chic 로고 · 워치 페어링 배지(누르면 워치 연결 과정) · 설정
+///     ┌ 상단 행: chic 로고 · 워치 페어링 배지(연결 상태만 표시, 2026-11-13부터 누를 수 없음) · 설정
 ///     ├ 헤드라인 "다음 한잔을 / 위한 작은 연습" + 설명
 ///     ├ 메인 연습 카드 (워치 + 피처 이미지, 좌하단 문구, 우하단 [연습하기 →]) — 누르면 (마이크 권한 →) 연습 준비 가이드 → 연습 시작
 ///     └ 기록 카드 ("연습 기록 보러가기", 우하단 [기록 보기 →])
@@ -33,7 +33,7 @@ struct HomeView: View {
     private enum Destination: Hashable {
         case microphone
         case prepGuide      // 연습 준비 가이드 → 바로 연습 시작
-        case watchSetup     // 워치 연결 과정 (상단 "워치 페어링" 배지에서만 진입)
+        case watchSetup     // 워치 연결 과정 (설정 > 워치 페어링 > 애플 워치 연결에서 진입)
         case history
         case settings
     }
@@ -55,12 +55,14 @@ struct HomeView: View {
                             // 연습하기: 워치 연결 과정 없이 준비 가이드를 보여 주고 바로 연습을 시작합니다.
                             PracticePrepGuideView()
                         case .watchSetup:
-                            // 워치 연결이 끝나면(완료) 홈으로 돌아옵니다.
-                            WatchConnectionFlow(onReady: { path = [] })
+                            // 워치 연결이 끝나면(완료) 들어온 설정 화면으로 돌아갑니다.
+                            WatchConnectionFlow(onReady: {
+                                if path.last == .watchSetup { path.removeLast() }
+                            })
                         case .history:
                             HistoryView(onStartPractice: startPractice)
                         case .settings:
-                            SettingsView()
+                            SettingsView(onWatchPairing: { path.append(.watchSetup) })
                         }
                     }
                     .toolbar(.hidden, for: .navigationBar)
@@ -87,11 +89,8 @@ struct HomeView: View {
             HStack(spacing: 0) {
                 AssetImageView(name: "ChicLogo", width: 82, height: 28)
                 Spacer(minLength: 0)
-                Button { path.append(.watchSetup) } label: {
-                    WatchPairingBadge(isConnected: connection.isReachable)
-                }
-                .buttonStyle(.plain)
-                .accessibilityHint("워치 연결 과정을 시작해요")
+                // 워치 연결 상태만 보여 줘요. 연결 과정은 설정 > 워치 페어링에서 시작해요
+                WatchPairingBadge(isConnected: connection.isReachable)
                 Button {
                     path.append(.settings)
                 } label: {
