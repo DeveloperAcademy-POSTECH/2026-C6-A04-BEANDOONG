@@ -60,7 +60,7 @@ struct ContentView: View {
     /// 위에 불투명한 온보딩이 덮고 있어서 화면에는 보이지 않아요.
     private static let hiddenOpacity = 0.001
 
-    /// 온보딩 1/4 → 2/4 → 3/4 → 4/4. 쪽이 바뀔 때의 넘김 애니메이션은 OnboardingView 가 해요.
+    /// 온보딩 1/5 → … → 5/5. 쪽이 바뀔 때의 넘김 애니메이션은 OnboardingView 가 해요.
     private var onboarding: some View {
         OnboardingView(page: step, onNext: showNextStep, onSkip: skipToPractice, onSwipe: swipeStep,
                        onPageSettled: { page in if page == .review { preparesHome = true } })
@@ -72,12 +72,13 @@ struct ContentView: View {
         step = target
     }
 
-    /// 다음: 1/4 → 2/4 → 3/4 → 4/4, 마지막 쪽에서는 온보딩 완료
+    /// 다음: 1/5 → … → 5/5, 마지막 쪽("홈으로 가기")에서는 온보딩 완료
     private func showNextStep() {
         switch step {
         case .watch: step = .placement
         case .placement: step = .sound
-        case .sound: step = .review
+        case .sound: step = .milkLevel
+        case .milkLevel: step = .review
         case .review: completeOnboarding()
         }
     }

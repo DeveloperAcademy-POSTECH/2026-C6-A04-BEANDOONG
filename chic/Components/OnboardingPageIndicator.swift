@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// 온보딩 4페이지 인디케이터: 현재 페이지는 긴 캡슐(38x11), 나머지는 점(11x11)
+/// 온보딩 페이지 인디케이터: 현재 페이지는 긴 캡슐(38x11), 나머지는 점(11x11)
 ///
 ///     activeIndex = 1  →  ●  ━━  ●
 ///
@@ -10,7 +10,7 @@ struct OnboardingPageIndicator: View {
     /// 현재 페이지 (0부터 시작)
     let activeIndex: Int
 
-    /// 전체 페이지 수 (온보딩 4, 연습 준비 3)
+    /// 전체 페이지 수 (온보딩은 `OnboardingPage.allCases.count` = 5를 넘김)
     var pageCount = 4
 
     var body: some View {
