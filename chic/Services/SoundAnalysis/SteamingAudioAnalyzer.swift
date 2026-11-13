@@ -27,11 +27,9 @@ nonisolated final class SteamingAudioAnalyzer: @unchecked Sendable {
 
     /// 오디오 세션은 연습 관리자가 활성화한 뒤 호출합니다.
     /// - onSilence: 연습이 끝난 것 같을 때 (소리 끊김 · 종료음 · 청소음, 끝난 것으로 볼 시각이 몇 초 전인지).
-    ///   자동으로 끝내지 않고 분석을 계속해요. 종료 여부는 사용자에게 물어요.
-    /// - onSoundResumed: 물어본 뒤 스티밍 소리가 다시 이어졌을 때
+    ///   자동으로 끝내지 않고 분석을 계속해요. 종료 여부는 사용자에게 묻고, 묻는 창은 사용자가 답할 때까지 닫지 않아요.
     func start(onResult: @escaping @Sendable (PracticePhase) -> Void,
                onSilence: @escaping @Sendable (TimeInterval) -> Void,
-               onSoundResumed: @escaping @Sendable () -> Void,
                onError: @escaping @Sendable (String) -> Void) throws {
         let input = engine.inputNode
         let format = input.outputFormat(forBus: 0)
@@ -63,7 +61,6 @@ nonisolated final class SteamingAudioAnalyzer: @unchecked Sendable {
                 do {
                     var phase: PracticePhase?
                     var askReason: ChicEndRule.Reason?
-                    let wasAsking = self.endRule.isAsking
                     let pcm48 = try self.input48k.convert(samples, sampleRate: rate)
                     try self.endDetector.append(pcm48)
                     try self.classifier.consume(pcm48, sampleRate: 48_000, onSpectrum: { spectrum in
@@ -97,8 +94,6 @@ nonisolated final class SteamingAudioAnalyzer: @unchecked Sendable {
                     }
                     if let askReason {
                         onSilence(Double(askReason.lookbackCount) * Self.scoreInterval)
-                    } else if wasAsking, !self.endRule.isAsking {
-                        onSoundResumed()
                     }
                     if let phase { onResult(phase) }
                 } catch {

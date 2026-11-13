@@ -31,7 +31,7 @@ struct PracticeSessionView: View {
                     feedback: feedback,
                     aerationClock: practice.aerationClock,
                     onStop: practice.stop,
-                    showsEndDialog: practice.silenceStartedAt != nil,
+                    showsEndDialog: practice.endQuestion.isAsking,
                     onContinue: practice.continueAfterSilence,
                     onFinishAfterSilence: practice.finishAfterSilence
                 )
