@@ -136,10 +136,12 @@ struct PracticeResult: Hashable {
     var customNormalSeconds: Int? = nil
     var customCautionSeconds: Int? = nil
 
-    /// 상단 네비게이션 바 제목 (예: "9월 28일 - 1차")
+    /// 기록 이름: 기록 목록 카드 · 기록 상세 상단 바 제목 (예: "9월 28일 - 1차", 올해가 아니면 "2025년 9월 28일 - 1차")
     var title: String {
-        let date = Calendar.current.dateComponents([.month, .day], from: practicedAt)
-        return "\(date.month ?? 0)월 \(date.day ?? 0)일 - \(dailyOrder)차"
+        let calendar = Calendar.current
+        let isThisYear = calendar.isDate(practicedAt, equalTo: Date(), toGranularity: .year)
+        let yearPrefix = isThisYear ? "" : "\(calendar.component(.year, from: practicedAt))년 "
+        return "\(yearPrefix)\(calendar.component(.month, from: practicedAt))월 \(calendar.component(.day, from: practicedAt))일 - \(dailyOrder)차"
     }
 
     /// 결과의 0초로 사용할 첫 감지 시점입니다. 감지 구간이 없으면 원래 시간 기준을 유지합니다.
@@ -200,10 +202,10 @@ struct PracticeResult: Hashable {
     /// 상단 요약 "전체 시간". 첫 감지 이후의 미분류 구간은 포함합니다.
     var totalSeconds: Int { Int(timelineLength.rounded()) }
 
-    /// 도넛 차트 바깥 링(정상소리) 비율 (0.0 ... 1.0)
+    /// 정상 소리 비율 (0.0 ... 1.0)
     var normalRatio: Double { ratio(of: normalSeconds) }
 
-    /// 도넛 차트 안쪽 링(주의 소리) 비율 (0.0 ... 1.0)
+    /// 주의 소리 비율 (0.0 ... 1.0): 연습 결과 · 기록 상세 링과 가운데 숫자
     var cautionRatio: Double { ratio(of: cautionSeconds) }
 
     /// 전체 시간에 대한 비율을 0 ... 1 로 맞춥니다. 전체 시간이 0이면 0입니다.
