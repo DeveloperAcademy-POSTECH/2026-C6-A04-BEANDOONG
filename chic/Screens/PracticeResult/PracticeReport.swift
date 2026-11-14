@@ -92,26 +92,27 @@ struct PracticeReportPage: View {
     let headline: String
 
     var body: some View {
-        ZStack(alignment: .topLeading) {
-            ReportHero(result: result, headline: headline)
+        VStack(spacing: 0) {
+            ZStack(alignment: .topLeading) {
+                ReportHero(result: result, headline: headline)
 
-            Text("스티밍 기록")
-                .font(.pretendard(.bold, size: 20))
-                .foregroundStyle(Color.white)
-                .at(x: ReportLayout.sectionTitleX, y: ReportLayout.sectionTitleY, scale)
+                Text("스티밍 기록")
+                    .font(.pretendard(.bold, size: 20))
+                    .foregroundStyle(Color.white)
+                    .at(x: ReportLayout.sectionTitleX, y: ReportLayout.sectionTitleY, scale)
 
-            // 탭 없이 소리 유형별 막대 표만 보여요 (2026-11-13 시안: 타임라인 · 상태별 감지시간 탭 삭제)
-            ReportOverviewChart(result: result)
+                ReportOverviewChart(result: result)
+            }
+            .frame(maxWidth: .infinity, alignment: .topLeading)
+            .frame(height: ReportLayout.guideY.v(scale), alignment: .topLeading)
 
             ReportGuideSection(guide: PracticeGuide(result: result),
-                               aerationSeconds: Double(result.detectedSeconds(of: .normalAeration)))
-                .at(x: 0, y: ReportLayout.guideY, scale)
+                               aerationSeconds: result.guideDuration(of: .normalAeration))
 
             ReportFootnote()
-                .at(x: 0, y: ReportLayout.footnoteY, scale)
+                .padding(.top, CGFloat(36).v(scale))
+                .padding(.bottom, CGFloat(32).v(scale))
         }
-        .frame(maxWidth: .infinity, alignment: .topLeading)
-        .frame(height: ReportLayout.pageHeight.v(scale), alignment: .topLeading)
     }
 }
 
@@ -144,6 +145,7 @@ private struct ReportHero: View {
                 .lineSpacing(ReportLayout.headlineLineSpacing)
                 .multilineTextAlignment(.center)
                 .foregroundStyle(AppColors.darkSecondaryButton)
+                .padding(.horizontal, ReportLayout.sectionTitleX.h(scale))
                 .frame(maxWidth: .infinity)
                 .at(x: 0, y: ReportLayout.headlineY, scale)
 
@@ -250,21 +252,23 @@ private struct ReportGuideSection: View {
     let aerationSeconds: Double
 
     var body: some View {
-        ZStack(alignment: .topLeading) {
-            Text("연습 가이드")
-                .font(.pretendard(.bold, size: 20))
-                .foregroundStyle(Color.white)
-                .at(x: ReportLayout.sectionTitleX, y: 0, scale)
+        VStack(spacing: 0) {
+            ZStack(alignment: .topLeading) {
+                Text("연습 가이드")
+                    .font(.pretendard(.bold, size: 20))
+                    .foregroundStyle(Color.white)
+                    .at(x: ReportLayout.sectionTitleX, y: 0, scale)
 
-            ReportGuidePitcher(milkTop: GuideMilkLevel.top(forAeration: aerationSeconds))
-                .designScaled(width: ReportLayout.guidePitcherSize.width, height: ReportLayout.guidePitcherSize.height, scale)
-                .at(x: ReportLayout.guidePitcherX, y: ReportLayout.guidePitcherTop, scale)
-                .accessibilityHidden(true)
+                ReportGuidePitcher(milkTop: GuideMilkLevel.top(forAeration: aerationSeconds))
+                    .designScaled(width: ReportLayout.guidePitcherSize.width, height: ReportLayout.guidePitcherSize.height, scale)
+                    .at(x: ReportLayout.guidePitcherX, y: ReportLayout.guidePitcherTop, scale)
+                    .accessibilityHidden(true)
+            }
+            .frame(maxWidth: .infinity, alignment: .topLeading)
+            .frame(height: ReportLayout.guideCardTop.v(scale), alignment: .topLeading)
 
             ReportGuideCard(guide: guide)
-                .at(x: ReportLayout.guideCardX, y: ReportLayout.guideCardTop, scale)
         }
-        .frame(maxWidth: .infinity, alignment: .topLeading)
     }
 }
 
@@ -342,15 +346,11 @@ private struct ReportGuideCard: View {
     let guide: PracticeGuide
 
     var body: some View {
-        ZStack(alignment: .topLeading) {
-            RoundedRectangle(cornerRadius: ReportLayout.guideCardRadius, style: .continuous)
-                .fill(PracticeResultColors.cardBackground)
-
+        HStack(alignment: .top, spacing: CGFloat(12).h(scale)) {
             Image(systemName: guide.systemImage)
                 .font(.system(size: guide == .onTarget ? 19 : 22, weight: guide == .onTarget ? .semibold : .regular))
                 .foregroundStyle(Color.white)
                 .frame(width: 28, height: 28)
-                .position(x: ReportLayout.guideIconCenter.x.h(scale), y: ReportLayout.guideIconCenter.y.v(scale))
                 .accessibilityHidden(true)
 
             VStack(alignment: .leading, spacing: ReportLayout.guideTitleToMessage.v(scale)) {
@@ -363,10 +363,13 @@ private struct ReportGuideCard: View {
                     .foregroundStyle(PracticeResultColors.guideMessage)
                     .fixedSize(horizontal: false, vertical: true)
             }
-            .frame(width: ReportLayout.guideTextWidth.h(scale), alignment: .leading)
-            .at(x: ReportLayout.guideTextX, y: ReportLayout.guideTextTop, scale)
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .frame(width: ReportLayout.guideCardWidth.h(scale), height: ReportLayout.guideCardHeight.v(scale), alignment: .topLeading)
+        .padding(.horizontal, CGFloat(18).h(scale))
+        .padding(.vertical, ReportLayout.guideTextTop.v(scale))
+        .frame(width: ReportLayout.guideCardWidth.h(scale), alignment: .leading)
+        .frame(minHeight: ReportLayout.guideCardHeight.v(scale), alignment: .leading)
+        .background(PracticeResultColors.cardBackground, in: RoundedRectangle(cornerRadius: ReportLayout.guideCardRadius))
         .accessibilityElement(children: .combine)
     }
 }
@@ -393,7 +396,7 @@ private struct ReportOverviewChart: View {
     let result: PracticeResult
 
     private static let rows: [(String, DetectedSound)] = [
-        ("공기 주입", .normalAeration), ("공기 과다", .overAeration), ("공기 부족", .lackOfAir), ("롤링 소리", .rolling)
+        ("공기 주입", .normalAeration), ("버블링", .overAeration), ("스크레칭", .lackOfAir), ("롤링 소리", .rolling)
     ]
 
     var body: some View {
