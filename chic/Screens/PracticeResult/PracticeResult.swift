@@ -136,10 +136,12 @@ struct PracticeResult: Hashable {
     var customNormalSeconds: Int? = nil
     var customCautionSeconds: Int? = nil
 
-    /// 상단 네비게이션 바 제목 (예: "9월 28일 - 1차")
+    /// 기록 이름: 기록 목록 카드 · 기록 상세 상단 바 제목 (예: "9월 28일 - 1차", 올해가 아니면 "2025년 9월 28일 - 1차")
     var title: String {
-        let date = Calendar.current.dateComponents([.month, .day], from: practicedAt)
-        return "\(date.month ?? 0)월 \(date.day ?? 0)일 - \(dailyOrder)차"
+        let calendar = Calendar.current
+        let isThisYear = calendar.isDate(practicedAt, equalTo: Date(), toGranularity: .year)
+        let yearPrefix = isThisYear ? "" : "\(calendar.component(.year, from: practicedAt))년 "
+        return "\(yearPrefix)\(calendar.component(.month, from: practicedAt))월 \(calendar.component(.day, from: practicedAt))일 - \(dailyOrder)차"
     }
 
     /// 결과의 0초로 사용할 첫 감지 시점입니다. 감지 구간이 없으면 원래 시간 기준을 유지합니다.

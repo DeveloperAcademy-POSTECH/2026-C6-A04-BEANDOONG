@@ -156,8 +156,6 @@ struct HistoryView: View {
 /// 기존 카드 레이아웃에 저장된 기록을 전달합니다.
 private struct HistoryRecord: Identifiable, Hashable {
     let id: UUID
-    let date: Date
-    let dailyOrder: Int
     let durationSeconds: Int
     let result: PracticeResult
 
@@ -167,8 +165,6 @@ private struct HistoryRecord: Identifiable, Hashable {
 
     init(result: PracticeResult, id: UUID = UUID()) {
         self.id = id
-        date = result.practicedAt
-        dailyOrder = result.dailyOrder
         self.result = result
         durationSeconds = result.totalSeconds
     }
@@ -177,12 +173,8 @@ private struct HistoryRecord: Identifiable, Hashable {
         durationSeconds.practiceSecondsText
     }
 
-    var title: String {
-        let calendar = Calendar.current
-        let isThisYear = calendar.isDate(date, equalTo: Date(), toGranularity: .year)
-        let yearPrefix = isThisYear ? "" : "\(calendar.component(.year, from: date))년 "
-        return "\(yearPrefix)\(calendar.component(.month, from: date))월 \(calendar.component(.day, from: date))일 - \(dailyOrder)차"
-    }
+    /// "9월 28일 - 1차" (올해가 아니면 앞에 연도). 기록 상세 상단 바 제목과 같아요.
+    var title: String { result.title }
 }
 
 /// 연습 기록 한 줄 카드 (365 x 100)
