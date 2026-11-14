@@ -77,3 +77,24 @@ if ("IntersectionObserver" in window && !reducedMotion.matches) {
     revealItems.forEach((element) => element.classList.add("is-visible"));
   });
 }
+
+// 호버는 마우스에서만 열고, 터치와 키보드는 기본 버튼 동작으로 전환합니다.
+document.querySelectorAll(".problem-card").forEach((card) => {
+  const button = card.querySelector(".problem-toggle");
+  const panel = card.querySelector(".problem-panel");
+  function setOpen(open) {
+    button.setAttribute("aria-expanded", String(open));
+    panel.setAttribute("aria-hidden", String(!open));
+  }
+  card.addEventListener("pointerenter", (event) => {
+    if (event.pointerType === "mouse") setOpen(true);
+  });
+  card.addEventListener("pointerleave", (event) => {
+    if (event.pointerType === "mouse") setOpen(false);
+  });
+  button.addEventListener("click", () => setOpen(button.getAttribute("aria-expanded") !== "true"));
+  button.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") setOpen(false);
+  });
+  button.addEventListener("blur", () => setOpen(false));
+});

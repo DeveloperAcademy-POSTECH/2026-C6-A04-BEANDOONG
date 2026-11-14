@@ -37,6 +37,9 @@
   --muted: #62666d;
   --line: #e4e9ed;
   --max: 1120px;
+  --section-space: 160px;
+  --content-space: 56px;
+  --copy-space: 30px;
   font-family: Pretendard, sans-serif;
   font-synthesis: none;
   word-break: keep-all;
@@ -229,30 +232,116 @@ h3 {
 }
 
 /* 문제와 문제 정의 */
-.problem-list {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 48px;
-  margin: 76px auto 0;
-  max-width: 1000px;
+.problem-hint {
+  margin: var(--content-space) 0 24px;
+  color: #287aa0;
+  font-size: 15px;
   text-align: center;
 }
-.problem-list span {
-  display: none;
+.problem-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+  /* 두 간격이 6px에서 24px로 넓어진 만큼 영역만 확장해 사진 너비를 유지합니다. */
+  width: calc(100% + 36px);
+  margin: 0 -18px;
+  text-align: left;
 }
-/* Figma의 blue02 색상으로 세 가지 어려움을 구분합니다. */
-.problem-list > div {
-  padding: 32px 24px;
-  border-radius: 20px;
-  background: var(--sky);
+.problem-card {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  aspect-ratio: 2115.428 / 3020.01;
+  overflow: hidden;
+  isolation: isolate;
+  background: #c4e8f8;
 }
-.problem-list h3 {
-  font-size: 21px;
-  margin-bottom: 15px;
+.problem-photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
-.problem-list p {
-  font-size: 15px;
-  color: var(--ink);
+.problem-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 40%, #000b 100%);
+  border-bottom: 5px solid #c4e8f8;
+  pointer-events: none;
+}
+.problem-toggle {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  width: 100%;
+  border: 0;
+  padding: 0;
+  background: transparent;
+}
+.problem-toggle:focus-visible {
+  outline: 3px solid #287aa0;
+  outline-offset: -6px;
+}
+.problem-card h3 {
+  position: absolute;
+  z-index: 1;
+  left: 10%;
+  right: 10%;
+  bottom: 10%;
+  text-align: left;
+  margin: 0;
+  color: #fff;
+  font-size: clamp(20px, 1.8vw, 25px);
+  font-weight: 500;
+  line-height: 1.45;
+  transition: opacity 0.2s;
+}
+.problem-panel {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 10%;
+  text-align: right;
+  background: #c4e8f8;
+  color: #287aa0;
+  transform: translateY(100%);
+  visibility: hidden;
+  pointer-events: none;
+  transition: transform 0.5s cubic-bezier(0.22, 0.61, 0.36, 1), visibility 0.5s;
+}
+.problem-panel-title {
+  font-size: clamp(20px, 1.8vw, 25px);
+  font-weight: 700;
+  line-height: 1.45;
+  margin: 0;
+  text-align: left;
+}
+.problem-story {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  font-size: clamp(14px, 1.15vw, 16px);
+  line-height: 1.7;
+  text-align: left;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+  text-wrap: pretty;
+}
+.problem-story p + p {
+  margin-top: 1em;
+}
+.problem-toggle[aria-expanded="true"] ~ h3 {
+  opacity: 0;
+}
+.problem-toggle[aria-expanded="true"] ~ .problem-panel {
+  transform: translateY(0);
+  visibility: visible;
 }
 .definition {
   padding-top: 40px;
@@ -262,7 +351,7 @@ h3 {
 .definition-intro {
   font-size: 16px;
   color: var(--muted);
-  margin-bottom: 25px;
+  margin-bottom: var(--copy-space);
 }
 .definition h2 span {
   color: #77caf2;
@@ -270,12 +359,12 @@ h3 {
 .definition-copy {
   color: var(--muted);
   font-size: 18px;
-  margin-top: 30px;
+  margin-top: var(--copy-space);
 }
 
 /* 앱 미리보기의 워치 햅틱 소개 */
 .haptic-feedback {
-  margin: 160px auto 0;
+  margin: var(--section-space) auto 0;
 }
 .haptic-copy {
   grid-column: 2;
@@ -311,7 +400,7 @@ h3 {
 .haptic-copy p {
   font-size: 18px;
   color: var(--muted);
-  margin-top: 28px;
+  margin-top: var(--copy-space);
 }
 /* 팀 소개를 본문 끝에 자연스럽게 연결합니다. */
 .header a[aria-current="page"] {
@@ -321,19 +410,21 @@ h3 {
   position: relative;
   min-height: 520px;
   height: max(64svh, 56.25vw);
-  display: grid;
-  place-items: center;
-  padding: 24px;
+}
+.team-scene {
+  position: relative;
+  height: 100%;
   overflow: hidden;
 }
 .team-banner h2 {
   position: absolute;
-  inset: 80% 24px auto;
-  transform: translateY(-50%);
+  top: 10%;
+  left: 6%;
+  width: 46%;
   margin: 0;
   z-index: 1;
-  text-align: center;
-  font-size: clamp(36px, 4vw, 64px);
+  text-align: left;
+  font-size: clamp(30px, 3.3vw, 56px);
   line-height: 1.4;
   letter-spacing: -0.045em;
   font-weight: 600;
@@ -351,7 +442,7 @@ h3 {
   object-fit: cover;
   object-position: center;
 }
-.team-banner:after {
+.team-scene:after {
   content: "";
   position: absolute;
   inset: 0;
@@ -389,12 +480,12 @@ h3 {
   flex-wrap: wrap;
 }
 .team-group + .team-group {
-  margin-top: 90px;
+  margin-top: var(--section-space);
 }
 .team-group > h3 {
   font-size: 24px;
   font-weight: 600;
-  margin-bottom: 30px;
+  margin-bottom: 32px;
 }
 
 /* 팀원과 멘토 사진을 한 줄에 세 명씩 표시합니다. */
@@ -442,7 +533,18 @@ h3 {
 /* 도움을 주신 분들 */
 .supporter-grid {
   display: flex;
-  gap: 80px;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 48px 80px;
+}
+.supporter-grid a {
+  display: flex;
+  align-items: center;
+  min-height: 72px;
+}
+.supporter-grid img {
+  width: 190px;
+  height: auto;
 }
 .supporter-grid h4 {
   margin: 0;
@@ -619,103 +721,53 @@ footer .wordmark {
 .screen-message {
   position: absolute;
   left: 0;
-  top: 170px;
+  top: 164px;
   width: 402px;
+  z-index: 1;
 }
+.bubble .screen-message { top: 163px; }
+.low .screen-message { top: 162px; }
+.rolling .screen-message { top: 168px; }
 .screen-message h3 {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
   font-size: 26px;
-  line-height: 36px;
+  line-height: 31px;
   letter-spacing: 0;
 }
 .screen-message p {
   font-size: 16px;
   line-height: 19px;
-  margin-top: 9px;
+  margin-top: 15px;
   white-space: nowrap;
 }
 
-/* 상태별 우유와 기포 일러스트 */
-.feedback-art {
+/* Figma 원본 SVG 크기를 유지하고 화면 전체만 축소합니다. */
+.feedback-pitcher,
+.feedback-nozzle,
+.feedback-signal {
   position: absolute;
-  left: 72px;
-  top: 343px;
-  width: 258px;
-  height: 258px;
-}
-.feedback-art img {
   max-width: none;
 }
-.art-disc {
-  position: absolute;
-  left: 0;
-  top: 0;
-}
-.art-water {
-  position: absolute;
-  left: -10.1px;
-  top: 118.23px;
-  width: 277.2px;
-  height: 154px;
-  mask-image: url("./assets/air-imgGroup.svg");
-  mask-position: 23.1px -105.23px;
-  mask-size: 231px 231px;
-  mask-repeat: no-repeat;
-}
-.bubble-dot {
-  position: absolute;
-}
-.air .dot-1 {
-  left: 39.95px;
-  top: 73.32px;
-}
-.air .dot-2 {
-  left: 67.41px;
-  top: 103.35px;
-}
-.bubble .art-water {
-  left: -8.98px;
-  top: 134px;
-  width: 275.737px;
-  height: 137.869px;
-  mask-image: url("./assets/bubble-imgGroup.svg");
-  mask-position: 22.978px -119.997px;
-  mask-size: 229.781px 229.781px;
-}
-.bubble .dot-1 {
-  left: 53.57px;
-  top: 79.1px;
-}
-.bubble .dot-2 {
-  left: 140.38px;
-  top: 63.79px;
-}
-.low .art-water {
-  left: -6.5px;
-  top: 146.282px;
-  width: 270px;
-  height: 118.218px;
-  mask-image: url("./assets/low-imgGroup.svg");
-  mask-position: 22.5px -134.282px;
-  mask-size: 225px 225px;
-}
-.rolling .art-water {
-  left: -11.3px;
-  top: 97.722px;
-  width: 279.6px;
-  height: 175.756px;
-  mask-image: url("./assets/rolling-imgGroup.svg");
-  mask-position: 23.3px -85.722px;
-  mask-size: 233px 233px;
-}
+.air .feedback-pitcher { left: 76px; top: 429px; }
+.air .feedback-nozzle { left: 237.288px; top: 383.297px; }
+.air .feedback-signal { left: 80.078px; top: 153.078px; }
+.bubble .feedback-pitcher { left: 73px; top: 383px; }
+.bubble .feedback-signal { left: 30.63px; top: 118.995px; }
+.low .feedback-pitcher { left: 75px; top: 383.3px; }
+.low .feedback-signal { left: 31.629px; top: 102px; }
+.rolling .feedback-pitcher { left: 74px; top: 382.949px; }
+.rolling .feedback-signal { left: 74px; top: 157px; }
 
 /* 앱 화면 내부의 종료 표시와 홈 인디케이터 */
 .screen-stop {
   position: absolute;
   left: 64px;
-  top: 720px;
+  top: 749.5px;
   width: 274px;
   height: 60px;
-  background: var(--white);
+  background: rgba(245, 250, 255, 0.73);
   border-radius: 30px;
   color: var(--night);
   display: flex;
@@ -808,7 +860,7 @@ footer .wordmark {
   color: #77caf2;
 }
 .steaming-intro .body-copy {
-  margin-top: 28px;
+  margin-top: var(--copy-space);
 }
 .steaming-photo {
   margin: 0;
@@ -825,13 +877,13 @@ footer .wordmark {
 }
 .latte-story,
 .access-story {
-  margin-top: 150px;
+  margin-top: var(--section-space);
 }
 .latte-photos {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 28px;
-  margin-top: 48px;
+  margin-top: var(--content-space);
 }
 .latte-photos img {
   width: 100%;
@@ -843,37 +895,24 @@ footer .wordmark {
 
 /* 분석 미리보기: 원본 402px 화면을 동일한 비율로 축소합니다. */
 .results-preview {
-  margin: 160px auto 0;
+  margin: var(--section-space) auto 0;
 }
-.result-carousel {
+.result-preview {
   width: 100%;
   max-width: 440px;
   min-width: 0;
   justify-self: end;
 }
-.result-viewport {
-  overflow: hidden;
-  touch-action: pan-y;
-}
-.result-track {
-  display: flex;
-  transition: transform 0.6s cubic-bezier(0.22, 0.61, 0.36, 1);
-}
-.result-slide {
-  flex: 0 0 100%;
-  min-width: 0;
-  display: flex;
-  justify-content: center;
-  padding: 20px 0 35px;
-}
 .result-device {
   --result-scale: 0.62;
   width: calc(402px * var(--result-scale));
-  height: calc(1078px * var(--result-scale));
+  height: calc(874px * var(--result-scale));
+  margin: 20px auto 35px;
   overflow-y: auto;
+  overscroll-behavior-y: contain;
   border-radius: 28px;
   background: var(--night);
-  box-shadow: 0 18px 48px #1d364a20;
+  box-shadow: 0 0 0 5px #35373e, 0 18px 48px #1d364a20;
   scrollbar-width: none;
 }
 .result-device::-webkit-scrollbar {
@@ -881,7 +920,7 @@ footer .wordmark {
 }
 .result-screen {
   width: 402px;
-  min-height: 1078px;
+  min-height: 1384px;
   zoom: var(--result-scale);
   color: var(--white);
   background: var(--night);
@@ -917,19 +956,29 @@ footer .wordmark {
   position: relative;
   text-align: center;
   font-size: 26px;
-  line-height: 35px;
+  line-height: 31px;
   letter-spacing: 0;
   margin-top: 28px;
 }
 .result-ring {
   position: relative;
-  width: 190px;
-  height: 188px;
-  margin: 45px auto 0;
+  width: 192px;
+  height: 192px;
+  margin: 49px auto 0;
+}
+.result-ring-base {
+  position: absolute;
+  left: 1px;
+  top: 2px;
+}
+.result-ring-attention {
+  position: absolute;
+  left: 97px;
+  top: 3.26px;
 }
 .result-ring > p {
   position: absolute;
-  top: 61px;
+  top: 68px;
   left: 0;
   width: 100%;
   display: grid;
@@ -972,35 +1021,11 @@ footer .wordmark {
   width: 362px;
   margin: 46px auto 0;
 }
-.result-records > h4 {
+.result-records > h4,
+.result-guide > h4 {
   font-size: 20px;
   font-weight: 600;
-  margin: 0 0 37px;
-}
-.result-tabs {
-  background: #0f111a;
-  border-radius: 21px;
-  height: 41px;
-  padding: 1px 2px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-weight: 600;
-}
-.result-tabs span {
-  width: 114px;
-  height: 38px;
-  display: grid;
-  place-items: center;
-  font-size: 12px;
-  border-radius: 21px;
-  white-space: nowrap;
-}
-.result-tabs .selected {
-  background: #4b4f5a;
-}
-.result-table {
-  margin-top: 30px;
+  margin: 0 0 30px;
 }
 .result-table-labels {
   display: grid;
@@ -1041,23 +1066,41 @@ footer .wordmark {
   width: 225px;
   margin-left: 56px;
 }
-.result-timelines {
-  width: 339px;
-  margin: 37px auto 0;
-  display: grid;
-  gap: 13px;
+.result-guide {
+  margin: 46px 20px 0;
 }
-.result-timelines h4 {
+.result-guide > h4 {
+  margin-bottom: 8px;
+}
+.result-guide-illustration {
+  height: 236.697px;
+  padding: 46px 0 10px 93px;
+}
+.result-feedback {
+  display: flex;
+  gap: 15px;
+  align-items: flex-start;
+  margin-top: 17px;
+  padding: 15px 13px;
+  border-radius: 10px;
+  background: #202228;
+}
+.result-feedback h5 {
+  margin: 0 0 8px;
+  font-size: 16px;
+  line-height: 19px;
+  letter-spacing: 0;
+}
+.result-feedback p {
+  color: #b9b9b9;
   font-size: 12px;
-  margin: 0 0 9px;
-  font-weight: 600;
 }
-.result-timelines .result-ticks {
-  width: 339px;
+.result-feedback > img {
+  flex: 0 0 24px;
 }
 .result-disclaimer {
-  width: 370px;
-  margin: 63px auto 0;
+  width: 335px;
+  margin: 38px auto 0;
   display: flex;
   gap: 6px;
   align-items: center;
@@ -1071,98 +1114,6 @@ footer .wordmark {
   border-radius: 3px;
   background: white;
   margin: 24px auto 13px;
-}
-.duration-chart {
-  position: relative;
-  width: 192px;
-  height: 192px;
-  margin: 59px auto;
-}
-.duration-chart > p {
-  position: absolute;
-  top: 68px;
-  left: 0;
-  width: 100%;
-  display: grid;
-  justify-items: center;
-}
-.duration-chart strong {
-  font-size: 36px;
-}
-.duration-chart span {
-  font-size: 12px;
-}
-.duration-icon {
-  position: absolute;
-}
-.duration-icon.icon-0 {
-  left: 66.59px;
-  top: 9.64px;
-  transform: rotate(180deg) scaleX(-1);
-}
-.duration-icon.icon-1 {
-  left: 163px;
-  top: 113px;
-}
-.duration-icon.icon-2 {
-  left: 165px;
-  top: 71px;
-}
-.duration-icon.icon-3 {
-  left: 138.6px;
-  top: 146.6px;
-}
-.duration-legend {
-  width: 228px;
-  margin: auto;
-  display: grid;
-  gap: 14px;
-}
-.duration-legend > div {
-  display: flex;
-  align-items: center;
-  min-height: 28px;
-  gap: 21px;
-}
-.duration-legend span {
-  font-size: 12px;
-  font-weight: 700;
-  white-space: nowrap;
-}
-.duration-legend strong {
-  margin-left: auto;
-  font-size: 20px;
-  font-weight: 600;
-  white-space: nowrap;
-}
-.duration-screen .result-disclaimer {
-  margin-top: 96px;
-}
-.result-dots {
-  display: flex;
-  justify-content: center;
-  gap: 0;
-  margin: 4px 0 16px;
-}
-.result-dots button {
-  border: 0;
-  width: 38px;
-  height: 44px;
-  padding: 0;
-  background: transparent;
-  display: grid;
-  place-items: center;
-}
-.result-dots button::after {
-  content: "";
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: #d5dee4;
-  transition: background 0.2s;
-}
-.result-dots button[aria-pressed="true"]::after {
-  background: #293b42;
 }
 .result-caption {
   color: var(--muted);
@@ -1186,6 +1137,11 @@ footer .wordmark {
 
 /* 반응형: 모바일 */
 @media (max-width: 760px) {
+  :root {
+    --section-space: 100px;
+    --content-space: 32px;
+    --copy-space: 20px;
+  }
   html {
     scroll-padding-top: 78px;
   }
@@ -1238,20 +1194,20 @@ footer .wordmark {
   }
   .latte-story,
   .access-story {
-    margin-top: 100px;
+    margin-top: var(--section-space);
   }
   .latte-photos {
     gap: 12px;
-    margin-top: 30px;
+    margin-top: var(--content-space);
   }
   .latte-photos img {
     aspect-ratio: 0.85;
     border-radius: 14px;
   }
   .results-preview {
-    margin-top: 100px;
+    margin-top: var(--section-space);
   }
-  .result-carousel {
+  .result-preview {
     justify-self: center;
   }
   .result-device {
@@ -1269,20 +1225,14 @@ footer .wordmark {
   }
   .problem-list {
     grid-template-columns: 1fr;
-    gap: 32px;
-    margin-top: 55px;
-    text-align: left;
-  }
-  .problem-list h3 {
-    font-size: 20px;
-    margin-bottom: 8px;
-  }
-  .problem-list p {
-    font-size: 14px;
+    gap: 24px;
+    width: 100%;
+    max-width: 440px;
+    margin: 0 auto;
   }
   .definition {
-    padding-top: 15px;
-    padding-bottom: 80px;
+    padding-top: 40px;
+    padding-bottom: 90px;
   }
   .definition h2 {
     font-size: 28px;
@@ -1294,7 +1244,7 @@ footer .wordmark {
     display: none;
   }
   .haptic-feedback {
-    margin-top: 100px;
+    margin-top: var(--section-space);
   }
   .haptic-copy,
   .haptic-feedback > img {
@@ -1306,7 +1256,7 @@ footer .wordmark {
     border-radius: 20px;
   }
   .preview-section {
-    padding: 75px 22px;
+    padding: 90px 24px;
   }
   .preview-inner,
   .haptic-feedback,
@@ -1356,7 +1306,9 @@ footer .wordmark {
     mask-image: linear-gradient(transparent, #000 20%, #000 80%, transparent);
   }
   .team-banner h2 {
-    font-size: 34px;
+    left: 24px;
+    width: calc(100% - 48px);
+    font-size: clamp(26px, 5vw, 34px);
   }
   .team-section {
     padding-top: 90px;
@@ -1376,7 +1328,7 @@ footer .wordmark {
     margin: 8px 0 0;
   }
   .team-group + .team-group {
-    margin-top: 65px;
+    margin-top: var(--section-space);
   }
   .team-group > h3 {
     font-size: 22px;

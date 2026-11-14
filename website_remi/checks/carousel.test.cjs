@@ -89,7 +89,7 @@ for (const reduce of [false, true]) {
   }
   vm.runInNewContext(fs.readFileSync(path.join(__dirname, "../script.js"), "utf8"), {
     document: {
-      querySelectorAll: (selector) => (selector === "[data-carousel]" ? carousels : [reveal]),
+      querySelectorAll: (selector) => (selector === "[data-carousel]" ? carousels : selector === "[data-reveal]" ? [reveal] : []),
     },
     matchMedia: () => motion,
     window: { IntersectionObserver: Observer },

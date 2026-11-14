@@ -93,34 +93,46 @@
         </div>
         <div class="access-story" data-reveal>
           <div class="split">
-            <h2 id="problem-title">소리를 단서로 배우는 과정.<br />소리가 들리지 않는다면?</h2>
-            <div class="body-copy">
-              <p>
-                스티밍할 때 나는 소리는 공기가 어떻게 들어가는지 알려주는 단서예요.<br />청각장애인
-                초보 바리스타에게는 이 소리를 확인하기 어려운 순간이 있어요.
-              </p>
-              <p>
-                우유의 표면만으로는 노즐의 위치나 공기 주입 상태를 판단하기 어려워,<br />지금 잘하고
-                있는지 스스로 확인할 수 있는 또 다른 단서가 필요해요.
-              </p>
-            </div>
+            <h2 id="problem-title">스티밍은 소리를 단서로 배우는 과정.<br />하지만 소리가 들리지 않는다면?</h2>
           </div>
-          <div class="problem-list">
-            <div>
-              <span>01</span>
-              <h3>지금 어떤 상태일까?</h3>
-              <p>공기가 적절하게 들어가는지 확인하기 어려움</p>
-            </div>
-            <div>
-              <span>02</span>
-              <h3>어떻게 바꾸면 좋을까?</h3>
-              <p>피처와 노즐의 위치를 조절할 기준이 필요함</p>
-            </div>
-            <div>
-              <span>03</span>
-              <h3>이번에는 잘했을까?</h3>
-              <p>스스로 연습을 돌아보고 비교할 단서가 필요함</p>
-            </div>
+          <p class="problem-hint" id="problem-hint">사진에 마우스를 올리거나 눌러 이야기를 펼쳐보세요.</p>
+          <div class="problem-list" aria-labelledby="problem-title">
+            <article class="problem-card">
+              <img class="problem-photo" src="./assets/story-air.jpg" alt="피처의 우유 표면과 스팀 노즐을 가까이에서 보는 모습" width="1000" height="1500" loading="lazy" />
+              <button class="problem-toggle" type="button" aria-expanded="false" aria-controls="problem-story-1" aria-labelledby="problem-question-1" aria-describedby="problem-hint"></button>
+              <h3 id="problem-question-1">공기가 잘 들어가는 걸까?</h3>
+              <div class="problem-panel" id="problem-story-1" aria-hidden="true">
+                <p class="problem-panel-title" aria-hidden="true">공기가 잘 들어가는 걸까?</p>
+                <div class="problem-story">
+                  <p>많은 바리스타분들이 소리를 통해 공기 주입 여부를 판단해요.</p>
+                  <p>그러나 소리가 들리지 않는다면? 다른 소리를 통해 해당 감각을 익혀야 해서 시간이 오래 걸려요.</p>
+                </div>
+              </div>
+            </article>
+            <article class="problem-card">
+              <img class="problem-photo" src="./assets/story-movement.jpg" alt="두 손으로 스팀 노즐 아래 피처의 위치를 조절하는 모습" width="1000" height="1400" loading="lazy" />
+              <button class="problem-toggle" type="button" aria-expanded="false" aria-controls="problem-story-2" aria-labelledby="problem-question-2" aria-describedby="problem-hint"></button>
+              <h3 id="problem-question-2">피처를 어떻게 움직이면 될까?</h3>
+              <div class="problem-panel" id="problem-story-2" aria-hidden="true">
+                <p class="problem-panel-title" aria-hidden="true">피처를 어떻게 움직이면 될까?</p>
+                <div class="problem-story">
+                  <p>우유의 상태가 달라지면 피처의 위치도 조절해야 해요.</p>
+                  <p>지금 피처를 올려야 할지, 내려야 할지. 소리의 변화를 듣기 어렵다면 다음 움직임을 정하는 순간에도 망설이게 돼요.</p>
+                </div>
+              </div>
+            </article>
+            <article class="problem-card">
+              <img class="problem-photo" src="./assets/story-result.jpg" alt="피처에서 흰 컵으로 흐르는 우유와 라떼 표면의 질감" width="900" height="600" loading="lazy" />
+              <button class="problem-toggle" type="button" aria-expanded="false" aria-controls="problem-story-3" aria-labelledby="problem-question-3" aria-describedby="problem-hint"></button>
+              <h3 id="problem-question-3">이번 스티밍은 잘 된 걸까?</h3>
+              <div class="problem-panel" id="problem-story-3" aria-hidden="true">
+                <p class="problem-panel-title" aria-hidden="true">이번 스티밍은 잘 된 걸까?</p>
+                <div class="problem-story">
+                  <p>스티밍을 마친 뒤, 우유의 표면을 살펴봐요. 이번에는 공기가 충분히 들어갔을까요?</p>
+                  <p>과정을 돌아볼 단서가 없다면 무엇이 잘됐고, 다음에는 무엇을 바꿔야 할지 알기 어려워요.</p>
+                </div>
+              </div>
+            </article>
           </div>
         </div>
       </section>
@@ -162,9 +174,9 @@
                   aria-hidden="false"
                 >
                   <div class="device">
-                    <div class="design-screen air" data-figma-node="3469:16949">
+                    <div class="design-screen air" data-figma-node="4310:11593">
                       <div class="phone-status" aria-hidden="true">
-                        <span>9:41</span><i class="dynamic-island"></i>
+                        <span>9:41</span>
                         <div class="status-levels">
                           <div class="signal"><i></i><i></i><i></i><i></i></div>
                           <img src="./assets/status-wifi.svg" alt="" /><img
@@ -173,22 +185,15 @@
                           />
                         </div>
                       </div>
-                      <p class="screen-label">스티밍 연습</p>
+                      <p class="screen-label">스티밍 시작</p>
+                      <img class="feedback-signal" src="./assets/feedback-air-img2.svg" alt="" />
                       <div class="screen-message">
-                        <h3>공기가 고르게<br />들어가고 있어요</h3>
-                        <p>지금 상태를 유지해 주세요</p>
+                        <h3><span>공기가 고르게</span><span>들어가고 있어요</span></h3>
                       </div>
-                      <div class="feedback-art" aria-hidden="true">
-                        <img class="art-disc" src="./assets/air-imgGroup2704.svg" alt="" />
-                        <div class="art-water"><img src="./assets/air-imgGroup1.svg" alt="" /></div>
-                        <img
-                          class="bubble-dot dot-1"
-                          src="./assets/air-imgVector1.svg"
-                          alt=""
-                        /><img class="bubble-dot dot-2" src="./assets/air-imgVector2.svg" alt="" />
-                      </div>
+                      <img class="feedback-pitcher" src="./assets/feedback-air-img.svg" alt="" />
+                      <img class="feedback-nozzle" src="./assets/feedback-air-img1.svg" alt="" />
                       <div class="screen-stop" aria-hidden="true">
-                        <img src="./assets/air-imgVector.svg" alt="" /><span>종료하기</span>
+                        <img src="./assets/feedback-air-imgVector.svg" alt="" /><span>종료하기</span>
                       </div>
                       <div class="home-indicator" aria-hidden="true"></div>
                     </div>
@@ -200,12 +205,12 @@
                   role="group"
                   aria-roledescription="슬라이드"
                   data-caption="피처를 살짝 올려 노즐을 더 담가 주세요"
-                  aria-label="2/4 큰 기포"
+                  aria-label="2/4 버블링"
                   aria-hidden="true"
                   inert
                 >
                   <div class="device">
-                    <div class="design-screen bubble" data-figma-node="3469:16966">
+                    <div class="design-screen bubble" data-figma-node="4310:11508">
                       <div class="phone-status" aria-hidden="true">
                         <span>9:41</span><i class="dynamic-island"></i>
                         <div class="status-levels">
@@ -216,28 +221,15 @@
                           />
                         </div>
                       </div>
-                      <p class="screen-label">스티밍 연습</p>
+                      <p class="screen-label">스티밍 시작</p>
+                      <img class="feedback-signal" src="./assets/feedback-bubble-img1.svg" alt="" />
                       <div class="screen-message">
-                        <h3>큰 기포가<br />생길 수 있어요</h3>
-                        <p>피처를 살짝 올려 노즐을 더 담가 주세요</p>
+                        <h3><span>피처를 살짝 올려</span><span>노즐을 더 담가 주세요</span></h3>
+                        <p>버블링 소리가 나고 있어요</p>
                       </div>
-                      <div class="feedback-art" aria-hidden="true">
-                        <img class="art-disc" src="./assets/bubble-imgGroup2704.svg" alt="" />
-                        <div class="art-water">
-                          <img src="./assets/bubble-imgGroup1.svg" alt="" />
-                        </div>
-                        <img
-                          class="bubble-dot dot-1"
-                          src="./assets/bubble-imgVector1.svg"
-                          alt=""
-                        /><img
-                          class="bubble-dot dot-2"
-                          src="./assets/bubble-imgVector2.svg"
-                          alt=""
-                        />
-                      </div>
+                      <img class="feedback-pitcher" src="./assets/feedback-bubble-img.svg" alt="" />
                       <div class="screen-stop" aria-hidden="true">
-                        <img src="./assets/bubble-imgVector.svg" alt="" /><span>종료하기</span>
+                        <img src="./assets/feedback-bubble-imgVector.svg" alt="" /><span>종료하기</span>
                       </div>
                       <div class="home-indicator" aria-hidden="true"></div>
                     </div>
@@ -249,12 +241,12 @@
                   role="group"
                   aria-roledescription="슬라이드"
                   data-caption="피처를 살짝 내려 주세요"
-                  aria-label="3/4 공기 부족"
+                  aria-label="3/4 스크레칭"
                   aria-hidden="true"
                   inert
                 >
                   <div class="device">
-                    <div class="design-screen low" data-figma-node="3469:17007">
+                    <div class="design-screen low" data-figma-node="4310:11265">
                       <div class="phone-status" aria-hidden="true">
                         <span>9:41</span><i class="dynamic-island"></i>
                         <div class="status-levels">
@@ -265,17 +257,15 @@
                           />
                         </div>
                       </div>
-                      <p class="screen-label">스티밍 연습</p>
+                      <p class="screen-label">스티밍 시작</p>
+                      <img class="feedback-signal" src="./assets/feedback-low-img1.svg" alt="" />
                       <div class="screen-message">
-                        <h3>공기 주입이<br />부족해요</h3>
-                        <p>피처를 살짝 내려 주세요</p>
+                        <h3><span>피처를 살짝</span><span>내려 주세요</span></h3>
+                        <p>스크레칭 소리가 나고 있어요</p>
                       </div>
-                      <div class="feedback-art" aria-hidden="true">
-                        <img class="art-disc" src="./assets/low-imgGroup2704.svg" alt="" />
-                        <div class="art-water"><img src="./assets/low-imgGroup1.svg" alt="" /></div>
-                      </div>
+                      <img class="feedback-pitcher" src="./assets/feedback-low-img.svg" alt="" />
                       <div class="screen-stop" aria-hidden="true">
-                        <img src="./assets/low-imgVector.svg" alt="" /><span>종료하기</span>
+                        <img src="./assets/feedback-low-imgVector.svg" alt="" /><span>종료하기</span>
                       </div>
                       <div class="home-indicator" aria-hidden="true"></div>
                     </div>
@@ -292,7 +282,7 @@
                   inert
                 >
                   <div class="device">
-                    <div class="design-screen rolling" data-figma-node="3469:16988">
+                    <div class="design-screen rolling" data-figma-node="4310:11306">
                       <div class="phone-status" aria-hidden="true">
                         <span>9:41</span><i class="dynamic-island"></i>
                         <div class="status-levels">
@@ -303,19 +293,14 @@
                           />
                         </div>
                       </div>
-                      <p class="screen-label">스티밍 연습</p>
+                      <p class="screen-label">스티밍 시작</p>
+                      <img class="feedback-signal" src="./assets/feedback-rolling-imgRollingAnimation.svg" alt="" />
                       <div class="screen-message">
-                        <h3>롤링이 안정적으로<br />진행되고 있어요</h3>
-                        <p>우유가 한 방향으로 돌도록 유지해 주세요</p>
+                        <h3><span>롤링이 안정적으로</span><span>진행되고 있어요</span></h3>
                       </div>
-                      <div class="feedback-art" aria-hidden="true">
-                        <img class="art-disc" src="./assets/rolling-imgGroup2704.svg" alt="" />
-                        <div class="art-water">
-                          <img src="./assets/rolling-imgGroup1.svg" alt="" />
-                        </div>
-                      </div>
+                      <img class="feedback-pitcher" src="./assets/feedback-rolling-img.svg" alt="" />
                       <div class="screen-stop" aria-hidden="true">
-                        <img src="./assets/rolling-imgVector.svg" alt="" /><span>종료하기</span>
+                        <img src="./assets/feedback-rolling-imgVector.svg" alt="" /><span>종료하기</span>
                       </div>
                       <div class="home-indicator" aria-hidden="true"></div>
                     </div>
@@ -337,14 +322,14 @@
                 aria-pressed="false"
                 aria-controls="state-track"
               >
-                큰 기포</button
+                버블링</button
               ><button
                 type="button"
                 data-slide="2"
                 aria-pressed="false"
                 aria-controls="state-track"
               >
-                공기 부족</button
+                스크레칭</button
               ><button
                 type="button"
                 data-slide="3"
@@ -367,11 +352,11 @@
           </div>
           <img
             src="./assets/watch-feedback-transparent.svg"
-            alt="공기 주입, 롤링, 큰 기포, 공기 부족을 안내하는 네 가지 Apple Watch 화면"
+            alt="공기 주입, 롤링, 버블링, 스크레칭을 안내하는 네 가지 Apple Watch 화면"
             loading="lazy"
           />
         </div>
-        <!-- 앱 미리보기: Figma 분석 화면 3개와 하단 설명 -->
+        <!-- 앱 미리보기: 결과 요약, 타임라인과 연습 가이드를 한 페이지로 표시 -->
         <div class="results-preview" id="practice-results" data-reveal>
           <div class="preview-copy">
             <h2>연습이 끝나도,<br />배움은 이어져요.</h2>
@@ -379,33 +364,12 @@
               방금의 스티밍을 기록으로 돌아보고,<br />다음 연습의 단서를 찾아요.
             </p>
           </div>
-          <div
-            class="result-carousel"
-            data-carousel
-            role="region"
-            aria-roledescription="캐러셀"
-            aria-label="스티밍 분석 결과 미리보기"
-          >
-            <div class="result-viewport" data-carousel-viewport>
-              <div class="result-track" data-carousel-track id="result-track">
-                <div
-                  class="result-slide"
-                  data-carousel-slide
-                  data-caption="소리 유형별 비율과 시간을 한눈에 돌아봐요."
-                  role="group"
-                  aria-roledescription="슬라이드"
-                  aria-label="1/3 한 번에 보기"
-                  aria-hidden="false"
-                >
-                  <div
-                    class="result-device"
-                    tabindex="0"
-                    aria-label="한 번에 보기 분석 화면, 아래로 스크롤"
-                  >
-                    <div class="result-screen" data-figma-node="3893:44807">
+          <div class="result-preview">
+            <div class="result-device" role="region" tabindex="0" aria-label="스티밍 결과 미리보기" aria-describedby="result-scroll-hint">
+              <div class="result-screen" data-figma-node="4638:13976">
                       <div class="result-summary">
                         <img
-                          src="./assets/44807-imgSummaryDecoration.svg"
+                          src="./assets/result-imgSummaryDecoration.svg"
                           alt=""
                           class="result-summary-art"
                           loading="lazy"
@@ -422,34 +386,31 @@
                         </div>
                         <div class="result-nav">
                           <img
-                            src="./assets/44807-imgIcons.svg"
+                            src="./assets/result-imgIcons.svg"
                             alt=""
                             class=""
                             loading="lazy"
-                          /><span>9월 28일 - 1차</span
-                          ><img src="./assets/44807-imgTrash.svg" alt="" class="" loading="lazy" />
+                          /><span>스티밍 결과</span
+                          ><img src="./assets/result-imgTrash.svg" alt="" class="" loading="lazy" />
                         </div>
-                        <h3 class="result-heading">그날의 연습을<br />다시 살펴봐요</h3>
+                        <h3 class="result-heading">공기 주입량이<br />많았어요</h3>
                         <div class="result-ring">
-                          <img
-                            src="./assets/44807-imgSoundDistributionChart.svg"
-                            alt=""
-                            class=""
-                            loading="lazy"
-                          />
+                          <img src="./assets/result-imgFrame2147236922.svg" alt="" loading="lazy" />
+                          <img class="result-ring-base" src="./assets/result-imgEllipse732.svg" alt="" loading="lazy" />
+                          <img class="result-ring-attention" src="./assets/result-imgEllipse734.svg" alt="" loading="lazy" />
                           <p><strong>33%</strong><span>주의소리</span></p>
                         </div>
                         <div class="result-metrics">
                           <div><span>전체 시간</span><strong>24초</strong></div>
                           <img
-                            src="./assets/44807-imgVector129.svg"
+                            src="./assets/result-imgVector129.svg"
                             alt=""
                             class=""
                             loading="lazy"
                           />
                           <div><span>정상 소리</span><strong>16초</strong></div>
                           <img
-                            src="./assets/44807-imgVector129.svg"
+                            src="./assets/result-imgVector129.svg"
                             alt=""
                             class=""
                             loading="lazy"
@@ -459,10 +420,6 @@
                       </div>
                       <div class="result-records">
                         <h4>스티밍 기록</h4>
-                        <div class="result-tabs" aria-hidden="true">
-                          <span class="selected">한 번에 보기</span><span class="">타임라인</span
-                          ><span class="">상태별 감지 시간</span>
-                        </div>
                         <div class="result-table">
                           <div class="result-table-labels">
                             <span>소리 유형</span><span>비율</span><span>시간</span>
@@ -470,26 +427,26 @@
                           <div class="result-table-row">
                             <span>공기 주입</span
                             ><img
-                              src="./assets/44807-imgTimelineBar.svg"
-                              alt=""
+                              src="./assets/result-imgTimelineBar.svg"
+                              alt="공기 주입 감지 구간"
                               class=""
                               loading="lazy"
                             /><span>25%</span><span>6초</span>
                           </div>
                           <div class="result-table-row">
-                            <span>공기 과다</span
+                            <span>버블링</span
                             ><img
-                              src="./assets/44807-imgTimelineBar1.svg"
-                              alt=""
+                              src="./assets/result-imgTimelineBar1.svg"
+                              alt="버블링 감지 구간"
                               class=""
                               loading="lazy"
                             /><span>8.33%</span><span>2초</span>
                           </div>
                           <div class="result-table-row">
-                            <span>공기 부족</span
+                            <span>스크레칭</span
                             ><img
-                              src="./assets/44807-imgTimelineBar2.svg"
-                              alt=""
+                              src="./assets/result-imgTimelineBar2.svg"
+                              alt="스크레칭 감지 구간"
                               class=""
                               loading="lazy"
                             /><span>8.33%</span><span>2초</span>
@@ -497,11 +454,11 @@
                           <div class="result-table-row">
                             <span>롤링 소리</span
                             ><img
-                              src="./assets/44807-imgTimelineBar3.svg"
-                              alt=""
+                              src="./assets/result-imgTimelineBar3.svg"
+                              alt="롤링 소리 감지 구간"
                               class=""
                               loading="lazy"
-                            /><span>58.33%</span><span>10초</span>
+                            /><span>41.67%</span><span>10초</span>
                           </div>
                           <div class="result-ticks overview-ticks">
                             <span>0</span><span>8</span><span>12</span><span>16</span><span>20</span
@@ -509,312 +466,35 @@
                           </div>
                         </div>
                       </div>
-                      <div class="result-disclaimer">
-                        <img src="./assets/44807-imgInfo.svg" alt="" class="" loading="lazy" />
-                        <p>
-                          소리 분석에 따른 참고용 안내이며, 실제 공기량을 측정한 결과는 아니에요.
-                        </p>
-                      </div>
-                      <div class="result-home" aria-hidden="true"></div>
+                <div class="result-guide">
+                  <h4>연습 가이드</h4>
+                  <div class="result-guide-illustration">
+                    <img src="./assets/result-imgPracticeGuideIllustration.svg" alt="스티밍 피처의 우유 높이와 기준선" loading="lazy" />
+                  </div>
+                  <div class="result-feedback">
+                    <img src="./assets/result-imgAlertCircle.svg" alt="" loading="lazy" />
+                    <div>
+                      <h5>공기 주입 소리가 기준보다 오래 감지 됐어요</h5>
+                      <p>필요한 거품이 만들어졌다면 노즐을 더 깊게 넣어 롤링으로<br />전환해 보세요.</p>
                     </div>
                   </div>
                 </div>
-                <div
-                  class="result-slide"
-                  data-carousel-slide
-                  data-caption="언제 어떤 소리가 났는지 시간의 흐름으로 확인해요."
-                  role="group"
-                  aria-roledescription="슬라이드"
-                  aria-label="2/3 타임라인"
-                  aria-hidden="true"
-                  inert
-                >
-                  <div
-                    class="result-device"
-                    tabindex="0"
-                    aria-label="타임라인 분석 화면, 아래로 스크롤"
-                  >
-                    <div class="result-screen" data-figma-node="3893:44960">
-                      <div class="result-summary">
-                        <img
-                          src="./assets/44960-imgSummaryBackground.svg"
-                          alt=""
-                          class="result-summary-art"
-                          loading="lazy"
-                        />
-                        <div class="phone-status" aria-hidden="true">
-                          <span>9:41</span><i class="dynamic-island"></i>
-                          <div class="status-levels">
-                            <div class="signal"><i></i><i></i><i></i><i></i></div>
-                            <img src="./assets/status-wifi.svg" alt="" /><img
-                              src="./assets/status-battery.svg"
-                              alt=""
-                            />
-                          </div>
-                        </div>
-                        <div class="result-nav">
-                          <img
-                            src="./assets/44960-imgIcons.svg"
-                            alt=""
-                            class=""
-                            loading="lazy"
-                          /><span>9월 28일 - 1차</span
-                          ><img src="./assets/44960-imgTrash.svg" alt="" class="" loading="lazy" />
-                        </div>
-                        <h3 class="result-heading">연습했던 순간을<br />다시 살펴봐요</h3>
-                        <div class="result-ring">
-                          <img
-                            src="./assets/44960-imgPracticeResultChart.svg"
-                            alt=""
-                            class=""
-                            loading="lazy"
-                          />
-                          <p><strong>33%</strong><span>주의소리</span></p>
-                        </div>
-                        <div class="result-metrics">
-                          <div><span>전체 시간</span><strong>24초</strong></div>
-                          <img
-                            src="./assets/44960-imgVector129.svg"
-                            alt=""
-                            class=""
-                            loading="lazy"
-                          />
-                          <div><span>정상 소리</span><strong>16초</strong></div>
-                          <img
-                            src="./assets/44960-imgVector129.svg"
-                            alt=""
-                            class=""
-                            loading="lazy"
-                          />
-                          <div><span>주의 소리</span><strong>8초</strong></div>
-                        </div>
-                      </div>
-                      <div class="result-records">
-                        <h4>스티밍 기록</h4>
-                        <div class="result-tabs" aria-hidden="true">
-                          <span class="">한 번에 보기</span><span class="selected">타임라인</span
-                          ><span class="">상태별 감지 시간</span>
-                        </div>
-                        <div class="result-timelines">
-                          <div>
-                            <h4>공기 주입</h4>
-                            <img
-                              src="./assets/44960-imgTimelineSegments.svg"
-                              alt=""
-                              class=""
-                              loading="lazy"
-                            />
-                            <div class="result-ticks">
-                              <span>0</span><span>8</span><span>12</span><span>16</span
-                              ><span>20</span><span>24초</span>
-                            </div>
-                          </div>
-                          <div>
-                            <h4>롤링</h4>
-                            <img
-                              src="./assets/44960-imgTimelineSegments1.svg"
-                              alt=""
-                              class=""
-                              loading="lazy"
-                            />
-                            <div class="result-ticks">
-                              <span>0</span><span>8</span><span>12</span><span>16</span
-                              ><span>20</span><span>24초</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="result-disclaimer">
-                        <img src="./assets/44960-imgInfo.svg" alt="" class="" loading="lazy" />
-                        <p>
-                          소리 분석에 따른 참고용 안내이며, 실제 공기량을 측정한 결과는 아니에요.
-                        </p>
-                      </div>
-                      <div class="result-home" aria-hidden="true"></div>
-                    </div>
-                  </div>
+                <div class="result-disclaimer">
+                  <img src="./assets/result-imgInfo.svg" alt="" loading="lazy" />
+                  <p>소리 분석에 따른 참고용 안내이며, 실제 공기량을 측정한 결과는 아니에요.</p>
                 </div>
-                <div
-                  class="result-slide"
-                  data-carousel-slide
-                  data-caption="공기 주입과 롤링이 얼마나 이어졌는지 살펴봐요."
-                  role="group"
-                  aria-roledescription="슬라이드"
-                  aria-label="3/3 상태별 감지 시간"
-                  aria-hidden="true"
-                  inert
-                >
-                  <div
-                    class="result-device"
-                    tabindex="0"
-                    aria-label="상태별 감지 시간 분석 화면, 아래로 스크롤"
-                  >
-                    <div class="result-screen duration-screen" data-figma-node="3893:45078">
-                      <div class="result-summary">
-                        <img
-                          src="./assets/45078-imgSummaryBackground.svg"
-                          alt=""
-                          class="result-summary-art"
-                          loading="lazy"
-                        />
-                        <div class="phone-status" aria-hidden="true">
-                          <span>9:41</span><i class="dynamic-island"></i>
-                          <div class="status-levels">
-                            <div class="signal"><i></i><i></i><i></i><i></i></div>
-                            <img src="./assets/status-wifi.svg" alt="" /><img
-                              src="./assets/status-battery.svg"
-                              alt=""
-                            />
-                          </div>
-                        </div>
-                        <div class="result-nav">
-                          <img
-                            src="./assets/45078-imgIcons.svg"
-                            alt=""
-                            class=""
-                            loading="lazy"
-                          /><span>9월 28일 - 1차</span
-                          ><img src="./assets/45078-imgTrash.svg" alt="" class="" loading="lazy" />
-                        </div>
-                        <h3 class="result-heading">연습했던 순간을<br />다시 살펴봐요</h3>
-                        <div class="result-ring">
-                          <img
-                            src="./assets/45078-imgAttentionSoundChart.svg"
-                            alt=""
-                            class=""
-                            loading="lazy"
-                          />
-                          <p><strong>33%</strong><span>주의소리</span></p>
-                        </div>
-                        <div class="result-metrics">
-                          <div><span>전체 시간</span><strong>24초</strong></div>
-                          <img
-                            src="./assets/45078-imgVector129.svg"
-                            alt=""
-                            class=""
-                            loading="lazy"
-                          />
-                          <div><span>정상 소리</span><strong>16초</strong></div>
-                          <img
-                            src="./assets/45078-imgVector129.svg"
-                            alt=""
-                            class=""
-                            loading="lazy"
-                          />
-                          <div><span>주의 소리</span><strong>8초</strong></div>
-                        </div>
-                      </div>
-                      <div class="result-records">
-                        <h4>스티밍 기록</h4>
-                        <div class="result-tabs" aria-hidden="true">
-                          <span class="">한 번에 보기</span><span class="">타임라인</span
-                          ><span class="selected">상태별 감지 시간</span>
-                        </div>
-                        <div class="duration-chart">
-                          <img
-                            src="./assets/45078-imgFrame2147236922.svg"
-                            alt=""
-                            class=""
-                            loading="lazy"
-                          />
-                          <p><strong>10초</strong><span>전체 공기주입</span></p>
-                          <img
-                            src="./assets/45078-imgVector107Stroke.svg"
-                            alt=""
-                            class="duration-icon icon-0"
-                            loading="lazy"
-                          /><img
-                            src="./assets/45078-imgUnion.svg"
-                            alt=""
-                            class="duration-icon icon-1"
-                            loading="lazy"
-                          /><img
-                            src="./assets/45078-imgUnion1.svg"
-                            alt=""
-                            class="duration-icon icon-2"
-                            loading="lazy"
-                          /><img
-                            src="./assets/45078-imgVector111.svg"
-                            alt=""
-                            class="duration-icon icon-3"
-                            loading="lazy"
-                          />
-                        </div>
-                        <div class="duration-legend">
-                          <div>
-                            <img
-                              src="./assets/45078-img2.svg"
-                              alt=""
-                              class=""
-                              loading="lazy"
-                            /><span>정상 공기 주입</span><strong>6 초</strong>
-                          </div>
-                          <div>
-                            <img
-                              src="./assets/45078-img1.svg"
-                              alt=""
-                              class=""
-                              loading="lazy"
-                            /><span>공기 과다</span><strong>2 초</strong>
-                          </div>
-                          <div>
-                            <img src="./assets/45078-img.svg" alt="" class="" loading="lazy" /><span
-                              >공기 부족</span
-                            ><strong>2 초</strong>
-                          </div>
-                          <div>
-                            <img
-                              src="./assets/45078-imgUnion2.svg"
-                              alt=""
-                              class=""
-                              loading="lazy"
-                            /><span>롤링</span><strong>10 초</strong>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="result-disclaimer">
-                        <img src="./assets/45078-imgInfo.svg" alt="" class="" loading="lazy" />
-                        <p>
-                          소리 분석에 따른 참고용 안내이며, 실제 공기량을 측정한 결과는 아니에요.
-                        </p>
-                      </div>
-                      <div class="result-home" aria-hidden="true"></div>
-                    </div>
-                  </div>
-                </div>
+                <div class="result-home" aria-hidden="true"></div>
               </div>
             </div>
-            <div class="result-dots" role="group" aria-label="분석 화면 선택">
-              <button
-                type="button"
-                data-slide="0"
-                aria-label="한 번에 보기"
-                aria-pressed="true"
-                aria-controls="result-track"
-              ></button
-              ><button
-                type="button"
-                data-slide="1"
-                aria-label="타임라인"
-                aria-pressed="false"
-                aria-controls="result-track"
-              ></button
-              ><button
-                type="button"
-                data-slide="2"
-                aria-label="상태별 감지 시간"
-                aria-pressed="false"
-                aria-controls="result-track"
-              ></button>
-            </div>
-            <p class="result-caption" data-carousel-caption aria-live="polite">
-              소리 유형별 비율과 시간을 한눈에 돌아봐요.
+            <p class="result-caption" id="result-scroll-hint">
+              언제 어떤 소리가 났는지 시간의 흐름으로 확인해요.<br />화면 안을 아래로 스크롤해 연습 가이드까지 살펴보세요.
             </p>
           </div>
         </div>
       </section>
       <!-- 팀 소개: 단체 사진과 브랜드 메시지 -->
       <section class="team-banner" id="team" aria-labelledby="team-title">
+        <div class="team-scene">
         <div class="team-photo">
           <img
             src="./assets/team-background.png"
@@ -824,11 +504,12 @@
             loading="lazy"
           />
         </div>
-        <h2 id="team-title">
+        <h2 id="team-title" data-reveal>
           모두의 가능성이
           <br />
           한 잔 더 넓어지도록.
         </h2>
+        </div>
       </section>
       <div class="team-section section">
         <!-- 빈둥빈둥 로고와 팀 소개 -->
@@ -913,10 +594,18 @@
 
         <!-- 도움을 주신 분들 -->
         <section class="team-group" data-reveal aria-labelledby="thanks-title">
-          <h3 id="thanks-title">도움을 주신 분들</h3>
+          <h3 id="thanks-title">Our Partners</h3>
           <div class="supporter-grid">
-            <article><h4>히스빈스</h4></article>
-            <article><h4>메아리 학교</h4></article>
+            <article>
+              <a href="https://www.hisbeans.com/" aria-label="히즈빈스 공식 홈페이지">
+                <img src="./assets/hisbeans-logo.png" alt="히즈빈스 HISBEANS" width="734" height="211" loading="lazy" />
+              </a>
+            </article>
+            <article>
+              <a href="https://school.use.go.kr/meary-s/" aria-label="메아리학교 공식 홈페이지">
+                <img src="./assets/meary-school-logo.png" alt="메아리학교" width="190" height="60" loading="lazy" />
+              </a>
+            </article>
           </div>
         </section>
       </div>
