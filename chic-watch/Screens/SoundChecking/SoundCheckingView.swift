@@ -20,7 +20,7 @@ struct SoundCheckingView: View {
     var body: some View {
         WatchFullScreenStack {
             // MARK: 상태 문구
-            Text("소리를 확인하고 있어요")
+            Text(String(localized: "소리를 확인하고 있어요"))
                 .font(.watchScaled(16))
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)

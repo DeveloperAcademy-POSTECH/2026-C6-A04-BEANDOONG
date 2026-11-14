@@ -52,6 +52,16 @@
 
 기기에서 실행할 때는 Xcode의 Signing & Capabilities에서 자신의 개발 팀과 서명 설정을 확인하세요. 웹 소개 페이지는 앱 빌드 없이 [별도로 미리 볼 수 있습니다](docs/website.md).
 
+## 현지화
+
+iPhone과 Apple Watch는 기기 또는 앱에서 선택한 언어에 따라 한국어·영어를 표시합니다. 한국어가 개발 언어이며, 화면 문구·오류·접근성 설명은 `Shared/Localizable.xcstrings`, 권한 안내는 `chic/InfoPlist.xcstrings`에서 관리합니다. 두 앱은 Shared 폴더의 카탈로그를 함께 포함합니다.
+
+일반 `String`으로 전달하는 문구도 `String(localized:)`로 생성해야 합니다. 날짜와 회차는 번역 가능한 전체 문장으로 표시하고, 저장 데이터·통신 값의 식별자는 번역하지 않습니다. 홈 사진의 영어 버전은 `home.practice.image` 항목으로 선택합니다. 한국어 키의 공백 차이로 자동 생성 심벌이 충돌하므로 문자열 심벌 생성은 사용하지 않습니다.
+
+알려진 연결 오류는 `ConnectionError.localized`로 번역 키를 전달하고 수신 기기에서 번역합니다. 이전 앱을 위해 기존 오류 문구도 함께 보냅니다. `sh Tests/verify-connection-errors.sh /path/to/chic.app`으로 서로 다른 언어와 이전 응답 형식의 호환성을 검증합니다.
+
+번역·치환 형식 검증: `python3 Tests/verify-localization.py`. Debug 시뮬레이터 빌드 후 DerivedData 경로를 인자로 주면 컴파일러가 추출한 문자열의 번역 누락과 iPhone·Watch 앱 번들의 포함 여부도 확인합니다.
+
 ## Team BEANDOONG
 
 서로 다른 감각이 모여, 더 많은 사람이 스스로 배울 수 있는 경험을 만듭니다.

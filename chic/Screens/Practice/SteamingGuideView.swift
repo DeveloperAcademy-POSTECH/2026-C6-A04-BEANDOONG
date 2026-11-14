@@ -12,27 +12,25 @@ struct SteamingGuideView: View {
     var body: some View {
         VStack(spacing: 0) {
             // MARK: 상단 네비게이션 바
-            TopNavigationHeader(title: "스티밍 가이드", isDark: true)
+            TopNavigationHeader(title: String(localized: "스티밍 가이드"), isDark: true)
                 .padding(.top, Layout.headerTop)
 
             // MARK: 타이틀
-            DarkScreenTitle("우유의 변화를 함께 살펴봐요")
+            DarkScreenTitle(String(localized: "우유의 변화를 함께 살펴봐요"))
                 .padding(.top, Layout.titleTop)
 
             // MARK: 안내 단계 (왼쪽 정렬, 좌측 여백 92)
             VStack(alignment: .leading, spacing: 26) {
                 NumberedGuideStep(
                     number: 1,
-                    title: "공기가 들어가는 순간",
-                    line1: "소리 피드백과 우유 표면의 변화를",
-                    line2: "함께 확인해 보세요."
+                    title: String(localized: "공기가 들어가는 순간"),
+                    description: String(localized: "소리 피드백과 우유 표면의 변화를\n함께 확인해 보세요.")
                 )
 
                 NumberedGuideStep(
                     number: 2,
-                    title: "우유가 회전하는 모습",
-                    line1: "교육받은 방법에 따라",
-                    line2: "롤링을 관찰해요."
+                    title: String(localized: "우유가 회전하는 모습"),
+                    description: String(localized: "교육받은 방법에 따라\n롤링을 관찰해요.")
                 )
             }
             .frame(maxWidth: .infinity, alignment: .leading)
@@ -46,7 +44,7 @@ struct SteamingGuideView: View {
             Spacer(minLength: 0)
 
             // MARK: 하단 버튼
-            DarkPrimaryButton(title: "연습 준비하기")
+            DarkPrimaryButton(title: String(localized: "연습 준비하기"))
                 .padding(.bottom, Layout.buttonBottom)
         }
         .darkScreenBackground()

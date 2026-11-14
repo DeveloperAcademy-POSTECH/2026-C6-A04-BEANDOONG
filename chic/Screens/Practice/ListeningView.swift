@@ -17,7 +17,7 @@ struct ListeningView: View {
                 .padding(.top, Layout.topBarTop.v(scale))
 
             // MARK: 타이틀 + 설명
-            DarkScreenTitle("스티밍을 시작하면\n소리를 확인해요", lineSpacing: Layout.titleLineSpacing)
+            DarkScreenTitle(String(localized: "스티밍을 시작하면\n소리를 확인해요"), lineSpacing: Layout.titleLineSpacing)
                 .padding(.top, Layout.titleTop.v(scale))
 
             // MARK: 소리 막대 일러스트

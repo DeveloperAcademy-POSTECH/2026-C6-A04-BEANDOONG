@@ -5,10 +5,10 @@ enum SteamingFeedback: CaseIterable {
 
     var actionTitle: String {
         switch self {
-        case .aeration: "지금 위치를\n유지해요"
-        case .bubble: "피처를\n내려 주세요"
-        case .moreAir: "피처를\n올려 주세요"
-        case .milkFlow: "우유가 도는지\n확인해요"
+        case .aeration: String(localized: "지금 위치를\n유지해요")
+        case .bubble: String(localized: "피처를\n내려 주세요")
+        case .moreAir: String(localized: "피처를\n올려 주세요")
+        case .milkFlow: String(localized: "우유가 도는지\n확인해요")
         }
     }
 

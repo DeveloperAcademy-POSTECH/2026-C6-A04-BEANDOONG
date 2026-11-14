@@ -61,18 +61,18 @@ struct HistoryView: View {
         let visibleRecords = records
         return VStack(alignment: .leading, spacing: 0) {
             // MARK: 상단 네비게이션 바
-            TopNavigationHeader(title: "히스토리", isDark: true)
+            TopNavigationHeader(title: String(localized: "히스토리"), isDark: true)
                 .padding(.top, Layout.headerTop.v(scale))
 
             VStack(alignment: .leading, spacing: 0) {
                 // MARK: 타이틀 + 설명
-                Text("나의 기록이 쌓이는 곳")
+                Text(String(localized: "나의 기록이 쌓이는 곳"))
                     .font(.pretendard(.bold, size: 26))
                     .tracking(-0.3)
                     .foregroundStyle(Color.white)
                     .padding(.top, Layout.titleTop.v(scale))
 
-                Text("기록을 열어 소리의 변화를 비교해 보세요.")
+                Text(String(localized: "기록을 열어 소리의 변화를 비교해 보세요."))
                     .font(.pretendard(.regular, size: 16))
                     .foregroundStyle(AppColors.darkSubtitle)
                     .padding(.top, Layout.subtitleTop.v(scale))
@@ -134,10 +134,10 @@ struct HistoryView: View {
         .swipeBackDisabled(showsDeleteDialog)
         .chicAlert(
             isPresented: showsDeleteDialog,
-            title: "정말 방을 삭제하시겠어요?",
-            message: "삭제한 방은 다시 복구할 수 없어요",
-            cancelTitle: "취소",
-            confirmTitle: "방 삭제",
+            title: String(localized: "정말 방을 삭제하시겠어요?"),
+            message: String(localized: "삭제한 방은 다시 복구할 수 없어요"),
+            cancelTitle: String(localized: "취소"),
+            confirmTitle: String(localized: "방 삭제"),
             confirmColor: AppColors.alertRed,
             onCancel: { showsDeleteDialog = false; deleteTarget = nil; openRecordID = nil },
             onConfirm: {
@@ -173,7 +173,7 @@ private struct HistoryRecord: Identifiable, Hashable {
         durationSeconds.practiceSecondsText
     }
 
-    /// "9월 28일 - 1차" (올해가 아니면 앞에 연도). 기록 상세 상단 바 제목과 같아요.
+    /// 올해가 아니면 연도도 표시합니다. 기록 상세 상단 바 제목과 같아요.
     var title: String { result.title }
 }
 
@@ -282,7 +282,7 @@ private struct SwipeToDeleteRow<Content: View>: View {
         }
         .frame(width: width)
         .animation(SwipeLayout.settle, value: isOpen)
-        .accessibilityAction(named: "삭제", onDelete)
+        .accessibilityAction(named: String(localized: "삭제"), onDelete)
     }
 
     private var deleteButton: some View {
@@ -293,13 +293,13 @@ private struct SwipeToDeleteRow<Content: View>: View {
                     .foregroundStyle(Color.white)
                     .frame(width: SwipeLayout.circleSize, height: SwipeLayout.circleSize)
                     .background(Circle().fill(AppColors.swipeDeleteRed))
-                Text("삭제")
+                Text(String(localized: "삭제"))
                     .font(.system(size: SwipeLayout.labelSize, weight: .regular))
                     .foregroundStyle(Color(uiColor: .secondaryLabel))
             }
         }
         .buttonStyle(.plain)
-        .accessibilityLabel("삭제")
+        .accessibilityLabel(String(localized: "삭제"))
     }
 }
 

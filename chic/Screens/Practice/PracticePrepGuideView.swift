@@ -40,7 +40,7 @@ struct PracticePrepGuideView: View {
     var body: some View {
         VStack(spacing: 0) {
             // MARK: 상단 바
-            TopNavigationHeader(title: "연습 준비", isDark: true)
+            TopNavigationHeader(title: String(localized: "연습 준비"), isDark: true)
                 .padding(.top, Layout.topBarTop.v(scale))
 
             // MARK: 워치 캐러셀 (원형)
@@ -52,7 +52,7 @@ struct PracticePrepGuideView: View {
 
             // MARK: 버튼
             DarkPrimaryButton(
-                title: "연습 시작하기",
+                title: String(localized: "연습 시작하기"),
                 width: Layout.buttonWidth.h(scale),
                 height: BottomButton.height,
                 action: startPractice

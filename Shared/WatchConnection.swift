@@ -87,11 +87,11 @@ final class WatchConnection: NSObject, ObservableObject {
 
     private func request(_ command: WatchCommand) async throws -> PracticeState {
         guard let session, session.activationState == .activated else {
-            throw ConnectionError.message("연결 준비 중이에요. 잠시 후 다시 확인해주세요.")
+            throw ConnectionError.localized("연결 준비 중이에요. 잠시 후 다시 확인해주세요.")
         }
         #if os(iOS)
         guard session.isReachable else {
-            throw ConnectionError.message("Apple Watch에서 chic 앱을 열어주세요.")
+            throw ConnectionError.localized("Apple Watch에서 chic 앱을 열어주세요.")
         }
         #endif
         // watchOS의 sendMessage는 iPhone 앱을 깨울 수 있습니다. 녹음 시작 가능 여부는 iPhone에서 판단합니다.
@@ -104,9 +104,9 @@ final class WatchConnection: NSObject, ObservableObject {
             session.sendMessage(["request": data], replyHandler: { reply in
                 Task { @MainActor in
                     do {
-                        if let error = reply["error"] as? String { throw ConnectionError.message(error) }
+                        if let error = ConnectionError(reply: reply) { throw error }
                         guard let data = reply["state"] as? Data else {
-                            throw ConnectionError.message("응답을 확인할 수 없어요.")
+                            throw ConnectionError.localized("응답을 확인할 수 없어요.")
                         }
                         let state = try JSONDecoder().decode(PracticeState.self, from: data)
                         self.finish(id, result: .success(state))
@@ -117,7 +117,7 @@ final class WatchConnection: NSObject, ObservableObject {
             })
             Task { @MainActor in
                 try? await Task.sleep(for: .seconds(8))
-                self.finish(id, result: .failure(ConnectionError.message("연결 응답이 없어요. 두 기기에서 앱을 열고 다시 확인해주세요.")))
+                self.finish(id, result: .failure(ConnectionError.localized("연결 응답이 없어요. 두 기기에서 앱을 열고 다시 확인해주세요.")))
             }
         }
     }
@@ -139,7 +139,7 @@ final class WatchConnection: NSObject, ObservableObject {
             if let data = message["request"] as? Data {
                 let request = try JSONDecoder().decode(WatchRequest.self, from: data)
                 guard request.expiresAt > Date() else {
-                    throw ConnectionError.message("요청 시간이 지났어요. 다시 시도해주세요.")
+                    throw ConnectionError.localized("요청 시간이 지났어요. 다시 시도해주세요.")
                 }
                 #if os(iOS)
                 let current = try await onCommand?(request) ?? state
@@ -153,6 +153,8 @@ final class WatchConnection: NSObject, ObservableObject {
                 await apply(try JSONDecoder().decode(PracticeState.self, from: data))
                 #endif
             }
+        } catch let error as ConnectionError {
+            reply?(error.reply())
         } catch { reply?(["error": error.localizedDescription]) }
     }
 
@@ -215,11 +217,4 @@ extension WatchConnection: WCSessionDelegate {
         Task { @MainActor in self.isReachable = session.isReachable }
     }
     #endif
-}
-
-nonisolated enum ConnectionError: LocalizedError {
-    case message(String)
-    var errorDescription: String? {
-        switch self { case .message(let text): text }
-    }
 }

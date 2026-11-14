@@ -21,11 +21,11 @@ struct SoundIntroPage: View {
                 .padding(.top, Metrics.illustrationTop.v(scale))
 
             // MARK: 타이틀 + 설명
-            DarkScreenTitle("공기주입 상태를\n한눈에 확인해요")
+            DarkScreenTitle(String(localized: "공기주입 상태를\n한눈에 확인해요"))
                 .onboardingPart(motion.title)
                 .padding(.top, Metrics.titleTop.v(scale))
 
-            DarkScreenSubtitle("스티밍 중 공기주입 상태를\n색상과 문구로 상태를 알려드려요")
+            DarkScreenSubtitle(String(localized: "스티밍 중 공기주입 상태를\n색상과 문구로 상태를 알려드려요"))
                 .onboardingPart(motion.subtitle)
                 .padding(.top, Metrics.subtitleTop.v(scale))
         }

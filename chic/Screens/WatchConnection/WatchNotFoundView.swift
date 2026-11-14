@@ -16,7 +16,7 @@ struct WatchNotFoundView: View {
     var body: some View {
         VStack(spacing: 0) {
             // MARK: 상단 네비게이션 바
-            TopNavigationHeader(title: "애플 워치 연결", isDark: true)
+            TopNavigationHeader(title: String(localized: "애플 워치 연결"), isDark: true)
                 .padding(.top, Layout.headerTop.v(scale))
 
             // MARK: 일러스트
@@ -25,17 +25,17 @@ struct WatchNotFoundView: View {
                 .padding(.top, Layout.illustrationTop.v(scale))
 
             // MARK: 타이틀 + 설명
-            DarkScreenTitle("Apple Watch 를\n찾지 못했어요")
+            DarkScreenTitle(String(localized: "Apple Watch 를\n찾지 못했어요"))
                 .padding(.top, Layout.titleTop.v(scale))
 
-            DarkScreenSubtitle("iPhone의 Watch 앱에서\nApple Watch의 페어링 상태를 확인해주세요")
+            DarkScreenSubtitle(String(localized: "iPhone의 Watch 앱에서\nApple Watch의 페어링 상태를 확인해주세요"))
                 .padding(.top, Layout.subtitleTop.v(scale))
 
             Spacer(minLength: 0)
 
             // MARK: 하단 버튼
             // 보조 버튼은 새 시안(Hi-Fi 93·94·112·113)에서 빠졌다. onContinue 등 연결 코드는 그대로 두고 화면에서만 숨긴다.
-            DarkPrimaryButton(title: "다시 연결 확인하기", width: Layout.buttonWidth.h(scale), height: BottomButton.height, action: onCheck)
+            DarkPrimaryButton(title: String(localized: "다시 연결 확인하기"), width: Layout.buttonWidth.h(scale), height: BottomButton.height, action: onCheck)
                 .padding(.bottom, BottomButton.bottomGap.v(scale) + scale.fixedHeightAdjustment(BottomButton.height))
         }
         .ignoresSafeArea()

@@ -94,7 +94,7 @@ struct SteamingStopButton: View {
             }
         }
         .buttonStyle(.plain)
-        .accessibilityLabel("연습 종료")
+        .accessibilityLabel(String(localized: "연습 종료"))
     }
 }
 
@@ -117,7 +117,7 @@ struct SteamingEndButton: View {
                 RoundedRectangle(cornerRadius: 3, style: .continuous)
                     .fill(squareColor)
                     .frame(width: 20, height: 20)
-                Text("종료하기")
+                Text(String(localized: "종료하기"))
                     .font(.pretendard(.semibold, size: 20))
                     .foregroundStyle(AppColors.darkChipTextSelected)
             }
@@ -125,6 +125,6 @@ struct SteamingEndButton: View {
             .background(Capsule().fill(AppColors.darkSecondaryButton.opacity(backgroundOpacity)))
         }
         .buttonStyle(.plain)
-        .accessibilityLabel("연습 종료")
+        .accessibilityLabel(String(localized: "연습 종료"))
     }
 }

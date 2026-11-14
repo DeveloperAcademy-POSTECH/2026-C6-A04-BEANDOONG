@@ -21,11 +21,11 @@ struct PlacementIntroPage: View {
                 .padding(.top, Metrics.illustrationTop.v(scale))
 
             // MARK: 타이틀 + 설명
-            DarkScreenTitle("휴대폰을 스팀 머신\n가까이에 놓아주세요")
+            DarkScreenTitle(String(localized: "휴대폰을 스팀 머신\n가까이에 놓아주세요"))
                 .onboardingPart(motion.title)
                 .padding(.top, Metrics.titleTop.v(scale))
 
-            DarkScreenSubtitle("공기주입 소리가 잘 감지되도록\n물과 열기를 피해 안전한 위치에 놓아주세요")
+            DarkScreenSubtitle(String(localized: "공기주입 소리가 잘 감지되도록\n물과 열기를 피해 안전한 위치에 놓아주세요"))
                 .onboardingPart(motion.subtitle)
                 .padding(.top, Metrics.subtitleTop.v(scale))
         }

@@ -32,7 +32,7 @@ extension View {
                 }
                 .buttonStyle(.plain)
                 // VoiceOver가 아이콘 이름 대신 "닫기"라고 읽도록 합니다.
-                .accessibilityLabel("닫기")
+                .accessibilityLabel(String(localized: "닫기"))
             }
         }
     }

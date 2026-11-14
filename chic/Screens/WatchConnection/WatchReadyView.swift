@@ -15,7 +15,7 @@ struct WatchReadyView: View {
     var body: some View {
         VStack(spacing: 0) {
             // MARK: 상단 네비게이션 바
-            TopNavigationHeader(title: "애플 워치 연결", isDark: true)
+            TopNavigationHeader(title: String(localized: "애플 워치 연결"), isDark: true)
                 .padding(.top, Layout.headerTop.v(scale))
 
             // MARK: 일러스트
@@ -24,16 +24,16 @@ struct WatchReadyView: View {
                 .padding(.top, Layout.illustrationTop.v(scale))
 
             // MARK: 타이틀 + 설명
-            DarkScreenTitle("Apple Watch 가\n준비되었어요")
+            DarkScreenTitle(String(localized: "Apple Watch 가\n준비되었어요"))
                 .padding(.top, Layout.titleTop.v(scale))
 
-            DarkScreenSubtitle("이제 스팀 연습을 시작하면\n워치에서 진동 피드백을 받을 수 있어요")
+            DarkScreenSubtitle(String(localized: "이제 스팀 연습을 시작하면\n워치에서 진동 피드백을 받을 수 있어요"))
                 .padding(.top, Layout.subtitleTop.v(scale))
 
             Spacer(minLength: 0)
 
             // MARK: 하단 버튼
-            DarkPrimaryButton(title: "완료", width: Layout.buttonWidth.h(scale), height: BottomButton.height) {
+            DarkPrimaryButton(title: String(localized: "완료"), width: Layout.buttonWidth.h(scale), height: BottomButton.height) {
                 if let onContinue { onContinue() } else { showsChecklist = true }
             }
                 .padding(.bottom, BottomButton.bottomGap.v(scale) + scale.fixedHeightAdjustment(BottomButton.height))

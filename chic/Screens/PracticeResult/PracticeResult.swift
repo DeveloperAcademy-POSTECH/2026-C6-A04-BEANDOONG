@@ -26,16 +26,16 @@ enum SteamingStage: CaseIterable {
     /// 상태별 감지 시간 카드에서 사용하는 단계 제목
     var title: String {
         switch self {
-        case .aeration: "공기 주입"
-        case .rolling: "롤링"
+        case .aeration: String(localized: "공기 주입")
+        case .rolling: String(localized: "롤링")
         }
     }
 
     /// 전체 타임라인 카드 왼쪽 라벨에서 사용하는 단계 제목
     var timelineTitle: String {
         switch self {
-        case .aeration: "공기 주입"
-        case .rolling: "롤링 소리"
+        case .aeration: String(localized: "공기 주입")
+        case .rolling: String(localized: "롤링 소리")
         }
     }
 
@@ -63,10 +63,10 @@ enum DetectedSound: String, Codable, CaseIterable, Hashable {
 
     var title: String {
         switch self {
-        case .normalAeration: "정상 공기 주입"
-        case .overAeration: "공기과다"
-        case .lackOfAir: "공기 부족"
-        case .rolling: "롤링"
+        case .normalAeration: String(localized: "정상 공기 주입")
+        case .overAeration: String(localized: "공기과다")
+        case .lackOfAir: String(localized: "공기 부족")
+        case .rolling: String(localized: "롤링")
         }
     }
 
@@ -140,8 +140,15 @@ struct PracticeResult: Hashable {
     var title: String {
         let calendar = Calendar.current
         let isThisYear = calendar.isDate(practicedAt, equalTo: Date(), toGranularity: .year)
-        let yearPrefix = isThisYear ? "" : "\(calendar.component(.year, from: practicedAt))년 "
-        return "\(yearPrefix)\(calendar.component(.month, from: practicedAt))월 \(calendar.component(.day, from: practicedAt))일 - \(dailyOrder)차"
+        return title(includingYear: !isThisYear)
+    }
+
+    func title(includingYear: Bool, locale: Locale = .current) -> String {
+        let formatter = DateFormatter()
+        formatter.locale = locale
+        formatter.setLocalizedDateFormatFromTemplate(includingYear ? "yMMMd" : "MMMd")
+        let date = formatter.string(from: practicedAt)
+        return String(localized: "\(date) - \(dailyOrder)차", locale: locale)
     }
 
     /// 결과의 0초로 사용할 첫 감지 시점입니다. 감지 구간이 없으면 원래 시간 기준을 유지합니다.
@@ -275,8 +282,8 @@ extension Int {
     var practiceSecondsText: String {
         let minutes = self / 60
         let seconds = self % 60
-        if minutes == 0 { return "\(seconds)초" }
-        if seconds == 0 { return "\(minutes)분" }
-        return "\(minutes)분 \(seconds)초"
+        if minutes == 0 { return String(localized: "\(seconds)초") }
+        if seconds == 0 { return String(localized: "\(minutes)분") }
+        return String(localized: "\(minutes)분 \(seconds)초")
     }
 }

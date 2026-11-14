@@ -1,6 +1,6 @@
 import SwiftUI
 
-// 여러 줄 문구(\n 포함)에만 가운데 정렬 + 줄간격을 적용합니다.
+// 번역으로 자연스럽게 줄바꿈되는 문구도 가운데 정렬합니다. 명시적 개행에만 줄간격을 추가합니다.
 // 한 줄 문구에 lineSpacing 을 주면 렌더링 위치가 달라지므로, 원래 디자인과 동일하게 적용하지 않습니다.
 
 // MARK: - 다크 화면 타이틀
@@ -20,12 +20,15 @@ struct DarkScreenTitle: View {
         if text.contains("\n") {
             Text(text)
                 .font(.pretendard(.bold, size: 26))
-                .multilineTextAlignment(.center)
                 .lineSpacing(lineSpacing)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
                 .foregroundStyle(Color.white)
         } else {
             Text(text)
                 .font(.pretendard(.bold, size: 26))
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
                 .foregroundStyle(Color.white)
         }
     }
@@ -48,12 +51,15 @@ struct DarkScreenSubtitle: View {
         if text.contains("\n") {
             Text(text)
                 .font(.pretendard(.regular, size: 16))
-                .multilineTextAlignment(.center)
                 .lineSpacing(3)
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
                 .foregroundStyle(color)
         } else {
             Text(text)
                 .font(.pretendard(.regular, size: 16))
+                .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
                 .foregroundStyle(color)
         }
     }

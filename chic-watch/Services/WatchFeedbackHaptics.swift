@@ -39,15 +39,15 @@ final class WatchFeedbackHaptics: ObservableObject {
         case .start: type = .click
         case .failure: type = .failure
         case .skip(let reason):
-            record("\(current.phase.title) · 제외(\(reason))")
+            record(String(localized: "\(current.phase.title) · 제외(\(reason))"))
             return
         }
         let isActive = WKApplication.shared().applicationState == .active
         guard isActive || runtime.isRunning(for: current.sessionID) else {
-            record("\(current.phase.title) · 확장 세션 없음 · 진동 생략")
+            record(String(localized: "\(current.phase.title) · 확장 세션 없음 · 진동 생략"))
             return
         }
-        let source = isActive ? "활성" : "확장 세션"
+        let source = isActive ? String(localized: "활성") : String(localized: "확장 세션")
         lastHapticAt = now
         playHaptic(type, for: "\(current.phase.title) · \(source)")
         #endif
@@ -56,20 +56,20 @@ final class WatchFeedbackHaptics: ObservableObject {
     /// 공기주입은 반복하고 쇳소리·파바박은 해당 상태에 진입할 때만 경고합니다.
     nonisolated static func feedback(previous: PracticeState, current: PracticeState, now: Date,
                                      lastHapticAt: Date?) -> Feedback {
-        guard current.isWatchEnabled, current.sessionID != nil else { return .skip("워치 연습 아님") }
-        guard current.updatedAt > previous.updatedAt else { return .skip("이미 받았거나 오래된 판정") }
-        guard abs(now.timeIntervalSince(current.updatedAt)) < 2 else { return .skip("지연된 판정") }
+        guard current.isWatchEnabled, current.sessionID != nil else { return .skip(String(localized: "워치 연습 아님")) }
+        guard current.updatedAt > previous.updatedAt else { return .skip(String(localized: "이미 받았거나 오래된 판정")) }
+        guard abs(now.timeIntervalSince(current.updatedAt)) < 2 else { return .skip(String(localized: "지연된 판정")) }
         let samePhase = previous.sessionID == current.sessionID && previous.phase == current.phase
         switch current.phase {
         case .aeration:
             if samePhase, let lastHapticAt, now.timeIntervalSince(lastHapticAt) < 0.7 {
-                return .skip("직전 진동과 너무 가까운 판정")
+                return .skip(String(localized: "직전 진동과 너무 가까운 판정"))
             }
             return .start
         case .moreAir, .bubble:
-            return samePhase ? .skip("같은 경고 상태") : .failure
+            return samePhase ? .skip(String(localized: "같은 경고 상태")) : .failure
         default:
-            return .skip("진동 대상 아님")
+            return .skip(String(localized: "진동 대상 아님"))
         }
     }
 
@@ -77,17 +77,17 @@ final class WatchFeedbackHaptics: ObservableObject {
     /// 워치에 햅틱을 요청하고 API 호출이 돌아온 시점을 기록합니다.
     private func playHaptic(_ type: WKHapticType, for source: String) {
         WKInterfaceDevice.current().play(type)
-        record("\(source) · 직접 진동 호출")
+        record(String(localized: "\(source) · 직접 진동 호출"))
     }
 
     #if DEBUG
     /// 연습 상태 수신과 분리해 같은 햅틱을 워치에서 한 번 요청합니다.
     func testHaptic() {
         guard WKApplication.shared().applicationState == .active else {
-            record("수동 테스트 · 앱 비활성")
+            record(String(localized: "수동 테스트 · 앱 비활성"))
             return
         }
-        playHaptic(.failure, for: "수동 테스트")
+        playHaptic(.failure, for: String(localized: "수동 테스트"))
     }
     #endif
     #endif

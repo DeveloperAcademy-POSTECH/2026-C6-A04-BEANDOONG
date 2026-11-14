@@ -14,7 +14,7 @@ struct MicrophoneAccessView: View {
     var body: some View {
         VStack(spacing: 0) {
             // MARK: 상단 네비게이션 바
-            TopNavigationHeader(title: "마이크 설정", isDark: true)
+            TopNavigationHeader(title: String(localized: "마이크 설정"), isDark: true)
                 .padding(.top, Layout.headerTop.v(scale))
 
             // MARK: 일러스트
@@ -23,16 +23,16 @@ struct MicrophoneAccessView: View {
                 .padding(.top, Layout.illustrationTop.v(scale))
 
             // MARK: 타이틀 + 설명
-            DarkScreenTitle("공기주입 상태를 분석하려면\n마이크 권한이 필요해요")
+            DarkScreenTitle(String(localized: "공기주입 상태를 분석하려면\n마이크 권한이 필요해요"))
                 .padding(.top, Layout.titleTop.v(scale))
 
-            DarkScreenSubtitle("기기 설정에서 chic의 마이크 접근을\n허용한 뒤 돌아와 주세요")
+            DarkScreenSubtitle(String(localized: "기기 설정에서 chic의 마이크 접근을\n허용한 뒤 돌아와 주세요"))
                 .padding(.top, Layout.subtitleTop.v(scale))
 
             Spacer(minLength: 0)
 
             // MARK: 하단 버튼
-            DarkPrimaryButton(title: "설정 열기", width: Layout.buttonWidth.h(scale), height: BottomButton.height, action: onOpenSettings)
+            DarkPrimaryButton(title: String(localized: "설정 열기"), width: Layout.buttonWidth.h(scale), height: BottomButton.height, action: onOpenSettings)
                 .padding(.bottom, BottomButton.bottomGap.v(scale) + scale.fixedHeightAdjustment(BottomButton.height))
         }
         .ignoresSafeArea()

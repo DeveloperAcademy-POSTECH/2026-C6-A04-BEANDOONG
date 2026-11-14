@@ -43,7 +43,7 @@ struct PrepWatchCarousel: View, Animatable {
             .onboardingPart(motion.title)
             .padding(.top, Layout.titleTop.v(scale))
 
-            DarkScreenSubtitle("색상 변화로 공기 주입 상태를\n쉽게 확인 할 수 있어요.")
+            DarkScreenSubtitle(String(localized: "색상 변화로 공기 주입 상태를\n쉽게 확인 할 수 있어요."))
                     .onboardingPart(motion.subtitle)
                 .padding(.top, Layout.subtitleTop.v(scale))
         }
@@ -59,7 +59,7 @@ struct PrepWatchCarousel: View, Animatable {
                 item(state)
             }
             // 종료 알약: 가운데 워치에 고정
-            Text("종료")
+            Text(String(localized: "종료"))
                 .font(.pretendard(.bold, size: Layout.pillFontSize))
                 .foregroundStyle(Color.black)
                 .frame(width: Layout.pillSize.width, height: Layout.pillSize.height)
@@ -189,20 +189,20 @@ enum PrepWatchState: Int, CaseIterable {
     /// 워치 화면 안의 안내 문구 (시안)
     var watchText: String {
         switch self {
-        case .normal: "지금 위치를\n유지해요"
-        case .over: "피처를\n내려 주세요"
-        case .lack: "피처를\n올려 주세요"
-        case .rolling: "우유가 도는지\n확인해요"
+        case .normal: String(localized: "지금 위치를\n유지해요")
+        case .over: String(localized: "피처를\n내려 주세요")
+        case .lack: String(localized: "피처를\n올려 주세요")
+        case .rolling: String(localized: "우유가 도는지\n확인해요")
         }
     }
 
     /// 아래 타이틀: 상태 이름
     var title: String {
         switch self {
-        case .normal: "정상 공기 주입"
-        case .over: "공기 과다"
-        case .lack: "공기 주입 부족"
-        case .rolling: "롤링"
+        case .normal: String(localized: "정상 공기 주입")
+        case .over: String(localized: "공기 과다")
+        case .lack: String(localized: "공기 주입 부족")
+        case .rolling: String(localized: "롤링")
         }
     }
 
