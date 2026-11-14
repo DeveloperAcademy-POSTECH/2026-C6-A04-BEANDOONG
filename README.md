@@ -6,7 +6,7 @@
 
 <p align="center">청각장애인 초보 바리스타가 우유 스티밍의 현재 상태를 스스로 알아차리고,<br/>다음 한 잔을 준비할 수 있도록 돕는 iPhone · Apple Watch 앱입니다.</p>
 
-<p align="center"><a href="https://developeracademy-postech.github.io/2026-C6-A04-BEANDOONG/">프로젝트 웹사이트</a> · <a href="#chic이-하는-일">앱 살펴보기</a> · <a href="#team-beandoong">팀 소개</a></p>
+<p align="center"><a href="https://apps.apple.com/kr/app/chic/id6830698769"><strong>App Store에서 다운로드</strong></a> · <a href="https://developeracademy-postech.github.io/2026-C6-A04-BEANDOONG/">프로젝트 웹사이트</a> · <a href="#chic이-하는-일">앱 살펴보기</a> · <a href="#team-beandoong">팀 소개</a></p>
 
 ---
 
