@@ -2,7 +2,7 @@ import SwiftUI
 import UIKit
 
 /// 히스토리 화면
-/// - 디자인: Hi-Fi/iPhone 17 - 69.png (목록, 2026-11-14 시안: 기간 필터 없음) · 254.png (삭제 팝업)
+/// - 디자인: Hi-Fi/iPhone 17 - 69.png (목록, 2026-11-14 시안: 기간 필터 · 카드 링 없음) · 254.png (삭제 팝업)
 ///
 ///     ┌ 상단 네비게이션 바: 히스토리
 ///     ├ 타이틀 + 설명
@@ -11,7 +11,7 @@ struct HistoryView: View {
     @EnvironmentObject private var practice: PracticeSession
     @Environment(\.designScale) private var scale
     let onStartPractice: () -> Void
-    /// 삭제 팝업을 보여 주는 중인지 (팝업이 떠 있는 동안 카드 오른쪽은 링 대신 휴지통, Hi-Fi 254)
+    /// 삭제 팝업을 보여 주는 중인지
     @State private var showsDeleteDialog: Bool
     /// 스와이프로 삭제를 누른 기록 (팝업에서 확인하면 지움)
     @State private var deleteTarget: HistoryRecord?
@@ -105,7 +105,7 @@ struct HistoryView: View {
                                     selectedRecord = record
                                 }
                             } label: {
-                                HistoryRecordCard(record: record, width: Layout.cardWidth.h(scale), showsTrash: showsDeleteDialog)
+                                HistoryRecordCard(record: record, width: Layout.cardWidth.h(scale))
                             }
                             .buttonStyle(.plain)
                         }
@@ -187,14 +187,13 @@ private struct HistoryRecord: Identifiable, Hashable {
 
 /// 연습 기록 한 줄 카드 (365 x 100)
 ///
-///     9월 28일 - 1차              ◔   >
+///     9월 28일 - 1차                  >
 ///     32초
-/// 오른쪽 링은 그 연습의 "주의 소리" 비율이고, 삭제 팝업이 떠 있는 동안에는 휴지통으로 바뀐다. (Hi-Fi 69 · 254)
+/// (2026-11-14 시안부터 오른쪽 주의 소리 링 없음, Hi-Fi 69)
 /// 카드 배경(둥근 사각형)은 감싸는 `SwipeToDeleteRow`가 그린다. 밀었을 때 남은 폭만큼만 그려야 해서다.
 private struct HistoryRecordCard: View {
     let record: HistoryRecord
     var width: CGFloat = 365
-    var showsTrash = false
 
     var body: some View {
         HStack(alignment: .center, spacing: 0) {
@@ -212,18 +211,6 @@ private struct HistoryRecordCard: View {
             }
 
             Spacer()
-
-            if showsTrash {
-                Image(systemName: "trash")
-                    .font(.system(size: 22, weight: .regular))
-                    .foregroundStyle(AppColors.historyTrash)
-                    .frame(width: Layout.ringSize, height: Layout.ringSize)
-                    .padding(.trailing, Layout.ringToChevron)
-            } else {
-                ArcRing(ratio: record.result.cautionRatio, lineWidth: Layout.ringLineWidth, color: AppColors.soundCaution)
-                    .frame(width: Layout.ringSize, height: Layout.ringSize)
-                    .padding(.trailing, Layout.ringToChevron)
-            }
 
             Image(systemName: "chevron.right")
                 .font(.system(size: 16, weight: .semibold))
@@ -441,9 +428,6 @@ private enum Layout {
     static let cardHeight: CGFloat = 100   // Hi-Fi 69: 카드 높이
     static let cardCornerRadius: CGFloat = 16 // Hi-Fi 69: 카드 모서리. 카드 폭과 같이 화면 폭 비율로 바꿔 쓴다 (작은 기기에서 상대적으로 더 둥글어지지 않게)
     static let deleteRevealWidth: CGFloat = 102 // 삭제 버튼을 열었을 때 카드가 밀리는 거리 (시스템 스와이프: 카드 오른쪽 383 → 281)
-    static let ringSize: CGFloat = 58.6    // Hi-Fi 69: 도넛 지름
-    static let ringLineWidth: CGFloat = 10 // Hi-Fi 69: 도넛 두께
-    static let ringToChevron: CGFloat = 18.5 // 링 오른쪽 ↔ 화살표 (Hi-Fi 69: 호 오른쪽 335.5 → 화살표 357, 캡처 보정)
     static let cardTrailing: CGFloat = 15.5  // 카드 오른쪽 안쪽 여백 (Hi-Fi 69: 화살표 오른쪽 365.5, 카드 383.5)
     static let titleFontSize: CGFloat = 16   // Hi-Fi 69 (2026-11-13): 날짜 숫자 높이 11.5pt
     static let durationFontSize: CGFloat = 12 // Hi-Fi 69 (2026-11-13): 시간 숫자 높이 8.4pt
@@ -453,8 +437,6 @@ private enum Layout {
 // MARK: - 이 화면 전용 색상
 
 private extension AppColors {
-    /// 삭제 팝업이 떠 있을 때 카드 오른쪽 휴지통 (Hi-Fi 254, 딤 처리된 상태)
-    static let historyTrash = Color(hex: 0xAEAEAE)
     /// 밀어서 삭제 버튼의 빨간 원 (시스템 스와이프 삭제 버튼 측정값)
     static let swipeDeleteRed = Color(hex: 0xFF4245)
 }
