@@ -42,35 +42,3 @@ struct ArcRing: View {
         .accessibilityHidden(true)
     }
 }
-
-/// 도넛 한 칸: 12시 기준 `startDegrees`에서 시계 방향으로 `seenDegrees`(둥근 끝 포함)만큼 차오른 호 하나 (트랙 없음)
-/// - 연습 결과 상태별 감지 시간 원이 차오르는 애니메이션에 써요 (애니메이션 벤치 `ringArc`와 같은 계산).
-/// - `closed`: 한 바퀴를 다 채우는 원이에요. 끝에서 머리와 꼬리가 맞물려 틈이 없어요.
-/// - `fullDegrees`: 이 호가 다 차오른 모습의 각도. 처음 둥근 끝 하나 크기의 점이 서서히 진해지는 길이의 기준이에요.
-/// - 크기는 바깥에서 `.frame(width:height:)`로 정한다 (정사각형).
-struct ArcFill: View {
-    let seenDegrees: Double
-    let startDegrees: Double
-    let lineWidth: CGFloat
-    let color: Color
-    var closed = false
-    var fullDegrees: Double = 360
-
-    var body: some View {
-        GeometryReader { proxy in
-            let diameter = min(proxy.size.width, proxy.size.height)
-            let radius = (diameter - lineWidth) / 2
-            let capDegrees = Double(lineWidth / 2 / radius) * 180 / .pi
-            let bodyDegrees = max(0, seenDegrees - 2 * capDegrees * (closed ? 1 - seenDegrees / 360 : 1))
-            Circle()
-                .trim(from: 0, to: max(bodyDegrees, 0.02) / 360)
-                .stroke(color, style: StrokeStyle(lineWidth: lineWidth, lineCap: .round))
-                // 호가 둥근 끝 두 개보다 짧으면 점 하나가 호의 가운데에 놓여요
-                .rotationEffect(.degrees(-90 + startDegrees + min(capDegrees, fullDegrees / 2)))
-                .padding(lineWidth / 2)
-                .frame(width: diameter, height: diameter)
-                .opacity(seenDegrees <= 0 ? 0 : min(1, seenDegrees / min(2 * capDegrees, max(fullDegrees, 0.01))))
-        }
-        .accessibilityHidden(true)
-    }
-}
