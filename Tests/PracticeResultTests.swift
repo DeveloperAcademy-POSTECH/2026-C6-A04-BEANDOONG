@@ -48,16 +48,9 @@ struct PracticeResultTests {
         try verifyReload(record: record, expected: result, directory: directory)
         try verifyLegacyMigration(in: directory.appending(path: "migration"), start: start)
         try verifyDelete(in: directory.appending(path: "delete"), segments: timeline.segments, start: start)
-        // 연습 가이드: 공기 주입 2~4초면 기준 안, 그보다 짧거나 길면 안내가 달라져요 (연습 중 비커 점선과 같은 기준).
-        precondition(PracticeGuide.aerationRange == 2...4)
-        precondition(PracticeGuide(aerationSeconds: 0) == .aerationTooShort)
-        precondition(PracticeGuide(aerationSeconds: 1) == .aerationTooShort)
-        precondition(PracticeGuide(aerationSeconds: 2) == .onTarget)
-        precondition(PracticeGuide(aerationSeconds: 4) == .onTarget)
-        precondition(PracticeGuide(aerationSeconds: 5) == .aerationTooLong)
-        precondition(PracticeGuide(result: result) == .onTarget)                    // 공기 주입 4초
-        precondition(PracticeGuide(result: .sample) == .aerationTooLong)            // 시안 데이터: 공기 주입 6초
-        precondition(PracticeGuide(result: .empty) == .aerationTooShort)
+        verifyGuideCombinations(start: start)
+        precondition(PracticeGuide(result: result) == .targetBoth)
+        precondition(PracticeGuide(result: .empty) == .missingBoth)
         // 가이드 비커 수위: 2초 아래 점선, 4초 위 점선, 3초 그 사이, 0초 바닥 근처, 오래 하면 점선 위로
         func near(_ a: CGFloat, _ b: CGFloat) -> Bool { abs(a - b) < 0.01 }
         precondition(near(GuideMilkLevel.top(forAeration: 2), GuideMilkLevel.lowerLine))
@@ -68,6 +61,37 @@ struct PracticeResultTests {
         precondition(GuideMilkLevel.top(forAeration: 9) < GuideMilkLevel.upperLine)
 
         print("PracticeResultTests passed (timeline, summaries, guide, SwiftData persistence, legacy migration, delete)")
+    }
+
+    /// 미감지가 주의 소리보다 우선하는지와 기준 시간 양끝의 반올림 전 분류를 검증합니다.
+    private static func verifyGuideCombinations(start: Date) {
+        let lower = MilkLevel.lowerLineSeconds, upper = MilkLevel.upperLineSeconds
+        let inputs: [(TimeInterval, [PracticeGuide])] = [
+            (0, [.missingAeration, .missingAeration, .missingAeration, .missingAeration]),
+            (0.01, [.short, .shortScratch, .shortBubble, .shortBoth]),
+            (lower - 0.01, [.short, .shortScratch, .shortBubble, .shortBoth]),
+            (lower, [.onTarget, .targetScratch, .targetBubble, .targetBoth]),
+            (upper, [.onTarget, .targetScratch, .targetBubble, .targetBoth]),
+            (upper + 0.01, [.long, .longScratch, .longBubble, .longBoth])
+        ]
+        for (air, expected) in inputs {
+            for rolling in [0.0, 0.01] {
+                for (index, warnings) in [[], [DetectedSound.lackOfAir], [.overAeration], [.lackOfAir, .overAeration]].enumerated() {
+                    var segments = warnings.map { DetectedSegment(sound: $0, start: 12, end: 12.1) }
+                    segments.append(DetectedSegment(sound: .rolling, start: 10, end: 10 + rolling))
+                    segments.append(DetectedSegment(sound: .normalAeration, start: 0, end: air))
+                    let record = PracticeResult(practicedAt: start, dailyOrder: 1, segments: segments)
+                    let guide = PracticeGuide(result: record)
+                    precondition(guide == (rolling > 0 ? expected[index] : air > 0 ? .missingRolling : .missingBoth))
+                }
+            }
+        }
+        let split = PracticeResult(practicedAt: start, dailyOrder: 1, segments: [
+            .init(sound: .normalAeration, start: 0, end: lower / 2),
+            .init(sound: .rolling, start: lower / 2, end: lower),
+            .init(sound: .normalAeration, start: lower, end: lower + lower / 2)
+        ])
+        precondition(PracticeGuide(result: split) == .onTarget)
     }
 
     /// 소리가 끊긴 시각(마지막 기록보다 앞)으로 끝내면 그 뒤 구간을 잘라 냅니다.

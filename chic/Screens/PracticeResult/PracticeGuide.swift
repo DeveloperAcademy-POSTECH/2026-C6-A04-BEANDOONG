@@ -1,86 +1,123 @@
-//
-//  PracticeGuide.swift
-//
-//  연습 결과 · 기록 상세의 "연습 가이드" 카드에 띄울 안내를 고릅니다.
-//  기준은 연습 중 비커의 두 점선과 같아요: 공기 주입(파랑) 소리가 2~4초면 기준 시간 안이에요.
-//  가이드의 비커도 연습 중처럼, 이번 연습에서 공기 주입한 만큼 우유가 차 있어요 (`GuideMilkLevel`).
-//
-
 import Foundation
 
-/// 연습 가이드 카드 안내 (Hi-Fi: 연습 가이드 3종)
+/// 정상 공기 주입과 롤링 기록을 먼저 확인한 뒤 피그마 문구표의 안내를 고릅니다.
 enum PracticeGuide: Equatable {
-    /// ✓ 공기 주입 시간이 기준 안
-    case onTarget
-    /// (!) 공기 주입 시간이 기준보다 길어요
-    case aerationTooLong
-    /// (!) 공기 주입 시간이 기준보다 짧아요
-    case aerationTooShort
+    case missingAeration, missingRolling, missingBoth
+    case short, shortScratch, shortBubble, shortBoth
+    case onTarget, targetScratch, targetBubble, targetBoth
+    case long, longScratch, longBubble, longBoth
 
-    /// 기준 시간 (초). 연습 중 비커의 아래 점선 · 위 점선과 같은 값이에요.
-    static var aerationRange: ClosedRange<Int> {
-        Int(MilkLevel.lowerLineSeconds)...Int(MilkLevel.upperLineSeconds)
-    }
-
-    /// 화면에 보이는 공기 주입 시간(한 번에 보기 · 상태별 감지시간의 "공기 주입" 초)으로 판단해요.
-    /// 숫자와 안내가 서로 어긋나 보이지 않게 같은 값을 써요.
     init(result: PracticeResult) {
-        self.init(aerationSeconds: result.detectedSeconds(of: .normalAeration))
-    }
+        let air = result.guideDuration(of: .normalAeration)
+        let rolling = result.guideDuration(of: .rolling)
+        guard air > 0 else {
+            self = rolling > 0 ? .missingAeration : .missingBoth
+            return
+        }
+        guard rolling > 0 else {
+            self = .missingRolling
+            return
+        }
 
-    init(aerationSeconds: Int) {
-        if aerationSeconds < Self.aerationRange.lowerBound {
-            self = .aerationTooShort
-        } else if aerationSeconds > Self.aerationRange.upperBound {
-            self = .aerationTooLong
-        } else {
-            self = .onTarget
+        let scratch = result.guideDuration(of: .lackOfAir) > 0
+        let bubble = result.guideDuration(of: .overAeration) > 0
+        switch (air, scratch, bubble) {
+        case (..<MilkLevel.lowerLineSeconds, false, false): self = .short
+        case (..<MilkLevel.lowerLineSeconds, true, false): self = .shortScratch
+        case (..<MilkLevel.lowerLineSeconds, false, true): self = .shortBubble
+        case (..<MilkLevel.lowerLineSeconds, true, true): self = .shortBoth
+        case (...MilkLevel.upperLineSeconds, false, false): self = .onTarget
+        case (...MilkLevel.upperLineSeconds, true, false): self = .targetScratch
+        case (...MilkLevel.upperLineSeconds, false, true): self = .targetBubble
+        case (...MilkLevel.upperLineSeconds, true, true): self = .targetBoth
+        case (_, false, false): self = .long
+        case (_, true, false): self = .longScratch
+        case (_, false, true): self = .longBubble
+        case (_, true, true): self = .longBoth
         }
     }
 
-    var title: String {
+    /// 한 조건에 쓰이는 상단 문구, 가이드 제목과 본문입니다.
+    private var copy: (headline: String, title: String, message: String) {
         switch self {
-        case .onTarget: "기준 시간에 맞춰 연습했어요"
-        case .aerationTooLong: "공기 주입 소리가 기준보다 오래 감지 됐어요"
-        case .aerationTooShort: "공기 주입 소리가 기준보다 짧게 감지됐어요"
-        }
-    }
-
-    var message: String {
-        switch self {
+        case .missingAeration:
+            ("이번엔 공기 주입 소리를\n확인하지 못했어요",
+             "우유의 거품 상태를 살펴보세요",
+             "공기주입 소리를 확인하지 못해 이번 기록만으로 거품 상태를 판단하기 어려워요. 완성된 우유의 거품을 살펴보고 다음에는 고른 공기주입 소리를 찾아보세요.")
+        case .missingRolling:
+            ("다음엔 우유와 거품을\n고르게 섞어볼까요?",
+             "우유와 거품이 덜 섞였을 수 있어요",
+             "컵에 따를 때 묽은 우유가 먼저 나오고 거품이 피처에 덩어리로 남는다면, 우유와 거품이 덜 섞인 거예요. 다음엔 공기를 넣은 뒤 노즐 끝을 살짝 담가 우유 전체가 돌도록 해 보세요.")
+        case .missingBoth:
+            ("이번 스티밍 상태를\n판단하기 어려워요",
+             "소리가 제대로 확인되지 않았어요",
+             "핸드폰이 스팀기 근처에 위치해있는지, 외부소리가 너무 큰 것은 아닌지 확인해주세요")
+        case .short:
+            ("거품이 조금\n얇을 수 있어요",
+             "우유 높이가 처음과 비슷한가요?",
+             "피처에 처음 담았을 때보다 우유가 얼마나 부풀었는지 보세요. 높이가 거의 그대로이고 거품도 적다면 다음번엔 공기를 조금 더 오래 넣어 보세요.")
+        case .shortScratch:
+            ("공기 주입이\n조금 부족했어요",
+             "우유가 부풀고 거품이 생겼나요?",
+             "스크레칭이 들렸을 때는 스티밍 전후의 우유 높이와 표면을 함께 보세요. 높이가 거의 그대로이고 거품도 잘 보이지 않는다면 다음엔 초반에 노즐 끝을 표면 가까이에 두세요.")
+        case .shortBubble:
+            ("짧은 순간에\n공기가 들어갔어요",
+             "표면에 큰 기포가 남았나요?",
+             "피처 안을 들여다봤을 때 낱개로 또렷이 보이는 기포가 있는지 살펴보세요. 큰 기포가 남았다면 다음엔 공기를 넣을 때 노즐 끝이 표면 밖으로 드러나지 않게 해 보세요.")
+        case .shortBoth:
+            ("공기가 조금\n거칠게 들어갔어요",
+             "기포 크기와 부피를 따로 보세요",
+             "먼저 표면에 큰 기포가 있는지 보고, 우유 높이도 처음과 비교해 보세요. 큰 기포 몇 개가 눈에 띄는 것만으로는 우유 전체가 얼마나 부풀었는지 알기 어려워요.")
         case .onTarget:
-            "공기 주입과 롤링 소리가 모두 기준 시간 범위에서 감지됐어요\n완성된 우유의 거품과 질감도 함께 확인해 보세요"
-        case .aerationTooLong:
-            "필요한 거품이 만들어졌다면 노즐을 더 깊게 넣어 롤링으로 전환해 보세요."
-        case .aerationTooShort:
-            "우유에 공기가 충분히 들어갔는지 확인하고 필요한 경우 노즐을 우유 표면 가까이에 두어 공기를 조금 더 주입해 보세요"
+            ("스티밍 타이밍을\n딱 맞췄어요!",
+             "우유 표면에 윤기가 나나요?",
+             "피처를 가볍게 돌려 우유 표면을 보세요. 기포 하나하나가 잘 보이지 않고 표면이 매끈하게 빛나면 고운 거품의 특징이에요.")
+        case .targetScratch:
+            ("공기 주입 시간을\n잘 맞췄어요",
+             "우유 높이를 처음과 비교해 보세요",
+             "스크레칭이 들렸어도 우유가 원하는 만큼 부풀었다면 공기 주입 시간을 늘릴 필요는 없어요. 높이가 거의 그대로이고 거품도 적다면 다음엔 차가운 우유에 공기를 조금 더 넣어 보세요.")
+        case .targetBubble:
+            ("공기가 한꺼번에 들어간\n순간이 있었어요",
+             "큰 기포가 눈에 띄나요?",
+             "표면이 전반적으로 매끈한지, 그 사이에 큰 기포가 남았는지 보세요. 몇 개만 남았다면 피처 바닥을 작업대에 가볍게 톡톡 두드린 뒤 살짝 돌려 보세요.")
+        case .targetBoth:
+            ("우유 표면에 큰 기포가\n남았을 수 있어요",
+             "표면과 따를 때의 모습을 함께 보세요",
+             "표면에 큰 기포가 있는지 먼저 살펴보세요. 컵에 따를 때 묽은 우유가 먼저 나오고 거품이 피처에 덩어리로 남는다면 우유와 거품이 고르게 섞이지 않은 상태예요.")
+        case .long:
+            ("공기를 조금\n오래 넣었어요",
+             "거품이 원하는 만큼 생겼나요?",
+             "컵에 따른 뒤 거품이 원했던 것보다 두껍게 쌓였는지 보세요. 더 얇은 거품을 원한다면 다음엔 공기 주입을 조금 일찍 마쳐 보세요.")
+        case .longScratch:
+            ("거품이 우유와 덜 섞여\n위에 남았을 수 있어요",
+             "거품 두께를 직접 살펴보세요",
+             "스크레칭이 들렸더라도 컵에 따른 거품이 원하는 두께라면 공기를 더 넣을 필요는 없어요. 묽은 우유부터 나오고 피처에 두꺼운 거품이 남았다면 우유와 거품이 따로 층을 이룬 거예요.")
+        case .longBubble:
+            ("거품 사이에 큰 기포가\n남았을 수 있어요",
+             "큰 기포와 거품 두께를 구분해 보세요",
+             "피처에서는 표면에 큰 기포가 남았는지, 컵에 따른 뒤 거품이 원하는 두께인지 보세요. 큰 기포가 남았다면 다음엔 공기를 한꺼번에 넣지 않도록 노즐 끝을 표면 바로 아래에 두세요.")
+        case .longBoth:
+            ("큰 기포가 섞인 거품층이\n위에 남았을 수 있어요",
+             "마지막에 거품만 남나요?",
+             "스티밍을 마친 뒤 피처를 가볍게 돌려 컵에 따라 보세요. 처음에는 묽은 우유만 나오고 끝에 뻣뻣한 거품이 남는다면 우유와 거품이 따로 층을 이룬 상태예요.")
         }
     }
 
-    /// 연습 직후 결과(`PracticeResultView`) 히어로 타이틀 (Hi-Fi 연습가이드 공기 적정 · 과도 · 부족)
-    var resultHeadline: String {
-        switch self {
-        case .onTarget: "좋은 흐름으로\n스티밍 했어요"
-        case .aerationTooLong: "공기 주입량이\n많았어요"
-        case .aerationTooShort: "공기 주입량이\n부족했어요"
-        }
-    }
+    var resultHeadline: String { copy.headline }
+    var historyHeadline: String { copy.headline }
+    var title: String { copy.title }
+    var message: String { copy.message }
+    var systemImage: String { self == .onTarget ? "checkmark" : "exclamationmark.circle" }
+}
 
-    /// 기록 상세(`HistoryDetailView`) 히어로 타이틀 (Hi-Fi 같은 이름 -1. 부족만 문구가 조금 달라요)
-    var historyHeadline: String {
-        switch self {
-        case .onTarget: "좋은 흐름으로\n스티밍 했어요"
-        case .aerationTooLong: "공기 주입량이\n많았어요"
-        case .aerationTooShort: "공기 주입이\n부족했어요"
+extension PracticeResult {
+    /// 실제 구간 시간을 합산해 1초 미만의 소리도 기록으로 인정합니다.
+    func guideDuration(of sound: DetectedSound) -> TimeInterval {
+        let seconds = segments.reduce(0.0) { total, segment in
+            guard segment.sound == sound, segment.duration.isFinite, segment.duration > 0 else { return total }
+            return total + segment.duration
         }
-    }
-
-    /// 왼쪽 아이콘 (SF Symbol)
-    var systemImage: String {
-        switch self {
-        case .onTarget: "checkmark"
-        case .aerationTooLong, .aerationTooShort: "exclamationmark.circle"
-        }
+        return seconds > 0 ? seconds : Double(max(0, customDetectedSeconds?[sound] ?? 0))
     }
 }
 
