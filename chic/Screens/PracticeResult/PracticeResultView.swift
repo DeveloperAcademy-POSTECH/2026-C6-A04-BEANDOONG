@@ -20,7 +20,7 @@ import SwiftUI
 ///     ├ 스티밍 기록: 소리 유형별 막대 표
 ///     ├ 연습 가이드: 비커 그림 + 공기 주입 시간 안내 카드 (기준 안 · 너무 김 · 너무 짧음)
 ///     └ 안내 문구
-/// 공통 본문은 `PracticeReportScreen`이 그립니다. (기록 상세 `HistoryDetailView`와 같은 구성)
+/// 공통 본문은 `PracticeReportScreen`이 그립니다. (기록 상세 `HistoryDetailView`와 같은 구성, 상단 바 제목만 기록 이름)
 struct PracticeResultView: View {
     let result: PracticeResult
     var onClose: (() -> Void)? = nil

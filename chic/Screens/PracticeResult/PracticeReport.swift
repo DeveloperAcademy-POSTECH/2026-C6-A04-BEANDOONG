@@ -19,7 +19,7 @@ struct PracticeReportScreen: View {
     let result: PracticeResult
     /// 히어로 타이틀 (결과에 따라 화면마다 정한다)
     let headline: String
-    /// 상단 바 제목 (연습 직후 "스티밍 결과", 기록 상세 "스팀 결과")
+    /// 상단 바 제목 (연습 직후 "스티밍 결과", 기록 상세는 기록 이름 "9월 28일 - 1차")
     let barTitle: String
     var onBack: (() -> Void)? = nil
     /// 삭제 팝업에서 "기록 삭제"를 확인했을 때
