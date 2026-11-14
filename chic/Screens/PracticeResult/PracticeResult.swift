@@ -202,10 +202,10 @@ struct PracticeResult: Hashable {
     /// 상단 요약 "전체 시간". 첫 감지 이후의 미분류 구간은 포함합니다.
     var totalSeconds: Int { Int(timelineLength.rounded()) }
 
-    /// 도넛 차트 바깥 링(정상소리) 비율 (0.0 ... 1.0)
+    /// 정상 소리 비율 (0.0 ... 1.0)
     var normalRatio: Double { ratio(of: normalSeconds) }
 
-    /// 도넛 차트 안쪽 링(주의 소리) 비율 (0.0 ... 1.0)
+    /// 주의 소리 비율 (0.0 ... 1.0): 연습 결과 · 기록 상세 링과 가운데 숫자
     var cautionRatio: Double { ratio(of: cautionSeconds) }
 
     /// 전체 시간에 대한 비율을 0 ... 1 로 맞춥니다. 전체 시간이 0이면 0입니다.

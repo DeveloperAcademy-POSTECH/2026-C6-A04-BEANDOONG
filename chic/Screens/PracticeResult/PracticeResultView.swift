@@ -13,10 +13,10 @@
 import SwiftUI
 
 /// 연습 결과 화면 — 연습이 끝난 직후 이번 연습을 돌아본다 (다크 테마)
-/// - Hi-Fi: 연습가이드 공기 적정 · 과도 · 부족 (2026-11-13) · 267(삭제 팝업)
+/// - Hi-Fi: iPhone 17 - 304 (2026-11-14) · 연습가이드 공기 과도 · 부족 (2026-11-13) · 267(삭제 팝업)
 ///
 ///     ┌ 상단 바: < 스티밍 결과                🗑
-///     ├ 히어로: 결과에 따른 타이틀(`PracticeGuide.resultHeadline`) + 소리 종류별 도넛 + 3열 요약
+///     ├ 히어로: 결과에 따른 타이틀(`PracticeGuide.resultHeadline`) + 주의 소리 링 + 3열 요약
 ///     ├ 스티밍 기록: 소리 유형별 막대 표
 ///     ├ 연습 가이드: 비커 그림 + 공기 주입 시간 안내 카드 (기준 안 · 너무 김 · 너무 짧음)
 ///     └ 안내 문구
@@ -52,8 +52,6 @@ enum PracticeResultColors {
     static let primaryText = Color(hex: 0xDBECFF)
     /// 설명 · 작은 라벨 · 눈금 숫자
     static let secondaryText = Color(hex: 0x919296)
-    /// 주의 소리가 없을 때 도넛 가운데 "100%" (Hi-Fi 연습가이드 공기 적정)
-    static let normalRatioText = Color(hex: 0x5F94D5)
     /// 도넛 바깥 링 · 요약 "정상소리" 숫자
     static let normalSound = Color(hex: 0x76CAF2)
     /// 도넛 안쪽 링 · 요약 "주의 소리" 숫자

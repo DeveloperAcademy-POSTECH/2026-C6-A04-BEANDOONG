@@ -4,12 +4,12 @@ import SwiftUI
 //  PracticeReport.swift
 //
 //  연습 직후 결과(PracticeResultView)와 기록 상세(HistoryDetailView)가 함께 쓰는 리포트 화면입니다.
-//  - 상단 히어로: 결과에 따른 타이틀 + 소리 종류별 도넛 + 3열 요약
+//  - 상단 히어로: 결과에 따른 타이틀 + 주의 소리 링 + 3열 요약
 //  - "스티밍 기록": 소리 유형별 막대 표 (탭 없음)
 //  - "연습 가이드": 비커 그림 + 공기 주입 시간에 따른 안내 카드 (`PracticeGuide`)
 //  - 하단 안내 문구
-//  Hi-Fi (2026-11-13): 연습가이드 공기 적정 · 과도 · 부족 (연습 직후, "스티밍 결과"),
-//                      같은 이름 -1 (기록 상세, "스팀 결과"). 도넛 · 연습 가이드는 -1 없는 쪽을 따름
+//  Hi-Fi: iPhone 17 - 304 (연습 직후, 상단 바 "스티밍 결과") · 307 (기록 상세, 상단 바 "9월 28일 - 1차") (2026-11-14)
+//         연습가이드 공기 과도 · 부족 (2026-11-13, 링을 뺀 나머지)
 //
 
 // MARK: - 화면 (스크롤 + 고정 상단 바 + 삭제 팝업)
@@ -132,9 +132,6 @@ private struct ReportHero: View {
     let result: PracticeResult
     let headline: String
 
-    /// 주의 소리가 없으면 가운데에 정상 소리 비율을 보여요 (Hi-Fi 적정: "100% 정상소리")
-    private var showsNormalRatio: Bool { result.cautionSeconds == 0 && result.normalSeconds > 0 }
-
     var body: some View {
         ZStack(alignment: .topLeading) {
             heroBackground
@@ -149,26 +146,20 @@ private struct ReportHero: View {
                 .frame(maxWidth: .infinity)
                 .at(x: 0, y: ReportLayout.headlineY, scale)
 
-            // 도넛: 소리 종류별 시간 (12시부터 공기 주입 · 과다 · 부족 · 롤링). 과다 · 부족은 주의 소리 색
+            // 링: 언제나 주의 소리 비율 (2026-11-14 시안 304 · 307). 어두운 트랙 위에 12시부터 주의 소리 색 호.
+            // 잘 됐을 때(주의 소리 0초)와 감지된 소리가 없을 때는 트랙만 있고 가운데 "0% 주의소리".
             ZStack {
-                if result.normalSeconds + result.cautionSeconds == 0 {
-                    // 감지된 소리가 없으면 빈 트랙만
-                    Circle()
-                        .stroke(PracticeResultColors.innerBackground, lineWidth: ReportLayout.donutLineWidth)
-                        .padding(ReportLayout.donutLineWidth / 2)
-                }
-                ReportSliceDonut(
-                    values: Self.donutSounds.map { Double(result.detectedSeconds(of: $0.sound)) },
-                    colors: Self.donutSounds.map(\.color)
+                ArcRing(
+                    ratio: result.cautionRatio,
+                    lineWidth: ReportLayout.donutLineWidth,
+                    color: AppColors.soundCaution,
+                    startDegrees: ReportLayout.donutStartDegrees
                 )
-                .frame(width: ReportLayout.donutDiameter.h(scale), height: ReportLayout.donutDiameter.h(scale))
                 VStack(spacing: ReportLayout.donutTextSpacing) {
-                    Text(showsNormalRatio
-                         ? "\(Int((result.normalRatio * 100).rounded()))%"
-                         : "\(Int((result.cautionRatio * 100).rounded()))%")
+                    Text("\(Int((result.cautionRatio * 100).rounded()))%")
                         .font(.pretendard(.bold, size: 36))
-                        .foregroundStyle(showsNormalRatio ? PracticeResultColors.normalRatioText : AppColors.soundCaution)
-                    Text(showsNormalRatio ? "정상소리" : "주의소리")
+                        .foregroundStyle(AppColors.soundCaution)
+                    Text("주의소리")
                         .font(.pretendard(.regular, size: ReportLayout.donutLabelSize))
                         .foregroundStyle(AppColors.darkSecondaryButton)
                         .offset(y: ReportLayout.donutLabelDY)
@@ -196,14 +187,6 @@ private struct ReportHero: View {
         }
         .frame(maxWidth: .infinity, alignment: .topLeading)
     }
-
-    /// 도넛 조각 순서와 색 (Hi-Fi 공기 과도 · 부족)
-    private static let donutSounds: [(sound: DetectedSound, color: Color)] = [
-        (.normalAeration, AppColors.soundNormalAeration),
-        (.overAeration, AppColors.soundCaution),
-        (.lackOfAir, AppColors.soundCaution),
-        (.rolling, AppColors.soundRolling)
-    ]
 
     private func summaryColumn(_ label: String, _ seconds: Int) -> some View {
         VStack(spacing: ReportLayout.summaryTextSpacing) {
@@ -537,44 +520,6 @@ extension PracticeResult {
     }
 }
 
-/// 값 비율대로 나뉜 둥근 호들 (호끼리 맞닿음)
-/// - 보이는 호(둥근 끝 포함)가 12시 방향(0°)에서 시작해 `비율 × 360°`씩 이어지고, 호 사이는 0.4°만 비어 있다.
-///   (Hi-Fi 공기 과도: 파랑 6 · 분홍 2 · 분홍 2 · 초록 10초)
-private struct ReportSliceDonut: View {
-    let values: [Double]
-    let colors: [Color]
-
-    private let lineWidth = ReportLayout.donutLineWidth
-    private let gapDegrees = 0.4
-
-    var body: some View {
-        GeometryReader { proxy in
-            let diameter = min(proxy.size.width, proxy.size.height)
-            let total = max(values.reduce(0, +), 1)
-            ZStack {
-                ForEach(Array(values.enumerated()), id: \.offset) { index, value in
-                    // 감지되지 않은(0초) 항목은 호도 아이콘도 그리지 않아요.
-                    if value > 0 {
-                        let visible = visibleRange(index: index, total: total)
-                        let full = visible.upperBound - visible.lowerBound
-                        // 한 가지 소리만 있으면 끊김 없는 한 바퀴
-                        ArcFill(seenDegrees: full, startDegrees: visible.lowerBound,
-                                lineWidth: lineWidth, color: colors[index], closed: value >= total, fullDegrees: full)
-                    }
-                }
-            }
-            .frame(width: diameter, height: diameter)
-        }
-    }
-
-    private func visibleRange(index: Int, total: Double) -> ClosedRange<Double> {
-        var start = ReportLayout.donutStartDegrees
-        for i in 0..<index { start += 360 * values[i] / total }
-        // 호가 간격(0.4°)보다 짧아도 범위의 끝이 시작보다 앞서지 않게 해요.
-        return start...max(start, start + 360 * values[index] / total - gapDegrees)
-    }
-}
-
 // MARK: - 색상
 
 enum ReportColors {
@@ -603,10 +548,10 @@ enum ReportLayout {
     static let donutLineWidth: CGFloat = 34.2
     static let donutY: CGFloat = 269.2
     static let donutCenterX: CGFloat = 201.2     // (106 + 296.5) / 2
-    /// 도넛 첫 조각이 시작하는 각도: 12시 방향 0°에서 시계 방향 (Hi-Fi 공기 과도: 파랑 둥근 끝이 12시 선에 닿음)
+    /// 주의 소리 호가 시작하는 각도: 12시 방향 0°에서 시계 방향 (Hi-Fi 공기 과도: 첫 조각 둥근 끝이 12시 선에 닿음)
     static let donutStartDegrees: Double = 0
     static let donutTextSpacing: CGFloat = 5.3
-    static let donutLabelSize: CGFloat = 20.5    // "주의소리" · "정상소리" 글자 높이 18
+    static let donutLabelSize: CGFloat = 20.5    // "주의소리" 글자 높이 18
     static let donutLabelDY: CGFloat = -1
     static let summaryX: CGFloat = 18
     static let summaryY: CGFloat = 521.7         // 구분선 y 521.5 ~ 573
