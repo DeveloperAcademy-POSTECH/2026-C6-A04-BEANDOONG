@@ -147,31 +147,6 @@ struct SettingsView: View {
     }
 }
 
-// MARK: - 앱 아이콘
-
-/// 설정 상단의 앱 아이콘: 어두운 둥근 사각형 + 소리 막대 (유리 테두리는 근사 표현)
-private struct SettingsAppIcon: View {
-    var body: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .fill(AppColors.darkBackground)
-            AssetImageView(name: "IllustSoundBars", width: 47.3, height: 71.4)
-                .offset(x: -0.5, y: -0.9)
-            RoundedRectangle(cornerRadius: 22, style: .continuous)
-                .strokeBorder(
-                    LinearGradient(
-                        colors: [Color.white.opacity(0.55), Color.white.opacity(0.06), Color.white.opacity(0.45)],
-                        startPoint: .topLeading, endPoint: .bottomTrailing
-                    ),
-                    lineWidth: 1.5
-                )
-        }
-        .frame(width: 98.5, height: 98.5)
-        .shadow(color: Color.white.opacity(0.14), radius: 14)
-        .accessibilityHidden(true)
-    }
-}
-
 // MARK: - 목록 카드
 
 private extension View {
