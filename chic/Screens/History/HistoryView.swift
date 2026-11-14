@@ -2,17 +2,15 @@ import SwiftUI
 import UIKit
 
 /// 히스토리 화면
-/// - 디자인: Hi-Fi/iPhone 17 - 69.png (목록, 2026-11-13 시안: 타이틀 "나의 기록이 쌓이는 곳", 카드 배지 없음) · 254.png (삭제 팝업)
+/// - 디자인: Hi-Fi/iPhone 17 - 69.png (목록, 2026-11-14 시안: 기간 필터 없음) · 254.png (삭제 팝업)
 ///
 ///     ┌ 상단 네비게이션 바: 히스토리
 ///     ├ 타이틀 + 설명
-///     ├ 기간 필터 칩: [오늘] 일주일 이번 달 올해 전체
-///     └ 연습 기록 카드 목록 (터치 시 HistoryDetailView 로 이동, 왼쪽으로 밀면 삭제)
+///     └ 연습 기록 카드 목록: 모든 기록을 최신순으로 (터치 시 HistoryDetailView 로 이동, 왼쪽으로 밀면 삭제)
 struct HistoryView: View {
     @EnvironmentObject private var practice: PracticeSession
     @Environment(\.designScale) private var scale
     let onStartPractice: () -> Void
-    @State private var selectedFilter: HistoryFilter = .today
     /// 삭제 팝업을 보여 주는 중인지 (팝업이 떠 있는 동안 카드 오른쪽은 링 대신 휴지통, Hi-Fi 254)
     @State private var showsDeleteDialog: Bool
     /// 스와이프로 삭제를 누른 기록 (팝업에서 확인하면 지움)
@@ -21,7 +19,7 @@ struct HistoryView: View {
     @State private var selectedRecord: HistoryRecord?
     /// 왼쪽으로 밀어 삭제 버튼을 꺼내 둔 기록 (한 번에 하나만)
     @State private var openRecordID: UUID?
-    /// 시안 캡처용: 저장소 대신 이 결과들을 기간 필터 없이 보여 줌 (nil이면 실제 기록)
+    /// 시안 캡처용: 저장소 대신 이 결과들을 보여 줌 (nil이면 실제 기록)
     private let sampleResults: [PracticeResult]?
 
     init(onStartPractice: @escaping () -> Void, sampleResults: [PracticeResult]? = nil, showsDeleteDialog: Bool = false) {
@@ -37,29 +35,8 @@ struct HistoryView: View {
                 HistoryRecord(result: result, id: UUID(uuidString: String(format: "00000000-0000-0000-0000-%012d", index)) ?? UUID())
             }
         }
+        // 저장소 목록이 이미 시작 시각 최신순이에요 (`PracticeHistoryStore.records()`).
         return practice.history.map { HistoryRecord(entity: $0) }
-    }
-
-    private var filteredRecords: [HistoryRecord] {
-        if sampleResults != nil { return records }
-        let calendar = Calendar.current
-        let now = Date()
-
-        return records.filter { record in
-            switch selectedFilter {
-            case .today:
-                return calendar.isDate(record.date, inSameDayAs: now)
-            case .week:
-                let start = calendar.date(byAdding: .day, value: -6, to: calendar.startOfDay(for: now)) ?? now
-                return record.date >= start && record.date <= now
-            case .month:
-                return calendar.isDate(record.date, equalTo: now, toGranularity: .month)
-            case .year:
-                return calendar.isDate(record.date, equalTo: now, toGranularity: .year)
-            case .all:
-                return true
-            }
-        }
     }
 
     var body: some View {
@@ -80,8 +57,8 @@ struct HistoryView: View {
     }
 
     private var historyContent: some View {
-        // 기간 필터 결과는 한 번만 계산해 빈 목록 안내와 카드 목록이 함께 써요. (기록마다 결과를 다시 만드는 일이라 두 번 하지 않게)
-        let visibleRecords = filteredRecords
+        // 기록마다 결과를 다시 만드는 일이라 한 번만 계산해요.
+        let visibleRecords = records
         return VStack(alignment: .leading, spacing: 0) {
             // MARK: 상단 네비게이션 바
             TopNavigationHeader(title: "히스토리", isDark: true)
@@ -99,23 +76,10 @@ struct HistoryView: View {
                     .font(.pretendard(.regular, size: 16))
                     .foregroundStyle(AppColors.darkSubtitle)
                     .padding(.top, Layout.subtitleTop.v(scale))
-
-                // MARK: 기간 필터 칩 (y=246...279)
-                HistoryFilterBar(selectedFilter: $selectedFilter)
-                    .padding(.top, Layout.filterTop.v(scale))
-                    .padding(.bottom, Layout.filterBottom.v(scale) - rowInset)
+                    .padding(.bottom, Layout.listTop.v(scale) - rowInset)
 
                 // MARK: 연습 기록 카드 목록 (SwiftUI 기본 리스트: 왼쪽으로 밀면 삭제)
                 List {
-                    if visibleRecords.isEmpty {
-                        Text("선택한 기간에 연습 기록이 없어요.")
-                            .font(.pretendard(.regular, size: 15))
-                            .foregroundStyle(AppColors.darkSubtitle)
-                            .frame(maxWidth: .infinity)
-                            .padding(.top, 40)
-                            .listRowBackground(Color.clear)
-                            .listRowSeparator(.hidden)
-                    }
                     ForEach(visibleRecords) { record in
                         // 시스템 `swipeActions`는 밀린 카드를 목록 끝에서 각지게 자르고, 밀린 거리를 SwiftUI에 정확히 알려 주지 않아
                         // 둥글게 오려 그릴 수 없다. 그래서 밀기·삭제 버튼을 직접 그린다 (`SwipeToDeleteRow`).
@@ -184,52 +148,6 @@ struct HistoryView: View {
             }
         )
         .preferredColorScheme(.dark)
-    }
-}
-
-// MARK: - 기간 필터 칩
-
-private enum HistoryFilter: String, CaseIterable {
-    case today = "오늘"
-    case week = "일주일"
-    case month = "이번 달"
-    case year = "올해"
-    case all = "전체"
-}
-
-/// 가로로 균등하게 나뉜 캡슐 칩 (높이 34, 간격 9). 선택된 칩만 하늘색 + Bold
-private struct HistoryFilterBar: View {
-    @Binding var selectedFilter: HistoryFilter
-
-    var body: some View {
-        HStack(spacing: 9) {
-            ForEach(HistoryFilter.allCases, id: \.self) { filter in
-                let isSelected = (filter == selectedFilter)
-                Button {
-                    selectedFilter = filter
-                } label: {
-                    Text(filter.rawValue)
-                        .font(.pretendard(isSelected ? .bold : .medium, size: 15))
-                        .foregroundStyle(
-                            isSelected
-                                ? AppColors.darkChipTextSelected
-                                : AppColors.darkChipTextUnselected
-                        )
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 34)
-                        .background(
-                            Capsule()
-                                .fill(
-                                    isSelected
-                                        ? AppColors.darkChipSelected
-                                        : AppColors.darkChipUnselected
-                                )
-                        )
-                }
-                .buttonStyle(.plain)
-                .accessibilityAddTraits(isSelected ? .isSelected : [])
-            }
-        }
     }
 }
 
@@ -517,8 +435,7 @@ private enum Layout {
     static let headerTop: CGFloat = 84     // 화면 위 ↔ 네비게이션 바 (Hi-Fi 69: 글자 y0 86 − 2)
     static let titleTop: CGFloat = 46.3    // 네비게이션 바 아래(104) ↔ 타이틀 (Hi-Fi 69: 154, 측정 보정)
     static let subtitleTop: CGFloat = 8.7  // 타이틀 ↔ 설명
-    static let filterTop: CGFloat = 36     // 설명 ↔ 필터 칩 (Hi-Fi 69: 209 → 246)
-    static let filterBottom: CGFloat = 19.5 // 필터 칩 ↔ 첫 카드 (Hi-Fi 69: 280.5 → 300). 코드에서는 리스트 행 위 여백만큼 뺀다 (2026-11-13: 12.3이면 카드가 8pt 위에 그려져 다시 측정)
+    static let listTop: CGFloat = 35.5     // 설명 ↔ 첫 카드 (Hi-Fi 69 2026-11-14: 카드 위 245.5). 코드에서는 리스트 행 위 여백만큼 뺀다
     static let cardSpacing: CGFloat = 14   // 카드 사이 간격 (Hi-Fi 69: 100 + 14, 리스트 행 위·아래 여백 7씩)
     static let cardWidth: CGFloat = 365    // Hi-Fi 69: 카드 폭
     static let cardHeight: CGFloat = 100   // Hi-Fi 69: 카드 높이
