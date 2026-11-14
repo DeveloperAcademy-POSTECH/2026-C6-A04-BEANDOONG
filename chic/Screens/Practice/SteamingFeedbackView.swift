@@ -178,7 +178,7 @@ private struct SteamingPitcher: View {
                 .resizable()
                 .frame(width: Self.size.width, height: Self.size.height)
 
-            MilkShape(top: milkTop, amplitude: rippleAmplitude, phase: ripplePhase)
+            MilkSurface(vessel: .steamingPitcher, top: milkTop, amplitude: rippleAmplitude, phase: ripplePhase)
                 .fill(AppColors.steamingMilk)
 
             Band()
@@ -209,69 +209,23 @@ private struct SteamingPitcher: View {
     }
 }
 
-/// 비커 안쪽 벽 (우유가 닿는 면). Hi-Fi 3x 에셋에서 잰 직선: 왼쪽 x = 47.33 − 0.15y, 오른쪽 x = 204.51 + 0.1227y
+/// 비커 안쪽 (우유가 닿는 면). Hi-Fi 3x 에셋에서 잰 직선: 왼쪽 x = 47.33 − 0.15y, 오른쪽 x = 204.51 + 0.1227y
+/// 모서리 반지름 (Hi-Fi: 윗면 5pt, 바닥 12pt), 잔물결 한 주기 64pt
+private extension MilkVessel {
+    static let steamingPitcher = MilkVessel(
+        left: Wall(intercept: 47.33, slope: -0.15),
+        right: Wall(intercept: 204.51, slope: 0.1227),
+        bottom: MilkLevel.bottom,
+        topRadius: 5,
+        bottomRadius: 12,
+        wavelength: 64
+    )
+}
+
 private enum PitcherWall {
-    static func innerLeft(_ y: CGFloat) -> CGFloat { 47.33 - 0.15 * y }
-    static func innerRight(_ y: CGFloat) -> CGFloat { 204.51 + 0.1227 * y }
     /// 비커 바깥 테두리 (적정 구간 칠하기용): 왼쪽 x = 42.33 − 0.15y, 오른쪽 x = 209.81 + 0.1247y
     static func outerLeft(_ y: CGFloat) -> CGFloat { 42.33 - 0.15 * y }
     static func outerRight(_ y: CGFloat) -> CGFloat { 209.81 + 0.1247 * y }
-}
-
-/// 우유: 윗면 `top`부터 바닥까지, 비커 안쪽 벽을 따르는 모서리 둥근 사다리꼴.
-/// 공기 주입 중에는 윗면이 잔물결처럼 살짝 출렁여요 (`amplitude` = 물결 높이).
-private struct MilkShape: Shape {
-    var top: CGFloat
-    var amplitude: CGFloat = 0
-    var phase: Double = 0
-
-    /// 모서리 반지름 (Hi-Fi: 윗면 5pt, 바닥 12pt). 우유가 얕으면 높이의 절반까지 줄여요.
-    private static let topRadius: CGFloat = 5
-    private static let bottomRadius: CGFloat = 12
-    /// 잔물결 한 주기 길이 (pt)
-    private static let wavelength: Double = 64
-
-    /// 가로 위치 x에서 윗면이 위아래로 움직인 양. 길이가 다른 물결 두 개를 섞어 규칙적이지 않게 보여요.
-    private func ripple(at x: CGFloat) -> CGFloat {
-        guard amplitude > 0 else { return 0 }
-        let k = 2 * Double.pi / Self.wavelength
-        let wave = 0.7 * sin(k * Double(x) - phase) + 0.3 * sin(1.9 * k * Double(x) + 1.3 * phase)
-        return amplitude * CGFloat(wave)
-    }
-
-    func path(in rect: CGRect) -> Path {
-        let bottom = MilkLevel.bottom
-        let top = min(self.top, bottom - 1)
-        let height = bottom - top
-        let topR = min(Self.topRadius, height / 2)
-        let bottomR = min(Self.bottomRadius, height / 2)
-        let leftX = PitcherWall.innerLeft(top)
-        let rightX = PitcherWall.innerRight(top)
-        let topLeft = CGPoint(x: leftX, y: top + ripple(at: leftX))
-        let topRight = CGPoint(x: rightX, y: top + ripple(at: rightX))
-        let bottomRight = CGPoint(x: PitcherWall.innerRight(bottom), y: bottom)
-        let bottomLeft = CGPoint(x: PitcherWall.innerLeft(bottom), y: bottom)
-
-        var path = Path()
-        // 윗면: 왼쪽 모서리 끝에서 오른쪽 모서리 앞까지 물결을 따라 그려요.
-        let startX = leftX + topR
-        let endX = rightX - topR
-        path.move(to: CGPoint(x: startX, y: top + ripple(at: startX)))
-        if amplitude > 0 {
-            var x = startX + 4
-            while x < endX {
-                path.addLine(to: CGPoint(x: x, y: top + ripple(at: x)))
-                x += 4
-            }
-        }
-        path.addLine(to: CGPoint(x: endX, y: top + ripple(at: endX)))
-        path.addArc(tangent1End: topRight, tangent2End: bottomRight, radius: topR)
-        path.addArc(tangent1End: bottomRight, tangent2End: bottomLeft, radius: bottomR)
-        path.addArc(tangent1End: bottomLeft, tangent2End: topLeft, radius: bottomR)
-        path.addArc(tangent1End: topLeft, tangent2End: CGPoint(x: startX, y: top + ripple(at: startX)), radius: topR)
-        path.closeSubpath()
-        return path
-    }
 }
 
 /// 적정 구간: 두 점선 가운데 사이를 비커 폭만큼 칠해요. (점선이 위에 덮여 경계가 가려져요)

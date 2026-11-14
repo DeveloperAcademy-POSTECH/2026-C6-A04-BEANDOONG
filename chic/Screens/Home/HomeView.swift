@@ -180,7 +180,8 @@ struct HomeView: View {
             )
             .overlay(alignment: .topLeading) {
                 // 이미지는 카드보다 크게 그려 왼쪽(손목)과 위쪽(스팀 노즐)이 카드 밖으로 잘립니다. (Hi-Fi 그대로)
-                Image("HomeWatchPractice")
+                // 큰 사진이라 앱이 켜질 때 백그라운드에서 미리 디코딩해 둔 것을 써요 (처음 그려질 때 멈칫하지 않게).
+                Image.prepared("HomeWatchPractice")
                     .resizable()
                     // 카드 높이는 세로 비율로 줄므로 이미지도 가로·세로 중 작은 비율(fit)로 줄여야 SE처럼 짧은 화면에서 아래 문구를 덮지 않는다
                     .frame(width: HeroImage.size.width * scale.fit, height: HeroImage.size.height * scale.fit)

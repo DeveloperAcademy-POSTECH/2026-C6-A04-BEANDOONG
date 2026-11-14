@@ -4,7 +4,7 @@ import SwiftUI
 /// - 디자인: Hi-Fi/iPhone 17 - 302.png (2026-11-13 추가)
 ///
 ///     ┌ (상단 바 · 페이지 인디케이터 · 하단 버튼은 OnboardingView 가 그려요)
-///     ├ 비커 일러스트 (`IllustMilkLevelPitcher`, 185.7x151.3: 손잡이 비커 + 우유 + 점선 2줄 + 위 화살표)
+///     ├ 비커 일러스트 (`MilkLevelIllustration`, 185.7x151.3: 우유가 위 점선까지 차올랐다 내려가며 반복, 화살표도 따라 움직임)
 ///     └ 타이틀 + 설명
 ///
 /// `motion`: 쪽을 넘길 때 부분마다 옆으로 밀리고 투명해지는 정도. 평소에는 제자리(`.resting`)예요.
@@ -15,7 +15,7 @@ struct MilkLevelIntroPage: View {
     var body: some View {
         VStack(spacing: 0) {
             // MARK: 일러스트
-            AssetImageView(name: "IllustMilkLevelPitcher", width: Metrics.illustrationSize.width, height: Metrics.illustrationSize.height)
+            MilkLevelIllustration()
                 .designScaled(width: Metrics.illustrationSize.width, height: Metrics.illustrationSize.height, scale)
                 .onboardingPart(motion.illustration)
                 .padding(.top, Metrics.illustrationTop.v(scale))
