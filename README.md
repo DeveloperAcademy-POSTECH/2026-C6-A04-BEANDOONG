@@ -1,4 +1,6 @@
-<p align="center"><img src="website/assets/steaming-cover.jpg" alt="우유가 스팀 피처 안에서 회전하는 chic 콘셉트 이미지" width="100%" /></p>
+<p align="center"><img src="docs/assets/chic-poster-banner.jpg" alt="공식 포스터의 파란색 바탕 위 흰색 chic 로고" width="100%" /></p>
+
+<p align="center"><img src="docs/assets/chic-app-icon.png" alt="chic 앱 아이콘" width="96" /></p>
 
 <h1 align="center">chic</h1>
 
