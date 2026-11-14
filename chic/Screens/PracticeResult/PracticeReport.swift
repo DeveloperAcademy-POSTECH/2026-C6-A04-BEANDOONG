@@ -598,7 +598,7 @@ enum ReportLayout {
     static let heroHeight: CGFloat = 609.5       // 컨테이너 아래 끝
     static let heroCornerRadius: CGFloat = 26
     static let headlineY: CGFloat = 154.3        // 타이틀 첫 줄 글자 y0 158.5 (측정 보정)
-    static let headlineLineSpacing: CGFloat = 3.7 // 줄 높이 35
+    static let headlineLineSpacing: CGFloat = 4 // 피그마 상단 문구의 두 줄 사이 간격
     static let donutDiameter: CGFloat = 189.2    // 바깥 반지름 94.6
     static let donutLineWidth: CGFloat = 34.2
     static let donutY: CGFloat = 269.2
