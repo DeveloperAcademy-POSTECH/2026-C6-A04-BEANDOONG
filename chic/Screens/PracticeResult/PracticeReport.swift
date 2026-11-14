@@ -378,8 +378,11 @@ private struct ReportOverviewChart: View {
     @Environment(\.designScale) private var scale
     let result: PracticeResult
 
+    /// 줄 순서: 시안 304 · 307처럼 스크레칭이 버블링보다 위 (2026-11-14).
+    /// 이름과 소리의 짝은 앱 전체와 같아요: 스크레칭 = 공기 부족(보라), 버블링 = 공기 과다(주황).
+    /// 시안은 2번째 줄 막대가 주황이지만, 이름을 기준으로 맞춰서 앱에서는 보라 → 주황 순이에요.
     private static let rows: [(String, DetectedSound)] = [
-        ("공기 주입", .normalAeration), ("버블링", .overAeration), ("스크레칭", .lackOfAir), ("롤링 소리", .rolling)
+        ("공기 주입", .normalAeration), ("스크레칭", .lackOfAir), ("버블링", .overAeration), ("롤링 소리", .rolling)
     ]
 
     var body: some View {
