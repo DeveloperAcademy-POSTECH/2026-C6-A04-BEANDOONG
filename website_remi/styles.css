@@ -320,15 +320,17 @@ h3 {
 .team-banner {
   position: relative;
   min-height: 520px;
-  height: 64svh;
-  max-height: 760px;
+  height: max(64svh, 56.25vw);
   display: grid;
   place-items: center;
   padding: 24px;
   overflow: hidden;
 }
 .team-banner h2 {
-  position: relative;
+  position: absolute;
+  inset: 80% 24px auto;
+  transform: translateY(-50%);
+  margin: 0;
   z-index: 1;
   text-align: center;
   font-size: clamp(36px, 4vw, 64px);
@@ -337,24 +339,17 @@ h3 {
   font-weight: 600;
   color: #293b42;
 }
-/* 실습 사진을 연하게 깔고 검은 상하 여백은 표시 영역 밖으로 숨깁니다. */
+/* 배너를 빈틈없이 채우고 위아래 여백을 고르게 덜어냅니다. */
 .team-photo {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  width: max(100%, calc(clamp(520px, 64svh, 760px) * 1206 / 679));
-  aspect-ratio: 1206 / 679;
-  overflow: hidden;
-  transform: translate(-50%, -50%);
+  inset: 0;
   opacity: 0.45;
 }
-.practice-crop img {
-  position: absolute;
+.team-photo img {
   width: 100%;
-  max-width: none;
-  height: auto;
-  top: -143.15%;
-  left: 0;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
 }
 .team-banner:after {
   content: "";
@@ -402,45 +397,49 @@ h3 {
   margin-bottom: 30px;
 }
 
-/* 팀원 가로 목록과 사진 자리 */
+/* 팀원과 멘토 사진을 한 줄에 세 명씩 표시합니다. */
 .member-grid {
   display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: calc((100% - 120px) / 6);
-  gap: 24px;
-  overflow-x: auto;
-  padding-bottom: 16px;
-  scroll-snap-type: x proximity;
-  scrollbar-width: thin;
-  scrollbar-color: #c9c4ba transparent;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 40px 24px;
 }
 .member {
-  scroll-snap-align: start;
+  min-width: 0;
 }
-.portrait-placeholder {
-  position: relative;
-  aspect-ratio: 3/4;
-  background: #edeae3;
-  border-radius: 3px;
-}
-.portrait-placeholder span {
-  position: absolute;
-  left: 12px;
-  top: 12px;
-  font-size: 11px;
-  color: #8d887f;
+.portrait {
+  width: 100%;
+  height: auto;
+  /* 원본 3:4 사진의 상단 20%를 공통으로 덜어내고 표시 높이도 줄입니다. */
+  aspect-ratio: 15/16;
+  object-fit: cover;
+  object-position: center bottom;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 12px;
 }
 .member h4 {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 8px;
   font-size: 18px;
   margin: 18px 0 0;
   font-weight: 500;
 }
 
-/* 멘토와 도움을 주신 분들 */
-.mentor-placeholder p {
-  font-size: 16px;
-  color: #817d75;
+.member-role {
+  font-size: 12px;
+  color: var(--muted);
 }
+.member-bio {
+  min-height: 3.2em;
+  margin: 10px 0 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--muted);
+}
+
+/* 도움을 주신 분들 */
 .supporter-grid {
   display: flex;
   gap: 80px;
@@ -1183,9 +1182,6 @@ footer .wordmark {
   .results-preview {
     gap: 60px;
   }
-  .member-grid {
-    grid-auto-columns: 160px;
-  }
 }
 
 /* 반응형: 모바일 */
@@ -1386,8 +1382,8 @@ footer .wordmark {
     font-size: 22px;
   }
   .member-grid {
-    grid-auto-columns: 145px;
-    gap: 20px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 32px 20px;
   }
   .member h4 {
     font-size: 17px;
@@ -1401,6 +1397,12 @@ footer .wordmark {
   footer {
     padding: 36px 24px;
     gap: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .member-grid {
+    grid-template-columns: 1fr;
   }
 }
 

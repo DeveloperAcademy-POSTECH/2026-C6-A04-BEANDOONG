@@ -24,13 +24,17 @@ npx --yes vite@6.4.1 website_remi --host 127.0.0.1 --port 8765 --strictPort
 
 ## 이미지와 시안 출처
 
+- 팀원 6명과 멘토 3명의 사진: 제공받은 `프로필 사진들` 폴더의 원본을 `assets/portraits/`에 복사했습니다. `index.html`의 각 `member-role`에 직책, `member-bio`에 소개를 입력하면 됩니다.
+- 프로필 9장의 배경은 흰색으로 통일한 `assets/portraits/*.white.jpeg`를 사용합니다. 원본에서 가장자리와 연결된 배경색 영역만 흰색으로 치환하고 웹용 JPEG로 저장했습니다. 원본 파일은 보관하며, 인물 재생성이나 회색 배경 보정본은 사용하지 않습니다. 팀원·멘토 영역은 등장 효과 없이 바로 표시합니다.
+- 팀원·멘토 사진은 공통 `.portrait` 스타일에서 상단 20%를 잘라 표시합니다. 너비와 인물 크기는 유지하고 표시 높이만 20% 줄였으며, 이미지 파일 자체는 자르지 않습니다.
+
 - 첫 배너: `brand-original.png`을 보존하고 내장 이미지 편집 도구로 만든 `brand-right-extended.png`을 사용합니다. 편집 지시: 인물·머신·기기를 함께 오른쪽으로 옮기고, 왼쪽 벽과 조리대를 연장하며 원래 구도와 색상을 최대한 유지. 생성형 편집이므로 세부 묘사는 원본과 다를 수 있습니다.
 
 - 워치 그래픽: Figma `4074:17682`의 배경 없는 SVG. 원본 워치와 화면은 유지하고 배경색·배경 광원·옆 화면만 제외했습니다.
 - 분석 화면: Figma `3893:44807`, `3893:44960`, `3893:45078`을 HTML·CSS로 구현하고 원본 SVG 그래프를 사용합니다. 분석 수치는 Figma의 예시값입니다.
 - 스티밍 소개 사진: 제공받은 `codex-clipboard-51ef6887-3846-4753-ae25-563e35a6afc0.jpg`.
 - 라떼 사진: [Trent Erwin / Unsplash — 우유 붓기](https://unsplash.com/photos/person-pouring-milk-in-coffe--Rwjvuz6pXA), [Jeremy Yap / Unsplash — 카페의 라떼](https://unsplash.com/photos/selective-focus-photography-of-latte-in-teacup-jn-HaGWe4yw). 각 사진 페이지의 촬영자·촬영 장비 정보를 확인했습니다.
-- 팀 소개 배경: 기존 스티밍 설명에 있던 실습 사진 `IMG_1378 2.PNG`. 검은 상하 여백은 CSS로 숨기며 원본 파일을 보존합니다.
+- 팀 소개 배경: 제공받은 `배경화면 2.png` 단체 사진을 `assets/team-background.png`에 복사했습니다. 배너의 좌우를 꽉 채우며 화면 비율에 따라 사진 일부가 잘립니다.
 - 분석 화면의 긴 내용은 화면 안에서 세로로 스크롤할 수 있습니다. 화면 전환은 아래 점, 좌우 스와이프 또는 점에 포커스한 상태의 방향키·Home·End를 사용합니다.
 
 ## 상호작용 확인
