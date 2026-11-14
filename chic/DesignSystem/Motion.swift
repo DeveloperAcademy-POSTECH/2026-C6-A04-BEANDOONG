@@ -48,6 +48,13 @@ enum MotionCurve {
         startControlPoint: UnitPoint(x: 0.65, y: 0),
         endControlPoint: UnitPoint(x: 0.35, y: 1)
     )
+
+    /// 부드럽게 출발해 길게 멈춤 (cubic-bezier(.45, 0, .25, 1))
+    /// - 온보딩 5/5 그래프가 왼쪽부터 그려질 때
+    static let easeInOutReveal = UnitCurve.bezier(
+        startControlPoint: UnitPoint(x: 0.45, y: 0),
+        endControlPoint: UnitPoint(x: 0.25, y: 1)
+    )
 }
 
 // MARK: - 첫 프레임 기다리기
@@ -109,6 +116,23 @@ extension EnvironmentValues {
     var loopAnimationsPaused: Bool {
         get { self[LoopAnimationsPausedKey.self] }
         set { self[LoopAnimationsPausedKey.self] = newValue }
+    }
+}
+
+// MARK: - 반복 애니메이션이 멈춰 있는 순간
+
+/// 반복 애니메이션이 화면이 멈춰 있는 구간(예: 온보딩 5/5 그래프가 사라진 뒤 빈 채 쉬는 0.4초)에 들어설 때 부르는 동작
+///
+/// 무거운 일(다음 화면 미리 만들기 등)을 이때 하면 그 프레임이 조금 늦어도 화면이 멈춰 있어서 보이지 않아요.
+/// 기본값은 nil 이에요 (부를 동작 없음).
+private struct LoopRestActionKey: EnvironmentKey {
+    static let defaultValue: (@MainActor @Sendable () -> Void)? = nil
+}
+
+extension EnvironmentValues {
+    var loopRestAction: (@MainActor @Sendable () -> Void)? {
+        get { self[LoopRestActionKey.self] }
+        set { self[LoopRestActionKey.self] = newValue }
     }
 }
 
@@ -192,6 +216,9 @@ struct RadioRevealTiming {
     static let phoneWatch = RadioRevealTiming(period: 1.8, step: 0.25, fade: 0.15, offAt: 1.25, offLen: 0.2)
     /// 스팀 머신 + 폰 (ONB-02): 전파 3개 뒤 네 번째 박자(0.75초)에 폰 위 신호 선 3개가 함께 켜져요. 유지·쉬는 시간은 같아요.
     static let machinePhone = RadioRevealTiming(period: 2.05, step: 0.25, fade: 0.15, offAt: 1.5, offLen: 0.2)
+
+    /// 꺼진 요소의 투명도. 0이면 SwiftUI가 그리기를 건너뛰어 다시 켜질 때 준비가 몰려요. 0.001은 화면 픽셀 값이 바뀌지 않아요.
+    static let hiddenOpacity: Double = 0.001
 
     /// 동작 줄이기에서 멈춰 둘 지점: 모두 켜진 채 꺼지기 직전 (= Hi-Fi 정지 화면)
     var restProgress: Double { offAt / period - 0.001 }

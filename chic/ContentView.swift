@@ -20,8 +20,9 @@ struct ContentView: View {
     @State private var arrivesFromOnboarding = !UserDefaults.standard.bool(forKey: "hasCompletedOnboarding")
     /// 온보딩 화면이 올라와 있는지. 걷히는 애니메이션이 끝난 뒤에 내려요.
     @State private var mountsOnboarding = !UserDefaults.standard.bool(forKey: "hasCompletedOnboarding")
-    /// 온보딩 마지막 쪽에 멈춰 있어서 홈을 미리 만들어 두는지. 앱을 켤 때(스플래시 중) 일을 늘리지 않으려고
-    /// 마지막 쪽에 도착해 넘김이 끝난 뒤에 만들어요.
+    /// 온보딩 마지막 쪽에 와서 홈을 미리 만들어 두는지. 앱을 켤 때(스플래시 중) 일을 늘리지 않으려고 마지막 쪽에서 만들어요.
+    /// 홈을 처음 만드는 프레임은 늦게 그려져서, 그래프 애니메이션 도중이면 멈칫해 보여요. 그래서 그래프가 사라지고
+    /// 빈 채 쉬는 0.4초(`loopRestAction`)에 만들어요. 동작 줄이기에서는 움직임이 없어 넘김이 끝나자마자 만들어요.
     @State private var preparesHome = false
 
     var body: some View {
@@ -54,6 +55,9 @@ struct ContentView: View {
                     .accessibilityHidden(showsHome)
             }
         }
+        // 홈 연습 카드의 큰 사진을 앱이 켜질 때(스플래시 동안) 백그라운드에서 디코딩해 둬요.
+        // 온보딩 마지막 쪽에서 홈을 미리 만들 때 그 사진을 처음 그리느라 그래프 애니메이션이 멈칫하던 것을 막아요.
+        .task { PreparedImage.prepare(["HomeWatchPractice"]) }
     }
 
     /// 보이기 전 홈의 투명도. 0이면 그리지 않아서 넘어가는 순간 처음 그리느라 버벅여요.
@@ -63,7 +67,8 @@ struct ContentView: View {
     /// 온보딩 1/5 → … → 5/5. 쪽이 바뀔 때의 넘김 애니메이션은 OnboardingView 가 해요.
     private var onboarding: some View {
         OnboardingView(page: step, onNext: showNextStep, onSkip: skipToPractice, onSwipe: swipeStep,
-                       onPageSettled: { page in if page == .review { preparesHome = true } })
+                       onPageSettled: { page in if page == .review && reduceMotion { preparesHome = true } })
+            .environment(\.loopRestAction, { preparesHome = true })
     }
 
     /// 좌우 스와이프: 첫·마지막 쪽 밖으로는 가지 않는다 (마지막 쪽에서 나가는 것은 "다음" 버튼으로만)

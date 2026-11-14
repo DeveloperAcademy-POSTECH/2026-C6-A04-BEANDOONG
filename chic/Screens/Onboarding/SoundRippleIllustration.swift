@@ -19,7 +19,8 @@ import SwiftUI
 struct SoundRippleIllustration: View {
     var body: some View {
         LoopTimeline(period: Spec.period) { progress in
-            IllustrationCanvas(pixelSize: Spec.frameSize, frameSize: Spec.frameSize, overflow: Spec.overflow) { context in
+            IllustrationCanvas(pixelSize: Spec.frameSize, frameSize: Spec.frameSize, overflow: Spec.overflow,
+                               rendersAsynchronously: true) { context in
                 let paint = Spec.gradientShading
                 drawRings(in: &context, progress: progress, paint: paint)
                 drawWave(in: &context, paint: paint)
@@ -54,14 +55,7 @@ struct SoundRippleIllustration: View {
     // MARK: 파동 선 (고정)
 
     private func drawWave(in context: inout GraphicsContext, paint: GraphicsContext.Shading) {
-        var wave = Path()
-        for side in [Spec.waveLeft, Spec.waveRight] {
-            for (index, offset) in side.enumerated() {
-                let point = CGPoint(x: Spec.center.x + offset.x, y: Spec.center.y + offset.y)
-                if index == 0 { wave.move(to: point) } else { wave.addLine(to: point) }
-            }
-        }
-        context.stroke(wave, with: paint, style: StrokeStyle(lineWidth: Spec.waveLineWidth, lineCap: .round, lineJoin: .round))
+        context.stroke(Spec.wavePath, with: paint, style: StrokeStyle(lineWidth: Spec.waveLineWidth, lineCap: .round, lineJoin: .round))
     }
 
     // MARK: 코어 구
@@ -114,13 +108,24 @@ private enum Spec {
     /// 일러스트 위 · 아래 색 (시안에 깔린 세로 그라데이션: 화면 y 224 → 374.5)
     static let topColor = Color(hex: 0xF6FAFF)
     static let bottomColor = Color(hex: 0xC6E8FA)
-    static var gradientShading: GraphicsContext.Shading {
+    static let gradientShading: GraphicsContext.Shading =
         .linearGradient(
             Gradient(colors: [topColor, bottomColor]),
             startPoint: CGPoint(x: 0, y: 224 - 223),
             endPoint: CGPoint(x: 0, y: 374.5 - 223)
         )
-    }
+
+    /// 파동 선 경로 (고정이라 한 번만 만들어 둬요)
+    static let wavePath: Path = {
+        var wave = Path()
+        for side in [waveLeft, waveRight] {
+            for (index, offset) in side.enumerated() {
+                let point = CGPoint(x: center.x + offset.x, y: center.y + offset.y)
+                if index == 0 { wave.move(to: point) } else { wave.addLine(to: point) }
+            }
+        }
+        return wave
+    }()
 
     /// 파동 선: 중심에서 본 위치(pt). 시안의 선을 1pt 간격으로 따라 그린 점이에요 (왼쪽 · 오른쪽 선이 따로예요).
     static let waveLeft: [CGPoint] = points([

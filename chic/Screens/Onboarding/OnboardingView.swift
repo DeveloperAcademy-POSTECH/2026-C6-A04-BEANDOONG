@@ -43,8 +43,10 @@ struct OnboardingView: View {
             // MARK: 쪽 내용 (넘김 애니메이션은 PageTurnStack 이 해요. 연습 준비 가이드와 같은 것)
             PageTurnStack(
                 page: page, indicatorIndex: $indicatorIndex, indexOf: \.rawValue,
-                // 앞뒤 쪽을 미리 만들어 두어, 넘기기 시작할 때 버벅이지 않게 해요.
-                preloadedPages: { [$0.rawValue - 1, $0.rawValue + 1].compactMap(OnboardingPage.init(rawValue:)) },
+                // 다섯 쪽을 처음부터 모두 만들어 둬요 (스플래시가 덮고 있는 동안). 앞뒤 쪽만 두면 넘김이 끝날 때마다
+                // 새 이웃 쪽을 만드는 일(이미지 디코딩 · 캔버스 준비)이 막 시작된 새 쪽의 애니메이션과 겹쳐 버벅였어요.
+                // 미리 만든 쪽은 투명하고 반복 애니메이션도 멈춰 있어서 매 프레임 드는 일이 거의 없어요.
+                preloadedPages: { _ in OnboardingPage.allCases },
                 onSettled: onPageSettled
             ) { visiblePage, motion in
                 pageContent(visiblePage, motion: motion)

@@ -30,7 +30,9 @@ struct MachinePhoneIllustration: View {
                 ZStack {
                     ForEach(Spec.revealImages.indices, id: \.self) { index in
                         image(Spec.revealImages[index])
-                            .opacity(timing.opacity(index: index, time: time))
+                            // 꺼진 동안도 0 대신 0.001로 둬요. 0이면 그리기를 건너뛰어, 스플래시 · 이웃 쪽으로 미리 만들 때
+                            // 이미지가 준비되지 않고 처음 켜지는 순간(애니메이션 시작)에 디코딩이 몰려 버벅여요. 0.001은 눈에 보이지 않아요.
+                            .opacity(max(timing.opacity(index: index, time: time), RadioRevealTiming.hiddenOpacity))
                     }
                 }
             }

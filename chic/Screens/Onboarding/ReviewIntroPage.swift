@@ -4,7 +4,7 @@ import SwiftUI
 /// - 디자인: Hi-Fi/iPhone 17 - 237.png
 ///
 ///     ┌ (상단 바 · 페이지 인디케이터 · 다음 버튼은 OnboardingView 가 그려요)
-///     ├ 그래프 일러스트 (`IllustReviewGraph`, 303x212)
+///     ├ 그래프 일러스트 (`ReviewGraphIllustration`, 303x212: 왼쪽부터 그려지고 점이 톡 튀며 반복)
 ///     └ 타이틀 + 설명
 ///
 /// `motion`: 쪽을 넘길 때 부분마다 옆으로 밀리고 투명해지는 정도. 평소에는 제자리(`.resting`)예요.
@@ -15,7 +15,7 @@ struct ReviewIntroPage: View {
     var body: some View {
         VStack(spacing: 0) {
             // MARK: 일러스트
-            AssetImageView(name: "IllustReviewGraph", width: 303, height: 212)
+            ReviewGraphIllustration()
                 .designScaled(width: 303, height: 212, scale)
                 .onboardingPart(motion.illustration)
                 .padding(.top, Metrics.illustrationTop.v(scale))
