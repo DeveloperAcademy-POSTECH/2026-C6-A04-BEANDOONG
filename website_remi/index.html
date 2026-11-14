@@ -1,0 +1,632 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f5faff" />
+    <meta
+      name="description"
+      content="소리를 보고, 진동으로 느끼는 스티밍 연습. chic은 청각장애인 초보 바리스타를 위한 iPhone·Apple Watch 앱입니다."
+    />
+    <meta property="og:title" content="chic — 소리를 넘어, 나만의 한 잔으로" />
+    <meta
+      property="og:description"
+      content="청각장애인 초보 바리스타를 위한 스티밍 파트너. 팀 빈둥빈둥의 디자인 이야기."
+    />
+    <meta property="og:type" content="website" />
+    <title>chic — 소리를 넘어, 나만의 한 잔으로</title>
+    <link rel="icon" href="./favicon.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./styles.css" />
+    <script src="./script.js" defer></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">본문으로 건너뛰기</a>
+    <header class="header">
+      <a class="wordmark" href="#top" aria-label="chic 처음으로"
+        ><img src="./assets/chic-blue.svg" alt="chic"
+      /></a>
+      <nav aria-label="주요 메뉴">
+        <a href="#story">이야기</a><a href="#app-preview">앱 미리보기</a><a href="#team">팀 소개</a>
+      </nav>
+    </header>
+    <main id="main">
+      <section class="brand-hero" id="top" aria-labelledby="brand-title">
+        <div class="hero-art">
+          <div class="hero-photo">
+            <img
+              src="./assets/brand-right-extended.png"
+              alt="chic 앱과 Apple Watch를 사용하며 우유를 스티밍하는 바리스타"
+              fetchpriority="high"
+            />
+            <div class="hero-fade" aria-hidden="true"></div>
+          </div>
+          <h1 id="brand-title">
+            스티밍 상태를 <br />
+            <strong>눈으로 확인해요</strong>.
+          </h1>
+        </div>
+      </section>
+      <!-- 이야기: 스티밍의 의미와 한 잔에 필요한 이유 -->
+      <section class="chapter section" id="story" aria-labelledby="steaming-title">
+        <div class="steaming-intro" data-reveal>
+          <div>
+            <h2 id="steaming-title">
+              우유에 공기를 넣어<br />부드러운 거품을 만드는 과정,<br /><span>스티밍</span>
+            </h2>
+            <p class="body-copy">
+              뜨거운 스팀으로 우유를 데우며 공기를 넣고,<br />우유를 회전시켜 거품을 고르게 섞어요.
+            </p>
+          </div>
+          <figure class="steaming-photo">
+            <img
+              src="./assets/steaming-closeup.jpg"
+              width="1536"
+              height="1024"
+              alt="스팀 노즐로 우유에 공기를 넣어 부드러운 거품을 만드는 모습"
+              loading="lazy"
+            />
+          </figure>
+        </div>
+        <div class="latte-story" data-reveal>
+          <div class="split">
+            <h2>한 잔의 부드러움은<br />우유에서 시작돼요.</h2>
+            <p class="body-copy">
+              작고 고른 거품은 라떼의 부드러운 질감을 만들어요.<br />곱게 스티밍한 우유는
+              에스프레소와 어우러지고,<br />라떼 아트를 그리는 바탕이 되기도 해요.
+            </p>
+          </div>
+          <div class="latte-photos">
+            <img
+              src="./assets/latte-pouring.jpg"
+              alt="바리스타가 실제 커피잔에 스티밍한 우유를 붓는 장면"
+              width="1400"
+              height="984"
+              loading="lazy"
+            /><img
+              src="./assets/latte-cafe.jpg"
+              alt="카페 테이블 위에 놓인 라떼 한 잔"
+              width="1400"
+              height="2100"
+              loading="lazy"
+            />
+          </div>
+        </div>
+        <div class="access-story" data-reveal>
+          <div class="split">
+            <h2 id="problem-title">스티밍은 소리를 단서로 배우는 과정.<br />하지만 소리가 들리지 않는다면?</h2>
+          </div>
+          <p class="problem-hint" id="problem-hint">사진에 마우스를 올리거나 눌러 이야기를 펼쳐보세요.</p>
+          <div class="problem-list" aria-labelledby="problem-title">
+            <article class="problem-card">
+              <img class="problem-photo" src="./assets/story-air.jpg" alt="피처의 우유 표면과 스팀 노즐을 가까이에서 보는 모습" width="1000" height="1500" loading="lazy" />
+              <button class="problem-toggle" type="button" aria-expanded="false" aria-controls="problem-story-1" aria-labelledby="problem-question-1" aria-describedby="problem-hint"></button>
+              <h3 id="problem-question-1">공기가 잘 들어가는 걸까?</h3>
+              <div class="problem-panel" id="problem-story-1" aria-hidden="true">
+                <p class="problem-panel-title" aria-hidden="true">공기가 잘 들어가는 걸까?</p>
+                <div class="problem-story">
+                  <p>많은 바리스타분들이 소리를 통해 공기 주입 여부를 판단해요.</p>
+                  <p>그러나 소리가 들리지 않는다면? 다른 소리를 통해 해당 감각을 익혀야 해서 시간이 오래 걸려요.</p>
+                </div>
+              </div>
+            </article>
+            <article class="problem-card">
+              <img class="problem-photo" src="./assets/story-movement.jpg" alt="두 손으로 스팀 노즐 아래 피처의 위치를 조절하는 모습" width="1000" height="1400" loading="lazy" />
+              <button class="problem-toggle" type="button" aria-expanded="false" aria-controls="problem-story-2" aria-labelledby="problem-question-2" aria-describedby="problem-hint"></button>
+              <h3 id="problem-question-2">피처를 어떻게 움직이면 될까?</h3>
+              <div class="problem-panel" id="problem-story-2" aria-hidden="true">
+                <p class="problem-panel-title" aria-hidden="true">피처를 어떻게 움직이면 될까?</p>
+                <div class="problem-story">
+                  <p>우유의 상태가 달라지면 피처의 위치도 조절해야 해요.</p>
+                  <p>지금 피처를 올려야 할지, 내려야 할지. 소리의 변화를 듣기 어렵다면 다음 움직임을 정하는 순간에도 망설이게 돼요.</p>
+                </div>
+              </div>
+            </article>
+            <article class="problem-card">
+              <img class="problem-photo" src="./assets/story-result.jpg" alt="피처에서 흰 컵으로 흐르는 우유와 라떼 표면의 질감" width="900" height="600" loading="lazy" />
+              <button class="problem-toggle" type="button" aria-expanded="false" aria-controls="problem-story-3" aria-labelledby="problem-question-3" aria-describedby="problem-hint"></button>
+              <h3 id="problem-question-3">이번 스티밍은 잘 된 걸까?</h3>
+              <div class="problem-panel" id="problem-story-3" aria-hidden="true">
+                <p class="problem-panel-title" aria-hidden="true">이번 스티밍은 잘 된 걸까?</p>
+                <div class="problem-story">
+                  <p>스티밍을 마친 뒤, 우유의 표면을 살펴봐요. 이번에는 공기가 충분히 들어갔을까요?</p>
+                  <p>과정을 돌아볼 단서가 없다면 무엇이 잘됐고, 다음에는 무엇을 바꿔야 할지 알기 어려워요.</p>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+      <section data-reveal class="definition section" aria-labelledby="definition-title">
+        <p class="definition-intro">우리가 풀고 싶은 것은</p>
+        <h2 id="definition-title">
+          들리지 않는 소리가 아니라,<br /><span>스스로 판단할 수 없는 순간.</span>
+        </h2>
+        <p class="definition-copy">
+          소리에 담긴 공기 주입 정보를 다른 감각으로 전달해,<br />현재 상태를 이해하고 다음 행동을
+          선택하도록 돕습니다.
+        </p>
+      </section>
+      <section class="preview-section" id="app-preview" aria-labelledby="preview-title">
+        <div class="preview-inner" data-reveal>
+          <div class="preview-copy">
+            <h2 id="preview-title">지금의 상태를 보고,<br />다음 움직임을 알아요.</h2>
+            <p>
+              chic은 소리를 색상과 진동으로 바꾸는 스티밍 연습 앱이에요.<br />공기 주입부터
+              롤링까지, 지금의 상태를 확인해요.
+            </p>
+          </div>
+          <div
+            data-carousel
+            class="state-carousel"
+            role="region"
+            aria-roledescription="캐러셀"
+            aria-label="스티밍 피드백 미리보기"
+          >
+            <div class="state-viewport" data-carousel-viewport>
+              <div class="state-track" data-carousel-track id="state-track">
+                <div
+                  class="state-slide"
+                  data-carousel-slide
+                  role="group"
+                  aria-roledescription="슬라이드"
+                  data-caption="지금 상태를 유지해 주세요"
+                  aria-label="1/4 공기 주입"
+                  aria-hidden="false"
+                >
+                  <div class="device">
+                    <div class="design-screen air" data-figma-node="4310:11593">
+                      <div class="phone-status" aria-hidden="true">
+                        <span>9:41</span>
+                        <div class="status-levels">
+                          <div class="signal"><i></i><i></i><i></i><i></i></div>
+                          <img src="./assets/status-wifi.svg" alt="" /><img
+                            src="./assets/status-battery.svg"
+                            alt=""
+                          />
+                        </div>
+                      </div>
+                      <p class="screen-label">스티밍 시작</p>
+                      <img class="feedback-signal" src="./assets/feedback-air-img2.svg" alt="" />
+                      <div class="screen-message">
+                        <h3><span>공기가 고르게</span><span>들어가고 있어요</span></h3>
+                      </div>
+                      <img class="feedback-pitcher" src="./assets/feedback-air-img.svg" alt="" />
+                      <img class="feedback-nozzle" src="./assets/feedback-air-img1.svg" alt="" />
+                      <div class="screen-stop" aria-hidden="true">
+                        <img src="./assets/feedback-air-imgVector.svg" alt="" /><span>종료하기</span>
+                      </div>
+                      <div class="home-indicator" aria-hidden="true"></div>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="state-slide"
+                  data-carousel-slide
+                  role="group"
+                  aria-roledescription="슬라이드"
+                  data-caption="피처를 살짝 올려 노즐을 더 담가 주세요"
+                  aria-label="2/4 버블링"
+                  aria-hidden="true"
+                  inert
+                >
+                  <div class="device">
+                    <div class="design-screen bubble" data-figma-node="4310:11508">
+                      <div class="phone-status" aria-hidden="true">
+                        <span>9:41</span><i class="dynamic-island"></i>
+                        <div class="status-levels">
+                          <div class="signal"><i></i><i></i><i></i><i></i></div>
+                          <img src="./assets/status-wifi.svg" alt="" /><img
+                            src="./assets/status-battery.svg"
+                            alt=""
+                          />
+                        </div>
+                      </div>
+                      <p class="screen-label">스티밍 시작</p>
+                      <img class="feedback-signal" src="./assets/feedback-bubble-img1.svg" alt="" />
+                      <div class="screen-message">
+                        <h3><span>피처를 살짝 올려</span><span>노즐을 더 담가 주세요</span></h3>
+                        <p>버블링 소리가 나고 있어요</p>
+                      </div>
+                      <img class="feedback-pitcher" src="./assets/feedback-bubble-img.svg" alt="" />
+                      <div class="screen-stop" aria-hidden="true">
+                        <img src="./assets/feedback-bubble-imgVector.svg" alt="" /><span>종료하기</span>
+                      </div>
+                      <div class="home-indicator" aria-hidden="true"></div>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="state-slide"
+                  data-carousel-slide
+                  role="group"
+                  aria-roledescription="슬라이드"
+                  data-caption="피처를 살짝 내려 주세요"
+                  aria-label="3/4 스크레칭"
+                  aria-hidden="true"
+                  inert
+                >
+                  <div class="device">
+                    <div class="design-screen low" data-figma-node="4310:11265">
+                      <div class="phone-status" aria-hidden="true">
+                        <span>9:41</span><i class="dynamic-island"></i>
+                        <div class="status-levels">
+                          <div class="signal"><i></i><i></i><i></i><i></i></div>
+                          <img src="./assets/status-wifi.svg" alt="" /><img
+                            src="./assets/status-battery.svg"
+                            alt=""
+                          />
+                        </div>
+                      </div>
+                      <p class="screen-label">스티밍 시작</p>
+                      <img class="feedback-signal" src="./assets/feedback-low-img1.svg" alt="" />
+                      <div class="screen-message">
+                        <h3><span>피처를 살짝</span><span>내려 주세요</span></h3>
+                        <p>스크레칭 소리가 나고 있어요</p>
+                      </div>
+                      <img class="feedback-pitcher" src="./assets/feedback-low-img.svg" alt="" />
+                      <div class="screen-stop" aria-hidden="true">
+                        <img src="./assets/feedback-low-imgVector.svg" alt="" /><span>종료하기</span>
+                      </div>
+                      <div class="home-indicator" aria-hidden="true"></div>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="state-slide"
+                  data-carousel-slide
+                  role="group"
+                  aria-roledescription="슬라이드"
+                  data-caption="우유가 한 방향으로 돌도록 유지해 주세요"
+                  aria-label="4/4 롤링"
+                  aria-hidden="true"
+                  inert
+                >
+                  <div class="device">
+                    <div class="design-screen rolling" data-figma-node="4310:11306">
+                      <div class="phone-status" aria-hidden="true">
+                        <span>9:41</span><i class="dynamic-island"></i>
+                        <div class="status-levels">
+                          <div class="signal"><i></i><i></i><i></i><i></i></div>
+                          <img src="./assets/status-wifi.svg" alt="" /><img
+                            src="./assets/status-battery.svg"
+                            alt=""
+                          />
+                        </div>
+                      </div>
+                      <p class="screen-label">스티밍 시작</p>
+                      <img class="feedback-signal" src="./assets/feedback-rolling-imgRollingAnimation.svg" alt="" />
+                      <div class="screen-message">
+                        <h3><span>롤링이 안정적으로</span><span>진행되고 있어요</span></h3>
+                      </div>
+                      <img class="feedback-pitcher" src="./assets/feedback-rolling-img.svg" alt="" />
+                      <div class="screen-stop" aria-hidden="true">
+                        <img src="./assets/feedback-rolling-imgVector.svg" alt="" /><span>종료하기</span>
+                      </div>
+                      <div class="home-indicator" aria-hidden="true"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="carousel-caption">
+              <p id="state-caption" data-carousel-caption aria-live="polite">
+                지금 상태를 유지해 주세요
+              </p>
+            </div>
+            <div class="state-tabs" role="group" aria-label="스티밍 상태 선택">
+              <button type="button" data-slide="0" aria-pressed="true" aria-controls="state-track">
+                공기 주입</button
+              ><button
+                type="button"
+                data-slide="1"
+                aria-pressed="false"
+                aria-controls="state-track"
+              >
+                버블링</button
+              ><button
+                type="button"
+                data-slide="2"
+                aria-pressed="false"
+                aria-controls="state-track"
+              >
+                스크레칭</button
+              ><button
+                type="button"
+                data-slide="3"
+                aria-pressed="false"
+                aria-controls="state-track"
+              >
+                롤링
+              </button>
+            </div>
+          </div>
+        </div>
+        <!-- 앱 미리보기: 원본 워치 그래픽과 햅틱 설명 -->
+        <div class="haptic-feedback" data-reveal>
+          <div class="haptic-copy">
+            <h2>시선을 붙잡지 않는 신호</h2>
+            <p>
+              계속 화면을 보고 있지 않아도<br />Apple Watch의 진동으로 변화를 알아차려요.<br />손과
+              우유에 집중할 수 있도록.
+            </p>
+          </div>
+          <img
+            src="./assets/watch-feedback-transparent.svg"
+            alt="공기 주입, 롤링, 버블링, 스크레칭을 안내하는 네 가지 Apple Watch 화면"
+            loading="lazy"
+          />
+        </div>
+        <!-- 앱 미리보기: 결과 요약, 타임라인과 연습 가이드를 한 페이지로 표시 -->
+        <div class="results-preview" id="practice-results" data-reveal>
+          <div class="preview-copy">
+            <h2>연습이 끝나도,<br />배움은 이어져요.</h2>
+            <p class="body-copy">
+              방금의 스티밍을 기록으로 돌아보고,<br />다음 연습의 단서를 찾아요.
+            </p>
+          </div>
+          <div class="result-preview">
+            <div class="result-device" role="region" tabindex="0" aria-label="스티밍 결과 미리보기" aria-describedby="result-scroll-hint">
+              <div class="result-screen" data-figma-node="4638:13976">
+                      <div class="result-summary">
+                        <img
+                          src="./assets/result-imgSummaryDecoration.svg"
+                          alt=""
+                          class="result-summary-art"
+                          loading="lazy"
+                        />
+                        <div class="phone-status" aria-hidden="true">
+                          <span>9:41</span><i class="dynamic-island"></i>
+                          <div class="status-levels">
+                            <div class="signal"><i></i><i></i><i></i><i></i></div>
+                            <img src="./assets/status-wifi.svg" alt="" /><img
+                              src="./assets/status-battery.svg"
+                              alt=""
+                            />
+                          </div>
+                        </div>
+                        <div class="result-nav">
+                          <img
+                            src="./assets/result-imgIcons.svg"
+                            alt=""
+                            class=""
+                            loading="lazy"
+                          /><span>스티밍 결과</span
+                          ><img src="./assets/result-imgTrash.svg" alt="" class="" loading="lazy" />
+                        </div>
+                        <h3 class="result-heading">공기 주입량이<br />많았어요</h3>
+                        <div class="result-ring">
+                          <img src="./assets/result-imgFrame2147236922.svg" alt="" loading="lazy" />
+                          <img class="result-ring-base" src="./assets/result-imgEllipse732.svg" alt="" loading="lazy" />
+                          <img class="result-ring-attention" src="./assets/result-imgEllipse734.svg" alt="" loading="lazy" />
+                          <p><strong>33%</strong><span>주의소리</span></p>
+                        </div>
+                        <div class="result-metrics">
+                          <div><span>전체 시간</span><strong>24초</strong></div>
+                          <img
+                            src="./assets/result-imgVector129.svg"
+                            alt=""
+                            class=""
+                            loading="lazy"
+                          />
+                          <div><span>정상 소리</span><strong>16초</strong></div>
+                          <img
+                            src="./assets/result-imgVector129.svg"
+                            alt=""
+                            class=""
+                            loading="lazy"
+                          />
+                          <div><span>주의 소리</span><strong>8초</strong></div>
+                        </div>
+                      </div>
+                      <div class="result-records">
+                        <h4>스티밍 기록</h4>
+                        <div class="result-table">
+                          <div class="result-table-labels">
+                            <span>소리 유형</span><span>비율</span><span>시간</span>
+                          </div>
+                          <div class="result-table-row">
+                            <span>공기 주입</span
+                            ><img
+                              src="./assets/result-imgTimelineBar.svg"
+                              alt="공기 주입 감지 구간"
+                              class=""
+                              loading="lazy"
+                            /><span>25%</span><span>6초</span>
+                          </div>
+                          <div class="result-table-row">
+                            <span>버블링</span
+                            ><img
+                              src="./assets/result-imgTimelineBar1.svg"
+                              alt="버블링 감지 구간"
+                              class=""
+                              loading="lazy"
+                            /><span>8.33%</span><span>2초</span>
+                          </div>
+                          <div class="result-table-row">
+                            <span>스크레칭</span
+                            ><img
+                              src="./assets/result-imgTimelineBar2.svg"
+                              alt="스크레칭 감지 구간"
+                              class=""
+                              loading="lazy"
+                            /><span>8.33%</span><span>2초</span>
+                          </div>
+                          <div class="result-table-row">
+                            <span>롤링 소리</span
+                            ><img
+                              src="./assets/result-imgTimelineBar3.svg"
+                              alt="롤링 소리 감지 구간"
+                              class=""
+                              loading="lazy"
+                            /><span>41.67%</span><span>10초</span>
+                          </div>
+                          <div class="result-ticks overview-ticks">
+                            <span>0</span><span>8</span><span>12</span><span>16</span><span>20</span
+                            ><span>24초</span>
+                          </div>
+                        </div>
+                      </div>
+                <div class="result-guide">
+                  <h4>연습 가이드</h4>
+                  <div class="result-guide-illustration">
+                    <img src="./assets/result-imgPracticeGuideIllustration.svg" alt="스티밍 피처의 우유 높이와 기준선" loading="lazy" />
+                  </div>
+                  <div class="result-feedback">
+                    <img src="./assets/result-imgAlertCircle.svg" alt="" loading="lazy" />
+                    <div>
+                      <h5>공기 주입 소리가 기준보다 오래 감지 됐어요</h5>
+                      <p>필요한 거품이 만들어졌다면 노즐을 더 깊게 넣어 롤링으로<br />전환해 보세요.</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="result-disclaimer">
+                  <img src="./assets/result-imgInfo.svg" alt="" loading="lazy" />
+                  <p>소리 분석에 따른 참고용 안내이며, 실제 공기량을 측정한 결과는 아니에요.</p>
+                </div>
+                <div class="result-home" aria-hidden="true"></div>
+              </div>
+            </div>
+            <p class="result-caption" id="result-scroll-hint">
+              언제 어떤 소리가 났는지 시간의 흐름으로 확인해요.<br />화면 안을 아래로 스크롤해 연습 가이드까지 살펴보세요.
+            </p>
+          </div>
+        </div>
+      </section>
+      <!-- 팀 소개: 단체 사진과 브랜드 메시지 -->
+      <section class="team-banner" id="team" aria-labelledby="team-title">
+        <div class="team-scene">
+        <div class="team-photo">
+          <img
+            src="./assets/team-background.png"
+            alt="노트북 앞에 모여 함께 이야기하는 빈둥빈둥 팀"
+            width="4000"
+            height="3000"
+            loading="lazy"
+          />
+        </div>
+        <h2 id="team-title" data-reveal>
+          모두의 가능성이
+          <br />
+          한 잔 더 넓어지도록.
+        </h2>
+        </div>
+      </section>
+      <div class="team-section section">
+        <!-- 빈둥빈둥 로고와 팀 소개 -->
+        <div class="team-identity" data-reveal>
+          <img
+            src="./assets/beandoong-logo.svg"
+            alt="빈둥빈둥 커피잔 로고"
+            width="1024"
+            height="781"
+          />
+          <div>
+            <p>We Are <strong>Team</strong></p>
+            <h2>빈둥빈둥</h2>
+          </div>
+          <p class="team-description">
+            우리는 일상의 작은 장벽을 발견하고,
+            <br />
+            기술과 디자인으로 새로운 배움의 방법을 만듭니다.
+          </p>
+        </div>
+
+        <!-- 각 member-role에 직책, member-bio에 소개를 입력하세요. -->
+        <section class="team-group" aria-labelledby="members-title">
+          <h3 id="members-title">팀원</h3>
+          <div class="member-grid">
+            <article class="member">
+              <img class="portrait" src="./assets/portraits/anne.white.jpeg" alt="Anne 프로필 사진" width="2470" height="3293" loading="lazy" />
+              <h4>Anne(조은아) <span class="member-role">Designer</span></h4>
+              <p class="member-bio"><!-- 소개 입력 --></p>
+            </article>
+            <article class="member">
+              <img class="portrait" src="./assets/portraits/maple.white.jpeg" alt="Maple 프로필 사진" width="2468" height="3291" loading="lazy" />
+              <h4>Maple(최서진) <span class="member-role">Product Manager</span></h4>
+              <p class="member-bio"></p>
+            </article>
+            <article class="member">
+              <img class="portrait" src="./assets/portraits/zen.white.jpeg" alt="Zen 프로필 사진" width="3000" height="4000" loading="lazy" />
+              <h4>Zen(김유진) <span class="member-role">Designer</span></h4>
+              <p class="member-bio"><!-- 소개 입력 --></p>
+            </article>
+
+
+            <article class="member">
+              <img class="portrait" src="./assets/portraits/remi.white.jpeg" alt="Remi 프로필 사진" width="2650" height="3533" loading="lazy" />
+              <h4>Remi(정필규) <span class="member-role">Developer</span></h4>
+              <p class="member-bio"><!-- 소개 입력 --></p>
+            </article>
+            <article class="member">
+              <img class="portrait" src="./assets/portraits/esther.white.jpeg" alt="Esther 프로필 사진" width="3000" height="4000" loading="lazy" />
+              <h4>Esther(정에스더) <span class="member-role">Developer</span></h4>
+              <p class="member-bio"><!-- 소개 입력 --></p>
+            </article>
+            <article class="member">
+              <img class="portrait" src="./assets/portraits/craig.white.jpeg" alt="Craig 프로필 사진" width="2900" height="3866" loading="lazy" />
+              <h4>Craig(김정훈) <span class="member-role">Developer</span></h4>
+              <p class="member-bio"><!-- 소개 입력 --></p>
+            </article>
+          </div>
+        </section>
+
+        <!-- 멘토 -->
+        <section class="team-group" aria-labelledby="mentors-title">
+          <h3 id="mentors-title">멘토</h3>
+          <div class="member-grid">
+            <article class="member">
+              <img class="portrait" src="./assets/portraits/leeo.white.jpeg" alt="리이오 프로필 사진" width="2663" height="3551" loading="lazy" />
+              <h4>Leeo <span class="member-role">Tech Mentor</span></h4>
+              <p class="member-bio"><!-- 소개 입력 --></p>
+            </article>
+            <article class="member">
+              <img class="portrait" src="./assets/portraits/sejin.white.jpeg" alt="세진 프로필 사진" width="2139" height="2852" loading="lazy" />
+              <h4>Sejin <span class="member-role">Engineer Mentor</span></h4>
+              <p class="member-bio"></p>
+            </article>
+            <article class="member">
+              <img class="portrait" src="./assets/portraits/seni.white.jpeg" alt="세니 프로필 사진" width="2646" height="3528" loading="lazy" />
+              <h4>Senny <span class="member-role">Design Mentor</span></h4>
+              <p class="member-bio"><!-- 소개 입력 --></p>
+            </article>
+          </div>
+        </section>
+
+        <!-- 도움을 주신 분들 -->
+        <section class="team-group" data-reveal aria-labelledby="thanks-title">
+          <h3 id="thanks-title">Our Partners</h3>
+          <div class="supporter-grid">
+            <article>
+              <a href="https://www.hisbeans.com/" aria-label="히즈빈스 공식 홈페이지">
+                <img src="./assets/hisbeans-logo.png" alt="히즈빈스 HISBEANS" width="734" height="211" loading="lazy" />
+              </a>
+            </article>
+            <article>
+              <a href="https://school.use.go.kr/meary-s/" aria-label="메아리학교 공식 홈페이지">
+                <img src="./assets/meary-school-logo.png" alt="메아리학교" width="190" height="60" loading="lazy" />
+              </a>
+            </article>
+          </div>
+        </section>
+      </div>
+    </main>
+    <!-- 개인정보처리방침과 문의 연락처 -->
+    <footer id="footer">
+      <div class="footer-top">
+        <a class="wordmark" href="#top" aria-label="chic 처음으로">
+          <img src="./assets/chic-blue.svg" alt="chic" />
+        </a>
+        <a class="footer-back-top" href="#top">맨 위로 ↑</a>
+      </div>
+      <nav class="footer-links" aria-label="정책 및 문의">
+        <a class="footer-privacy" href="https://chic-privacy.wapples150.chatgpt.site/#rights">
+          개인정보처리방침 <span aria-hidden="true">›</span>
+        </a>
+        <a href="mailto:beandoong.support@gmail.com">
+          Contact us <span aria-hidden="true">↗</span>
+        </a>
+      </nav>
+      <p class="footer-copyright">© 2026 빈둥빈둥. All rights reserved.</p>
+    </footer>
+  </body>
+</html>

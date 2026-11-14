@@ -1,0 +1,17 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="402" height="609" viewBox="0 0 402 609" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Summary Background">
+<g clip-path="url(#clip0_0_131)">
+<path id="Summary Shape" d="M0 0H402V607C402 615.837 394.837 623 386 623H16C7.16345 623 0 615.837 0 607V0Z" fill="#01030C"/>
+<ellipse id="Ellipse 717" cx="201" cy="663.5" rx="455" ry="213.5" fill="url(#paint0_radial_0_131)" fill-opacity="0.29"/>
+</g>
+</g>
+<defs>
+<radialGradient id="paint0_radial_0_131" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(201 663.5) rotate(90) scale(213.5 455)">
+<stop stop-color="#96B5DB"/>
+<stop offset="1" stop-color="#96B5DB" stop-opacity="0"/>
+</radialGradient>
+<clipPath id="clip0_0_131">
+<path d="M0 0H402V581C402 596.464 389.464 609 374 609H28C12.536 609 0 596.464 0 581V0Z" fill="white"/>
+</clipPath>
+</defs>
+</svg>
