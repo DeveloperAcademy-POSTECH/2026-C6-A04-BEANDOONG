@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 //
 //  PracticeReport.swift
@@ -70,10 +71,10 @@ struct PracticeReportScreen: View {
         .darkScreenBackground()
         .chicAlert(
             isPresented: showsDeleteDialog,
-            title: "정말 기록을 삭제하시겠어요?",
-            message: "삭제한 기록은 다시 복구할 수 없어요",
-            cancelTitle: "취소",
-            confirmTitle: "기록 삭제",
+            title: String(localized: "정말 기록을 삭제하시겠어요?"),
+            message: String(localized: "삭제한 기록은 다시 복구할 수 없어요"),
+            cancelTitle: String(localized: "취소"),
+            confirmTitle: String(localized: "기록 삭제"),
             confirmColor: AppColors.alertRed,
             onCancel: { showsDeleteDialog = false },
             onConfirm: { showsDeleteDialog = false; onDelete?() }
@@ -96,7 +97,7 @@ struct PracticeReportPage: View {
             ZStack(alignment: .topLeading) {
                 ReportHero(result: result, headline: headline)
 
-                Text("스티밍 기록")
+                Text(String(localized: "스티밍 기록"))
                     .font(.pretendard(.bold, size: 20))
                     .foregroundStyle(Color.white)
                     .at(x: ReportLayout.sectionTitleX, y: ReportLayout.sectionTitleY, scale)
@@ -159,7 +160,7 @@ private struct ReportHero: View {
                     Text("\(Int((result.cautionRatio * 100).rounded()))%")
                         .font(.pretendard(.bold, size: 36))
                         .foregroundStyle(AppColors.soundCaution)
-                    Text("주의소리")
+                    Text(String(localized: "주의소리"))
                         .font(.pretendard(.regular, size: ReportLayout.donutLabelSize))
                         .foregroundStyle(AppColors.darkSecondaryButton)
                         .offset(y: ReportLayout.donutLabelDY)
@@ -170,9 +171,9 @@ private struct ReportHero: View {
 
             // 3열 요약
             HStack(spacing: 0) {
-                summaryColumn("전체 시간", result.totalSeconds)
-                summaryColumn("정상 소리", result.normalSeconds)
-                summaryColumn("주의 소리", result.cautionSeconds)
+                summaryColumn(String(localized: "전체 시간"), result.totalSeconds)
+                summaryColumn(String(localized: "정상 소리"), result.normalSeconds)
+                summaryColumn(String(localized: "주의 소리"), result.cautionSeconds)
             }
             .frame(width: (ReportLayout.summaryColumnWidth * 3).h(scale), height: ReportLayout.summaryHeight.v(scale))
             .overlay(alignment: .topLeading) {
@@ -237,7 +238,7 @@ private struct ReportGuideSection: View {
     var body: some View {
         VStack(spacing: 0) {
             ZStack(alignment: .topLeading) {
-                Text("연습 가이드")
+                Text(String(localized: "연습 가이드"))
                     .font(.pretendard(.bold, size: 20))
                     .foregroundStyle(Color.white)
                     .at(x: ReportLayout.sectionTitleX, y: 0, scale)
@@ -364,7 +365,7 @@ private struct ReportFootnote: View {
         HStack(spacing: 6) {
             Image(systemName: "info.circle")
                 .font(.system(size: 11, weight: .regular))
-            Text("소리 분석에 따른 참고용 안내이며, 실제 공기량을 측정한 결과는 아니에요.")
+            Text(String(localized: "소리 분석에 따른 참고용 안내이며, 실제 공기량을 측정한 결과는 아니에요."))
                 .font(.pretendard(.regular, size: 11))
         }
         .foregroundStyle(PracticeResultColors.footnote)
@@ -376,21 +377,36 @@ private struct ReportFootnote: View {
 
 private struct ReportOverviewChart: View {
     @Environment(\.designScale) private var scale
+    @ScaledMetric(relativeTo: .body) private var labelFontSize: CGFloat = 12
     let result: PracticeResult
 
     /// 줄 순서: 시안 304 · 307처럼 스크레칭이 버블링보다 위 (2026-11-14).
     /// 이름과 소리의 짝은 앱 전체와 같아요: 스크레칭 = 공기 부족(보라), 버블링 = 공기 과다(주황).
     /// 시안은 2번째 줄 막대가 주황이지만, 이름을 기준으로 맞춰서 앱에서는 보라 → 주황 순이에요.
     private static let rows: [(String, DetectedSound)] = [
-        ("공기 주입", .normalAeration), ("스크레칭", .lackOfAir), ("버블링", .overAeration), ("롤링 소리", .rolling)
+        (String(localized: "공기 주입"), .normalAeration), (String(localized: "스크레칭"), .lackOfAir), (String(localized: "버블링"), .overAeration), (String(localized: "롤링 소리"), .rolling)
     ]
+
+    /// 번역된 이름의 실제 폭만큼 공간을 확보하고 막대·눈금의 시작점을 함께 옮깁니다.
+    private var trackX: CGFloat {
+        FontRegistrar.registerIfNeeded()
+        let font = UIFont(name: PretendardWeight.regular.rawValue, size: labelFontSize)
+            ?? UIFont.systemFont(ofSize: labelFontSize)
+        let names = Self.rows.map(\.0) + [String(localized: "소리 유형")]
+        let textWidth = names.map { ($0 as NSString).size(withAttributes: [.font: font]).width }.max() ?? 0
+        return max(ReportLayout.overviewTrackX, ReportLayout.overviewLabelX + (ceil(textWidth) + 8) / scale.x)
+    }
+
+    private var trackWidth: CGFloat {
+        max(1, ReportLayout.overviewTrackX + ReportLayout.overviewTrackWidth - trackX).h(scale)
+    }
 
     var body: some View {
         ZStack(alignment: .topLeading) {
             Group {
-                Text("소리 유형").at(x: ReportLayout.overviewLabelX, y: ReportLayout.overviewHeaderY, scale)
-                Text("비율").at(x: ReportLayout.overviewRatioX, y: ReportLayout.overviewHeaderY, scale)
-                timeText("시간", y: ReportLayout.overviewHeaderY)
+                Text(String(localized: "소리 유형")).at(x: ReportLayout.overviewLabelX, y: ReportLayout.overviewHeaderY, scale)
+                Text(String(localized: "비율")).at(x: ReportLayout.overviewRatioX, y: ReportLayout.overviewHeaderY, scale)
+                timeText(String(localized: "시간"), y: ReportLayout.overviewHeaderY)
             }
             .font(.pretendard(.regular, size: 11))
             .foregroundStyle(PracticeResultColors.secondaryText)
@@ -401,20 +417,20 @@ private struct ReportOverviewChart: View {
 
                 rowText(row.0, color: .white, x: ReportLayout.overviewLabelX, y: y)
 
-                ReportBar(result: result, sounds: [row.1], width: ReportLayout.overviewTrackWidth.h(scale), height: ReportLayout.overviewBarHeight.v(scale))
-                    .at(x: ReportLayout.overviewTrackX, y: y, scale)
+                ReportBar(result: result, sounds: [row.1], width: trackWidth, height: ReportLayout.overviewBarHeight.v(scale))
+                    .at(x: trackX, y: y, scale)
 
                 rowText(Self.percentText(seconds: seconds, total: result.totalSeconds), color: ReportColors.summaryLabel,
                         x: ReportLayout.overviewRatioX, y: y)
 
-                timeText("\(seconds)초", y: y)
+                timeText(String(localized: "\(seconds)초"), y: y)
                     .font(.pretendard(.regular, size: 12))
                     .foregroundStyle(Color.white)
                     .frame(height: ReportLayout.overviewBarHeight.v(scale))
             }
 
-            ReportAxis(width: ReportLayout.overviewTrackWidth.h(scale), ticks: result.tickLabels) // 막대(.h(scale))와 같은 폭이어야 눈금 숫자가 막대 눈금선에 맞는다
-                .at(x: ReportLayout.overviewTrackX, y: ReportLayout.overviewAxisY, scale)
+            ReportAxis(width: trackWidth, ticks: result.tickLabels) // 막대(.h(scale))와 같은 폭이어야 눈금 숫자가 막대 눈금선에 맞는다
+                .at(x: trackX, y: ReportLayout.overviewAxisY, scale)
         }
     }
 
@@ -519,7 +535,7 @@ extension PracticeResult {
             let end = max(Int(timelineLength.rounded()), 1)
             seconds = [0, end / 3, end / 2, end * 2 / 3, end * 5 / 6, end]
         }
-        return seconds.enumerated().map { index, value in index == seconds.count - 1 ? "\(value)초" : "\(value)" }
+        return seconds.enumerated().map { index, value in index == seconds.count - 1 ? String(localized: "\(value)초") : "\(value)" }
     }
 }
 

@@ -16,13 +16,13 @@ nonisolated enum PracticePhase: String, Codable, CaseIterable {
 
     var title: String {
         switch self {
-        case .idle: "연결 확인"
-        case .listening: "소리 확인 중"
-        case .aeration: "공기 주입 소리"
-        case .bubble: "큰 기포 주의"
-        case .moreAir: "공기 부족"
-        case .milkFlow: "롤링"
-        case .finished: "연습을 마쳤어요"
+        case .idle: String(localized: "연결 확인")
+        case .listening: String(localized: "소리 확인 중")
+        case .aeration: String(localized: "공기 주입 소리")
+        case .bubble: String(localized: "큰 기포 주의")
+        case .moreAir: String(localized: "공기 부족")
+        case .milkFlow: String(localized: "롤링")
+        case .finished: String(localized: "연습을 마쳤어요")
         }
     }
 }

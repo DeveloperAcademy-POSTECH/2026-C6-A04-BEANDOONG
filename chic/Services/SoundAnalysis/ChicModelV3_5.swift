@@ -16,10 +16,10 @@ nonisolated final class ChicModelV3_5 {
 
         var errorDescription: String? {
             switch self {
-            case .resource: "스티밍 분석 모델을 찾을 수 없어요."
-            case .schema: "스티밍 분석 모델의 입력 또는 출력이 올바르지 않아요."
-            case .input: "마이크 입력 형식이 올바르지 않아요."
-            case .alignment: "소리 분석 프레임을 맞출 수 없어요."
+            case .resource: String(localized: "스티밍 분석 모델을 찾을 수 없어요.")
+            case .schema: String(localized: "스티밍 분석 모델의 입력 또는 출력이 올바르지 않아요.")
+            case .input: String(localized: "마이크 입력 형식이 올바르지 않아요.")
+            case .alignment: String(localized: "소리 분석 프레임을 맞출 수 없어요.")
             }
         }
     }

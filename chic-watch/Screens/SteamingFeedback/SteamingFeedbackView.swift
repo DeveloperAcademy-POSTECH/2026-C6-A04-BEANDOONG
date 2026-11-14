@@ -20,7 +20,7 @@ struct SteamingFeedbackView: View {
                 .watchCenterY(0.554)
 
             Button(action: onStop) {
-                Text("종료")
+                Text(String(localized: "종료"))
                     .font(.watchScaled(12, weight: .bold))
                     .foregroundStyle(AppColors.watchDarkScreenBackground)
                     .frame(width: WatchDesignSize.scaled(48), height: WatchDesignSize.scaled(24))

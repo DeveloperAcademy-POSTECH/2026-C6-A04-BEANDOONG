@@ -18,7 +18,7 @@ nonisolated final class ChicV2FeatureExtractor {
     init() throws {
         guard let setup = vDSP_DFT_zop_CreateSetupD(nil, 2048, .FORWARD) else {
             throw NSError(domain: "SteamingAnalysis", code: 1,
-                          userInfo: [NSLocalizedDescriptionKey: "소리 분석을 준비할 수 없어요."])
+                          userInfo: [NSLocalizedDescriptionKey: String(localized: "소리 분석을 준비할 수 없어요.")])
         }
         self.setup = setup
     }
@@ -30,7 +30,7 @@ nonisolated final class ChicV2FeatureExtractor {
         guard sampleRate.isFinite, (32000...192000).contains(sampleRate),
               input.allSatisfy(\.isFinite), rate == 0 || rate == sampleRate else {
             throw NSError(domain: "SteamingAnalysis", code: 2,
-                          userInfo: [NSLocalizedDescriptionKey: "32kHz 이상의 고정된 마이크 입력이 필요해요. 입력 장치를 확인해 주세요."])
+                          userInfo: [NSLocalizedDescriptionKey: String(localized: "32kHz 이상의 고정된 마이크 입력이 필요해요. 입력 장치를 확인해 주세요.")])
         }
         rate = sampleRate
         pending += input

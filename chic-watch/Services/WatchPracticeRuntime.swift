@@ -43,14 +43,14 @@ final class WatchPracticeRuntime: NSObject, WKExtendedRuntimeSessionDelegate {
     nonisolated func extendedRuntimeSessionDidStart(_ session: WKExtendedRuntimeSession) {
         Task { @MainActor in
             guard self.session === session, !stopping else { return }
-            record("확장 세션 실행 중")
+            record(String(localized: "확장 세션 실행 중"))
         }
     }
 
     nonisolated func extendedRuntimeSessionWillExpire(_ session: WKExtendedRuntimeSession) {
         Task { @MainActor in
             guard self.session === session else { return }
-            record("확장 세션 만료 예정")
+            record(String(localized: "확장 세션 만료 예정"))
         }
     }
 
@@ -61,7 +61,7 @@ final class WatchPracticeRuntime: NSObject, WKExtendedRuntimeSessionDelegate {
             guard self.session === session else { return }
             self.session = nil
             stopping = false
-            record("확장 세션 종료 · 사유 \(reason.rawValue) \(error?.localizedDescription ?? "")")
+            record(String(localized: "확장 세션 종료 · 사유 \(reason.rawValue) \(error?.localizedDescription ?? "")"))
             startIfNeeded()
         }
     }

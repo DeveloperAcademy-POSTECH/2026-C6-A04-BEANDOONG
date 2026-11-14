@@ -32,7 +32,7 @@ struct PracticeResultView: View {
         PracticeReportScreen(
             result: result,
             headline: PracticeGuide(result: result).resultHeadline,
-            barTitle: "스티밍 결과",
+            barTitle: String(localized: "스티밍 결과"),
             onBack: onClose,
             onDelete: { onDelete?(); onClose?() },
             showsDeleteDialog: showsDeleteDialog

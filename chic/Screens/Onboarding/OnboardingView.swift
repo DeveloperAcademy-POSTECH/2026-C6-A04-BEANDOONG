@@ -59,7 +59,7 @@ struct OnboardingView: View {
             OnboardingPageIndicator(activeIndex: indicatorIndex, pageCount: OnboardingPage.allCases.count)
                 .padding(.bottom, Metrics.indicatorBottom.v(scale))
 
-            DarkPrimaryButton(title: page == OnboardingPage.allCases.last ? "홈으로 가기" : "다음", width: Metrics.buttonWidth.h(scale), height: BottomButton.height, action: onNext)
+            DarkPrimaryButton(title: page == OnboardingPage.allCases.last ? String(localized: "홈으로 가기") : String(localized: "다음"), width: Metrics.buttonWidth.h(scale), height: BottomButton.height, action: onNext)
                 .padding(.bottom, BottomButton.bottomGap.v(scale) + scale.fixedHeightAdjustment(BottomButton.height))
         }
         .ignoresSafeArea()

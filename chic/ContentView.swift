@@ -57,7 +57,7 @@ struct ContentView: View {
         }
         // 홈 연습 카드의 큰 사진을 앱이 켜질 때(스플래시 동안) 백그라운드에서 디코딩해 둬요.
         // 온보딩 마지막 쪽에서 홈을 미리 만들 때 그 사진을 처음 그리느라 그래프 애니메이션이 멈칫하던 것을 막아요.
-        .task { PreparedImage.prepare(["HomeWatchPractice"]) }
+        .task { PreparedImage.prepare(["HomeWatchPractice", "HomeWatchPracticeEnglish"]) }
     }
 
     /// 보이기 전 홈의 투명도. 0이면 그리지 않아서 넘어가는 순간 처음 그리느라 버벅여요.

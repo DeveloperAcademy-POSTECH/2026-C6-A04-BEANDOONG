@@ -42,5 +42,5 @@ private enum Metrics {
 }
 
 #Preview {
-    WatchCapsuleButton(title: "스티밍 연습 시작") {}
+    WatchCapsuleButton(title: String(localized: "스티밍 연습 시작")) {}
 }

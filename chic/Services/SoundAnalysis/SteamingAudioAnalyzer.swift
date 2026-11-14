@@ -36,13 +36,13 @@ nonisolated final class SteamingAudioAnalyzer: @unchecked Sendable {
         guard format.channelCount > 0, format.commonFormat == .pcmFormatFloat32,
               !format.isInterleaved, (32000...192000).contains(format.sampleRate) else {
             throw NSError(domain: "SteamingAnalysis", code: 5,
-                          userInfo: [NSLocalizedDescriptionKey: "소리를 분석할 수 있는 마이크 입력이 없어요."])
+                          userInfo: [NSLocalizedDescriptionKey: String(localized: "소리를 분석할 수 있는 마이크 입력이 없어요.")])
         }
         try input.installAudioTap(onBus: 0, bufferSize: AVAudioFrameCount(format.sampleRate / 10), format: format) { [weak self] buffer, _ in
             guard let self else { return }
             // 분석이 입력을 따라가지 못하면 샘플을 누락시키지 않고 오류로 종료합니다.
             guard self.pendingBuffer.wait(timeout: .now()) == .success else {
-                onError("실시간 소리 분석이 지연되어 연습을 종료했어요. 다시 시작해 주세요.")
+                onError(String(localized: "실시간 소리 분석이 지연되어 연습을 종료했어요. 다시 시작해 주세요."))
                 return
             }
             let samples: [Float]? = buffer.withUnsafeAudioBufferList { list in
@@ -51,7 +51,7 @@ nonisolated final class SteamingAudioAnalyzer: @unchecked Sendable {
             }
             guard let samples else {
                 self.pendingBuffer.signal()
-                onError("마이크의 오디오 형식을 읽을 수 없어요.")
+                onError(String(localized: "마이크의 오디오 형식을 읽을 수 없어요."))
                 return
             }
             let rate = buffer.format.sampleRate

@@ -111,10 +111,10 @@ struct SteamingFeedbackView: View {
         .animation(Layout.feedbackChange, value: feedback)
         .chicAlert(
             isPresented: showsEndDialog,
-            title: "스티밍이 끝났나요?",
-            message: "스팀 소리가 감지되지 않아요\n연습을 마쳤다면 기록을 확인해 주세요",
-            cancelTitle: "계속 연습",
-            confirmTitle: "연습 종료",
+            title: String(localized: "스티밍이 끝났나요?"),
+            message: String(localized: "스팀 소리가 감지되지 않아요\n연습을 마쳤다면 기록을 확인해 주세요"),
+            cancelTitle: String(localized: "계속 연습"),
+            confirmTitle: String(localized: "연습 종료"),
             onCancel: onContinue,
             onConfirm: onFinishAfterSilence
         )
@@ -281,10 +281,10 @@ enum SteamingFeedback: CaseIterable {
     /// 보라·주황은 해야 할 동작이 타이틀, 상태가 설명이에요.
     var title: String {
         switch self {
-        case .aeration: "공기가 고르게\n들어가고 있어요"
-        case .bubble: "피처를 살짝 올려\n노즐을 더 담가 주세요"
-        case .moreAir: "피처를 살짝\n내려 주세요"
-        case .milkFlow: "롤링이 안정적으로\n진행되고 있어요"
+        case .aeration: String(localized: "공기가 고르게\n들어가고 있어요")
+        case .bubble: String(localized: "피처를 살짝 올려\n노즐을 더 담가 주세요")
+        case .moreAir: String(localized: "피처를 살짝\n내려 주세요")
+        case .milkFlow: String(localized: "롤링이 안정적으로\n진행되고 있어요")
         }
     }
 
@@ -292,8 +292,8 @@ enum SteamingFeedback: CaseIterable {
     var subtitle: String? {
         switch self {
         case .aeration, .milkFlow: nil
-        case .bubble: "큰 기포가 생길 수 있어요"
-        case .moreAir: "공기 주입이 부족해요"
+        case .bubble: String(localized: "큰 기포가 생길 수 있어요")
+        case .moreAir: String(localized: "공기 주입이 부족해요")
         }
     }
 

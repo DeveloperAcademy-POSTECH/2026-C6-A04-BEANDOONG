@@ -50,24 +50,24 @@ final class PracticeSession: ObservableObject {
             )
             setHistory(try store.records())
             historyStore = store
-        } catch { errorMessage = "연습 기록 저장소를 열 수 없어요. 앱을 다시 실행해 주세요." }
+        } catch { errorMessage = String(localized: "연습 기록 저장소를 열 수 없어요. 앱을 다시 실행해 주세요.") }
         // WatchConnection이 워치 요청을 받으면 이 클로저를 실행합니다.
         // [weak self]는 두 객체가 서로를 계속 붙잡아 해제되지 않는 것을 방지합니다.
         connection.onCommand = { [weak self] request in
-            guard let self else { throw ConnectionError.message("iPhone 앱을 열어주세요.") }
+            guard let self else { throw ConnectionError.localized("iPhone 앱을 열어주세요.") }
             // 워치 없이 연습 중이면 동기화 요청에만 응답합니다.
             guard request.command == .sync || self.state.isWatchEnabled else {
-                throw ConnectionError.message("iPhone에서 워치 없이 연습 중이에요.")
+                throw ConnectionError.localized("iPhone에서 워치 없이 연습 중이에요.")
             }
             switch request.command {
             case .sync: break // 아래에서 현재 상태만 응답합니다.
             case .start:
                 guard !self.isStarting else {
-                    throw ConnectionError.message("iPhone에서 연습을 시작하고 있어요. 잠시 기다려주세요.")
+                    throw ConnectionError.localized("iPhone에서 연습을 시작하고 있어요. 잠시 기다려주세요.")
                 }
                 // 워치 요청에서는 권한 팝업을 띄우지 않고, iPhone에서 미리 허용했는지 확인합니다.
                 guard MicrophonePermission.isGranted else {
-                    throw ConnectionError.message("iPhone에서 마이크 권한을 허용해주세요.")
+                    throw ConnectionError.localized("iPhone에서 마이크 권한을 허용해주세요.")
                 }
                 // 오디오를 준비하는 동안 iPhone 버튼이 같은 시작을 겹쳐 요청하지 않게 합니다.
                 self.isStarting = true
@@ -93,7 +93,7 @@ final class PracticeSession: ObservableObject {
             Task { @MainActor [weak self] in
                 guard let self, self.state.phase.isRunning else { return }
                 self.stop()
-                self.errorMessage = "오디오 사용이 중단되어 연습을 종료했어요."
+                self.errorMessage = String(localized: "오디오 사용이 중단되어 연습을 종료했어요.")
             }
         }
     }
@@ -104,7 +104,7 @@ final class PracticeSession: ObservableObject {
         isStarting = true
         defer { isStarting = false } // 함수가 어떤 경로로 끝나든 시작 처리 중 상태를 해제합니다.
         guard await MicrophonePermission.request() else {
-            errorMessage = "설정에서 마이크 권한을 허용해주세요."
+            errorMessage = String(localized: "설정에서 마이크 권한을 허용해주세요.")
             return
         }
         do { try await startAnalysis(usingWatch: usingWatch) }
@@ -118,11 +118,11 @@ final class PracticeSession: ObservableObject {
         // 어느 기기에서 요청하든 이미 연습 중이라면 중복 분석을 시작하지 않습니다.
         guard !state.phase.isRunning else { return }
         guard historyStore != nil else {
-            throw ConnectionError.message("연습 기록 저장소를 열 수 없어 연습을 시작하지 못했어요. 앱을 다시 실행해 주세요.")
+            throw ConnectionError.localized("연습 기록 저장소를 열 수 없어 연습을 시작하지 못했어요. 앱을 다시 실행해 주세요.")
         }
         // 워치 요청으로 백그라운드 앱이 깨어나도 새 마이크 입력은 시작하지 않습니다.
         guard UIApplication.shared.applicationState == .active else {
-            throw ConnectionError.message(Self.openAppMessage)
+            throw ConnectionError.localized(Self.openAppMessageKey)
         }
         // 직전 연습의 오디오 정리가 끝나야 새 세션을 켭니다. (늦게 끝난 setActive(false)가 새로 켠 세션을 끄지 않게)
         await audioTeardown?.value
@@ -162,7 +162,7 @@ final class PracticeSession: ObservableObject {
         // 준비하는 동안 앱이 백그라운드로 갔다면, 켠 마이크를 바로 정리하고 시작하지 않습니다. (전에는 준비 중에 앱을 떠날 수 없었어요)
         guard UIApplication.shared.applicationState == .active else {
             audioTeardown = Self.tearDownAudio(analyzer)
-            throw ConnectionError.message(Self.openAppMessage)
+            throw ConnectionError.localized(Self.openAppMessageKey)
         }
         soundAnalyzer = analyzer
         // 분석 시작에 성공한 뒤에만 새 연습 상태로 바꿉니다. 이전 기록 목록은 유지합니다.
@@ -222,7 +222,7 @@ final class PracticeSession: ObservableObject {
         Task {
             await Task.yield()
             do {
-                guard let historyStore else { throw ConnectionError.message("저장소를 열 수 없어요.") }
+                guard let historyStore else { throw ConnectionError.localized("저장소를 열 수 없어요.") }
                 if let saved = try historyStore.save(record: record, dailyOrder: dailyOrder, segments: segments) {
                     // 새 기록만 목록에 끼워 넣습니다. 저장소를 다시 다 불러온 것(records(): 시작 시각 최신순)과 같은 목록이에요.
                     var updated = history
@@ -233,7 +233,7 @@ final class PracticeSession: ObservableObject {
                 }
                 publish()
             } catch {
-                errorMessage = "연습 결과 저장에 실패했어요."
+                errorMessage = String(localized: "연습 결과 저장에 실패했어요.")
             }
             if state.sessionID == id, state.phase == .finished { result = completedResult }
         }
@@ -270,7 +270,7 @@ final class PracticeSession: ObservableObject {
     /// 저장된 연습 기록 하나를 삭제하고 목록과 워치에 보내는 기록을 갱신합니다.
     func deleteRecord(id: UUID) {
         guard let historyStore else {
-            errorMessage = "저장소를 열 수 없어요."
+            errorMessage = String(localized: "저장소를 열 수 없어요.")
             return
         }
         do {
@@ -278,7 +278,7 @@ final class PracticeSession: ObservableObject {
             setHistory(try historyStore.records())
             publish()
         } catch {
-            errorMessage = "기록을 삭제하지 못했어요."
+            errorMessage = String(localized: "기록을 삭제하지 못했어요.")
         }
     }
 
@@ -296,12 +296,12 @@ final class PracticeSession: ObservableObject {
     }
 
     /// 연습을 시작할 수 없는 상태(앱이 앞에 없음)일 때의 안내입니다.
-    private static let openAppMessage = "연습을 시작하려면 iPhone에서 chic 앱을 열어주세요."
+    private static let openAppMessageKey = "연습을 시작하려면 iPhone에서 chic 앱을 열어주세요."
 
     /// 워치 요청이 지금 연습(sessionID)에 대한 것인지 확인합니다. 아니면 다시 확인하라고 안내합니다.
     private func ensureCurrentSession(_ request: WatchRequest) throws {
         guard request.sessionID == state.sessionID else {
-            throw ConnectionError.message("연습 상태가 변경되었어요. 다시 확인해주세요.")
+            throw ConnectionError.localized("연습 상태가 변경되었어요. 다시 확인해주세요.")
         }
     }
 

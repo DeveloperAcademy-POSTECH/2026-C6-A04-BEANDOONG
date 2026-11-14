@@ -21,11 +21,11 @@ struct WatchIntroPage: View {
                 .padding(.top, Metrics.illustrationTop.v(scale))
 
             // MARK: 타이틀 + 설명
-            DarkScreenTitle("아이폰과 워치로\n함께 확인해요")
+            DarkScreenTitle(String(localized: "아이폰과 워치로\n함께 확인해요"))
                 .onboardingPart(motion.title)
                 .padding(.top, Metrics.titleTop.v(scale))
 
-            DarkScreenSubtitle("Apple Watch를 함께 사용하면\n상태 변화를 진동으로도 안내받을 수 있어요")
+            DarkScreenSubtitle(String(localized: "Apple Watch를 함께 사용하면\n상태 변화를 진동으로도 안내받을 수 있어요"))
                 .onboardingPart(motion.subtitle)
                 .padding(.top, Metrics.subtitleTop.v(scale))
         }

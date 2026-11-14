@@ -32,7 +32,7 @@ struct SettingsView: View {
     var body: some View {
         VStack(spacing: 0) {
             // MARK: 상단 바
-            TopNavigationHeader(title: "설정", isDark: true)
+            TopNavigationHeader(title: String(localized: "설정"), isDark: true)
                 .padding(.top, Layout.topBarTop.v(scale))
 
             VStack(spacing: 0) {
@@ -42,46 +42,46 @@ struct SettingsView: View {
                 .padding(.top, Layout.iconTop.v(scale))
 
             // 확인하기 전 · 확인하지 못했을 때는 같은 크기의 빈자리로 둬서, 결과가 나와도 아래 내용이 움직이지 않아요.
-            Text(latestVersionText ?? "최신 버전 사용중")
+            Text(latestVersionText ?? String(localized: "최신 버전 사용중"))
                 .font(.pretendard(.regular, size: 12))
                 .foregroundStyle(AppColors.guideStepNumber)
                 .opacity(latestVersionText == nil ? 0 : 1)
                 .accessibilityHidden(latestVersionText == nil)
                 .padding(.top, Layout.latestVersionTop.v(scale))
 
-            Text("현재 버전 \(Self.currentVersion)")
+            Text(String(localized: "현재 버전 \(Self.currentVersion)"))
                 .font(.pretendard(.medium, size: 16))
                 .foregroundStyle(Color.white)
                 .padding(.top, Layout.currentVersionTop.v(scale))
 
             // MARK: 정보 및 지원
-            Text("정보 및 지원")
+            Text(String(localized: "정보 및 지원"))
                 .font(.pretendard(.bold, size: 16))
                 .foregroundStyle(Color.white)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.top, Layout.sectionTitleTop.v(scale))
 
             VStack(spacing: 0) {
-                SettingsRow(symbol: "shield", title: "개인정보 처리방침") { openURL(Self.privacyPolicyURL) }
+                SettingsRow(symbol: "shield", title: String(localized: "개인정보 처리방침")) { openURL(Self.privacyPolicyURL) }
                 Rectangle()
                     .fill(AppColors.settingsDivider)
                     .frame(height: 1)
                     .padding(.leading, Layout.dividerLeading)
                     .padding(.trailing, Layout.dividerTrailing)
-                SettingsRow(symbol: "envelope", title: "문의하기") { contact() }
+                SettingsRow(symbol: "envelope", title: String(localized: "문의하기")) { contact() }
             }
             .settingsCard()
             .padding(.top, Layout.cardTop.v(scale))
 
             // MARK: 워치 페어링
-            Text("워치 페어링")
+            Text(String(localized: "워치 페어링"))
                 .font(.pretendard(.bold, size: 16))
                 .foregroundStyle(Color.white)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.top, Layout.watchSectionTitleTop.v(scale))
 
-            SettingsRow(symbol: "watch.analog", title: "애플 워치 연결", action: onWatchPairing)
-                .accessibilityHint("워치 연결 과정을 시작해요")
+            SettingsRow(symbol: "watch.analog", title: String(localized: "애플 워치 연결"), action: onWatchPairing)
+                .accessibilityHint(String(localized: "워치 연결 과정을 시작해요"))
                 .settingsCard()
                 .padding(.top, Layout.cardTop.v(scale))
 
@@ -93,10 +93,10 @@ struct SettingsView: View {
         .darkScreenBackground()
         .chicAlert(
             isPresented: showsNoMailAlert,
-            title: "메일 계정이 없어요",
-            message: "메일 앱에 계정을 추가하거나\n아래 주소로 직접 문의해 주세요\n\(Self.contactEmail)",
-            cancelTitle: "닫기",
-            confirmTitle: "주소 복사",
+            title: String(localized: "메일 계정이 없어요"),
+            message: String(localized: "메일 앱에 계정을 추가하거나\n아래 주소로 직접 문의해 주세요\n\(Self.contactEmail)"),
+            cancelTitle: String(localized: "닫기"),
+            confirmTitle: String(localized: "주소 복사"),
             onCancel: { showsNoMailAlert = false },
             onConfirm: {
                 UIPasteboard.general.string = Self.contactEmail
@@ -105,7 +105,7 @@ struct SettingsView: View {
         )
         .task { await checkStoreVersion() }
         .sheet(isPresented: $showsMailCompose) {
-            MailComposeView(recipient: Self.contactEmail, subject: "[chic] 문의", body: Self.mailBody)
+            MailComposeView(recipient: Self.contactEmail, subject: String(localized: "[chic] 문의"), body: Self.mailBody)
                 .ignoresSafeArea()
         }
     }
@@ -114,7 +114,7 @@ struct SettingsView: View {
     /// App Store 버전을 확인하지 못했으면 nil.
     private var latestVersionText: String? {
         guard let store = storeVersion, let current = AppVersion.current else { return nil }
-        return store > current ? "최신 버전 \(store.display)" : "최신 버전 사용중"
+        return store > current ? String(localized: "최신 버전 \(store.display)") : String(localized: "최신 버전 사용중")
     }
 
     /// 화면이 열릴 때 App Store 최신 버전을 확인해요. (미리보기는 넘겨받은 값을 써요)
@@ -138,7 +138,7 @@ struct SettingsView: View {
     /// 문의 메일 본문: 위쪽은 비워 두고, 아래에 문의 처리에 필요한 앱·기기 정보를 적어 둬요.
     private static var mailBody: String {
         let device = UIDevice.current
-        return "\n\n\n---\n앱 버전: \(currentVersion)\n기기: \(device.model) · iOS \(device.systemVersion)\n"
+        return String(localized: "\n\n\n---\n앱 버전: \(currentVersion)\n기기: \(device.model) · iOS \(device.systemVersion)\n")
     }
 
     /// 지금 버전(Xcode의 Version)을 n.n.n(예: 1.0.0)으로 보여 줍니다.

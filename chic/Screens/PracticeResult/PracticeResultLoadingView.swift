@@ -9,12 +9,12 @@ struct PracticeResultLoadingView: View {
     @Environment(\.designScale) private var scale
     var body: some View {
         VStack(spacing: 0) {
-            Text("연습 결과 로딩 중")
+            Text(String(localized: "연습 결과 로딩 중"))
                 .font(.pretendard(.bold, size: 26))
                 .foregroundStyle(PracticeResultColors.primaryText)
                 .padding(.top, Layout.titleTop.v(scale))
 
-            DarkScreenSubtitle("이번 연습을 함께 돌아봐요", color: PracticeResultColors.primaryText)
+            DarkScreenSubtitle(String(localized: "이번 연습을 함께 돌아봐요"), color: PracticeResultColors.primaryText)
                 .padding(.top, Layout.subtitleTop.v(scale))
 
             LoadingSpinner()

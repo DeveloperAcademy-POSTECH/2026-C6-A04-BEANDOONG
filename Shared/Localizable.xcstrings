@@ -1,0 +1,4206 @@
+{
+  "sourceLanguage": "ko",
+  "strings": {
+    "\n\n\n---\n앱 버전: %@\n기기: %@ · iOS %@\n": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\n\n\n---\nApp version: %@\nDevice: %@ · iOS %@\n"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\n\n\n---\n앱 버전: %@\n기기: %@ · iOS %@\n"
+          }
+        }
+      }
+    },
+    "[chic] 문의": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "[chic] Support"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "[chic] 문의"
+          }
+        }
+      }
+    },
+    "%@ - %lld차": {
+      "comment": "Practice date and session number within that day.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ · Session %lld"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ - %lld차"
+          }
+        }
+      }
+    },
+    "%@ · 제외(%@)": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ · skipped (%@)"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ · 제외(%@)"
+          }
+        }
+      }
+    },
+    "%@ · 직접 진동 호출": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ · haptic requested"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ · 직접 진동 호출"
+          }
+        }
+      }
+    },
+    "%@ · 확장 세션 없음 · 진동 생략": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ · no extended session · haptic skipped"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ · 확장 세션 없음 · 진동 생략"
+          }
+        }
+      }
+    },
+    "%lld": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld"
+          }
+        }
+      }
+    },
+    "%lld%%": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld%%"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld%%"
+          }
+        }
+      }
+    },
+    "%lld분": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lldm"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld분"
+          }
+        }
+      }
+    },
+    "%lld분 %lld초": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lldm %llds"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld분 %lld초"
+          }
+        }
+      }
+    },
+    "%lld초": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%llds"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld초"
+          }
+        }
+      }
+    },
+    "32kHz 이상의 고정된 마이크 입력이 필요해요. 입력 장치를 확인해 주세요.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A stable microphone input of at least 32 kHz is required. Please check your input device."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "32kHz 이상의 고정된 마이크 입력이 필요해요. 입력 장치를 확인해 주세요."
+          }
+        }
+      }
+    },
+    "Apple Watch\n연결이 끊겼어요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple Watch\ndisconnected"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple Watch\n연결이 끊겼어요"
+          }
+        }
+      }
+    },
+    "Apple Watch 가\n준비되었어요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your Apple Watch\nis ready"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple Watch 가\n준비되었어요"
+          }
+        }
+      }
+    },
+    "Apple Watch 를\n찾지 못했어요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple Watch\nnot found"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple Watch 를\n찾지 못했어요"
+          }
+        }
+      }
+    },
+    "Apple Watch 에\nchic을 설치해주세요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Install chic on\nyour Apple Watch"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple Watch 에\nchic을 설치해주세요"
+          }
+        }
+      }
+    },
+    "Apple Watch 연결을\n확인하고 있어요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Checking your\nApple Watch connection"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple Watch 연결을\n확인하고 있어요"
+          }
+        }
+      }
+    },
+    "Apple Watch를 함께 사용하면\n상태 변화를 진동으로도 안내받을 수 있어요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "With Apple Watch, you can also\nfeel changes through haptic feedback."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple Watch를 함께 사용하면\n상태 변화를 진동으로도 안내받을 수 있어요"
+          }
+        }
+      }
+    },
+    "Apple Watch에서 chic 앱을 열어주세요\n손목 진동으로 스팀 상태를 알려드려요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open chic on your Apple Watch.\nFeel steaming updates on your wrist."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple Watch에서 chic 앱을 열어주세요\n손목 진동으로 스팀 상태를 알려드려요"
+          }
+        }
+      }
+    },
+    "Apple Watch에서 chic 앱을 열어주세요.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Please open chic on your Apple Watch."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple Watch에서 chic 앱을 열어주세요."
+          }
+        }
+      }
+    },
+    "chic": {
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "chic"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "chic"
+          }
+        }
+      }
+    },
+    "home.practice.image": {
+      "comment": "Asset name for the localized watch photo on the home screen.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HomeWatchPracticeEnglish"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HomeWatchPractice"
+          }
+        }
+      }
+    },
+    "iPhone 앱을 열어주세요.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Please open the iPhone app."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iPhone 앱을 열어주세요."
+          }
+        }
+      }
+    },
+    "iPhone에서 마이크 권한을 허용해주세요.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Please allow microphone access on your iPhone."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iPhone에서 마이크 권한을 허용해주세요."
+          }
+        }
+      }
+    },
+    "iPhone에서 연습은 계속 진행돼요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Practice continues on your iPhone."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iPhone에서 연습은 계속 진행돼요"
+          }
+        }
+      }
+    },
+    "iPhone에서 연습을 시작하고 있어요. 잠시 기다려주세요.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Practice is starting on your iPhone. Please wait a moment."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iPhone에서 연습을 시작하고 있어요. 잠시 기다려주세요."
+          }
+        }
+      }
+    },
+    "iPhone에서 워치 없이 연습 중이에요.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You're practicing on iPhone without your watch."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iPhone에서 워치 없이 연습 중이에요."
+          }
+        }
+      }
+    },
+    "iPhone의 Watch 앱에서\nApple Watch의 페어링 상태를 확인해주세요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check your Apple Watch pairing\nin the Watch app on your iPhone."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iPhone의 Watch 앱에서\nApple Watch의 페어링 상태를 확인해주세요"
+          }
+        }
+      }
+    },
+    "iPhone의 Watch 앱에서\nchic을 찾아 설치해주세요.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Find and install chic in the\nWatch app on your iPhone."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iPhone의 Watch 앱에서\nchic을 찾아 설치해주세요."
+          }
+        }
+      }
+    },
+    "같은 경고 상태": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Same warning state"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "같은 경고 상태"
+          }
+        }
+      }
+    },
+    "개인정보 처리방침": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privacy Policy"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "개인정보 처리방침"
+          }
+        }
+      }
+    },
+    "거품 두께를 직접 살펴보세요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check the foam's thickness yourself"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "거품 두께를 직접 살펴보세요"
+          }
+        }
+      }
+    },
+    "거품 사이에 큰 기포가\n남았을 수 있어요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Large bubbles may\nremain in the foam"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "거품 사이에 큰 기포가\n남았을 수 있어요"
+          }
+        }
+      }
+    },
+    "거품이 우유와 덜 섞여\n위에 남았을 수 있어요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Some foam may have\nstayed on top"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "거품이 우유와 덜 섞여\n위에 남았을 수 있어요"
+          }
+        }
+      }
+    },
+    "거품이 원하는 만큼 생겼나요?": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Is the foam as thick as you wanted?"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "거품이 원하는 만큼 생겼나요?"
+          }
+        }
+      }
+    },
+    "거품이 조금\n얇을 수 있어요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The foam may be\na little thin"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "거품이 조금\n얇을 수 있어요"
+          }
+        }
+      }
+    },
+    "건너뛰기": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skip"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "건너뛰기"
+          }
+        }
+      }
+    },
+    "계속 연습": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep Practicing"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "계속 연습"
+          }
+        }
+      }
+    },
+    "공기 과다": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Too much air"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "공기 과다"
+          }
+        }
+      }
+    },
+    "공기 부족": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Too little air"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "공기 부족"
+          }
+        }
+      }
+    },
+    "공기 주입": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aeration"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "공기 주입"
+          }
+        }
+      }
+    },
+    "공기 주입 부족": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Too little air"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "공기 주입 부족"
+          }
+        }
+      }
+    },
+    "공기 주입 소리": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aeration sound"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "공기 주입 소리"
+          }
+        }
+      }
+    },
+    "공기 주입 소리가 감지되는 동안\n 화면 속 우유가 서서히 차올라요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The milk on screen rises gradually\nwhile we detect aeration sounds."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "공기 주입 소리가 감지되는 동안\n 화면 속 우유가 서서히 차올라요"
+          }
+        }
+      }
+    },
+    "공기 주입 시간을\n잘 맞췄어요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your aeration time\nwas on track"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "공기 주입 시간을\n잘 맞췄어요"
+          }
+        }
+      }
+    },
+    "공기 주입에 따라\n우유가 차올라요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Watch the milk rise\nas you add air"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "공기 주입에 따라\n우유가 차올라요"
+          }
+        }
+      }
+    },
+    "공기 주입이\n조금 부족했어요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The milk may need\na little more air"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "공기 주입이\n조금 부족했어요"
+          }
+        }
+      }
+    },
+    "공기 주입이 부족해요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Too little air is going in"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "공기 주입이 부족해요"
+          }
+        }
+      }
+    },
+    "공기가 고르게\n들어가고 있어요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Air is going in\nevenly"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "공기가 고르게\n들어가고 있어요"
+          }
+        }
+      }
+    },
+    "공기가 들어가는 순간": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "As air goes in"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "공기가 들어가는 순간"
+          }
+        }
+      }
+    },
+    "공기가 조금\n거칠게 들어갔어요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Air went in\na little unevenly"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "공기가 조금\n거칠게 들어갔어요"
+          }
+        }
+      }
+    },
+    "공기가 한꺼번에 들어간\n순간이 있었어요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Some air went in\nall at once"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "공기가 한꺼번에 들어간\n순간이 있었어요"
+          }
+        }
+      }
+    },
+    "공기과다": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Too much air"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "공기과다"
+          }
+        }
+      }
+    },
+    "공기를 조금\n오래 넣었어요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You added air\na little longer"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "공기를 조금\n오래 넣었어요"
+          }
+        }
+      }
+    },
+    "공기주입 상태를\n한눈에 확인해요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "See your aeration\nat a glance"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "공기주입 상태를\n한눈에 확인해요"
+          }
+        }
+      }
+    },
+    "공기주입 상태를 분석하려면\n마이크 권한이 필요해요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allow microphone access\nto analyze aeration"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "공기주입 상태를 분석하려면\n마이크 권한이 필요해요"
+          }
+        }
+      }
+    },
+    "공기주입 소리가 잘 감지되도록\n물과 열기를 피해 안전한 위치에 놓아주세요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep it close enough to hear,\nbut safely away from water and heat."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "공기주입 소리가 잘 감지되도록\n물과 열기를 피해 안전한 위치에 놓아주세요"
+          }
+        }
+      }
+    },
+    "공기주입 소리를 확인하지 못해 이번 기록만으로 거품 상태를 판단하기 어려워요. 완성된 우유의 거품을 살펴보고 다음에는 고른 공기주입 소리를 찾아보세요.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Without a detected aeration sound, this session alone cannot tell us how the foam turned out. Check the finished milk and listen for a steady aeration sound next time."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "공기주입 소리를 확인하지 못해 이번 기록만으로 거품 상태를 판단하기 어려워요. 완성된 우유의 거품을 살펴보고 다음에는 고른 공기주입 소리를 찾아보세요."
+          }
+        }
+      }
+    },
+    "기기 설정에서 chic의 마이크 접근을\n허용한 뒤 돌아와 주세요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allow chic to use the microphone\nin Settings, then come back."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "기기 설정에서 chic의 마이크 접근을\n허용한 뒤 돌아와 주세요"
+          }
+        }
+      }
+    },
+    "기록 보기": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "History"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "기록 보기"
+          }
+        }
+      }
+    },
+    "기록 삭제": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete Record"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "기록 삭제"
+          }
+        }
+      }
+    },
+    "기록을 삭제하지 못했어요.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't delete the record."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "기록을 삭제하지 못했어요."
+          }
+        }
+      }
+    },
+    "기록을 열어 소리의 변화를 비교해 보세요.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open a record to compare how the sound changes."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "기록을 열어 소리의 변화를 비교해 보세요."
+          }
+        }
+      }
+    },
+    "기포 크기와 부피를 따로 보세요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check bubble size and milk volume separately"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "기포 크기와 부피를 따로 보세요"
+          }
+        }
+      }
+    },
+    "나의 기록이 쌓이는 곳": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your progress, one session at a time"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "나의 기록이 쌓이는 곳"
+          }
+        }
+      }
+    },
+    "다시 연결 확인하기": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check Again"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "다시 연결 확인하기"
+          }
+        }
+      }
+    },
+    "다음": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Next"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "다음"
+          }
+        }
+      }
+    },
+    "다음 %@을\n위한 작은 연습": {
+      "comment": "Home headline; placeholder is the highlighted word for cup.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A little practice\nfor your next %@"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "다음 %@을\n위한 작은 연습"
+          }
+        }
+      }
+    },
+    "다음엔 우유와 거품을\n고르게 섞어볼까요?": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Let's mix the milk\nand foam more evenly"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "다음엔 우유와 거품을\n고르게 섞어볼까요?"
+          }
+        }
+      }
+    },
+    "닫기": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "닫기"
+          }
+        }
+      }
+    },
+    "뒤로가기": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Back"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "뒤로가기"
+          }
+        }
+      }
+    },
+    "롤링": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rolling"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "롤링"
+          }
+        }
+      }
+    },
+    "롤링 소리": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rolling sound"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "롤링 소리"
+          }
+        }
+      }
+    },
+    "롤링이 안정적으로\n진행되고 있어요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The milk is\nrolling steadily"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "롤링이 안정적으로\n진행되고 있어요"
+          }
+        }
+      }
+    },
+    "마이크 설정": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Microphone Access"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "마이크 설정"
+          }
+        }
+      }
+    },
+    "마이크 입력 형식이 올바르지 않아요.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The microphone input format is invalid."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "마이크 입력 형식이 올바르지 않아요."
+          }
+        }
+      }
+    },
+    "마이크의 오디오 형식을 읽을 수 없어요.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't read the microphone's audio format."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "마이크의 오디오 형식을 읽을 수 없어요."
+          }
+        }
+      }
+    },
+    "마지막에 거품만 남나요?": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Is only foam left at the end?"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "마지막에 거품만 남나요?"
+          }
+        }
+      }
+    },
+    "먼저 표면에 큰 기포가 있는지 보고, 우유 높이도 처음과 비교해 보세요. 큰 기포 몇 개가 눈에 띄는 것만으로는 우유 전체가 얼마나 부풀었는지 알기 어려워요.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "First look for large bubbles on the surface, then compare the milk level with where it started. A few large bubbles alone don't tell you how much the milk has expanded overall."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "먼저 표면에 큰 기포가 있는지 보고, 우유 높이도 처음과 비교해 보세요. 큰 기포 몇 개가 눈에 띄는 것만으로는 우유 전체가 얼마나 부풀었는지 알기 어려워요."
+          }
+        }
+      }
+    },
+    "메일 계정이 없어요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No mail account"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메일 계정이 없어요"
+          }
+        }
+      }
+    },
+    "메일 앱에 계정을 추가하거나\n아래 주소로 직접 문의해 주세요\n%@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Add an account in Mail, or contact us at:\n%@"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "메일 앱에 계정을 추가하거나\n아래 주소로 직접 문의해 주세요\n%@"
+          }
+        }
+      }
+    },
+    "문의하기": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Contact Us"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "문의하기"
+          }
+        }
+      }
+    },
+    "방 삭제": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete Session"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "방 삭제"
+          }
+        }
+      }
+    },
+    "버블링": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bubbling"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "버블링"
+          }
+        }
+      }
+    },
+    "비율": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ratio"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "비율"
+          }
+        }
+      }
+    },
+    "삭제": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "삭제"
+          }
+        }
+      }
+    },
+    "삭제한 기록은 다시 복구할 수 없어요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deleted records can't be recovered."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "삭제한 기록은 다시 복구할 수 없어요"
+          }
+        }
+      }
+    },
+    "삭제한 방은 다시 복구할 수 없어요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deleted sessions can't be recovered."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "삭제한 방은 다시 복구할 수 없어요"
+          }
+        }
+      }
+    },
+    "색상 변화로 공기 주입 상태를\n쉽게 확인 할 수 있어요.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Follow the colors to see\nhow aeration is going."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "색상 변화로 공기 주입 상태를\n쉽게 확인 할 수 있어요."
+          }
+        }
+      }
+    },
+    "선택한 기간에 연습 기록이 없어요.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No practice sessions in this period."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "선택한 기간에 연습 기록이 없어요."
+          }
+        }
+      }
+    },
+    "설정": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Settings"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "설정"
+          }
+        }
+      }
+    },
+    "설정 열기": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open Settings"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "설정 열기"
+          }
+        }
+      }
+    },
+    "설정에서 마이크 권한을 허용해주세요.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Please allow microphone access in Settings."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "설정에서 마이크 권한을 허용해주세요."
+          }
+        }
+      }
+    },
+    "소리 분석 프레임을 맞출 수 없어요.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't align the audio analysis frames."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "소리 분석 프레임을 맞출 수 없어요."
+          }
+        }
+      }
+    },
+    "소리 분석에 따른 참고용 안내이며, 실제 공기량을 측정한 결과는 아니에요.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "This guidance is based on sound analysis. It does not measure the actual amount of air in the milk."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "소리 분석에 따른 참고용 안내이며, 실제 공기량을 측정한 결과는 아니에요."
+          }
+        }
+      }
+    },
+    "소리 분석을 준비할 수 없어요.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't prepare sound analysis."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "소리 분석을 준비할 수 없어요."
+          }
+        }
+      }
+    },
+    "소리 유형": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sound type"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "소리 유형"
+          }
+        }
+      }
+    },
+    "소리 확인 중": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Listening"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "소리 확인 중"
+          }
+        }
+      }
+    },
+    "소리가 제대로 확인되지 않았어요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The sound wasn't clear enough"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "소리가 제대로 확인되지 않았어요"
+          }
+        }
+      }
+    },
+    "소리를 분석할 수 있는 마이크 입력이 없어요.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No microphone input is available for sound analysis."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "소리를 분석할 수 있는 마이크 입력이 없어요."
+          }
+        }
+      }
+    },
+    "소리를 확인하고 있어요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Listening for sound"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "소리를 확인하고 있어요"
+          }
+        }
+      }
+    },
+    "수동 테스트": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manual test"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "수동 테스트"
+          }
+        }
+      }
+    },
+    "수동 테스트 · 앱 비활성": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manual test · app inactive"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "수동 테스트 · 앱 비활성"
+          }
+        }
+      }
+    },
+    "스크레칭": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Screeching"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "스크레칭"
+          }
+        }
+      }
+    },
+    "스크레칭이 들렸더라도 컵에 따른 거품이 원하는 두께라면 공기를 더 넣을 필요는 없어요. 묽은 우유부터 나오고 피처에 두꺼운 거품이 남았다면 우유와 거품이 따로 층을 이룬 거예요.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Even if you heard screeching, you don't need more air if the poured foam is the thickness you wanted. If thin milk pours first and thick foam stays behind, the milk and foam have separated into layers."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "스크레칭이 들렸더라도 컵에 따른 거품이 원하는 두께라면 공기를 더 넣을 필요는 없어요. 묽은 우유부터 나오고 피처에 두꺼운 거품이 남았다면 우유와 거품이 따로 층을 이룬 거예요."
+          }
+        }
+      }
+    },
+    "스크레칭이 들렸어도 우유가 원하는 만큼 부풀었다면 공기 주입 시간을 늘릴 필요는 없어요. 높이가 거의 그대로이고 거품도 적다면 다음엔 차가운 우유에 공기를 조금 더 넣어 보세요.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Even if you heard screeching, you don't need to add air longer if the milk expanded as much as you wanted. If the level barely changed and there's little foam, add a little more air while the milk is still cold next time."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "스크레칭이 들렸어도 우유가 원하는 만큼 부풀었다면 공기 주입 시간을 늘릴 필요는 없어요. 높이가 거의 그대로이고 거품도 적다면 다음엔 차가운 우유에 공기를 조금 더 넣어 보세요."
+          }
+        }
+      }
+    },
+    "스크레칭이 들렸을 때는 스티밍 전후의 우유 높이와 표면을 함께 보세요. 높이가 거의 그대로이고 거품도 잘 보이지 않는다면 다음엔 초반에 노즐 끝을 표면 가까이에 두세요.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If you heard screeching, compare the milk's level and surface before and after steaming. If it barely expanded and there's little foam, keep the tip closer to the surface at the start next time."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "스크레칭이 들렸을 때는 스티밍 전후의 우유 높이와 표면을 함께 보세요. 높이가 거의 그대로이고 거품도 잘 보이지 않는다면 다음엔 초반에 노즐 끝을 표면 가까이에 두세요."
+          }
+        }
+      }
+    },
+    "스티밍 가이드": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Steaming Guide"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "스티밍 가이드"
+          }
+        }
+      }
+    },
+    "스티밍 결과": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Steaming Results"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "스티밍 결과"
+          }
+        }
+      }
+    },
+    "스티밍 기록": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Steaming Record"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "스티밍 기록"
+          }
+        }
+      }
+    },
+    "스티밍 분석 모델을 찾을 수 없어요.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't find the steaming analysis model."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "스티밍 분석 모델을 찾을 수 없어요."
+          }
+        }
+      }
+    },
+    "스티밍 분석 모델의 입력 또는 출력이 올바르지 않아요.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The steaming analysis model has an invalid input or output."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "스티밍 분석 모델의 입력 또는 출력이 올바르지 않아요."
+          }
+        }
+      }
+    },
+    "스티밍 연습": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Steaming Practice"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "스티밍 연습"
+          }
+        }
+      }
+    },
+    "스티밍 연습 시작": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start Practice"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "스티밍 연습 시작"
+          }
+        }
+      }
+    },
+    "스티밍 중 공기주입 상태를\n색상과 문구로 상태를 알려드려요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Colors and messages show you\nhow aeration is going as you steam."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "스티밍 중 공기주입 상태를\n색상과 문구로 상태를 알려드려요"
+          }
+        }
+      }
+    },
+    "스티밍 타이밍을\n딱 맞췄어요!": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You got the\ntiming right!"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "스티밍 타이밍을\n딱 맞췄어요!"
+          }
+        }
+      }
+    },
+    "스티밍을 마친 뒤 피처를 가볍게 돌려 컵에 따라 보세요. 처음에는 묽은 우유만 나오고 끝에 뻣뻣한 거품이 남는다면 우유와 거품이 따로 층을 이룬 상태예요.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "After steaming, gently swirl the pitcher and pour. If thin milk comes out first and stiff foam remains at the end, the milk and foam have separated into layers."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "스티밍을 마친 뒤 피처를 가볍게 돌려 컵에 따라 보세요. 처음에는 묽은 우유만 나오고 끝에 뻣뻣한 거품이 남는다면 우유와 거품이 따로 층을 이룬 상태예요."
+          }
+        }
+      }
+    },
+    "스티밍을 시작하면\n소리를 확인해요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start steaming\nand we'll listen"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "스티밍을 시작하면\n소리를 확인해요"
+          }
+        }
+      }
+    },
+    "스티밍이 끝났나요?": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Finished steaming?"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "스티밍이 끝났나요?"
+          }
+        }
+      }
+    },
+    "스팀 결과": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Steaming Results"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "스팀 결과"
+          }
+        }
+      }
+    },
+    "스팀 소리가 감지되지 않아요\n연습을 마쳤다면 기록을 확인해 주세요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "We can't hear steaming.\nIf you're done, check your results."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "스팀 소리가 감지되지 않아요\n연습을 마쳤다면 기록을 확인해 주세요"
+          }
+        }
+      }
+    },
+    "시간": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Time"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "시간"
+          }
+        }
+      }
+    },
+    "실시간 소리 분석이 지연되어 연습을 종료했어요. 다시 시작해 주세요.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Practice ended because sound analysis fell behind. Please start again."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "실시간 소리 분석이 지연되어 연습을 종료했어요. 다시 시작해 주세요."
+          }
+        }
+      }
+    },
+    "아이폰과 워치로\n함께 확인해요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Follow along on\niPhone and Apple Watch"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "아이폰과 워치로\n함께 확인해요"
+          }
+        }
+      }
+    },
+    "아직 처리한 상태가 없어요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No status processed yet"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "아직 처리한 상태가 없어요"
+          }
+        }
+      }
+    },
+    "애플 워치 연결": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Apple Watch Setup"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "애플 워치 연결"
+          }
+        }
+      }
+    },
+    "애플 워치와 함께 스티밍 연습을 시작해요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start steaming practice with Apple Watch"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "애플 워치와 함께 스티밍 연습을 시작해요"
+          }
+        }
+      }
+    },
+    "앱 닫기": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Close App"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "앱 닫기"
+          }
+        }
+      }
+    },
+    "어떤 소리가 얼마나 감지됐는지 확인하고\n 다음 연습에 활용해 보세요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "See which sounds we detected and\nfor how long, then try again."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "어떤 소리가 얼마나 감지됐는지 확인하고\n 다음 연습에 활용해 보세요"
+          }
+        }
+      }
+    },
+    "연결 응답이 없어요. 두 기기에서 앱을 열고 다시 확인해주세요.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No response. Open the app on both devices and check again."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "연결 응답이 없어요. 두 기기에서 앱을 열고 다시 확인해주세요."
+          }
+        }
+      }
+    },
+    "연결 준비 중이에요. 잠시 후 다시 확인해주세요.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Connecting. Please check again in a moment."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "연결 준비 중이에요. 잠시 후 다시 확인해주세요."
+          }
+        }
+      }
+    },
+    "연결 확인": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check connection"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "연결 확인"
+          }
+        }
+      }
+    },
+    "연결 확인하기": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check Connection"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "연결 확인하기"
+          }
+        }
+      }
+    },
+    "연습 가이드": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Practice Guide"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "연습 가이드"
+          }
+        }
+      }
+    },
+    "연습 결과 로딩 중": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Loading your results"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "연습 결과 로딩 중"
+          }
+        }
+      }
+    },
+    "연습 결과 저장에 실패했어요.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't save your practice results."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "연습 결과 저장에 실패했어요."
+          }
+        }
+      }
+    },
+    "연습 기록 보러가기": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your practice\nhistory"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "연습 기록 보러가기"
+          }
+        }
+      }
+    },
+    "연습 기록 저장소를 열 수 없어 연습을 시작하지 못했어요. 앱을 다시 실행해 주세요.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't start practice because your history couldn't be opened. Please restart the app."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "연습 기록 저장소를 열 수 없어 연습을 시작하지 못했어요. 앱을 다시 실행해 주세요."
+          }
+        }
+      }
+    },
+    "연습 기록 저장소를 열 수 없어요. 앱을 다시 실행해 주세요.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't open your practice history. Please restart the app."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "연습 기록 저장소를 열 수 없어요. 앱을 다시 실행해 주세요."
+          }
+        }
+      }
+    },
+    "연습 기록을 확인해요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "View your practice history"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "연습 기록을 확인해요"
+          }
+        }
+      }
+    },
+    "연습 내역이 없어요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No practice sessions yet"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "연습 내역이 없어요"
+          }
+        }
+      }
+    },
+    "연습 상태가 변경되었어요. 다시 확인해주세요.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The practice status has changed. Please check again."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "연습 상태가 변경되었어요. 다시 확인해주세요."
+          }
+        }
+      }
+    },
+    "연습 시작하기": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start Practice"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "연습 시작하기"
+          }
+        }
+      }
+    },
+    "연습 안내": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Practice notice"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "연습 안내"
+          }
+        }
+      }
+    },
+    "연습 종료": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "End Practice"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "연습 종료"
+          }
+        }
+      }
+    },
+    "연습 준비": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get Ready"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "연습 준비"
+          }
+        }
+      }
+    },
+    "연습 준비하기": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Get Ready to Practice"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "연습 준비하기"
+          }
+        }
+      }
+    },
+    "연습을 돌아보고\n부족했던 순간을 채워가요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Review your practice\nand keep improving"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "연습을 돌아보고\n부족했던 순간을 채워가요"
+          }
+        }
+      }
+    },
+    "연습을 마쳤어요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Practice complete"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "연습을 마쳤어요"
+          }
+        }
+      }
+    },
+    "연습을 시작하려면 iPhone에서 chic 앱을 열어주세요.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Open chic on your iPhone to start practicing."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "연습을 시작하려면 iPhone에서 chic 앱을 열어주세요."
+          }
+        }
+      }
+    },
+    "연습하기": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Practice"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "연습하기"
+          }
+        }
+      }
+    },
+    "오늘": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Today"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "오늘"
+          }
+        }
+      }
+    },
+    "오디오 사용이 중단되어 연습을 종료했어요.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Practice ended because audio was interrupted."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "오디오 사용이 중단되어 연습을 종료했어요."
+          }
+        }
+      }
+    },
+    "올해": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Year"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "올해"
+          }
+        }
+      }
+    },
+    "완료": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Done"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "완료"
+          }
+        }
+      }
+    },
+    "요청 시간이 지났어요. 다시 시도해주세요.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The request timed out. Please try again."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "요청 시간이 지났어요. 다시 시도해주세요."
+          }
+        }
+      }
+    },
+    "우유 높이가 처음과 비슷한가요?": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Is the milk still near its starting level?"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "우유 높이가 처음과 비슷한가요?"
+          }
+        }
+      }
+    },
+    "우유 높이를 처음과 비교해 보세요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Compare the milk with its starting level"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "우유 높이를 처음과 비교해 보세요"
+          }
+        }
+      }
+    },
+    "우유 표면에 윤기가 나나요?": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Does the milk surface look glossy?"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "우유 표면에 윤기가 나나요?"
+          }
+        }
+      }
+    },
+    "우유 표면에 큰 기포가\n남았을 수 있어요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Large bubbles may be\nleft on the surface"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "우유 표면에 큰 기포가\n남았을 수 있어요"
+          }
+        }
+      }
+    },
+    "우유가 도는지\n확인해요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check that\nthe milk swirls"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "우유가 도는지\n확인해요"
+          }
+        }
+      }
+    },
+    "우유가 부풀고 거품이 생겼나요?": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Did the milk expand and form foam?"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "우유가 부풀고 거품이 생겼나요?"
+          }
+        }
+      }
+    },
+    "우유가 회전하는 모습": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "As the milk swirls"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "우유가 회전하는 모습"
+          }
+        }
+      }
+    },
+    "우유와 거품이 덜 섞였을 수 있어요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "The milk and foam may need more mixing"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "우유와 거품이 덜 섞였을 수 있어요"
+          }
+        }
+      }
+    },
+    "우유의 거품 상태를 살펴보세요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Take a look at your milk foam"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "우유의 거품 상태를 살펴보세요"
+          }
+        }
+      }
+    },
+    "우유의 변화를 함께 살펴봐요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Watch your milk change"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "우유의 변화를 함께 살펴봐요"
+          }
+        }
+      }
+    },
+    "워치 연결 과정을 시작해요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Set up your Apple Watch connection"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "워치 연결 과정을 시작해요"
+          }
+        }
+      }
+    },
+    "워치 연결 다시 확인": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check Watch Connection"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "워치 연결 다시 확인"
+          }
+        }
+      }
+    },
+    "워치 연결이 잠시 끊겼어요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Your watch briefly disconnected"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "워치 연결이 잠시 끊겼어요"
+          }
+        }
+      }
+    },
+    "워치 연습 아님": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Not a watch session"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "워치 연습 아님"
+          }
+        }
+      }
+    },
+    "워치 옆면의 둥근 버튼(Digital Crown)을 눌러 앱에서 나갈 수 있어요.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Press the Digital Crown, the round button on the side of your watch, to leave the app."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "워치 옆면의 둥근 버튼(Digital Crown)을 눌러 앱에서 나갈 수 있어요."
+          }
+        }
+      }
+    },
+    "워치 페어링": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Watch pairing"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "워치 페어링"
+          }
+        }
+      }
+    },
+    "워치 페어링 안 됨": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Watch not paired"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "워치 페어링 안 됨"
+          }
+        }
+      }
+    },
+    "워치 페어링됨": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Watch paired"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "워치 페어링됨"
+          }
+        }
+      }
+    },
+    "워치에서도 실시간 상태를\n확인할 수 있어요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Follow your progress\non your watch"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "워치에서도 실시간 상태를\n확인할 수 있어요"
+          }
+        }
+      }
+    },
+    "응답을 확인할 수 없어요.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't read the response."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "응답을 확인할 수 없어요."
+          }
+        }
+      }
+    },
+    "이미 받았거나 오래된 판정": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Duplicate or outdated status"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이미 받았거나 오래된 판정"
+          }
+        }
+      }
+    },
+    "이번 달": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Month"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이번 달"
+          }
+        }
+      }
+    },
+    "이번 스티밍 상태를\n판단하기 어려워요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "We couldn't assess\nthis session"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이번 스티밍 상태를\n판단하기 어려워요"
+          }
+        }
+      }
+    },
+    "이번 연습을 함께 돌아봐요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Let's look back at your practice"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이번 연습을 함께 돌아봐요"
+          }
+        }
+      }
+    },
+    "이번엔 공기 주입 소리를\n확인하지 못했어요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No aeration sound\nwas detected"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이번엔 공기 주입 소리를\n확인하지 못했어요"
+          }
+        }
+      }
+    },
+    "이제 스팀 연습을 시작하면\n워치에서 진동 피드백을 받을 수 있어요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start steaming practice to get\nhaptic feedback on your watch."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "이제 스팀 연습을 시작하면\n워치에서 진동 피드백을 받을 수 있어요"
+          }
+        }
+      }
+    },
+    "일주일": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Week"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "일주일"
+          }
+        }
+      }
+    },
+    "잠시만 기다려 주세요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Just a moment"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "잠시만 기다려 주세요"
+          }
+        }
+      }
+    },
+    "저장소를 열 수 없어요.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Couldn't open storage."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "저장소를 열 수 없어요."
+          }
+        }
+      }
+    },
+    "전체": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "All"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "전체"
+          }
+        }
+      }
+    },
+    "전체 시간": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Total time"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "전체 시간"
+          }
+        }
+      }
+    },
+    "정말 기록을 삭제하시겠어요?": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete this record?"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "정말 기록을 삭제하시겠어요?"
+          }
+        }
+      }
+    },
+    "정말 방을 삭제하시겠어요?": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delete this session?"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "정말 방을 삭제하시겠어요?"
+          }
+        }
+      }
+    },
+    "정보 및 지원": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "About & Support"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "정보 및 지원"
+          }
+        }
+      }
+    },
+    "정상 공기 주입": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Steady aeration"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "정상 공기 주입"
+          }
+        }
+      }
+    },
+    "정상 소리": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Normal"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "정상 소리"
+          }
+        }
+      }
+    },
+    "정상소리": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Normal"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "정상소리"
+          }
+        }
+      }
+    },
+    "종료": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "End"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "종료"
+          }
+        }
+      }
+    },
+    "종료하기": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "End Practice"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "종료하기"
+          }
+        }
+      }
+    },
+    "주소 복사": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Copy Address"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "주소 복사"
+          }
+        }
+      }
+    },
+    "주의 소리": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Caution"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "주의 소리"
+          }
+        }
+      }
+    },
+    "주의소리": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Caution"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "주의소리"
+          }
+        }
+      }
+    },
+    "지금 위치를\n유지해요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hold this\nposition"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "지금 위치를\n유지해요"
+          }
+        }
+      }
+    },
+    "지연된 판정": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Delayed status"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "지연된 판정"
+          }
+        }
+      }
+    },
+    "직전 진동과 너무 가까운 판정": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Too soon after the last haptic"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "직전 진동과 너무 가까운 판정"
+          }
+        }
+      }
+    },
+    "직접 진동 테스트": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Test Haptics"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "직접 진동 테스트"
+          }
+        }
+      }
+    },
+    "진동 대상 아님": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "No haptic needed"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "진동 대상 아님"
+          }
+        }
+      }
+    },
+    "진동 진단": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Haptic Diagnostics"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "진동 진단"
+          }
+        }
+      }
+    },
+    "짧은 순간에\n공기가 들어갔어요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Air went in\nfor a brief moment"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "짧은 순간에\n공기가 들어갔어요"
+          }
+        }
+      }
+    },
+    "첫 연습 시작하기": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start Your First Session"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "첫 연습 시작하기"
+          }
+        }
+      }
+    },
+    "첫 연습을 통해\n기록을 쌓아볼까요?": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Start your first session\nand track your progress."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "첫 연습을 통해\n기록을 쌓아볼까요?"
+          }
+        }
+      }
+    },
+    "최신 버전 %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Latest version %@"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "최신 버전 %@"
+          }
+        }
+      }
+    },
+    "최신 버전 사용중": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "You're up to date"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "최신 버전 사용중"
+          }
+        }
+      }
+    },
+    "취소": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cancel"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "취소"
+          }
+        }
+      }
+    },
+    "컵에 따른 뒤 거품이 원했던 것보다 두껍게 쌓였는지 보세요. 더 얇은 거품을 원한다면 다음엔 공기 주입을 조금 일찍 마쳐 보세요.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "After pouring, check whether the foam is thicker than you wanted. For thinner foam, try finishing aeration a little earlier next time."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "컵에 따른 뒤 거품이 원했던 것보다 두껍게 쌓였는지 보세요. 더 얇은 거품을 원한다면 다음엔 공기 주입을 조금 일찍 마쳐 보세요."
+          }
+        }
+      }
+    },
+    "컵에 따를 때 묽은 우유가 먼저 나오고 거품이 피처에 덩어리로 남는다면, 우유와 거품이 덜 섞인 거예요. 다음엔 공기를 넣은 뒤 노즐 끝을 살짝 담가 우유 전체가 돌도록 해 보세요.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "If thin milk pours first and clumps of foam stay in the pitcher, they haven't mixed evenly. Next time, after adding air, submerge the tip slightly so the whole pitcher of milk swirls."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "컵에 따를 때 묽은 우유가 먼저 나오고 거품이 피처에 덩어리로 남는다면, 우유와 거품이 덜 섞인 거예요. 다음엔 공기를 넣은 뒤 노즐 끝을 살짝 담가 우유 전체가 돌도록 해 보세요."
+          }
+        }
+      }
+    },
+    "큰 기포 주의": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Watch for large bubbles"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "큰 기포 주의"
+          }
+        }
+      }
+    },
+    "큰 기포가 눈에 띄나요?": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Can you see large bubbles?"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "큰 기포가 눈에 띄나요?"
+          }
+        }
+      }
+    },
+    "큰 기포가 생길 수 있어요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Large bubbles may form"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "큰 기포가 생길 수 있어요"
+          }
+        }
+      }
+    },
+    "큰 기포가 섞인 거품층이\n위에 남았을 수 있어요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A layer of bubbly foam\nmay have stayed on top"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "큰 기포가 섞인 거품층이\n위에 남았을 수 있어요"
+          }
+        }
+      }
+    },
+    "큰 기포와 거품 두께를 구분해 보세요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check large bubbles and foam thickness separately"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "큰 기포와 거품 두께를 구분해 보세요"
+          }
+        }
+      }
+    },
+    "표면과 따를 때의 모습을 함께 보세요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check the surface and how the milk pours"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "표면과 따를 때의 모습을 함께 보세요"
+          }
+        }
+      }
+    },
+    "표면에 큰 기포가 남았나요?": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Are large bubbles left on the surface?"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "표면에 큰 기포가 남았나요?"
+          }
+        }
+      }
+    },
+    "표면에 큰 기포가 있는지 먼저 살펴보세요. 컵에 따를 때 묽은 우유가 먼저 나오고 거품이 피처에 덩어리로 남는다면 우유와 거품이 고르게 섞이지 않은 상태예요.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "First check the surface for large bubbles. If thin milk pours first and clumps of foam stay in the pitcher, the milk and foam haven't mixed evenly."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "표면에 큰 기포가 있는지 먼저 살펴보세요. 컵에 따를 때 묽은 우유가 먼저 나오고 거품이 피처에 덩어리로 남는다면 우유와 거품이 고르게 섞이지 않은 상태예요."
+          }
+        }
+      }
+    },
+    "표면이 전반적으로 매끈한지, 그 사이에 큰 기포가 남았는지 보세요. 몇 개만 남았다면 피처 바닥을 작업대에 가볍게 톡톡 두드린 뒤 살짝 돌려 보세요.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check whether the surface is mostly smooth or has large bubbles. If only a few remain, gently tap the pitcher on the counter, then swirl it."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "표면이 전반적으로 매끈한지, 그 사이에 큰 기포가 남았는지 보세요. 몇 개만 남았다면 피처 바닥을 작업대에 가볍게 톡톡 두드린 뒤 살짝 돌려 보세요."
+          }
+        }
+      }
+    },
+    "피처 안을 들여다봤을 때 낱개로 또렷이 보이는 기포가 있는지 살펴보세요. 큰 기포가 남았다면 다음엔 공기를 넣을 때 노즐 끝이 표면 밖으로 드러나지 않게 해 보세요.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Look inside the pitcher for individual, clearly visible bubbles. If large bubbles remain, try keeping the tip just below the surface while adding air next time."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "피처 안을 들여다봤을 때 낱개로 또렷이 보이는 기포가 있는지 살펴보세요. 큰 기포가 남았다면 다음엔 공기를 넣을 때 노즐 끝이 표면 밖으로 드러나지 않게 해 보세요."
+          }
+        }
+      }
+    },
+    "피처를\n내려 주세요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lower the\npitcher"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "피처를\n내려 주세요"
+          }
+        }
+      }
+    },
+    "피처를\n올려 주세요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Raise the\npitcher"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "피처를\n올려 주세요"
+          }
+        }
+      }
+    },
+    "피처를 가볍게 돌려 우유 표면을 보세요. 기포 하나하나가 잘 보이지 않고 표면이 매끈하게 빛나면 고운 거품의 특징이에요.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gently swirl the pitcher and look at the milk's surface. A smooth, glossy surface with barely visible individual bubbles is a sign of fine foam."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "피처를 가볍게 돌려 우유 표면을 보세요. 기포 하나하나가 잘 보이지 않고 표면이 매끈하게 빛나면 고운 거품의 특징이에요."
+          }
+        }
+      }
+    },
+    "피처를 살짝\n내려 주세요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lower the pitcher\nslightly"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "피처를 살짝\n내려 주세요"
+          }
+        }
+      }
+    },
+    "피처를 살짝 올려\n노즐을 더 담가 주세요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Raise the pitcher\nto submerge the tip"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "피처를 살짝 올려\n노즐을 더 담가 주세요"
+          }
+        }
+      }
+    },
+    "피처에 처음 담았을 때보다 우유가 얼마나 부풀었는지 보세요. 높이가 거의 그대로이고 거품도 적다면 다음번엔 공기를 조금 더 오래 넣어 보세요.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check how much the milk has expanded from its starting level. If the level has barely changed and there's little foam, try adding air a little longer next time."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "피처에 처음 담았을 때보다 우유가 얼마나 부풀었는지 보세요. 높이가 거의 그대로이고 거품도 적다면 다음번엔 공기를 조금 더 오래 넣어 보세요."
+          }
+        }
+      }
+    },
+    "피처에서는 표면에 큰 기포가 남았는지, 컵에 따른 뒤 거품이 원하는 두께인지 보세요. 큰 기포가 남았다면 다음엔 공기를 한꺼번에 넣지 않도록 노즐 끝을 표면 바로 아래에 두세요.": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Look for large bubbles in the pitcher, then check the foam's thickness after pouring. If large bubbles remain, keep the tip just below the surface next time so air doesn't rush in all at once."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "피처에서는 표면에 큰 기포가 남았는지, 컵에 따른 뒤 거품이 원하는 두께인지 보세요. 큰 기포가 남았다면 다음엔 공기를 한꺼번에 넣지 않도록 노즐 끝을 표면 바로 아래에 두세요."
+          }
+        }
+      }
+    },
+    "한 잔의 시작, 작은 소리부터 함께해요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Every great cup starts with a little sound."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "한 잔의 시작, 작은 소리부터 함께해요"
+          }
+        }
+      }
+    },
+    "한잔": {
+      "comment": "Highlighted word in the home headline.",
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "cup"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "한잔"
+          }
+        }
+      }
+    },
+    "핸드폰이 스팀기 근처에 위치해있는지, 외부소리가 너무 큰 것은 아닌지 확인해주세요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Check that your phone is near the steam wand and that background noise isn't too loud."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "핸드폰이 스팀기 근처에 위치해있는지, 외부소리가 너무 큰 것은 아닌지 확인해주세요"
+          }
+        }
+      }
+    },
+    "현재 버전 %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Current version %@"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "현재 버전 %@"
+          }
+        }
+      }
+    },
+    "홈으로 가기": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Go to Home"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "홈으로 가기"
+          }
+        }
+      }
+    },
+    "확인": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OK"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "확인"
+          }
+        }
+      }
+    },
+    "확장 세션": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Extended session"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "확장 세션"
+          }
+        }
+      }
+    },
+    "확장 세션 만료 예정": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Extended session expiring"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "확장 세션 만료 예정"
+          }
+        }
+      }
+    },
+    "확장 세션 실행 중": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Extended session running"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "확장 세션 실행 중"
+          }
+        }
+      }
+    },
+    "확장 세션 종료 · 사유 %lld %@": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Extended session ended · reason %lld %@"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "확장 세션 종료 · 사유 %lld %@"
+          }
+        }
+      }
+    },
+    "활성": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Active"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "활성"
+          }
+        }
+      }
+    },
+    "휴대폰을 스팀 머신\n가까이에 놓아주세요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Place your phone\nnear the steam wand"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "휴대폰을 스팀 머신\n가까이에 놓아주세요"
+          }
+        }
+      }
+    },
+    "휴대폰의 상태 표시는 계속 확인할 수 있어요\n진동 피드백은 연결 후 다시 사용할 수 있어요": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Keep following along on your phone.\nHaptic feedback returns when reconnected."
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "휴대폰의 상태 표시는 계속 확인할 수 있어요\n진동 피드백은 연결 후 다시 사용할 수 있어요"
+          }
+        }
+      }
+    },
+    "히스토리": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "History"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "히스토리"
+          }
+        }
+      }
+    },
+    "애플 워치와 함께\n스티밍을 연습해요": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "애플 워치와 함께\n스티밍을 연습해요"
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Steam with\nApple Watch"
+          }
+        }
+      }
+    },
+    "소리 피드백과 우유 표면의 변화를\n함께 확인해 보세요.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "소리 피드백과 우유 표면의 변화를\n함께 확인해 보세요."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Follow the sound feedback and\nwatch the milk's surface change."
+          }
+        }
+      }
+    },
+    "교육받은 방법에 따라\n롤링을 관찰해요.": {
+      "extractionState": "manual",
+      "localizations": {
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "교육받은 방법에 따라\n롤링을 관찰해요."
+          }
+        },
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Watch the rolling motion using\nthe technique you've learned."
+          }
+        }
+      }
+    },
+    "가이드": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Guide"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "가이드"
+          }
+        }
+      }
+    }
+  },
+  "version": "1.0"
+}

@@ -25,7 +25,7 @@ struct PracticeFinishedView: View {
     var body: some View {
         WatchFullScreenStack {
             // MARK: 안내 문구
-            Text("연습을 마쳤어요")
+            Text(String(localized: "연습을 마쳤어요"))
                 .font(.watchScaled(16))
                 .lineLimit(1)
                 .minimumScaleFactor(0.8)
@@ -39,7 +39,7 @@ struct PracticeFinishedView: View {
                 .watchCenterY(Metrics.practiceDurationCenterY)
 
             // MARK: 하단 버튼
-            WatchCapsuleButton(title: "완료", action: onDoneTap)
+            WatchCapsuleButton(title: String(localized: "완료"), action: onDoneTap)
                 .watchCenterY(Metrics.doneButtonCenterY)
         }
         .foregroundStyle(.white)

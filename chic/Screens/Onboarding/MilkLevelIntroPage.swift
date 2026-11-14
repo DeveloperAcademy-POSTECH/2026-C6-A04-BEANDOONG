@@ -22,11 +22,11 @@ struct MilkLevelIntroPage: View {
                 .accessibilityHidden(true)
 
             // MARK: 타이틀 + 설명
-            DarkScreenTitle("공기 주입에 따라\n우유가 차올라요")
+            DarkScreenTitle(String(localized: "공기 주입에 따라\n우유가 차올라요"))
                 .onboardingPart(motion.title)
                 .padding(.top, Metrics.titleTop.v(scale))
 
-            DarkScreenSubtitle("공기 주입 소리가 감지되는 동안\n 화면 속 우유가 서서히 차올라요") // 2행 앞 공백: Hi-Fi 302 2행이 가운데에서 약 2pt 오른쪽
+            DarkScreenSubtitle(String(localized: "공기 주입 소리가 감지되는 동안\n 화면 속 우유가 서서히 차올라요")) // 2행 앞 공백: Hi-Fi 302 2행이 가운데에서 약 2pt 오른쪽
                 .onboardingPart(motion.subtitle)
                 .padding(.top, Metrics.subtitleTop.v(scale))
         }

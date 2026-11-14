@@ -99,7 +99,7 @@ struct HomeView: View {
                         .frame(width: 24, height: 24)
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel("설정")
+                .accessibilityLabel(String(localized: "설정"))
                 .padding(.leading, Layout.badgeToSettings.h(scale))
             }
             .homeEntrance(order: 0, hasEntered: hasEntered)
@@ -110,7 +110,7 @@ struct HomeView: View {
                 .homeEntrance(order: 1, hasEntered: hasEntered)
                 .padding(.top, Layout.headlineTop.v(scale))
 
-            Text("한 잔의 시작, 작은 소리부터 함께해요")
+            Text(String(localized: "한 잔의 시작, 작은 소리부터 함께해요"))
                 .font(.pretendard(.regular, size: 16))
                 .foregroundStyle(AppColors.darkSubtitle)
                 .homeEntrance(order: 2, hasEntered: hasEntered)
@@ -154,23 +154,21 @@ struct HomeView: View {
     private var practiceCard: some View {
         Button(action: startPractice) { practiceCardContent }
             .buttonStyle(HomeCardPressStyle(reduceMotion: reduceMotion))
-            .accessibilityLabel("연습하기")
-            .accessibilityHint("애플 워치와 함께 스티밍 연습을 시작해요")
+            .accessibilityLabel(String(localized: "연습하기"))
+            .accessibilityHint(String(localized: "애플 워치와 함께 스티밍 연습을 시작해요"))
     }
 
     private var practiceCardContent: some View {
         // 문구 두 줄과 버튼은 세로 가운데를 맞춰요 (Hi-Fi 311)
         HStack(alignment: .center, spacing: 0) {
-            VStack(alignment: .leading, spacing: 4) {
-                Text("애플 워치와 함께")
-                Text("스티밍을 연습해요")
-            }
+            Text(String(localized: "애플 워치와 함께\n스티밍을 연습해요"))
+                .lineSpacing(4)
             .font(.pretendard(.semibold, size: 20))
             .foregroundStyle(AppColors.homeCardText)
 
             Spacer(minLength: 0)
 
-            HomeCardCapsule(title: "연습하기", width: Layout.buttonWidth.h(scale))
+            HomeCardCapsule(title: String(localized: "연습하기"), width: Layout.buttonWidth.h(scale))
         }
         .padding(.leading, Layout.cardTextLeading.h(scale))
         .padding(.trailing, Layout.cardButtonTrailing.h(scale))
@@ -185,7 +183,7 @@ struct HomeView: View {
             .overlay(alignment: .topLeading) {
                 // 이미지는 카드보다 크게 그려 왼쪽(손목)과 위쪽(스팀 노즐)이 카드 밖으로 잘립니다. (Hi-Fi 그대로)
                 // 큰 사진이라 앱이 켜질 때 백그라운드에서 미리 디코딩해 둔 것을 써요 (처음 그려질 때 멈칫하지 않게).
-                Image.prepared("HomeWatchPractice")
+                Image.prepared(String(localized: "home.practice.image", defaultValue: "HomeWatchPractice", comment: "Asset name for the home photo. Use HomeWatchPracticeEnglish for English."))
                     .resizable()
                     // 카드 높이는 세로 비율로 줄므로 이미지도 가로·세로 중 작은 비율(fit)로 줄여야 SE처럼 짧은 화면에서 아래 문구를 덮지 않는다
                     .frame(width: HeroImage.size.width * scale.fit, height: HeroImage.size.height * scale.fit)
@@ -204,7 +202,7 @@ struct HomeView: View {
         Button {
             // TODO: 가이드 화면 연결 (가는 곳이 정해지면)
         } label: {
-            bottomCardContent(title: "가이드", width: Layout.guideCardWidth.h(scale)) {
+            bottomCardContent(title: String(localized: "가이드"), width: Layout.guideCardWidth.h(scale)) {
                 Image("IllustGuideBook")
                     .resizable()
                     .frame(width: Layout.guideBookSize.width.h(scale), height: Layout.guideBookSize.height.h(scale))
@@ -212,13 +210,13 @@ struct HomeView: View {
             }
         }
         .buttonStyle(HomeCardPressStyle(reduceMotion: reduceMotion))
-        .accessibilityLabel("가이드")
+        .accessibilityLabel(String(localized: "가이드"))
     }
 
     /// "연습 기록 보러가기" 카드 (오른쪽 아래에 기록 링 에셋이 카드 밖으로 잘려 걸쳐 있음)
     private var recordCard: some View {
         Button { path.append(.history) } label: {
-            bottomCardContent(title: "연습 기록 보러가기", width: recordCardWidth) {
+            bottomCardContent(title: String(localized: "연습 기록 보러가기"), width: recordCardWidth) {
                 // 링 에셋을 시계 방향으로 60° 돌려 분홍 호가 12시 ~ 4시 쪽에 오게 해요 (Hi-Fi 311)
                 Image("IllustRecordRing")
                     .resizable()
@@ -228,8 +226,8 @@ struct HomeView: View {
             }
         }
         .buttonStyle(HomeCardPressStyle(reduceMotion: reduceMotion))
-        .accessibilityLabel("기록 보기")
-        .accessibilityHint("연습 기록을 확인해요")
+        .accessibilityLabel(String(localized: "기록 보기"))
+        .accessibilityHint(String(localized: "연습 기록을 확인해요"))
     }
 
     /// 기록 카드 폭: 메인 카드 폭에서 가이드 카드와 사이 간격을 뺀 나머지 (오른쪽 끝을 메인 카드와 맞춰요)
@@ -275,19 +273,10 @@ struct HomeView: View {
 
     /// "다음 **한잔**을 / 위한 작은 연습" — '한잔'만 강조색
     private var headline: some View {
-        VStack(alignment: .leading, spacing: 3.3) { // Hi-Fi 253: 헤드라인 줄 간격 37
-            HStack(spacing: 0) {
-                Text("다음 ")
-                    .foregroundStyle(Color.white)
-                Text("한잔")
-                    .foregroundStyle(AppColors.darkChipSelected)
-                Text("을")
-                    .foregroundStyle(Color.white)
-            }
-            Text("위한 작은 연습")
-                .foregroundStyle(Color.white)
-        }
-        .font(.pretendard(.bold, size: 28))
+        Text("다음 \(Text("한잔").foregroundStyle(AppColors.darkChipSelected))을\n위한 작은 연습")
+            .foregroundStyle(Color.white)
+            .lineSpacing(3.3)
+            .font(.pretendard(.bold, size: 28))
     }
 }
 
@@ -371,17 +360,17 @@ private struct WatchPairingBadge: View {
             }
             .frame(width: 14, height: 14)
 
-            Text("워치 페어링")
+            Text(String(localized: "워치 페어링"))
                 .font(.pretendard(.regular, size: 10))
                 .foregroundStyle(accent)
         }
         .padding(.leading, 9.5)
         .padding(.trailing, 10)
-        .frame(width: 91, height: 27)
+        .frame(minWidth: 91, minHeight: 27)
         .background(Capsule().fill(isConnected ? AppColors.homeBadgeConnectedFill : Color.clear))
         .overlay(Capsule().strokeBorder(accent, lineWidth: 1.5))
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(isConnected ? "워치 페어링됨" : "워치 페어링 안 됨")
+        .accessibilityLabel(isConnected ? String(localized: "워치 페어링됨") : String(localized: "워치 페어링 안 됨"))
     }
 
     private var accent: Color {

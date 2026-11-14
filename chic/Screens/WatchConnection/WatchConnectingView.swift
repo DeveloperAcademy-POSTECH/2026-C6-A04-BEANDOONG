@@ -11,7 +11,7 @@ struct WatchConnectingView: View {
     var body: some View {
         VStack(spacing: 0) {
             // MARK: 상단 네비게이션 바
-            TopNavigationHeader(title: "애플 워치 연결", isDark: true)
+            TopNavigationHeader(title: String(localized: "애플 워치 연결"), isDark: true)
                 .padding(.top, Layout.headerTop.v(scale))
 
             // MARK: 일러스트
@@ -20,10 +20,10 @@ struct WatchConnectingView: View {
                 .padding(.top, Layout.illustrationTop.v(scale))
 
             // MARK: 타이틀 + 설명
-            DarkScreenTitle("Apple Watch 연결을\n확인하고 있어요")
+            DarkScreenTitle(String(localized: "Apple Watch 연결을\n확인하고 있어요"))
                 .padding(.top, Layout.titleTop.v(scale))
 
-            DarkScreenSubtitle("잠시만 기다려 주세요")
+            DarkScreenSubtitle(String(localized: "잠시만 기다려 주세요"))
                 .padding(.top, Layout.subtitleTop.v(scale))
 
             Spacer(minLength: 0)

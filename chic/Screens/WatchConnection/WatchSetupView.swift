@@ -16,7 +16,7 @@ struct WatchSetupView: View {
     var body: some View {
         VStack(spacing: 0) {
             // MARK: 상단 네비게이션 바
-            TopNavigationHeader(title: "애플 워치 연결", isDark: true)
+            TopNavigationHeader(title: String(localized: "애플 워치 연결"), isDark: true)
                 .padding(.top, Layout.headerTop.v(scale))
 
             // MARK: 일러스트
@@ -25,17 +25,17 @@ struct WatchSetupView: View {
                 .padding(.top, Layout.illustrationTop.v(scale))
 
             // MARK: 타이틀 + 설명
-            DarkScreenTitle("워치에서도 실시간 상태를\n확인할 수 있어요")
+            DarkScreenTitle(String(localized: "워치에서도 실시간 상태를\n확인할 수 있어요"))
                 .padding(.top, Layout.titleTop.v(scale))
 
-            DarkScreenSubtitle("Apple Watch에서 chic 앱을 열어주세요\n손목 진동으로 스팀 상태를 알려드려요")
+            DarkScreenSubtitle(String(localized: "Apple Watch에서 chic 앱을 열어주세요\n손목 진동으로 스팀 상태를 알려드려요"))
                 .padding(.top, Layout.subtitleTop.v(scale))
 
             Spacer(minLength: 0)
 
             // MARK: 하단 버튼
             // 보조 버튼은 새 시안(Hi-Fi 93·94·112·113)에서 빠졌다. onContinue 등 연결 코드는 그대로 두고 화면에서만 숨긴다.
-            DarkPrimaryButton(title: "연결 확인하기", width: Layout.buttonWidth.h(scale), height: BottomButton.height, action: onCheck)
+            DarkPrimaryButton(title: String(localized: "연결 확인하기"), width: Layout.buttonWidth.h(scale), height: BottomButton.height, action: onCheck)
                 .padding(.bottom, BottomButton.bottomGap.v(scale) + scale.fixedHeightAdjustment(BottomButton.height))
         }
         .ignoresSafeArea()

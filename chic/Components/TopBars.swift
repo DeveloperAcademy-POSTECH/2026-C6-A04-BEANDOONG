@@ -39,7 +39,7 @@ struct TopNavigationHeader: View {
                     .tapArea()
             }
             .buttonStyle(.plain)
-            .accessibilityLabel("뒤로가기")
+            .accessibilityLabel(String(localized: "뒤로가기"))
 
             Spacer(minLength: 0)
 
@@ -51,7 +51,7 @@ struct TopNavigationHeader: View {
                         .tapArea()
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel("삭제")
+                .accessibilityLabel(String(localized: "삭제"))
             }
             if let trailingTitle {
                 Button(action: onTrailing) {
@@ -92,7 +92,7 @@ private extension View {
 ///     [ 스티밍 연습                ]
 struct SteamingPracticeTopBar: View {
     @Environment(\.designScale) private var scale
-    var title: String = "스티밍 연습"
+    var title: String = String(localized: "스티밍 연습")
 
     var body: some View {
         Text(title)
@@ -118,7 +118,7 @@ struct OnboardingSkipTopBar: View {
         HStack {
             Spacer()
             Button(action: action) {
-                Text("건너뛰기")
+                Text(String(localized: "건너뛰기"))
                     .font(.pretendard(.medium, size: 16))
                     .foregroundStyle(AppColors.onboardingSkipText)
             }
