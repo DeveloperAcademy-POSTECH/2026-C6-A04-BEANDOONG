@@ -14,8 +14,6 @@ import SwiftUI
 /// 이 뷰가 `Animatable`이라서, `withAnimation { position = 2 }`처럼 바꾸면 중간값으로 매 프레임 다시 그려요.
 struct PrepWatchCarousel: View, Animatable {
     var position: Double
-    /// 쪽 넘김(온보딩과 같은 PageTurnStack) 중의 위치·투명도
-    var motion: OnboardingPageMotion = .resting
 
     var animatableData: Double {
         get { position }
@@ -27,11 +25,9 @@ struct PrepWatchCarousel: View, Animatable {
     var body: some View {
         VStack(spacing: 0) {
             stage
-                .onboardingPart(motion.illustration)
                 .padding(.top, Layout.stageTop.v(scale))
 
             PrepDots(position: position)
-                .onboardingPart(motion.illustration)
                 .padding(.top, Layout.dotsTop.v(scale))
 
             ZStack {
@@ -40,13 +36,13 @@ struct PrepWatchCarousel: View, Animatable {
                         .opacity(Self.titleOpacity(distance: Self.offset(of: state, position: position)))
                 }
             }
-            .onboardingPart(motion.title)
             .padding(.top, Layout.titleTop.v(scale))
 
             DarkScreenSubtitle(String(localized: "색상 변화로 공기 주입 상태를\n쉽게 확인 할 수 있어요."))
-                    .onboardingPart(motion.subtitle)
                 .padding(.top, Layout.subtitleTop.v(scale))
         }
+        // 칸마다 그리는 워치 안 그림(774×774px)을 화면이 나타날 때 미리 디코딩해 둬요. 처음 보이는 순간(자동 넘김의 첫 이동)에 디코딩하면 그 프레임이 늦어져요.
+        .onAppear { PreparedImage.prepare(PrepWatchState.allCases.map(\.illustration)) }
     }
 
     // MARK: 워치 + 옆 칸들
@@ -124,13 +120,20 @@ struct PrepWatchCarousel: View, Animatable {
                 .foregroundStyle(Color.white)
                 .fixedSize()
                 .position(x: 0, y: Layout.textCenterY)
-            AssetImageView(name: state.illustration, width: Layout.circleDiameter, height: Layout.circleDiameter)
+            // `AssetImageView` 와 같은 모양(비율 유지 · 고정 크기)을 미리 디코딩해 둔 그림으로 그려요.
+            // 에셋 이름 그대로 읽히던 접근성 라벨은 같게 둬요 (`Image(uiImage:)` 는 이름이 없어서).
+            Image.prepared(state.illustration)
+                .resizable()
+                .scaledToFit()
+                .frame(width: Layout.circleDiameter, height: Layout.circleDiameter)
+                .accessibilityLabel(state.illustration)
                 .position(x: 0, y: Layout.circleCenterY)
         }
         .frame(width: 0, height: 0, alignment: .topLeading)
         .offset(x: Layout.watchCenterX + distance * Layout.pitch, y: Layout.ghostDropY * min(1, abs(distance)))
         .opacity(Self.contentOpacity(distance: distance))
-        .opacity(abs(distance) < Layout.visibleDistance ? 1 : 0)
+        // 화면 밖 칸도 0이 아니라 거의 투명하게 둬요. 0이면 그리기를 건너뛰어서 처음 보이는 순간에 그림을 준비하느라 프레임이 늦어져요.
+        .opacity(abs(distance) < Layout.visibleDistance ? 1 : MotionOpacity.nearlyHidden)
     }
 
     // MARK: 칸 위치 계산
@@ -142,9 +145,7 @@ struct PrepWatchCarousel: View, Animatable {
 
     /// 칸 수(4)로 감싼 거리: −2 이상 +2 미만
     static func circularDistance(_ raw: Double) -> Double {
-        let count = Double(PrepWatchState.allCases.count)
-        let wrapped = (raw.truncatingRemainder(dividingBy: count) + count).truncatingRemainder(dividingBy: count)
-        return wrapped >= count / 2 ? wrapped - count : wrapped
+        Easing.signedCircularOffset(raw, count: PrepWatchState.allCases.count)
     }
 
     /// 상태색 화면의 보이는 정도: 가운데에 올수록 1, 한 칸 떨어지면 0
@@ -217,13 +218,23 @@ enum PrepWatchState: Int, CaseIterable {
     }
 
     /// 워치 화면 배경 그라데이션 (위 → 아래). 색과 위치는 워치 앱 `SteamingFeedback.backgroundGradient`와 같다
+    ///
+    /// 캐러셀이 넘어가는 동안 프레임마다 칸 4개가 읽는 값이라, 상태별로 한 번만 만들어 둬요.
     var gradient: Gradient {
-        let colors: [UInt32] = switch self {
-        case .normal: [0x052FA9, 0x1D4FCD, 0x2E66E4, 0x3A6EE7, 0x86A6EF]
-        case .over: [0xFF6A11, 0xFE7E1D, 0xE4A727, 0xE9C353, 0xF0DC8B]
-        case .lack: [0x5904A5, 0x6101A7, 0x7C1BC7, 0x913EDA, 0xC194EF]
-        case .rolling: [0x1F9A0A, 0x258302, 0x25B539, 0x36D25D, 0x86EFA5]
+        switch self {
+        case .normal: Self.normalGradient
+        case .over: Self.overGradient
+        case .lack: Self.lackGradient
+        case .rolling: Self.rollingGradient
         }
+    }
+
+    private static let normalGradient = makeGradient([0x052FA9, 0x1D4FCD, 0x2E66E4, 0x3A6EE7, 0x86A6EF])
+    private static let overGradient = makeGradient([0xFF6A11, 0xFE7E1D, 0xE4A727, 0xE9C353, 0xF0DC8B])
+    private static let lackGradient = makeGradient([0x5904A5, 0x6101A7, 0x7C1BC7, 0x913EDA, 0xC194EF])
+    private static let rollingGradient = makeGradient([0x1F9A0A, 0x258302, 0x25B539, 0x36D25D, 0x86EFA5])
+
+    private static func makeGradient(_ colors: [UInt32]) -> Gradient {
         let locations: [CGFloat] = [0, 0.5, 0.81, 0.89, 1]
         return Gradient(stops: zip(colors, locations).map { Gradient.Stop(color: Color(hex: $0), location: $1) })
     }
