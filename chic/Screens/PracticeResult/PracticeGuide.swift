@@ -21,15 +21,16 @@ enum PracticeGuide: Equatable {
 
         let scratch = result.guideDuration(of: .lackOfAir) > 0
         let bubble = result.guideDuration(of: .overAeration) > 0
+        let range = result.model.aerationRange
         switch (air, scratch, bubble) {
-        case (..<MilkLevel.lowerLineSeconds, false, false): self = .short
-        case (..<MilkLevel.lowerLineSeconds, true, false): self = .shortScratch
-        case (..<MilkLevel.lowerLineSeconds, false, true): self = .shortBubble
-        case (..<MilkLevel.lowerLineSeconds, true, true): self = .shortBoth
-        case (...MilkLevel.upperLineSeconds, false, false): self = .onTarget
-        case (...MilkLevel.upperLineSeconds, true, false): self = .targetScratch
-        case (...MilkLevel.upperLineSeconds, false, true): self = .targetBubble
-        case (...MilkLevel.upperLineSeconds, true, true): self = .targetBoth
+        case (..<range.lowerBound, false, false): self = .short
+        case (..<range.lowerBound, true, false): self = .shortScratch
+        case (..<range.lowerBound, false, true): self = .shortBubble
+        case (..<range.lowerBound, true, true): self = .shortBoth
+        case (...range.upperBound, false, false): self = .onTarget
+        case (...range.upperBound, true, false): self = .targetScratch
+        case (...range.upperBound, false, true): self = .targetBubble
+        case (...range.upperBound, true, true): self = .targetBoth
         case (_, false, false): self = .long
         case (_, true, false): self = .longScratch
         case (_, false, true): self = .longBubble
@@ -122,7 +123,7 @@ extension PracticeResult {
 }
 
 /// 연습 가이드 비커(`IllustPracticeGuidePitcher`, 289.7×217pt)의 우유 윗면 y (pt, 그림 위쪽 기준).
-/// 연습 중 비커 수위(`MilkLevel`)를 두 점선이 서로 겹치도록 옮겨 써요. 그래서 2초면 아래 점선, 4초면 위 점선이에요.
+/// 연습 중 비커 수위(`MilkLevel`)를 두 점선이 서로 겹치도록 옮겨 써요.
 enum GuideMilkLevel {
     /// 위 점선 (Hi-Fi 260: 화면 y 1145.75 − 그림 위 1045.8)
     static let upperLine: CGFloat = 100
@@ -131,9 +132,9 @@ enum GuideMilkLevel {
     /// 우유 바닥 (Hi-Fi 260: 1258.5 − 1045.8)
     static let bottom: CGFloat = 212.7
 
-    static func top(forAeration seconds: TimeInterval) -> CGFloat {
+    static func top(forAeration seconds: TimeInterval, model: ChicModelSelection = .standard) -> CGFloat {
         let scale = (lowerLine - upperLine) / (MilkLevel.lowerLine - MilkLevel.upperLine)
-        let mapped = upperLine + (MilkLevel.top(forAeration: seconds) - MilkLevel.upperLine) * scale
+        let mapped = upperLine + (MilkLevel.top(forAeration: seconds, model: model) - MilkLevel.upperLine) * scale
         return min(bottom - 1, mapped)
     }
 }

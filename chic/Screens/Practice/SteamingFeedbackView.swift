@@ -6,7 +6,7 @@ import SwiftUI
 ///     ┌ 배경: 피드백별 위 → 아래 그라데이션 + 반투명 큰 기호 (↓ · ↑ · ✓ · 소용돌이)
 ///     ├ 상단 바: 스티밍 연습
 ///     ├ 타이틀 (+ 설명: 보라·주황만)
-///     ├ 비커: 누적 공기 주입 시간만큼 우유 수위가 부드럽게 올라감 (2~4초면 두 점선 사이, 공기 주입 중 잔물결)
+///     ├ 비커: 누적 공기 주입 시간만큼 우유 수위가 부드럽게 올라감 (모델의 적정 구간이면 두 점선 사이, 공기 주입 중 잔물결)
 ///     ※ 색이 바뀌면 배경·기호·문구·점선 색이 0.4초 동안 섞이며 바뀜
 ///     └ 하단 중앙: 종료하기 버튼 (누르면 바로 정지. "스티밍이 끝났나요?" 팝업은 끝난 것 같을 때만)
 ///     ※ 타이틀·종료하기 버튼 위치는 4종 모두 같음
@@ -61,7 +61,7 @@ struct SteamingFeedbackView: View {
                 TimelineView(.animation(minimumInterval: aerationClock.isRunning ? nil : 1.0 / 30, paused: isStill && !aerationClock.isRunning)) { context in
                     let frame = pitcherMotion.advance(
                         to: context.date,
-                        targetTop: MilkLevel.top(forAeration: aerationClock.seconds(at: context.date)),
+                        targetTop: MilkLevel.top(forAeration: aerationClock.seconds(at: context.date), model: aerationClock.model),
                         rippling: aerationClock.isRunning,
                         still: isStill
                     )

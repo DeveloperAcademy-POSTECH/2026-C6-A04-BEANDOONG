@@ -8,12 +8,13 @@ fi
 work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
 
-xcrun swiftc -module-cache-path "$work/cache" \
+xcrun swiftc -D DEVELOP -module-cache-path "$work/cache" \
     "$root/Shared/PracticeState.swift" \
     "$root/chic/DesignSystem/AppColors.swift" \
     "$root/chic/Screens/PracticeResult/PracticeResult.swift" \
     "$root/chic/Models/PracticeRecordEntity.swift" \
     "$root/chic/Services/PracticeTimeline.swift" \
+    "$root/chic/Services/SoundAnalysis/ChicModelSelection.swift" \
     "$root/chic/Services/AerationClock.swift" \
     "$root/chic/Screens/PracticeResult/PracticeGuide.swift" \
     "$root/chic/Services/PracticeHistoryStore.swift" \

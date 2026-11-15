@@ -12,6 +12,7 @@ nonisolated final class SteamingAudioAnalyzer: @unchecked Sendable {
     private let pendingBuffer = DispatchSemaphore(value: 8)
     private let input48k = ChicV2Input48k()
     private var displayFilter = ChicDisplayFilter()
+    let selection: ChicModelSelection
     private let classifier: ChicModelV3_5
     private let endDetector: ChicEndDetector
     private var endRule = ChicEndRule()
@@ -21,8 +22,9 @@ nonisolated final class SteamingAudioAnalyzer: @unchecked Sendable {
     private static let scoreInterval: TimeInterval = 10 * 512 / 48_000
 
     init() throws {
-        classifier = try ChicModelV3_5()
-        endDetector = try ChicEndDetector()
+        selection = ChicModelSelection.selected
+        classifier = try ChicModelV3_5(selection: selection)
+        endDetector = try ChicEndDetector(selection: selection)
     }
 
     /// 오디오 세션은 연습 관리자가 활성화한 뒤 호출합니다.
@@ -60,12 +62,14 @@ nonisolated final class SteamingAudioAnalyzer: @unchecked Sendable {
                 guard !self.isStopped else { return }
                 do {
                     var phase: PracticePhase?
+                    var purgeScore = 0.0
                     var askReason: ChicEndRule.Reason?
                     let pcm48 = try self.input48k.convert(samples, sampleRate: rate)
                     try self.endDetector.append(pcm48)
                     try self.classifier.consume(pcm48, sampleRate: 48_000, onSpectrum: { spectrum in
                         guard !self.isStopped else { return }
                         guard let scores = try self.endDetector.consume(spectrum: spectrum) else { return }
+                        purgeScore = scores.purge
                         #if DEBUG
                         self.logger.debug("분석 start=\(String(describing: self.classifier.startProbability)) active=\(self.endRule.isActive) work=\(scores.work) end=\(scores.end) purge=\(scores.purge) dBFS=\(scores.rmsDBFS)")
                         #endif
@@ -84,7 +88,7 @@ nonisolated final class SteamingAudioAnalyzer: @unchecked Sendable {
                         let display = self.displayFilter.consume(frame.state)
                         guard self.classifier.isStarted else { return }
                         if let display {
-                            switch display {
+                            switch self.selection.feedback(display, purge: purgeScore) {
                             case .air: phase = .aeration
                             case .sputter: phase = .bubble
                             case .metallic: phase = .moreAir

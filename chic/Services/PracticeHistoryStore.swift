@@ -45,10 +45,10 @@ final class PracticeHistoryStore {
 
     /// 기록 하나를 저장하고, 새로 넣은 기록을 돌려줍니다. 같은 id가 이미 있으면 아무것도 하지 않고 nil을 돌려줍니다.
     @discardableResult
-    func save(record: PracticeRecord, dailyOrder: Int, segments: [DetectedSegment]) throws -> PracticeRecordEntity? {
+    func save(record: PracticeRecord, dailyOrder: Int, segments: [DetectedSegment], model: ChicModelSelection = .standard) throws -> PracticeRecordEntity? {
         // 같은 id가 있는지는 개수만 셉니다. (기록 전체를 불러오지 않아 연습 결과 로딩 중 화면이 버벅이지 않게)
         guard try !contains(id: record.id) else { return nil }
-        let entity = PracticeRecordEntity(record: record, dailyOrder: dailyOrder, segments: segments)
+        let entity = PracticeRecordEntity(record: record, dailyOrder: dailyOrder, segments: segments, model: model)
         context.insert(entity)
         try commit()
         return entity

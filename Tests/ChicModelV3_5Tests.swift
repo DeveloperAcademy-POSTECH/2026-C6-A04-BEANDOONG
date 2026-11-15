@@ -313,6 +313,50 @@ import Foundation
         precondition(fresh.consume(.air) == .air)
         print("PASS 10-frame mode, ties, strict consecutive runs and fresh session")
     }
+    #if DEVELOP
+    /// 실제 녹음의 모든 작업 프레임이 단일 모델의 최고 점수 라벨과 일치하는지 확인합니다.
+    static func checkHomeWork(_ pcm: [Float], in bundle: Bundle) throws {
+        let labels = ["air", "metallic", "sputter", "other"]
+        let model = try ChicModelV3_5.Classifier(url: ChicModelSelection.home.url(for: "ChicWorkV1", in: bundle), labels: labels)
+        let reference = try ChicV2FeatureExtractor()
+        let stream = try ChicModelV3_5(selection: .home, bundle: bundle)
+        var expected: [String] = []
+        try reference.consume(pcm, sampleRate: 48_000) { x, _ in expected.append(try model.winner(x)) }
+        var index = 0
+        try stream.consume(pcm, sampleRate: 48_000) { frame in
+            precondition(frame.state.rawValue == expected[index] && frame.gateLabel == expected[index])
+            index += 1
+        }
+        precondition(index > 0 && index == expected.count)
+    }
+
+    /// 두 선택지가 각각의 모델 파일을 사용해 진행·종료 점수를 생성하는지 확인합니다.
+    static func checkModelSelection(in bundle: Bundle) throws {
+        let samples = [Float](repeating: 0, count: 24_000)
+        for selection in [ChicModelSelection.standard, .home] {
+            for state in [ChicModelV3_5.State.air, .sputter, .metallic, .other] {
+                precondition(selection.feedback(state, purge: 0.4999) == state)
+                precondition(selection.feedback(state, purge: 0.5) == (selection == .home ? .other : state))
+            }
+            let prefix = selection == .home ? "Delonghi" : ""
+            let workNames = selection == .home ? ["ChicWorkV1"] : ["ChicModelV3_5Gate", "ChicModelV3_5Air", "ChicModelV3_5Metallic"]
+            for name in workNames + ["ChicStartSoundV1", "ChicEndV3_5"] {
+                let url = try selection.url(for: name, in: bundle)
+                precondition(url.lastPathComponent == prefix + name + ".mlmodelc")
+            }
+            let classifier = try ChicModelV3_5(selection: selection, bundle: bundle)
+            let detector = try ChicEndDetector(selection: selection, bundle: bundle)
+            var frames = 0, scores = 0
+            try detector.append(samples)
+            try classifier.consume(samples, sampleRate: 48_000, onSpectrum: {
+                if try detector.consume(spectrum: $0) != nil { scores += 1 }
+            }) { _ in frames += 1 }
+            precondition(frames > 0 && scores > 0)
+        }
+        print("PASS standard and home model selection and inference")
+    }
+    #endif
+
     /// 같은 소리를 서로 다른 버퍼 크기로 나눠도 결과가 같은지 확인합니다.
     static func main() throws {
         checkStartRule()
@@ -322,11 +366,17 @@ import Foundation
         let args = CommandLine.arguments
         let dir = URL(fileURLWithPath: args[1])
         let compiled = URL(fileURLWithPath: args[2])
+        #if DEVELOP
+        try checkModelSelection(in: Bundle(url: compiled)!)
+        #endif
         let expected = try JSONDecoder().decode([Expected].self, from: Data(contentsOf: dir.appendingPathComponent("expected.json")))
         let file = try AVAudioFile(forReading: dir.appendingPathComponent("fixture.wav"))
         let buf = AVAudioPCMBuffer(pcmFormat: file.processingFormat, frameCapacity: UInt32(file.length))!
         try file.read(into: buf)
         let x = Array(UnsafeBufferPointer(start: buf.floatChannelData![0], count: Int(buf.frameLength)))
+        #if DEVELOP
+        try checkHomeWork(x, in: Bundle(url: compiled)!)
+        #endif
         try checkStartPipeline(fixture: dir, compiled: compiled)
         try checkEndClassifier(fixture: dir, compiled: compiled)
         try checkEndDetector(x, fixture: dir, compiled: compiled)

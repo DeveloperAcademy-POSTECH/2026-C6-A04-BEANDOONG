@@ -8,13 +8,15 @@ final class PracticeRecordEntity {
     var startedAt: Date
     var endedAt: Date
     var dailyOrder: Int
+    var modelName: String?
     @Relationship(deleteRule: .cascade) var soundSegments: [PracticeSoundSegmentEntity]
 
-    init(record: PracticeRecord, dailyOrder: Int, segments: [DetectedSegment]) {
+    init(record: PracticeRecord, dailyOrder: Int, segments: [DetectedSegment], model: ChicModelSelection = .standard) {
         id = record.id
         startedAt = record.startedAt
         endedAt = record.endedAt
         self.dailyOrder = dailyOrder
+        modelName = model.rawValue
         soundSegments = segments.map(PracticeSoundSegmentEntity.init)
     }
 
@@ -27,7 +29,8 @@ final class PracticeRecordEntity {
             practicedAt: startedAt,
             dailyOrder: dailyOrder,
             segments: soundSegments.compactMap(\.segment).sorted { $0.start < $1.start },
-            duration: max(0, endedAt.timeIntervalSince(startedAt))
+            duration: max(0, endedAt.timeIntervalSince(startedAt)),
+            model: modelName.flatMap(ChicModelSelection.init(rawValue:)) ?? .standard
         )
     }
 }

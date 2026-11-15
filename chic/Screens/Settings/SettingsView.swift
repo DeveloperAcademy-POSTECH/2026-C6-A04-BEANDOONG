@@ -12,6 +12,9 @@ struct SettingsView: View {
     @Environment(\.openURL) private var openURL
     @State private var showsMailCompose = false
     @State private var showsNoMailAlert = false
+    #if DEVELOP
+    @AppStorage(ChicModelSelection.storageKey) private var steamingModel: ChicModelSelection = .standard
+    #endif
     /// App Store 최신 버전 확인 결과. 확인 전이거나 확인하지 못하면 nil (최신 버전 줄을 비워 둬요)
     @State private var storeVersion: AppVersion?
     /// 미리보기용: App Store 조회 대신 이 값을 최신 버전으로 써요 (예: "1.0.3")
@@ -84,6 +87,23 @@ struct SettingsView: View {
                 .accessibilityHint(String(localized: "워치 연결 과정을 시작해요"))
                 .settingsCard()
                 .padding(.top, Layout.cardTop.v(scale))
+
+            #if DEVELOP
+            LabeledContent {
+                Picker("스티밍 모델", selection: $steamingModel) {
+                    Text("기존 모델").tag(ChicModelSelection.standard)
+                    Text("홈 스티밍 모델").tag(ChicModelSelection.home)
+                }
+                .pickerStyle(.menu)
+                .labelsHidden()
+            } label: {
+                Text("스티밍 모델")
+            }
+            .foregroundStyle(.white)
+            .padding(.horizontal, 12)
+            .settingsCard()
+            .padding(.top, Layout.watchSectionTitleTop.v(scale))
+            #endif
 
             Spacer(minLength: 0)
             }

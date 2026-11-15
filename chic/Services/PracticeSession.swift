@@ -168,7 +168,7 @@ final class PracticeSession: ObservableObject {
         // 분석 시작에 성공한 뒤에만 새 연습 상태로 바꿉니다. 이전 기록 목록은 유지합니다.
         state.isWatchEnabled = usingWatch
         timeline = PracticeTimeline()
-        aerationClock = AerationClock()
+        aerationClock = AerationClock(model: analyzer.selection)
         result = nil
         endQuestion.close()
         state.sessionID = id
@@ -216,14 +216,14 @@ final class PracticeSession: ObservableObject {
         let dailyOrder = (history.filter { Calendar.current.isDate($0.startedAt, inSameDayAs: startedAt) }
             .map(\.dailyOrder).max() ?? 0) + 1
         let completedResult = PracticeResult(practicedAt: startedAt, dailyOrder: dailyOrder,
-                                              segments: segments, duration: record.duration)
+                                              segments: segments, duration: record.duration, model: aerationClock.model)
         publish()
         // 종료 상태를 먼저 표시해 로딩 화면을 연 뒤 저장합니다. 워치에서 닫아도 저장은 완료합니다.
         Task {
             await Task.yield()
             do {
                 guard let historyStore else { throw ConnectionError.localized("저장소를 열 수 없어요.") }
-                if let saved = try historyStore.save(record: record, dailyOrder: dailyOrder, segments: segments) {
+                if let saved = try historyStore.save(record: record, dailyOrder: dailyOrder, segments: segments, model: completedResult.model) {
                     // 새 기록만 목록에 끼워 넣습니다. 저장소를 다시 다 불러온 것(records(): 시작 시각 최신순)과 같은 목록이에요.
                     var updated = history
                     updated.insert(saved, at: updated.firstIndex { $0.startedAt < saved.startedAt } ?? updated.endIndex)

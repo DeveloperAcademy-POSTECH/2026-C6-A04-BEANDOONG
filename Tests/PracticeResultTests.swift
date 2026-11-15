@@ -48,7 +48,13 @@ struct PracticeResultTests {
         try verifyReload(record: record, expected: result, directory: directory)
         try verifyLegacyMigration(in: directory.appending(path: "migration"), start: start)
         try verifyDelete(in: directory.appending(path: "delete"), segments: timeline.segments, start: start)
-        verifyGuideCombinations(start: start)
+        verifyGuideCombinations(start: start, model: .standard, lower: 2, upper: 4)
+        verifyGuideCombinations(start: start, model: .home, lower: 8, upper: 10)
+        let homeDirectory = directory.appending(path: "home")
+        try save(record: record, segments: timeline.segments, directory: homeDirectory, model: .home)
+        var homeResult = result
+        homeResult.model = .home
+        try verifyReload(record: record, expected: homeResult, directory: homeDirectory)
         precondition(PracticeGuide(result: result) == .targetBoth)
         precondition(PracticeGuide(result: .empty) == .missingBoth)
         // 가이드 비커 수위: 2초 아래 점선, 4초 위 점선, 3초 그 사이, 0초 바닥 근처, 오래 하면 점선 위로
@@ -64,8 +70,11 @@ struct PracticeResultTests {
     }
 
     /// 미감지가 주의 소리보다 우선하는지와 기준 시간 양끝의 반올림 전 분류를 검증합니다.
-    private static func verifyGuideCombinations(start: Date) {
-        let lower = MilkLevel.lowerLineSeconds, upper = MilkLevel.upperLineSeconds
+    private static func verifyGuideCombinations(start: Date, model: ChicModelSelection, lower: Double, upper: Double) {
+        precondition(MilkLevel.top(forAeration: lower, model: model) == MilkLevel.lowerLine)
+        precondition(MilkLevel.top(forAeration: upper, model: model) == MilkLevel.upperLine)
+        precondition(abs(GuideMilkLevel.top(forAeration: lower, model: model) - GuideMilkLevel.lowerLine) < 0.01)
+        precondition(abs(GuideMilkLevel.top(forAeration: upper, model: model) - GuideMilkLevel.upperLine) < 0.01)
         let inputs: [(TimeInterval, [PracticeGuide])] = [
             (0, [.missingAeration, .missingAeration, .missingAeration, .missingAeration]),
             (0.01, [.short, .shortScratch, .shortBubble, .shortBoth]),
@@ -80,7 +89,7 @@ struct PracticeResultTests {
                     var segments = warnings.map { DetectedSegment(sound: $0, start: 12, end: 12.1) }
                     segments.append(DetectedSegment(sound: .rolling, start: 10, end: 10 + rolling))
                     segments.append(DetectedSegment(sound: .normalAeration, start: 0, end: air))
-                    let record = PracticeResult(practicedAt: start, dailyOrder: 1, segments: segments)
+                    let record = PracticeResult(practicedAt: start, dailyOrder: 1, segments: segments, model: model)
                     let guide = PracticeGuide(result: record)
                     precondition(guide == (rolling > 0 ? expected[index] : air > 0 ? .missingRolling : .missingBoth))
                 }
@@ -90,7 +99,7 @@ struct PracticeResultTests {
             .init(sound: .normalAeration, start: 0, end: lower / 2),
             .init(sound: .rolling, start: lower / 2, end: lower),
             .init(sound: .normalAeration, start: lower, end: lower + lower / 2)
-        ])
+        ], model: model)
         precondition(PracticeGuide(result: split) == .onTarget)
     }
 
@@ -140,10 +149,10 @@ struct PracticeResultTests {
     }
 
     @MainActor
-    private static func save(record: PracticeRecord, segments: [DetectedSegment], directory: URL) throws {
+    private static func save(record: PracticeRecord, segments: [DetectedSegment], directory: URL, model: ChicModelSelection = .standard) throws {
         let store = try PracticeHistoryStore(directory: directory)
-        try store.save(record: record, dailyOrder: 1, segments: segments)
-        try store.save(record: record, dailyOrder: 1, segments: segments)
+        try store.save(record: record, dailyOrder: 1, segments: segments, model: model)
+        try store.save(record: record, dailyOrder: 1, segments: segments, model: model)
         let saved = try store.records()
         precondition(saved.count == 1)
     }
@@ -180,6 +189,8 @@ struct PracticeResultTests {
         let saved = try store.records()
         precondition(saved.count == 1 && saved[0].record == record)
         let restored = saved[0].result
+        precondition(restored.model == expected.model)
+        precondition(PracticeGuide(result: restored) == PracticeGuide(result: expected))
         precondition(restored.timelineStart == expected.timelineStart)
         precondition(restored.totalSeconds == expected.totalSeconds)
         precondition(restored.normalSeconds == expected.normalSeconds && restored.cautionSeconds == expected.cautionSeconds)
