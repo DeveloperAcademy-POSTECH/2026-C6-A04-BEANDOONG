@@ -25,6 +25,10 @@ import Foundation
         var sound = ChicStartRule()
         for _ in 0..<9 { precondition(sound.consume(0.86, state: .other) == nil) }
         precondition(sound.consume(0.86, state: .other) == .startSound)
+        var home = ChicStartRule(forHome: true)
+        for _ in 0..<20 { precondition(home.consume(0.799, state: .other) == nil) }
+        for _ in 0..<19 { precondition(home.consume(0.801, state: .other) == nil) }
+        precondition(home.consume(0.801, state: .other) == .startSound)
         var average = ChicStartRule()
         for _ in 0..<9 { precondition(average.consume(0.9, state: .other) == nil) }
         precondition(average.consume(0, state: .other) == nil)
@@ -54,8 +58,8 @@ import Foundation
 
     /// 실제 모델에서도 어느 경로로 시작했든 추론을 다시 호출하지 않습니다.
     static func checkStartModel(_ expected: StartExpected, url: URL) throws {
-        precondition(expected.highProbability > ChicStartRule.threshold)
-        precondition(expected.lowProbability < ChicStartRule.threshold)
+        precondition(expected.highProbability > ChicStartRule.standardThreshold)
+        precondition(expected.lowProbability < ChicStartRule.standardThreshold)
         for (features, state, reason) in [(expected.highFeatures, ChicModelV3_5.State.other, ChicStartRule.Reason.startSound),
                                          (expected.lowFeatures, .air, .air)] {
             let gate = try ChicStartGate(url: url)
@@ -69,7 +73,13 @@ import Foundation
             for _ in 0..<100 { let repeated = try gate.consume([], state: .other); precondition(repeated == nil) }
         }
         let delayed = try ChicStartGate(url: url, delayStartSound: true)
-        for _ in 0..<10 {
+        for features in [expected.highFeatures, expected.lowFeatures] {
+            for _ in 0..<10 {
+                let reason = try delayed.consume(features, state: .other)
+                precondition(reason == nil && !delayed.isStarted)
+            }
+        }
+        for _ in 0..<20 {
             let reason = try delayed.consume(expected.highFeatures, state: .other)
             precondition(reason == nil && !delayed.isStarted)
         }
@@ -105,6 +115,8 @@ import Foundation
                     rollingURL: compiled.appendingPathComponent("ChicModelV3_5Metallic.mlmodelc"), startURL: url)
                 let end = try ChicEndDetector(modelURL: compiled.appendingPathComponent("ChicAudioFeatures.mlmodelc"), classifierURL: compiled.appendingPathComponent("ChicEndV3_5.mlmodelc"))
                 var display = ChicDisplayFilter(), endRule = ChicEndRule()
+                var log = ChicAnalysisLog(selection: .standard)
+                var freshEnd: ChicEndDetector.Scores?
                 var offset = 0, chunk = 0, spectra = 0, frames = 0, starts = 0, endScores = 0
                 while offset < samples.count {
                     let stop = min(samples.count, offset + chunks[chunk % chunks.count])
@@ -113,12 +125,20 @@ import Foundation
                     try stream.consume(block, sampleRate: 48000, onSpectrum: { power in
                         spectra += 1
                         if let score = try end.consume(spectrum: power) {
+                            freshEnd = score
                             endScores += 1
                             if starts == 0 { precondition(!endRule.isActive) }
                             _ = endRule.consume(work: score.work, end: score.end, purge: score.purge)
                         }
                     }) { frame in
+                        log.record(frame, endScores: freshEnd)
+                        freshEnd = nil
                         if let reason = frame.startReason {
+                            let time = String(format: "%.3f", Double(2048 + frames * 512) / 48_000)
+                            let message = log.message(.start(reason))
+                            precondition(log.isStartFrame && message.contains("시작음@"+time+"초"))
+                            precondition(!message.contains("종료@") && !message.contains("Gate["))
+                            if chunks == [4800] { print(message) }
                             precondition(starts == 0 && frames == expected.startFrame)
                             precondition(reason.rawValue == expected.startReason)
                             precondition(abs(stream.startProbability! - expected.startScore) < 1e-8)
@@ -138,6 +158,12 @@ import Foundation
                 }
                 precondition(spectra == expected.frames && frames == expected.frames && starts == (expected.startFrame >= 0 ? 1 : 0))
                 precondition(endScores == expected.frames / 10)
+                let feedback = log.message(.feedback("공기주입"))
+                precondition(feedback.contains("피드백: 공기주입") && feedback.contains("Gate[air="))
+                precondition(!feedback.contains("시작음@") && !feedback.contains("종료@"))
+                let finished = log.message(.end(nil))
+                precondition(finished.contains("연습 종료") && finished.contains("종료@"))
+                precondition(!finished.contains("시작음@") && !finished.contains("Gate["))
                 print("PASS OR pipeline: \(name), \(spectra) frames, start=\(expected.startReason) @\(expected.startFrame), chunks \(chunks)")
             }
         }
@@ -244,10 +270,12 @@ import Foundation
         #if DEVELOP
         var home = ChicEndRule(selection: .home); home.activate()
         for _ in 0..<600 { precondition(home.consume(work: 0, end: 0, purge: 0) == nil) }
-        precondition(home.consume(work: 0, end: 0.6, purge: 0) == .endSound)
+        precondition(home.consume(work: 0, end: 0.599999, purge: 0) == nil)
+        precondition(home.consume(work: 0, end: 0.60, purge: 0) == .endSound)
+        precondition(home.consume(work: 0, end: 0.99, purge: 0) == nil)
         for _ in 0..<3 { precondition(home.consume(work: 0.5, end: 0, purge: 0) == nil) }
-        for _ in 0..<2 { precondition(home.consume(work: 0, end: 0, purge: 0.5) == nil) }
-        precondition(home.consume(work: 0, end: 0, purge: 0.5) == .cleaning)
+        for _ in 0..<600 { precondition(home.consume(work: 0, end: 0.599999, purge: 1) == nil) }
+        precondition(home.consume(work: 0, end: 0.60, purge: 1) == .endSound)
         #endif
         var priority = ChicEndRule(); priority.activate()
         for _ in 0..<19 { precondition(priority.consume(work: 0, end: 0, purge: 0) == nil) }
@@ -370,9 +398,12 @@ import Foundation
             }
             let prefix = selection == .home ? "Delonghi" : ""
             let workNames = ["ChicModelV3_5Gate", "ChicModelV3_5Air", "ChicModelV3_5Metallic"]
-            for name in workNames + ["ChicStartSoundV1", "ChicEndV3_5"] {
+            let soundNames = ["ChicStartSoundV1", "ChicEndV3_5"]
+            let soundFiles = selection == .home ? ["DelonghiChicStartSound", "DelonghiChicEndSound"] : soundNames
+            let expected = workNames.map { prefix + $0 } + soundFiles
+            for (name, file) in zip(workNames + soundNames, expected) {
                 let url = try selection.url(for: name, in: bundle)
-                precondition(url.lastPathComponent == prefix + name + ".mlmodelc")
+                precondition(url.lastPathComponent == file + ".mlmodelc")
             }
             let classifier = try ChicModelV3_5(selection: selection, bundle: bundle)
             let detector = try ChicEndDetector(selection: selection, bundle: bundle)

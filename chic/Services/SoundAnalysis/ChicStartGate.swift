@@ -3,12 +3,20 @@ import Foundation
 /// 기존 공기주입 대표 판정 또는 별도 시작음 점수로 한 번만 시작합니다.
 nonisolated struct ChicStartRule {
     enum Reason: String { case air, startSound }
-    static let threshold = 0.85
+    static let standardThreshold = 0.85
+    private let threshold: Double
     private(set) var isStarted = false
     private(set) var meanScore: Double?
     private var sum = 0.0
     private var frames = 0
+    private let requiredSoundBlocks: Int
+    private var soundBlocks = 0
     private var airFilter = ChicDisplayFilter()
+
+    init(forHome: Bool = false) {
+        threshold = forHome ? 0.80 : Self.standardThreshold
+        requiredSoundBlocks = forHome ? 2 : 1
+    }
 
     /// 공기주입은 시작음 점수와 관계없이 기존 10프레임 표시 기준으로 확인합니다.
     mutating func consume(_ score: Double, state: ChicModelV3_5.State) -> Reason? {
@@ -20,7 +28,8 @@ nonisolated struct ChicStartRule {
         meanScore = sum / 10
         sum = 0
         frames = 0
-        guard air || meanScore! >= Self.threshold else { return nil }
+        soundBlocks = meanScore! >= threshold ? soundBlocks + 1 : 0
+        guard air || soundBlocks >= requiredSoundBlocks else { return nil }
         isStarted = true
         return air ? .air : .startSound
     }
@@ -29,15 +38,17 @@ nonisolated struct ChicStartRule {
 /// 독립 공기주입·시작음 경로 중 하나가 확인되면 시작음 모델 추론을 중단합니다.
 nonisolated final class ChicStartGate {
     private var classifier: ChicModelV3_5.Classifier?
-    private var rule = ChicStartRule()
+    private var rule: ChicStartRule
     private let delayStartSound: Bool
     private var remainingFrames = 0
+    var isScoring: Bool { classifier != nil }
     var isStarted: Bool { rule.isStarted && remainingFrames == 0 }
     var meanScore: Double? { rule.meanScore }
 
     /// 작업음을 비시작 반례로 학습한 시작음 전용 모델을 불러옵니다.
     init(url: URL, delayStartSound: Bool = false) throws {
         self.delayStartSound = delayStartSound
+        rule = ChicStartRule(forHome: delayStartSound)
         classifier = try ChicModelV3_5.Classifier(url: url, labels: ["not_start", "start"])
     }
 

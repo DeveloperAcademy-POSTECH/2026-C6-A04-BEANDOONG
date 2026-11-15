@@ -1,12 +1,11 @@
 import AVFAudio
 import Foundation
-import OSLog
 
 /// 마이크 PCM 분석을 별도 큐에서 실행하고 결과만 연습 관리자에게 전달합니다.
 // 엔진 시작·종료는 연습 관리자의 백그라운드 작업에서 순서대로(동시에 부르지 않음), 특징·모델·종료 플래그 접근은 분석 큐에서 직렬화합니다.
 // 모델 로드와 엔진 시작은 오래 걸려서, 메인 스레드에서 하면 시작 버튼을 누른 순간 화면이 멈춰요.
 nonisolated final class SteamingAudioAnalyzer: @unchecked Sendable {
-    private let logger = Logger(subsystem: "com.beandoong.cheek", category: "SteamingEnd")
+    private var analysisLog: ChicAnalysisLog
     private let engine = AVAudioEngine()
     private let queue = DispatchQueue(label: "com.beandoong.cheek.sound-analysis")
     private let pendingBuffer = DispatchSemaphore(value: 8)
@@ -23,6 +22,7 @@ nonisolated final class SteamingAudioAnalyzer: @unchecked Sendable {
 
     init() throws {
         selection = ChicModelSelection.selected
+        analysisLog = ChicAnalysisLog(selection: selection)
         endRule = ChicEndRule(selection: selection)
         classifier = try ChicModelV3_5(selection: selection)
         endDetector = try ChicEndDetector(selection: selection)
@@ -31,8 +31,8 @@ nonisolated final class SteamingAudioAnalyzer: @unchecked Sendable {
     /// 오디오 세션은 연습 관리자가 활성화한 뒤 호출합니다.
     /// - onSilence: 연습이 끝난 것 같을 때 (소리 끊김 · 종료음 · 청소음, 끝난 것으로 볼 시각이 몇 초 전인지).
     ///   자동으로 끝내지 않고 분석을 계속해요. 종료 여부는 사용자에게 묻고, 묻는 창은 사용자가 답할 때까지 닫지 않아요.
-    func start(onResult: @escaping @Sendable (PracticePhase) -> Void,
-               onSilence: @escaping @Sendable (TimeInterval) -> Void,
+    func start(onResult: @escaping @Sendable (PracticePhase, ChicAnalysisLog) -> Void,
+               onSilence: @escaping @Sendable (TimeInterval, ChicEndRule.Reason, ChicAnalysisLog) -> Void,
                onError: @escaping @Sendable (String) -> Void) throws {
         let input = engine.inputNode
         let format = input.outputFormat(forBus: 0)
@@ -63,6 +63,9 @@ nonisolated final class SteamingAudioAnalyzer: @unchecked Sendable {
                 guard !self.isStopped else { return }
                 do {
                     var phase: PracticePhase?
+                    var phaseLog: ChicAnalysisLog?
+                    var freshEndScores: ChicEndDetector.Scores?
+                    var detectedEnd: (ChicEndRule.Reason, ChicAnalysisLog)?
                     var purgeScore = 0.0
                     var askReason: ChicEndRule.Reason?
                     let pcm48 = try self.input48k.convert(samples, sampleRate: rate)
@@ -71,21 +74,26 @@ nonisolated final class SteamingAudioAnalyzer: @unchecked Sendable {
                         guard !self.isStopped else { return }
                         guard let scores = try self.endDetector.consume(spectrum: spectrum) else { return }
                         purgeScore = scores.purge
-                        #if DEBUG
-                        self.logger.debug("분석 start=\(String(describing: self.classifier.startProbability)) active=\(self.endRule.isActive) work=\(scores.work) end=\(scores.end) purge=\(scores.purge) dBFS=\(scores.rmsDBFS)")
-                        #endif
+                        freshEndScores = scores
                         if let reason = self.endRule.consume(work: scores.work, end: scores.end, purge: scores.purge) {
-                            self.logger.notice("종료 확인 요청 reason=\(String(describing: reason), privacy: .public) work=\(scores.work) end=\(scores.end) purge=\(scores.purge) dBFS=\(scores.rmsDBFS) dropDB=\(scores.dropDB)")
                             // 알리기만 하고 분석을 계속해요. (종료 여부는 사용자에게 물어요)
                             askReason = reason
                         }
                     }) { frame in
                         guard !self.isStopped else { return }
+                        self.analysisLog.record(frame, endScores: freshEndScores)
+                        freshEndScores = nil
+                        if let reason = askReason {
+                            detectedEnd = (reason, self.analysisLog)
+                            askReason = nil
+                        }
                         if let reason = frame.startReason {
                             self.displayFilter.activate()
                             self.endRule.activate()
-                            self.logger.notice("자동 시작 reason=\(reason.rawValue, privacy: .public) startSound=\(String(describing: self.classifier.startProbability)); 시작음 모델 추론 중단")
+                            self.analysisLog.write(.start(reason))
                         }
+                        // 비스티밍 프레임으로 롤링 피드백을 새로 띄우지 않습니다.
+                        if frame.gateLabel == "non_steam" && frame.startReason == nil { return }
                         var display = self.displayFilter.consume(frame.state)
                         #if DEVELOP
                         if self.selection == .home && frame.startReason == .startSound {
@@ -94,6 +102,7 @@ nonisolated final class SteamingAudioAnalyzer: @unchecked Sendable {
                         #endif
                         guard self.classifier.isStarted else { return }
                         if let display {
+                            phaseLog = self.analysisLog
                             switch self.selection.feedback(display, purge: purgeScore) {
                             case .air: phase = .aeration
                             case .sputter: phase = .bubble
@@ -102,10 +111,10 @@ nonisolated final class SteamingAudioAnalyzer: @unchecked Sendable {
                             }
                         }
                     }
-                    if let askReason {
-                        onSilence(Double(askReason.lookbackCount) * Self.scoreInterval)
+                    if let (reason, log) = detectedEnd {
+                        onSilence(Double(reason.lookbackCount) * Self.scoreInterval, reason, log)
                     }
-                    if let phase { onResult(phase) }
+                    if let phase, let phaseLog { onResult(phase, phaseLog) }
                 } catch {
                     self.isStopped = true
                     onError(error.localizedDescription)
@@ -115,6 +124,13 @@ nonisolated final class SteamingAudioAnalyzer: @unchecked Sendable {
         hasTap = true
         do { try engine.start() }
         catch { stop(); throw error }
+    }
+
+    /// 종료 안내 없이 끝나면 마지막 종료 모델 점수를 남깁니다.
+    func logFinish(elapsed: TimeInterval) {
+        queue.async {
+            self.analysisLog.write(.end(nil), elapsed: elapsed)
+        }
     }
 
     /// 입력을 중지하고 큐에 남은 분석 결과를 폐기합니다.

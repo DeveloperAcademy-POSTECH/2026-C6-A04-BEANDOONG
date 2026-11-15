@@ -1,22 +1,17 @@
 [
   {
-    "frames": 60,
-    "gate": "other",
-    "state": "other"
-  },
-  {
-    "frames": 2,
-    "gate": "air",
-    "state": "other"
-  },
-  {
-    "frames": 4,
-    "gate": "other",
+    "frames": 25,
+    "gate": "non_steam",
     "state": "other"
   },
   {
     "frames": 1,
-    "gate": "air",
+    "gate": "other",
+    "state": "other"
+  },
+  {
+    "frames": 87,
+    "gate": "non_steam",
     "state": "other"
   },
   {
@@ -25,73 +20,53 @@
     "state": "other"
   },
   {
-    "frames": 1,
+    "frames": 56,
     "gate": "air",
     "state": "air"
   },
   {
     "frames": 1,
-    "gate": "air",
-    "state": "other"
-  },
-  {
-    "frames": 3,
     "gate": "other",
-    "state": "other"
+    "state": "air"
   },
   {
     "frames": 1,
     "gate": "air",
-    "state": "other"
+    "state": "air"
   },
   {
-    "frames": 29,
+    "frames": 2,
     "gate": "other",
-    "state": "other"
+    "state": "air"
+  },
+  {
+    "frames": 1,
+    "gate": "air",
+    "state": "air"
   },
   {
     "frames": 4,
     "gate": "other",
-    "state": "air"
-  },
-  {
-    "frames": 6,
-    "gate": "other",
     "state": "other"
-  },
-  {
-    "frames": 1,
-    "gate": "other",
-    "state": "air"
-  },
-  {
-    "frames": 54,
-    "gate": "air",
-    "state": "air"
-  },
-  {
-    "frames": 5,
-    "gate": "other",
-    "state": "air"
   },
   {
     "frames": 1,
     "gate": "sputter",
-    "state": "air"
+    "state": "sputter"
   },
   {
-    "frames": 2,
+    "frames": 1,
+    "gate": "other",
+    "state": "other"
+  },
+  {
+    "frames": 1,
     "gate": "air",
     "state": "air"
   },
   {
-    "frames": 6,
-    "gate": "other",
-    "state": "other"
-  },
-  {
     "frames": 1,
-    "gate": "other",
+    "gate": "air",
     "state": "sputter"
   },
   {
@@ -101,106 +76,91 @@
   },
   {
     "frames": 2,
-    "gate": "other",
+    "gate": "air",
     "state": "sputter"
   },
   {
-    "frames": 186,
+    "frames": 190,
     "gate": "sputter",
     "state": "sputter"
   },
   {
-    "frames": 121,
+    "frames": 120,
     "gate": "metallic",
+    "state": "metallic"
+  },
+  {
+    "frames": 1,
+    "gate": "other",
     "state": "metallic"
   },
   {
     "frames": 6,
-    "gate": "other",
-    "state": "metallic"
-  },
-  {
-    "frames": 150,
-    "gate": "other",
+    "gate": "non_steam",
     "state": "other"
-  },
-  {
-    "frames": 2,
-    "gate": "other",
-    "state": "metallic"
-  },
-  {
-    "frames": 2,
-    "gate": "other",
-    "state": "other"
-  },
-  {
-    "frames": 6,
-    "gate": "other",
-    "state": "metallic"
-  },
-  {
-    "frames": 2,
-    "gate": "metallic",
-    "state": "metallic"
-  },
-  {
-    "frames": 3,
-    "gate": "other",
-    "state": "metallic"
   },
   {
     "frames": 4,
-    "gate": "other",
+    "gate": "air",
+    "state": "air"
+  },
+  {
+    "frames": 14,
+    "gate": "non_steam",
     "state": "other"
   },
   {
     "frames": 1,
     "gate": "other",
-    "state": "metallic"
-  },
-  {
-    "frames": 1,
-    "gate": "metallic",
-    "state": "metallic"
-  },
-  {
-    "frames": 1,
-    "gate": "other",
-    "state": "metallic"
-  },
-  {
-    "frames": 3,
-    "gate": "metallic",
-    "state": "metallic"
-  },
-  {
-    "frames": 1,
-    "gate": "other",
-    "state": "metallic"
-  },
-  {
-    "frames": 29,
-    "gate": "metallic",
-    "state": "metallic"
+    "state": "other"
   },
   {
     "frames": 2,
-    "gate": "other",
-    "state": "metallic"
-  },
-  {
-    "frames": 4,
-    "gate": "other",
+    "gate": "non_steam",
     "state": "other"
-  },
-  {
-    "frames": 1,
-    "gate": "other",
-    "state": "metallic"
   },
   {
     "frames": 105,
+    "gate": "other",
+    "state": "other"
+  },
+  {
+    "frames": 2,
+    "gate": "air",
+    "state": "other"
+  },
+  {
+    "frames": 1,
+    "gate": "air",
+    "state": "air"
+  },
+  {
+    "frames": 165,
+    "gate": "non_steam",
+    "state": "other"
+  },
+  {
+    "frames": 12,
+    "gate": "other",
+    "state": "other"
+  },
+  {
+    "frames": 3,
+    "gate": "non_steam",
+    "state": "other"
+  },
+  {
+    "frames": 1,
+    "gate": "other",
+    "state": "other"
+  },
+  {
+    "frames": 1,
+    "gate": "non_steam",
+    "state": "other"
+  },
+  {
+    "frames": 2,
     "gate": "other",
     "state": "other"
   }

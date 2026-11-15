@@ -4,11 +4,30 @@ import Foundation
 /// 한 번의 연습에서 유지하며 직렬 분석 큐에서 선택된 작업음 모델을 실행합니다.
 nonisolated final class ChicModelV3_5 {
     enum State: String { case air, sputter, metallic, other }
+    struct Output {
+        let labels: [String]
+        let values: [Double]
+
+        var winner: Int {
+            var best = 0
+            for i in values.indices.dropFirst() where values[i] > values[best] { best = i }
+            return best
+        }
+    }
+
+    struct WorkScores {
+        let primary: Output
+        var secondary: (name: String, output: Output)?
+    }
+
     struct Frame {
         let state: State
         let gateLabel: String
         let sputterScore: Double?
+        let scores: WorkScores
         let spectrum: [Double]
+        let audioTime: TimeInterval
+        let newStartMean: Double?
         let startReason: ChicStartRule.Reason?
     }
     enum Failure: LocalizedError {
@@ -36,6 +55,7 @@ nonisolated final class ChicModelV3_5 {
     private let startGate: ChicStartGate?
     var startProbability: Double? { startGate?.meanScore }
     var isStarted: Bool { startGate?.isStarted ?? true }
+    private var frameCount = 0
     private let rawExtractor: ChicV2FeatureExtractor
 
     struct Classifier {
@@ -65,12 +85,9 @@ nonisolated final class ChicModelV3_5 {
                 return p
             }
         }
-        /// 가장 높은 확률의 라벨을 반환합니다.
-        func winner(_ x: [Double]) throws -> String {
-            let p = try scores(x)
-            var best = 0
-            for i in p.indices.dropFirst() where p[i] > p[best] { best = i }
-            return labels[best]
+        /// 판정과 로그에서 같은 추론 결과를 사용합니다.
+        func prediction(_ x: [Double]) throws -> Output {
+            try Output(labels: labels, values: scores(x))
         }
     }
     /// 이번 연습에서 선택한 시작음 모델과 작업 분류 모델을 불러옵니다.
@@ -78,7 +95,7 @@ nonisolated final class ChicModelV3_5 {
         #if DEVELOP
         if selection == .home {
             let work = try Classifier(url: selection.url(for: "ChicModelV3_5Gate", in: bundle),
-                                      labels: ["air", "metallic", "sputter", "other"])
+                                      labels: ["air", "metallic", "sputter", "other", "non_steam"])
             let metal = try Classifier(url: selection.url(for: "ChicModelV3_5Metallic", in: bundle),
                                        labels: ["metallic", "other"])
             let air = try Classifier(url: selection.url(for: "ChicModelV3_5Air", in: bundle),
@@ -115,44 +132,55 @@ nonisolated final class ChicModelV3_5 {
     }
 
     /// 선택한 모델의 분류기로 작업음 한 프레임을 판정합니다.
-    private func classifyWork(_ x: [Double]) throws -> (State, String, Double?) {
+    private func classifyWork(_ x: [Double]) throws -> (State, String, Double?, WorkScores) {
         switch workModel {
         #if DEVELOP
         case let .home(work, metal, air):
-            let scores = try work.scores(x)
-            guard let best = scores.max(), let index = scores.firstIndex(of: best),
-                  let first = State(rawValue: work.labels[index]) else { throw Failure.schema }
+            let primary = try work.prediction(x)
+            let scores = primary.values
+            let index = primary.winner
+            let best = scores[index]
+            let label = work.labels[index]
+            if label == "non_steam" { return (.other, label, scores[2], WorkScores(primary: primary)) }
+            guard let first = State(rawValue: label) else { throw Failure.schema }
             var candidate = first
             if first == .other {
                 // 기타가 앞서도 작업음과의 차이가 작으면 해당 2차 모델에서 다시 확인합니다.
                 let foreground = scores.prefix(3)
                 guard let next = foreground.max(), let runner = foreground.firstIndex(of: next),
                       let label = State(rawValue: work.labels[runner]) else { throw Failure.schema }
-                guard best - next <= 0.35 else { return (first, first.rawValue, scores[2]) }
+                guard best - next <= 0.35 else { return (first, first.rawValue, scores[2], WorkScores(primary: primary)) }
                 candidate = label
             }
             let expert = candidate == .metallic ? metal : air
-            let refined = try expert.scores(x)
-            guard let confidence = refined.max(), let winner = refined.firstIndex(of: confidence),
-                  let state = State(rawValue: expert.labels[winner]) else { throw Failure.schema }
-            return (confidence >= 0.65 ? state : first, first.rawValue, scores[2])
+            let refined = try expert.prediction(x)
+            let winner = refined.winner
+            guard let state = State(rawValue: expert.labels[winner]) else { throw Failure.schema }
+            let output = WorkScores(primary: primary, secondary: (candidate == .metallic ? "Metal" : "Air", refined))
+            return (refined.values[winner] >= 0.65 ? state : first, first.rawValue, scores[2], output)
         #endif
         case let .standard(gate, air, rolling):
-            let label = try gate.winner(x)
+            let primary = try gate.prediction(x)
+            let label = gate.labels[primary.winner]
+            var output = WorkScores(primary: primary)
             let state: State
             var score: Double?
             switch label {
             case "air", "sputter":
-                let p = try air.scores(x)
+                let prediction = try air.prediction(x)
+                output.secondary = ("Air", prediction)
+                let p = prediction.values
                 score = p[1]
                 state = Self.airState(air: p[0], sputter: p[1], rolling: p[2])
             case "breath_whistle": state = .other
             case "metallic", "other":
-                let p = try rolling.scores(x)
+                let prediction = try rolling.prediction(x)
+                output.secondary = ("Metal", prediction)
+                let p = prediction.values
                 state = p[1] > p[0] && p[1] >= p[2] && p[1] >= p[3] && p[1] >= Self.metallicThreshold ? .metallic : .other
             default: throw Failure.schema
             }
-            return (state, label, score)
+            return (state, label, score, output)
         }
     }
 
@@ -162,9 +190,13 @@ nonisolated final class ChicModelV3_5 {
         try rawExtractor.consume(mono, sampleRate: sampleRate) { x, spectrum in
             // 대기 중에도 공기주입을 독립 분류하고 종료 이력을 같은 FFT로 유지합니다.
             try onSpectrum?(spectrum)
-            let (state, label, score) = try classifyWork(x)
+            let (state, label, score, scores) = try classifyWork(x)
+            frameCount += 1
+            let updatesStartMean = frameCount.isMultiple(of: 10) && startGate?.isScoring == true
             let startReason = try startGate?.consume(x, state: state)
-            try onFrame(Frame(state: state, gateLabel: label, sputterScore: score, spectrum: spectrum, startReason: startReason))
+            let audioTime = Double(2048 + (frameCount - 1) * 512) / sampleRate
+            try onFrame(Frame(state: state, gateLabel: label, sputterScore: score, scores: scores, spectrum: spectrum,
+                              audioTime: audioTime, newStartMean: updatesStartMean ? startProbability : nil, startReason: startReason))
         }
     }
 }
@@ -184,6 +216,8 @@ nonisolated extension ChicModelSelection {
         switch self {
         case .standard: resource = name
         #if DEVELOP
+        case .home where name == "ChicStartSoundV1": resource = "DelonghiChicStartSound"
+        case .home where name == "ChicEndV3_5": resource = "DelonghiChicEndSound"
         case .home: resource = "Delonghi" + name
         #endif
         }

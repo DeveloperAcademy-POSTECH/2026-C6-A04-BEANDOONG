@@ -25,7 +25,7 @@ nonisolated struct ChicEndRule {
 
     private let selection: ChicModelSelection
 
-    /// 드롱기는 종료음 또는 청소음으로만 종료 확인을 요청합니다.
+    /// 모델 선택에 따라 청소음과 소리 끊김의 사용 여부를 정합니다.
     init(selection: ChicModelSelection = .standard) { self.selection = selection }
 
     private(set) var isActive = false
@@ -47,7 +47,7 @@ nonisolated struct ChicEndRule {
     /// 소멸은 낮은 작업 점수의 연속 횟수로만 확인합니다.
     mutating func consume(work: Double, end: Double, purge: Double) -> Reason? {
         guard isActive else { return nil }
-        purgeCount = purge >= 0.5 ? purgeCount + 1 : 0
+        purgeCount = selection == .standard && purge >= 0.5 ? purgeCount + 1 : 0
         lowWorkCount = selection == .standard && work < 0.3 ? lowWorkCount + 1 : 0
         workCount = work >= 0.3 ? workCount + 1 : 0
         if isAsking, workCount >= Self.resumeCount {
@@ -58,7 +58,7 @@ nonisolated struct ChicEndRule {
         // 이미 물어본 동안에는 다시 알리지 않아요.
         guard !isAsking else { return nil }
         let reason: Reason?
-        if end >= 0.6 { reason = .endSound }
+        if end >= 0.60 { reason = .endSound }
         else if lowWorkCount >= Self.silenceCount { reason = .disappearance }
         else if purgeCount >= Self.cleaningCount { reason = .cleaning }
         else { reason = nil }

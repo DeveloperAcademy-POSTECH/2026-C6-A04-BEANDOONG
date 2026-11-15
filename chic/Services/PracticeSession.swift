@@ -128,16 +128,22 @@ final class PracticeSession: ObservableObject {
         await audioTeardown?.value
         // 이전 연습과 구분되는 ID를 만듭니다.
         let id = UUID()
-        let onResult: @Sendable (PracticePhase) -> Void = { [weak self] phase in
+        let onResult: @Sendable (PracticePhase, ChicAnalysisLog) -> Void = { [weak self] phase, log in
             Task { @MainActor [weak self] in
                 guard let self, self.state.sessionID == id else { return }
+                let previous = self.state.phase
                 self.updateFeedback(phase)
+                if previous != self.state.phase, !log.isStartFrame, !self.endQuestion.isAsking {
+                    log.write(.feedback(phase.title))
+                }
             }
         }
-        let onSilence: @Sendable (TimeInterval) -> Void = { [weak self] elapsed in
+        let onSilence: @Sendable (TimeInterval, ChicEndRule.Reason, ChicAnalysisLog) -> Void = { [weak self] elapsed, reason, log in
             Task { @MainActor [weak self] in
                 guard let self, self.state.sessionID == id, self.state.phase.isRunning else { return }
+                guard !self.endQuestion.isAsking else { return }
                 self.endQuestion.ask(endedAt: Date().addingTimeInterval(-elapsed))
+                log.write(.end(reason))
             }
         }
         let onError: @Sendable (String) -> Void = { [weak self] message in
@@ -197,7 +203,6 @@ final class PracticeSession: ObservableObject {
     }
 
     private func finish(endedAt requestedEnd: Date) {
-        endQuestion.close()
         // 이미 종료된 연습이면 다시 저장하지 않습니다.
         guard state.phase.isRunning, let id = state.sessionID,
               let startedAt = state.startedAt else { return }
@@ -205,6 +210,8 @@ final class PracticeSession: ObservableObject {
         // 엔진 종료와 오디오 세션 비활성화는 오래 걸릴 수 있어 메인 스레드 밖에서 합니다.
         // 그사이 도착한 분석 결과는 updateFeedback 의 phase · sessionID 검사로 버려집니다.
         let analyzer = soundAnalyzer
+        if !endQuestion.isAsking { analyzer?.logFinish(elapsed: endedAt.timeIntervalSince(startedAt)) }
+        endQuestion.close()
         soundAnalyzer = nil
         audioTeardown = Self.tearDownAudio(analyzer)
         state.endedAt = endedAt
