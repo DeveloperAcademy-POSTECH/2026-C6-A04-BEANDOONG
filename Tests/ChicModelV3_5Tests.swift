@@ -362,6 +362,28 @@ import Foundation
         var home = ChicDisplayFilter(forHome: true)
         for _ in 0..<19 { precondition(home.consume(.air) == nil) }
         precondition(home.consume(.air) == .air)
+        for work in [State.air, .sputter, .metallic] {
+            var active = ChicDisplayFilter(forHome: true)
+            active.activate()
+            func feed(_ frames: [State]) -> State? {
+                var result: State?
+                for frame in frames { result = active.consume(frame) }
+                return result
+            }
+            let steady = Array(repeating: work, count: 10)
+            let rolling = Array(repeating: State.other, count: 10)
+            let mixed = Array(repeating: State.other, count: 8) + [work, work]
+            _ = feed(steady + steady + steady)
+            precondition(feed(mixed + mixed) == work)
+            precondition(feed(steady) == work)
+            precondition(feed(mixed + mixed + mixed) == .other)
+            _ = feed(steady + steady + steady)
+            precondition(feed(rolling + rolling) == .other)
+            _ = feed(steady + steady + steady)
+            _ = feed(mixed + mixed)
+            let next: State = work == .air ? .sputter : .air
+            precondition(feed(Array(repeating: next, count: 20)) == next)
+        }
         print("PASS 10-frame mode, ties, strict consecutive runs and fresh session")
     }
     #if DEVELOP
