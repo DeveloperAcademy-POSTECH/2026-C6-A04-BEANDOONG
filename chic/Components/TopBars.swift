@@ -21,9 +21,18 @@ struct TopNavigationHeader: View {
     /// 오른쪽 아이콘 버튼 (SF Symbol 이름, 예: "trash"). nil이면 없음
     var trailingSystemImage: String? = nil
     var onTrailingIcon: () -> Void = {}
+    /// 오른쪽 아이콘 버튼을 VoiceOver 가 읽는 말. 기본은 "삭제" (휴지통 아이콘)
+    var trailingIconAccessibilityLabel: String = String(localized: "삭제")
 
     private var foregroundColor: Color {
         isDark ? Color.white : AppColors.lightHeaderText
+    }
+
+    /// 오른쪽 여백: 글자 버튼이 있으면 22, 아이콘 버튼만 있으면 24, 둘 다 없으면 27 (왼쪽 여백과 같아요)
+    private var trailingInset: CGFloat {
+        if trailingTitle != nil { return 22 }
+        if trailingSystemImage != nil { return 24 }
+        return 27
     }
 
     var body: some View {
@@ -51,7 +60,7 @@ struct TopNavigationHeader: View {
                         .tapArea()
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel(String(localized: "삭제"))
+                .accessibilityLabel(trailingIconAccessibilityLabel)
             }
             if let trailingTitle {
                 Button(action: onTrailing) {
@@ -71,7 +80,7 @@ struct TopNavigationHeader: View {
         }
         .frame(height: 20)
         .padding(.leading, CGFloat(27).h(scale))
-        .padding(.trailing, CGFloat(trailingTitle != nil ? 22 : (trailingSystemImage != nil ? 24 : 27)).h(scale))
+        .padding(.trailing, trailingInset.h(scale))
     }
 }
 

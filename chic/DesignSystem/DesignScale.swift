@@ -98,4 +98,9 @@ extension View {
             .scaleEffect(scale.fit)
             .frame(width: width * scale.fit, height: height * scale.fit)
     }
+
+    /// `designScaled(width:height:_:)` 와 같아요. 일러스트가 공개한 `size`(예: `PhoneWatchIllustration.size`)를 그대로 넘길 수 있어요.
+    func designScaled(size: CGSize, _ scale: DesignScale) -> some View {
+        designScaled(width: size.width, height: size.height, scale)
+    }
 }

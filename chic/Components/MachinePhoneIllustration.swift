@@ -18,38 +18,24 @@ import SwiftUI
 /// - 조각 이미지는 Hi-Fi의 머신·폰 일러스트 한 장을 같은 크기 캔버스에서 나눈 것이라,
 ///   전부 겹쳐 놓은 다 켜진 모습이 Hi-Fi와 픽셀까지 같아요.
 /// - 동작 줄이기(Reduce Motion)가 켜져 있으면 다 켜진 Hi-Fi 정지 화면으로 멈춰 있어요.
+/// - 그리는 방식은 `RadioRevealIllustration` 과 같고, 여기서는 이미지와 타이밍(`RadioRevealTiming.machinePhone`)만 정해요.
 struct MachinePhoneIllustration: View {
-    private let timing = RadioRevealTiming.machinePhone
+    /// 화면에 놓이는 크기(pt) — Hi-Fi 일러스트 크기와 같아요. `.designScaled(size:_:)` 에 그대로 넘겨요.
+    static let size = CGSize(width: 304, height: 199)
 
     var body: some View {
-        ZStack {
-            image("IllustMachinePhoneBase")
-
-            LoopTimeline(period: timing.period, restProgress: timing.restProgress) { progress in
-                let time = progress * timing.period
-                ZStack {
-                    ForEach(Spec.revealImages.indices, id: \.self) { index in
-                        image(Spec.revealImages[index])
-                            // 꺼진 동안도 0 대신 0.001로 둬요. 0이면 그리기를 건너뛰어, 스플래시 · 이웃 쪽으로 미리 만들 때
-                            // 이미지가 준비되지 않고 처음 켜지는 순간(애니메이션 시작)에 디코딩이 몰려 버벅여요. 0.001은 눈에 보이지 않아요.
-                            .opacity(max(timing.opacity(index: index, time: time), RadioRevealTiming.hiddenOpacity))
-                    }
-                }
-            }
-        }
-        .accessibilityHidden(true)
-    }
-
-    private func image(_ name: String) -> some View {
-        AssetImageView(name: name, width: Spec.frameSize.width, height: Spec.frameSize.height)
+        RadioRevealIllustration(
+            base: "IllustMachinePhoneBase",
+            layers: Spec.revealImages,
+            size: Self.size,
+            timing: .machinePhone
+        )
     }
 }
 
 // MARK: - 사양
 
 private enum Spec {
-    /// 화면에 놓이는 크기(pt) — Hi-Fi 일러스트 크기와 같아요
-    static let frameSize = CGSize(width: 304, height: 199)
     /// 켜지는 순서: 전파 안쪽 → 바깥쪽, 그다음 폰 위 신호 선 3개
     static let revealImages = ["IllustMachinePhoneWave1", "IllustMachinePhoneWave2", "IllustMachinePhoneWave3", "IllustMachinePhoneSignal"]
 }

@@ -21,7 +21,7 @@ extension View {
                     colors: [AppColors.darkTopGlow, AppColors.darkBackground],
                     center: .top,
                     startRadius: 0,
-                    endRadius: TopGlow.radius
+                    endRadius: Layout.topGlowRadius
                 )
                 .background(AppColors.darkBackground)
                 .ignoresSafeArea()
@@ -30,9 +30,9 @@ extension View {
     }
 }
 
-// MARK: - 상단 글로우
+// MARK: - Layout
 
-private enum TopGlow {
-    /// 글로우가 배경색으로 완전히 사라지는 거리
-    static let radius: CGFloat = 400
+private enum Layout {
+    /// 상단 글로우가 배경색으로 완전히 사라지는 거리
+    static let topGlowRadius: CGFloat = 400
 }
