@@ -9,13 +9,11 @@ nonisolated struct ChicStartRule {
     private(set) var meanScore: Double?
     private var sum = 0.0
     private var frames = 0
-    private let requiredSoundBlocks: Int
-    private var soundBlocks = 0
-    private var airFilter = ChicDisplayFilter()
+    private var airFilter: ChicDisplayFilter
 
     init(forHome: Bool = false) {
-        threshold = forHome ? 0.80 : Self.standardThreshold
-        requiredSoundBlocks = forHome ? 2 : 1
+        threshold = forHome ? 0.70 : Self.standardThreshold
+        airFilter = ChicDisplayFilter(forHome: forHome)
     }
 
     /// 공기주입은 시작음 점수와 관계없이 기존 10프레임 표시 기준으로 확인합니다.
@@ -28,8 +26,7 @@ nonisolated struct ChicStartRule {
         meanScore = sum / 10
         sum = 0
         frames = 0
-        soundBlocks = meanScore! >= threshold ? soundBlocks + 1 : 0
-        guard air || soundBlocks >= requiredSoundBlocks else { return nil }
+        guard air || meanScore! >= threshold else { return nil }
         isStarted = true
         return air ? .air : .startSound
     }

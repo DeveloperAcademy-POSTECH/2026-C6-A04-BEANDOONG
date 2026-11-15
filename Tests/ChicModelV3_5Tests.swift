@@ -18,7 +18,7 @@ import Foundation
     /// 공기주입과 시작음은 서로의 점수나 판정에 의존하지 않는 OR입니다.
     static func checkStartRule() {
         var air = ChicStartRule()
-        for _ in 0..<19 { precondition(air.consume(0, state: .air) == nil) }
+        for _ in 0..<9 { precondition(air.consume(0, state: .air) == nil) }
         precondition(air.consume(0, state: .air) == .air)
         precondition(air.isStarted && air.meanScore == 0)
         for _ in 0..<100 { precondition(air.consume(1, state: .other) == nil) }
@@ -26,9 +26,12 @@ import Foundation
         for _ in 0..<9 { precondition(sound.consume(0.86, state: .other) == nil) }
         precondition(sound.consume(0.86, state: .other) == .startSound)
         var home = ChicStartRule(forHome: true)
-        for _ in 0..<20 { precondition(home.consume(0.799, state: .other) == nil) }
-        for _ in 0..<19 { precondition(home.consume(0.801, state: .other) == nil) }
-        precondition(home.consume(0.801, state: .other) == .startSound)
+        for _ in 0..<10 { precondition(home.consume(0.6999, state: .other) == nil) }
+        for _ in 0..<3 { precondition(home.consume(0, state: .other) == nil) }
+        for _ in 0..<6 { precondition(home.consume(1, state: .other) == nil) }
+        precondition(home.consume(1, state: .other) == .startSound)
+        var standard = ChicStartRule()
+        for _ in 0..<10 { precondition(standard.consume(0.70, state: .other) == nil) }
         var average = ChicStartRule()
         for _ in 0..<9 { precondition(average.consume(0.9, state: .other) == nil) }
         precondition(average.consume(0, state: .other) == nil)
@@ -40,16 +43,13 @@ import Foundation
             precondition(!idle.isStarted)
         }
         var simultaneous = ChicStartRule()
-        for _ in 0..<10 { precondition(simultaneous.consume(0, state: .air) == nil) }
         for _ in 0..<9 { precondition(simultaneous.consume(1, state: .air) == nil) }
         precondition(simultaneous.consume(1, state: .air) == .air)
         var tied = ChicStartRule()
-        for _ in 0..<10 { precondition(tied.consume(0, state: .air) == nil) }
         for _ in 0..<5 { precondition(tied.consume(0, state: .other) == nil) }
         for _ in 0..<4 { precondition(tied.consume(0, state: .air) == nil) }
         precondition(tied.consume(0, state: .air) == .air)
         var reverse = ChicStartRule()
-        for _ in 0..<10 { precondition(reverse.consume(0, state: .air) == nil) }
         for _ in 0..<5 { precondition(reverse.consume(0, state: .air) == nil) }
         for _ in 0..<5 { precondition(reverse.consume(0, state: .other) == nil) }
         precondition(!reverse.isStarted)
@@ -63,8 +63,7 @@ import Foundation
         for (features, state, reason) in [(expected.highFeatures, ChicModelV3_5.State.other, ChicStartRule.Reason.startSound),
                                          (expected.lowFeatures, .air, .air)] {
             let gate = try ChicStartGate(url: url)
-            let requiredFrames = reason == .air ? 20 : 10
-            for _ in 1..<requiredFrames { let result = try gate.consume(features, state: state); precondition(result == nil) }
+            for _ in 0..<9 { let result = try gate.consume(features, state: state); precondition(result == nil) }
             let result = try gate.consume(features, state: state)
             precondition(result == reason && gate.isStarted)
             let probability = reason == .air ? expected.lowProbability : expected.highProbability
@@ -73,13 +72,7 @@ import Foundation
             for _ in 0..<100 { let repeated = try gate.consume([], state: .other); precondition(repeated == nil) }
         }
         let delayed = try ChicStartGate(url: url, delayStartSound: true)
-        for features in [expected.highFeatures, expected.lowFeatures] {
-            for _ in 0..<10 {
-                let reason = try delayed.consume(features, state: .other)
-                precondition(reason == nil && !delayed.isStarted)
-            }
-        }
-        for _ in 0..<20 {
+        for _ in 0..<10 {
             let reason = try delayed.consume(expected.highFeatures, state: .other)
             precondition(reason == nil && !delayed.isStarted)
         }
@@ -183,7 +176,7 @@ import Foundation
         precondition(ChicModelV3_5.airState(air: 0.499999, sputter: 0.2, rolling: 0.300001) == .other)
         precondition(ChicModelV3_5.airState(air: 0.5, sputter: 0.5, rolling: 0) == .sputter)
         var display = ChicDisplayFilter()
-        for _ in 0..<20 { _ = display.consume(.air) }
+        for _ in 0..<10 { _ = display.consume(.air) }
         var result: ChicModelV3_5.State?
         let belowThreshold = ChicModelV3_5.airState(air: 0.4, sputter: 0.35, rolling: 0.25)
         for _ in 0..<10 { result = display.consume(belowThreshold) }
@@ -343,29 +336,32 @@ import Foundation
                 precondition(filter.consume(candidate) == result)
             }
         }
-        check([.other, .other, .air, .other, .air, .air], [nil, nil, nil, nil, nil, .air])
-        check([.air, .air, .other, .air, .other, .other], [nil, .air, .air, .air, .air, .other])
+        check([.other, .other, .air, .other, .air, .air], [nil, nil, .air, .air, .air, .air])
+        check([.air, .air, .other, .air, .other, .other], [.air, .air, .air, .air, .air, .other])
         check([.air, .air, .metallic, .metallic, .air, .metallic, .metallic, .metallic],
-              [nil, .air, .air, .air, .air, .air, .air, .metallic])
+              [.air, .air, .air, .air, .air, .air, .air, .metallic])
         check([.air, .air, .sputter, .sputter, .metallic, .sputter, .sputter, .sputter],
-              [nil, .air, .air, .sputter, .sputter, .sputter, .sputter, .sputter])
+              [.air, .air, .air, .sputter, .sputter, .sputter, .sputter, .sputter])
         check([.metallic, .metallic, .metallic, .sputter, .sputter, .sputter, .air, .air],
-              [nil, nil, .metallic, .metallic, .sputter, .sputter, .sputter, .air])
-        check([.air, .sputter, .air, .sputter], [nil, nil, nil, nil])
-        check([.air, .sputter, .other, .sputter, .sputter], [nil, nil, nil, nil, .sputter])
+              [nil, nil, .metallic, .metallic, .sputter, .sputter, .air, .air])
+        check([.air, .sputter, .air, .sputter], [.air, .air, .air, .air])
+        check([.air, .sputter, .other, .sputter, .sputter], [.air, .air, .air, .air, .sputter])
         check([.sputter, .sputter], [nil, .sputter])
-        check([.air, .air, .other, .other, .air, .air], [nil, .air, .air, .other, .other, .air])
+        check([.air, .other, .other, .air], [.air, .air, .other, .air])
 
         var filter = ChicDisplayFilter()
         let majority = Array(repeating: State.air, count: 6) + Array(repeating: State.metallic, count: 4)
         for state in majority.dropLast() { precondition(filter.consume(state) == nil) }
-        precondition(filter.consume(majority.last!) == nil)
+        precondition(filter.consume(majority.last!) == .air)
         let tied: [State] = [.air, .metallic, .air, .metallic, .metallic, .metallic, .air, .air, .sputter, .other]
         for state in tied.dropLast() { precondition(filter.consume(state) == nil) }
         precondition(filter.consume(tied.last!) == .air)
         var fresh = ChicDisplayFilter()
-        for _ in 0..<19 { precondition(fresh.consume(.air) == nil) }
+        for _ in 0..<9 { precondition(fresh.consume(.air) == nil) }
         precondition(fresh.consume(.air) == .air)
+        var home = ChicDisplayFilter(forHome: true)
+        for _ in 0..<19 { precondition(home.consume(.air) == nil) }
+        precondition(home.consume(.air) == .air)
         print("PASS 10-frame mode, ties, strict consecutive runs and fresh session")
     }
     #if DEVELOP

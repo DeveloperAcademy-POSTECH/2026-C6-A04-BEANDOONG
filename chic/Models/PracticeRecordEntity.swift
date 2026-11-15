@@ -16,7 +16,7 @@ final class PracticeRecordEntity {
         startedAt = record.startedAt
         endedAt = record.endedAt
         self.dailyOrder = dailyOrder
-        modelName = model.rawValue
+        modelName = model == .standard ? nil : model.rawValue
         soundSegments = segments.map(PracticeSoundSegmentEntity.init)
     }
 
