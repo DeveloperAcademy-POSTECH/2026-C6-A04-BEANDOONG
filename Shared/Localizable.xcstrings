@@ -2794,6 +2794,23 @@
         }
       }
     },
+    "우유 표면에 가까이" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Near the milk surface"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "우유 표면에 가까이"
+          }
+        }
+      }
+    },
     "우유 표면에 윤기가 나나요?" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3477,6 +3494,40 @@
         }
       }
     },
+    "중앙" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Center"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "중앙"
+          }
+        }
+      }
+    },
+    "중앙에서 살짝 옆,\n벽에 닿지 않게" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Just off-center,\naway from the wall"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "중앙에서 살짝 옆,\n벽에 닿지 않게"
+          }
+        }
+      }
+    },
     "지금 위치를\n유지해요" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3806,6 +3857,40 @@
         }
       }
     },
+    "팁 시작 위치 예시" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tip start position"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "팁 시작 위치 예시"
+          }
+        }
+      }
+    },
+    "팁 위치" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tip position"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "팁 위치"
+          }
+        }
+      }
+    },
     "표면과 따를 때의 모습을 함께 보세요" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -3870,6 +3955,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "표면이 전반적으로 매끈한지, 그 사이에 큰 기포가 남았는지 보세요. 몇 개만 남았다면 피처 바닥을 작업대에 가볍게 톡톡 두드린 뒤 살짝 돌려 보세요."
+          }
+        }
+      }
+    },
+    "피처 내리기" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lower the pitcher"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "피처 내리기"
           }
         }
       }
@@ -3942,8 +4044,22 @@
         }
       }
     },
-    "피처를 기울이고 팁은 중앙에서 살짝 옆, 벽에 닿지 않게 두세요" : {
-
+    "피처를 기울여요" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tilt the pitcher"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "피처를 기울여요"
+          }
+        }
+      }
     },
     "피처를 살짝\n내려 주세요" : {
       "extractionState" : "manual",

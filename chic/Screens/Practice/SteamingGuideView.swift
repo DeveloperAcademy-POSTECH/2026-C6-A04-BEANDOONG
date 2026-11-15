@@ -85,9 +85,7 @@ struct SteamingGuideView: View {
         VStack(alignment: .leading, spacing: 13) {
             stepHeader(2, title: String(localized: "노즐과 피처의 위치를 잡아요"))
             VStack(spacing: 49) {
-                // Hi-Fi의 피처·팁 위치 도해 전체. 원본 비율과 주석 위치를 유지해요.
-                AssetImageView(name: "IllustActingPosition", width: 242, height: 377)
-                    .accessibilityLabel(String(localized: "피처를 기울이고 팁은 중앙에서 살짝 옆, 벽에 닿지 않게 두세요"))
+                ActingPositionIllustration()
                 guideDescription(String(localized: "손잡이를 안정되게 잡고 조금 기울여요.\n중앙에서 살짝 옆, 표면 바로 아래에\n팁을 잠기게 두고 스팀을 준비해요"))
             }
             .padding(.horizontal, 14)
@@ -172,9 +170,8 @@ struct SteamingGuideView: View {
 
     private func steamingCard(image: String, title: String, description: String) -> some View {
         VStack(alignment: .leading, spacing: 42) {
-            AssetImageView(name: image, width: 278, height: 194)
+            ActingSteamingIllustration(image: image)
                 .frame(maxWidth: .infinity)
-                .accessibilityHidden(true)
             VStack(alignment: .leading, spacing: 7) {
                 Text(title)
                     .font(.pretendard(.bold, size: 16))
