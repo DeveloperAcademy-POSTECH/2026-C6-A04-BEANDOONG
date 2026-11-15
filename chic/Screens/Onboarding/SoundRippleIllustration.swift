@@ -17,6 +17,9 @@ import SwiftUI
 /// - 링·선·코어 색은 시안처럼 일러스트 전체에 깔린 위 → 아래 세로 그라데이션을 써요.
 /// - 동작 줄이기(Reduce Motion)가 켜져 있으면 Hi-Fi 정지 화면으로 멈춰 있어요.
 struct SoundRippleIllustration: View {
+    /// 화면에 놓이는 크기(pt). `.designScaled(size:_:)` 에 그대로 넘겨요.
+    static let size = Spec.frameSize
+
     var body: some View {
         LoopTimeline(period: Spec.period) { progress in
             IllustrationCanvas(pixelSize: Spec.frameSize, frameSize: Spec.frameSize, overflow: Spec.overflow,
@@ -38,14 +41,11 @@ struct SoundRippleIllustration: View {
             let phase = (progress + Double(index) / Double(Spec.ringCount)).truncatingRemainder(dividingBy: 1)
             let radius = Spec.ringStartRadius + Spec.ringTravel * phase
             // Hi-Fi 바깥 링을 지나면서 옅어짐
-            let fade = smoothstep((radius - Spec.ringFadeStartRadius) / (Spec.ringEndRadius - Spec.ringFadeStartRadius))
+            let fade = Easing.smoothstep((radius - Spec.ringFadeStartRadius) / (Spec.ringEndRadius - Spec.ringFadeStartRadius))
             let opacity = 1 - fade
             guard opacity > 0 else { continue }
 
-            let ring = Path(ellipseIn: CGRect(
-                x: Spec.center.x - radius, y: Spec.center.y - radius,
-                width: radius * 2, height: radius * 2
-            ))
+            let ring = Path.circle(center: Spec.center, radius: radius)
             var ringContext = context
             ringContext.opacity = opacity
             ringContext.stroke(ring, with: paint, lineWidth: Spec.ringLineWidth)
@@ -62,17 +62,8 @@ struct SoundRippleIllustration: View {
 
     /// 파동과 선을 덮는 코어 구. 파동과 같은 중심에 그려 동심원이 돼요.
     private func drawCore(in context: inout GraphicsContext, paint: GraphicsContext.Shading) {
-        let radius = Spec.coreRadius
-        let core = Path(ellipseIn: CGRect(
-            x: Spec.center.x - radius, y: Spec.center.y - radius,
-            width: radius * 2, height: radius * 2
-        ))
+        let core = Path.circle(center: Spec.center, radius: Spec.coreRadius)
         context.fill(core, with: paint)
-    }
-
-    private func smoothstep(_ value: CGFloat) -> CGFloat {
-        let t = min(max(value, 0), 1)
-        return t * t * (3 - 2 * t)
     }
 }
 

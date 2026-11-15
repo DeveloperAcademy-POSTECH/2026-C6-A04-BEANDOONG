@@ -16,12 +16,16 @@ import SwiftUI
 /// - 첫 프레임은 Hi-Fi 정지 화면과 같아요.
 /// - 동작 줄이기(Reduce Motion)가 켜져 있으면 Hi-Fi 정지 화면으로 멈춰 있어요.
 struct WatchConnectingIllustration: View {
+    /// 화면에 놓이는 크기(pt). `.designScaled(size:_:)` 에 그대로 넘겨요.
+    static let size = Spec.frameSize
+
     var body: some View {
         ZStack {
-            AssetImageView(name: "IllustWatchCheckingBase", width: Spec.frameSize.width, height: Spec.frameSize.height)
+            AssetImageView(name: "IllustWatchCheckingBase", size: Spec.frameSize)
 
-            LoopTimeline(period: Spec.period) { progress in
-                IllustrationCanvas(pixelSize: Spec.frameSize, frameSize: Spec.frameSize) { context in
+            // 그림은 칸(1/6초)이 바뀔 때만 달라지니 화면 주사율(최대 120Hz)대로 다시 그릴 필요가 없어요. 그리는 간격을 벌려요.
+            LoopTimeline(period: Spec.period, minimumInterval: Spec.redrawInterval) { progress in
+                IllustrationCanvas(pixelSize: Spec.frameSize, frameSize: Spec.frameSize, rendersAsynchronously: true) { context in
                     drawDots(in: &context, headStep: Int(progress * Double(Spec.dotCenters.count)))
                 }
             }
@@ -35,12 +39,7 @@ struct WatchConnectingIllustration: View {
         for (index, center) in Spec.dotCenters.enumerated() {
             // 이 점이 머리에서 몇 칸 뒤에 있는지 (0 = 머리)
             let behind = ((headStep - index) % count + count) % count
-            let dot = Path(ellipseIn: CGRect(
-                x: center.x - Spec.dotRadius,
-                y: center.y - Spec.dotRadius,
-                width: Spec.dotRadius * 2,
-                height: Spec.dotRadius * 2
-            ))
+            let dot = Path.circle(center: center, radius: Spec.dotRadius)
             context.fill(dot, with: .color(Spec.dotColor.opacity(Spec.opacityBehindHead[behind])))
         }
     }
@@ -51,6 +50,14 @@ struct WatchConnectingIllustration: View {
 private enum Spec {
     /// 머리가 한 바퀴 도는 시간(초): iOS 기본 스피너처럼 1초에 한 바퀴
     static let period: TimeInterval = 1.0
+
+    /// 다시 그리는 가장 짧은 간격(초): 한 칸 길이(`period / 6`)의 절반
+    ///
+    /// `minimumInterval` 은 "이 간격보다 자주 그리지 않는다"는 뜻이라, 칸이 바뀌는 순간에 맞춰 그려 주지는 않아요.
+    /// 간격을 칸 길이와 같게 주면 그리는 시각이 조금씩 밀리다가 칸 하나가 건너뛰어 보일 수 있어서, 한 칸에 두 번쯤 그려지는 `period / 12` 로 둬요
+    /// (60Hz · 120Hz 에서 프레임 5개 · 10개라 칸 길이를 딱 나눠요). 칸이 바뀐 뒤 화면에 나오기까지 최대 이 간격(약 0.083초)만큼 늦을 수 있지만,
+    /// 늦는 정도가 칸마다 거의 같아서 점이 도는 리듬은 그대로예요.
+    static let redrawInterval: TimeInterval = period / 12
 
     /// 화면에 놓이는 크기(pt) — 기존 일러스트와 같아요
     static let frameSize = CGSize(width: 121, height: 207)

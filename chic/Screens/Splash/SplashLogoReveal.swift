@@ -29,7 +29,7 @@ struct SplashLogoReveal: View {
                     .opacity(risen.contains(part) ? 1 : 0)
             }
         }
-        .frame(width: LogoGeometry.size.width, height: LogoGeometry.size.height)
+        .frame(width: Spec.size.width, height: Spec.size.height)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel("chic")
         .onAppear(perform: showAllIfReduceMotion)
@@ -70,7 +70,7 @@ private enum RevealMotion {
 
     static let riseDuration: TimeInterval = 0.9
     /// 로고 높이의 9% 아래에서 떠오름
-    static let riseDistance: CGFloat = LogoGeometry.size.height * 0.09
+    static let riseDistance: CGFloat = Spec.size.height * 0.09
 
     static let focusDuration: TimeInterval = 0.85
     /// 처음 흐림 반지름 (화면 폭 402pt 의 2.2%)
@@ -115,7 +115,7 @@ private enum LogoPart: CaseIterable {
 ///
 /// 조각끼리 떨어져 있는 틈 한가운데를 경계로 잡아서, 영역이 겹치거나 비는 곳 없이 로고 전체를 나눠요.
 /// i 점은 i 기둥 바로 위에 있어서, 기둥 영역에서 점 영역(위쪽 사각형)만 빼요.
-private enum LogoGeometry {
+private enum Spec {
     /// 화면에 그리는 로고 크기 (원본 3배 이미지 446×153px)
     static let size = CGSize(width: 446.0 / 3, height: 153.0 / 3)
     /// 원본 이미지 픽셀 크기
@@ -157,10 +157,10 @@ private struct LogoPartShape: Shape {
     let part: LogoPart
 
     func path(in rect: CGRect) -> Path {
-        let scaleX = rect.width / LogoGeometry.pixelSize.width
-        let scaleY = rect.height / LogoGeometry.pixelSize.height
+        let scaleX = rect.width / Spec.pixelSize.width
+        let scaleY = rect.height / Spec.pixelSize.height
         var path = Path()
-        for pixelRect in LogoGeometry.pixelRects(of: part) {
+        for pixelRect in Spec.pixelRects(of: part) {
             path.addRect(CGRect(
                 x: rect.minX + pixelRect.minX * scaleX,
                 y: rect.minY + pixelRect.minY * scaleY,
