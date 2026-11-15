@@ -29,7 +29,7 @@ nonisolated final class ChicModelV3_5 {
     private enum WorkModel {
         case standard(gate: Classifier, air: Classifier, rolling: Classifier)
         #if DEVELOP
-        case home(Classifier)
+        case home(work: Classifier, metal: Classifier, air: Classifier)
         #endif
     }
     private let workModel: WorkModel
@@ -77,9 +77,13 @@ nonisolated final class ChicModelV3_5 {
     convenience init(selection: ChicModelSelection = .standard, bundle: Bundle = .main) throws {
         #if DEVELOP
         if selection == .home {
-            let work = try Classifier(url: selection.url(for: "ChicWorkV1", in: bundle),
+            let work = try Classifier(url: selection.url(for: "ChicModelV3_5Gate", in: bundle),
                                       labels: ["air", "metallic", "sputter", "other"])
-            try self.init(workModel: .home(work), startURL: selection.url(for: "ChicStartSoundV1", in: bundle))
+            let metal = try Classifier(url: selection.url(for: "ChicModelV3_5Metallic", in: bundle),
+                                       labels: ["metallic", "other"])
+            let air = try Classifier(url: selection.url(for: "ChicModelV3_5Air", in: bundle),
+                                     labels: ["air", "sputter", "other"])
+            try self.init(workModel: .home(work: work, metal: metal, air: air), startURL: selection.url(for: "ChicStartSoundV1", in: bundle), delayStartSound: true)
             return
         }
         #endif
@@ -97,9 +101,9 @@ nonisolated final class ChicModelV3_5 {
     }
 
     /// 한 연습에서 사용할 작업음 모델과 시작 감지 상태를 준비합니다.
-    private init(workModel: WorkModel, startURL: URL?) throws {
+    private init(workModel: WorkModel, startURL: URL?, delayStartSound: Bool = false) throws {
         self.workModel = workModel
-        startGate = try startURL.map { try ChicStartGate(url: $0) }
+        startGate = try startURL.map { try ChicStartGate(url: $0, delayStartSound: delayStartSound) }
         rawExtractor = try ChicV2FeatureExtractor()
     }
 
@@ -110,15 +114,28 @@ nonisolated final class ChicModelV3_5 {
         return air > 0.5 ? .air : .other
     }
 
-    /// 작업음 한 프레임을 드롱기는 최고 점수로, 범용은 두 단계로 판정합니다.
+    /// 선택한 모델의 분류기로 작업음 한 프레임을 판정합니다.
     private func classifyWork(_ x: [Double]) throws -> (State, String, Double?) {
         switch workModel {
         #if DEVELOP
-        case .home(let work):
+        case let .home(work, metal, air):
             let scores = try work.scores(x)
-            guard let maximum = scores.max(), let index = scores.firstIndex(of: maximum),
-                  let state = State(rawValue: work.labels[index]) else { throw Failure.schema }
-            return (state, state.rawValue, scores[2])
+            guard let best = scores.max(), let index = scores.firstIndex(of: best),
+                  let first = State(rawValue: work.labels[index]) else { throw Failure.schema }
+            var candidate = first
+            if first == .other {
+                // 기타가 앞서도 작업음과의 차이가 작으면 해당 2차 모델에서 다시 확인합니다.
+                let foreground = scores.prefix(3)
+                guard let next = foreground.max(), let runner = foreground.firstIndex(of: next),
+                      let label = State(rawValue: work.labels[runner]) else { throw Failure.schema }
+                guard best - next <= 0.35 else { return (first, first.rawValue, scores[2]) }
+                candidate = label
+            }
+            let expert = candidate == .metallic ? metal : air
+            let refined = try expert.scores(x)
+            guard let confidence = refined.max(), let winner = refined.firstIndex(of: confidence),
+                  let state = State(rawValue: expert.labels[winner]) else { throw Failure.schema }
+            return (confidence >= 0.65 ? state : first, first.rawValue, scores[2])
         #endif
         case let .standard(gate, air, rolling):
             let label = try gate.winner(x)

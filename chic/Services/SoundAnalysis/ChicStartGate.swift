@@ -30,20 +30,32 @@ nonisolated struct ChicStartRule {
 nonisolated final class ChicStartGate {
     private var classifier: ChicModelV3_5.Classifier?
     private var rule = ChicStartRule()
-    var isStarted: Bool { rule.isStarted }
+    private let delayStartSound: Bool
+    private var remainingFrames = 0
+    var isStarted: Bool { rule.isStarted && remainingFrames == 0 }
     var meanScore: Double? { rule.meanScore }
 
     /// 작업음을 비시작 반례로 학습한 시작음 전용 모델을 불러옵니다.
-    init(url: URL) throws {
+    init(url: URL, delayStartSound: Bool = false) throws {
+        self.delayStartSound = delayStartSound
         classifier = try ChicModelV3_5.Classifier(url: url, labels: ["not_start", "start"])
     }
 
     /// 어느 경로로 시작했든 이후에는 특징 검사나 Core ML 호출을 하지 않습니다.
     func consume(_ features: [Double], state: ChicModelV3_5.State) throws -> ChicStartRule.Reason? {
+        if remainingFrames > 0 {
+            remainingFrames -= 1
+            return remainingFrames == 0 ? .startSound : nil
+        }
         guard !rule.isStarted else { return nil }
         guard let classifier else { throw ChicModelV3_5.Failure.alignment }
         let reason = rule.consume(try classifier.scores(features)[1], state: state)
         if reason != nil { self.classifier = nil }
+        if reason == .startSound && delayStartSound {
+            // 48 kHz 입력에서 512샘플씩 이동하므로 감지 뒤 94번째 프레임이 1초를 넘깁니다.
+            remainingFrames = 94
+            return nil
+        }
         return reason
     }
 }

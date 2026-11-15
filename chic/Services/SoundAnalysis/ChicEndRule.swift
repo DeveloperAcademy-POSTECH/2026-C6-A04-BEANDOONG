@@ -23,6 +23,11 @@ nonisolated struct ChicEndRule {
     /// 알린 뒤 소리가 다시 이어졌다고 보는 작업 점수의 연속 횟수 (약 0.3초)
     static let resumeCount = 3
 
+    private let selection: ChicModelSelection
+
+    /// 드롱기는 종료음 또는 청소음으로만 종료 확인을 요청합니다.
+    init(selection: ChicModelSelection = .standard) { self.selection = selection }
+
     private(set) var isActive = false
     /// 끝난 것 같다고 알린 뒤 아직 소리가 다시 이어지지 않았는지
     private(set) var isAsking = false
@@ -43,7 +48,7 @@ nonisolated struct ChicEndRule {
     mutating func consume(work: Double, end: Double, purge: Double) -> Reason? {
         guard isActive else { return nil }
         purgeCount = purge >= 0.5 ? purgeCount + 1 : 0
-        lowWorkCount = work < 0.3 ? lowWorkCount + 1 : 0
+        lowWorkCount = selection == .standard && work < 0.3 ? lowWorkCount + 1 : 0
         workCount = work >= 0.3 ? workCount + 1 : 0
         if isAsking, workCount >= Self.resumeCount {
             // 소리가 다시 이어졌어요. 그동안 쌓인 횟수로 바로 다시 묻지 않게 처음부터 셉니다.

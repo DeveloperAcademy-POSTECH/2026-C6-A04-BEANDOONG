@@ -15,7 +15,7 @@ nonisolated final class SteamingAudioAnalyzer: @unchecked Sendable {
     let selection: ChicModelSelection
     private let classifier: ChicModelV3_5
     private let endDetector: ChicEndDetector
-    private var endRule = ChicEndRule()
+    private var endRule: ChicEndRule
     private var isStopped = false
     private var hasTap = false
     /// 종료 점수 한 번이 다루는 시간 (원본 프레임 10개 × 512 샘플 ÷ 48kHz ≈ 0.107초)
@@ -23,6 +23,7 @@ nonisolated final class SteamingAudioAnalyzer: @unchecked Sendable {
 
     init() throws {
         selection = ChicModelSelection.selected
+        endRule = ChicEndRule(selection: selection)
         classifier = try ChicModelV3_5(selection: selection)
         endDetector = try ChicEndDetector(selection: selection)
     }
@@ -85,7 +86,12 @@ nonisolated final class SteamingAudioAnalyzer: @unchecked Sendable {
                             self.endRule.activate()
                             self.logger.notice("자동 시작 reason=\(reason.rawValue, privacy: .public) startSound=\(String(describing: self.classifier.startProbability)); 시작음 모델 추론 중단")
                         }
-                        let display = self.displayFilter.consume(frame.state)
+                        var display = self.displayFilter.consume(frame.state)
+                        #if DEVELOP
+                        if self.selection == .home && frame.startReason == .startSound {
+                            display = self.displayFilter.display ?? .other
+                        }
+                        #endif
                         guard self.classifier.isStarted else { return }
                         if let display {
                             switch self.selection.feedback(display, purge: purgeScore) {

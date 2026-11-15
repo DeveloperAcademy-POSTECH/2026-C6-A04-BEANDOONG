@@ -18,7 +18,7 @@ import Foundation
     /// 공기주입과 시작음은 서로의 점수나 판정에 의존하지 않는 OR입니다.
     static func checkStartRule() {
         var air = ChicStartRule()
-        for _ in 0..<9 { precondition(air.consume(0, state: .air) == nil) }
+        for _ in 0..<19 { precondition(air.consume(0, state: .air) == nil) }
         precondition(air.consume(0, state: .air) == .air)
         precondition(air.isStarted && air.meanScore == 0)
         for _ in 0..<100 { precondition(air.consume(1, state: .other) == nil) }
@@ -36,13 +36,16 @@ import Foundation
             precondition(!idle.isStarted)
         }
         var simultaneous = ChicStartRule()
+        for _ in 0..<10 { precondition(simultaneous.consume(0, state: .air) == nil) }
         for _ in 0..<9 { precondition(simultaneous.consume(1, state: .air) == nil) }
         precondition(simultaneous.consume(1, state: .air) == .air)
         var tied = ChicStartRule()
+        for _ in 0..<10 { precondition(tied.consume(0, state: .air) == nil) }
         for _ in 0..<5 { precondition(tied.consume(0, state: .other) == nil) }
         for _ in 0..<4 { precondition(tied.consume(0, state: .air) == nil) }
         precondition(tied.consume(0, state: .air) == .air)
         var reverse = ChicStartRule()
+        for _ in 0..<10 { precondition(reverse.consume(0, state: .air) == nil) }
         for _ in 0..<5 { precondition(reverse.consume(0, state: .air) == nil) }
         for _ in 0..<5 { precondition(reverse.consume(0, state: .other) == nil) }
         precondition(!reverse.isStarted)
@@ -56,7 +59,8 @@ import Foundation
         for (features, state, reason) in [(expected.highFeatures, ChicModelV3_5.State.other, ChicStartRule.Reason.startSound),
                                          (expected.lowFeatures, .air, .air)] {
             let gate = try ChicStartGate(url: url)
-            for _ in 0..<9 { let result = try gate.consume(features, state: state); precondition(result == nil) }
+            let requiredFrames = reason == .air ? 20 : 10
+            for _ in 1..<requiredFrames { let result = try gate.consume(features, state: state); precondition(result == nil) }
             let result = try gate.consume(features, state: state)
             precondition(result == reason && gate.isStarted)
             let probability = reason == .air ? expected.lowProbability : expected.highProbability
@@ -64,6 +68,21 @@ import Foundation
             // 빈 특징은 추론 시 오류여야 하므로 양 경로 모두 호출 중단을 검증합니다.
             for _ in 0..<100 { let repeated = try gate.consume([], state: .other); precondition(repeated == nil) }
         }
+        let delayed = try ChicStartGate(url: url, delayStartSound: true)
+        for _ in 0..<10 {
+            let reason = try delayed.consume(expected.highFeatures, state: .other)
+            precondition(reason == nil && !delayed.isStarted)
+        }
+        for _ in 0..<93 {
+            let reason = try delayed.consume([], state: .air)
+            precondition(reason == nil && !delayed.isStarted)
+        }
+        let released = try delayed.consume([], state: .air)
+        precondition(released == .startSound && delayed.isStarted)
+        let immediate = try ChicStartGate(url: url, delayStartSound: true)
+        for _ in 0..<19 { let reason = try immediate.consume(expected.lowFeatures, state: .air); precondition(reason == nil) }
+        let air = try immediate.consume(expected.lowFeatures, state: .air)
+        precondition(air == .air && immediate.isStarted)
         let idle = try ChicStartGate(url: url)
         for _ in 0..<30 { let result = try idle.consume(expected.lowFeatures, state: .other); precondition(result == nil) }
         precondition(!idle.isStarted)
@@ -138,7 +157,7 @@ import Foundation
         precondition(ChicModelV3_5.airState(air: 0.499999, sputter: 0.2, rolling: 0.300001) == .other)
         precondition(ChicModelV3_5.airState(air: 0.5, sputter: 0.5, rolling: 0) == .sputter)
         var display = ChicDisplayFilter()
-        for _ in 0..<10 { _ = display.consume(.air) }
+        for _ in 0..<20 { _ = display.consume(.air) }
         var result: ChicModelV3_5.State?
         let belowThreshold = ChicModelV3_5.airState(air: 0.4, sputter: 0.35, rolling: 0.25)
         for _ in 0..<10 { result = display.consume(belowThreshold) }
@@ -222,6 +241,14 @@ import Foundation
         precondition(ChicEndRule.Reason.disappearance.lookbackCount == ChicEndRule.silenceCount)
         precondition(ChicEndRule.Reason.cleaning.lookbackCount == ChicEndRule.cleaningCount)
 
+        #if DEVELOP
+        var home = ChicEndRule(selection: .home); home.activate()
+        for _ in 0..<600 { precondition(home.consume(work: 0, end: 0, purge: 0) == nil) }
+        precondition(home.consume(work: 0, end: 0.6, purge: 0) == .endSound)
+        for _ in 0..<3 { precondition(home.consume(work: 0.5, end: 0, purge: 0) == nil) }
+        for _ in 0..<2 { precondition(home.consume(work: 0, end: 0, purge: 0.5) == nil) }
+        precondition(home.consume(work: 0, end: 0, purge: 0.5) == .cleaning)
+        #endif
         var priority = ChicEndRule(); priority.activate()
         for _ in 0..<19 { precondition(priority.consume(work: 0, end: 0, purge: 0) == nil) }
         precondition(priority.consume(work: 0, end: 0, purge: 1) == .disappearance)
@@ -288,46 +315,49 @@ import Foundation
                 precondition(filter.consume(candidate) == result)
             }
         }
-        check([.other, .other, .air, .other, .air, .air], [nil, nil, .air, .air, .air, .air])
-        check([.air, .air, .other, .air, .other, .other], [.air, .air, .air, .air, .air, .other])
+        check([.other, .other, .air, .other, .air, .air], [nil, nil, nil, nil, nil, .air])
+        check([.air, .air, .other, .air, .other, .other], [nil, .air, .air, .air, .air, .other])
         check([.air, .air, .metallic, .metallic, .air, .metallic, .metallic, .metallic],
-              [.air, .air, .air, .air, .air, .air, .air, .metallic])
+              [nil, .air, .air, .air, .air, .air, .air, .metallic])
         check([.air, .air, .sputter, .sputter, .metallic, .sputter, .sputter, .sputter],
-              [.air, .air, .air, .sputter, .sputter, .sputter, .sputter, .sputter])
+              [nil, .air, .air, .sputter, .sputter, .sputter, .sputter, .sputter])
         check([.metallic, .metallic, .metallic, .sputter, .sputter, .sputter, .air, .air],
-              [nil, nil, .metallic, .metallic, .sputter, .sputter, .air, .air])
-        check([.air, .sputter, .air, .sputter], [.air, .air, .air, .air])
-        check([.air, .sputter, .other, .sputter, .sputter], [.air, .air, .air, .air, .sputter])
+              [nil, nil, .metallic, .metallic, .sputter, .sputter, .sputter, .air])
+        check([.air, .sputter, .air, .sputter], [nil, nil, nil, nil])
+        check([.air, .sputter, .other, .sputter, .sputter], [nil, nil, nil, nil, .sputter])
         check([.sputter, .sputter], [nil, .sputter])
-        check([.air, .other, .other, .air], [.air, .air, .other, .air])
+        check([.air, .air, .other, .other, .air, .air], [nil, .air, .air, .other, .other, .air])
 
         var filter = ChicDisplayFilter()
         let majority = Array(repeating: State.air, count: 6) + Array(repeating: State.metallic, count: 4)
         for state in majority.dropLast() { precondition(filter.consume(state) == nil) }
-        precondition(filter.consume(majority.last!) == .air)
+        precondition(filter.consume(majority.last!) == nil)
         let tied: [State] = [.air, .metallic, .air, .metallic, .metallic, .metallic, .air, .air, .sputter, .other]
         for state in tied.dropLast() { precondition(filter.consume(state) == nil) }
         precondition(filter.consume(tied.last!) == .air)
         var fresh = ChicDisplayFilter()
-        for _ in 0..<9 { precondition(fresh.consume(.air) == nil) }
+        for _ in 0..<19 { precondition(fresh.consume(.air) == nil) }
         precondition(fresh.consume(.air) == .air)
         print("PASS 10-frame mode, ties, strict consecutive runs and fresh session")
     }
     #if DEVELOP
-    /// 실제 녹음의 모든 작업 프레임이 단일 모델의 최고 점수 라벨과 일치하는지 확인합니다.
-    static func checkHomeWork(_ pcm: [Float], in bundle: Bundle) throws {
-        let labels = ["air", "metallic", "sputter", "other"]
-        let model = try ChicModelV3_5.Classifier(url: ChicModelSelection.home.url(for: "ChicWorkV1", in: bundle), labels: labels)
-        let reference = try ChicV2FeatureExtractor()
+    /// 실제 녹음에서 드롱기 1차 및 선별 2차 판정을 독립 학습본의 프레임별 정답과 대조합니다.
+    static func checkHomeWork(_ pcm: [Float], fixture: URL, in bundle: Bundle) throws {
+        struct Run: Decodable {
+            let frames: Int
+            let gate, state: String
+        }
+        let url = fixture.appendingPathComponent("expected-home-selective.json")
+        let runs = try JSONDecoder().decode([Run].self, from: Data(contentsOf: url))
+        let expected = runs.flatMap { Array(repeating: $0, count: $0.frames) }
         let stream = try ChicModelV3_5(selection: .home, bundle: bundle)
-        var expected: [String] = []
-        try reference.consume(pcm, sampleRate: 48_000) { x, _ in expected.append(try model.winner(x)) }
         var index = 0
         try stream.consume(pcm, sampleRate: 48_000) { frame in
-            precondition(frame.state.rawValue == expected[index] && frame.gateLabel == expected[index])
+            precondition(frame.gateLabel == expected[index].gate && frame.state.rawValue == expected[index].state)
             index += 1
         }
-        precondition(index > 0 && index == expected.count)
+        precondition(index == expected.count && runs.contains { $0.gate != $0.state })
+        print("PASS home selective work on \(index) frames")
     }
 
     /// 두 선택지가 각각의 모델 파일을 사용해 진행·종료 점수를 생성하는지 확인합니다.
@@ -339,7 +369,7 @@ import Foundation
                 precondition(selection.feedback(state, purge: 0.5) == (selection == .home ? .other : state))
             }
             let prefix = selection == .home ? "Delonghi" : ""
-            let workNames = selection == .home ? ["ChicWorkV1"] : ["ChicModelV3_5Gate", "ChicModelV3_5Air", "ChicModelV3_5Metallic"]
+            let workNames = ["ChicModelV3_5Gate", "ChicModelV3_5Air", "ChicModelV3_5Metallic"]
             for name in workNames + ["ChicStartSoundV1", "ChicEndV3_5"] {
                 let url = try selection.url(for: name, in: bundle)
                 precondition(url.lastPathComponent == prefix + name + ".mlmodelc")
@@ -375,7 +405,7 @@ import Foundation
         try file.read(into: buf)
         let x = Array(UnsafeBufferPointer(start: buf.floatChannelData![0], count: Int(buf.frameLength)))
         #if DEVELOP
-        try checkHomeWork(x, in: Bundle(url: compiled)!)
+        try checkHomeWork(x, fixture: dir, in: Bundle(url: compiled)!)
         #endif
         try checkStartPipeline(fixture: dir, compiled: compiled)
         try checkEndClassifier(fixture: dir, compiled: compiled)
