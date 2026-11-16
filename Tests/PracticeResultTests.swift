@@ -25,6 +25,7 @@ struct PracticeResultTests {
         precondition(result.detectedSeconds(of: .lackOfAir) == 3)
         precondition(result.detectedSeconds(of: .rolling) == 6)
         verifyInitialRolling(start: start)
+        verifyEarlierFinish()
         precondition(SteamingStage.rolling.sounds == [.rolling])
         precondition(PracticeResult.sample.normalSeconds + PracticeResult.sample.cautionSeconds == PracticeResult.sample.totalSeconds)
 
@@ -46,7 +47,83 @@ struct PracticeResultTests {
         try save(record: record, segments: timeline.segments, directory: directory)
         try verifyReload(record: record, expected: result, directory: directory)
         try verifyLegacyMigration(in: directory.appending(path: "migration"), start: start)
-        print("PracticeResultTests passed (timeline, summaries, SwiftData persistence, legacy migration)")
+        try verifyDelete(in: directory.appending(path: "delete"), segments: timeline.segments, start: start)
+        verifyGuideCombinations(start: start, model: .standard, lower: 2, upper: 4)
+        verifyGuideCombinations(start: start, model: .home, lower: 8, upper: 10)
+        let homeDirectory = directory.appending(path: "home")
+        try save(record: record, segments: timeline.segments, directory: homeDirectory, model: .home)
+        var homeResult = result
+        homeResult.model = .home
+        try verifyReload(record: record, expected: homeResult, directory: homeDirectory)
+        precondition(PracticeGuide(result: result) == .targetBoth)
+        precondition(PracticeGuide(result: .empty) == .missingBoth)
+        // 가이드 비커 수위: 2초 아래 점선, 4초 위 점선, 3초 그 사이, 0초 바닥 근처, 오래 하면 점선 위로
+        func near(_ a: CGFloat, _ b: CGFloat) -> Bool { abs(a - b) < 0.01 }
+        precondition(near(GuideMilkLevel.top(forAeration: 2), GuideMilkLevel.lowerLine))
+        precondition(near(GuideMilkLevel.top(forAeration: 4), GuideMilkLevel.upperLine))
+        let midLevel = GuideMilkLevel.top(forAeration: 3)
+        precondition(midLevel < GuideMilkLevel.lowerLine && midLevel > GuideMilkLevel.upperLine)
+        precondition(GuideMilkLevel.top(forAeration: 0) > GuideMilkLevel.lowerLine && GuideMilkLevel.top(forAeration: 0) < GuideMilkLevel.bottom)
+        precondition(GuideMilkLevel.top(forAeration: 9) < GuideMilkLevel.upperLine)
+
+        print("PracticeResultTests passed (timeline, summaries, guide, SwiftData persistence, legacy migration, delete)")
+    }
+
+    /// 미감지가 주의 소리보다 우선하는지와 기준 시간 양끝의 반올림 전 분류를 검증합니다.
+    private static func verifyGuideCombinations(start: Date, model: ChicModelSelection, lower: Double, upper: Double) {
+        precondition(MilkLevel.top(forAeration: lower, model: model) == MilkLevel.lowerLine)
+        precondition(MilkLevel.top(forAeration: upper, model: model) == MilkLevel.upperLine)
+        precondition(abs(GuideMilkLevel.top(forAeration: lower, model: model) - GuideMilkLevel.lowerLine) < 0.01)
+        precondition(abs(GuideMilkLevel.top(forAeration: upper, model: model) - GuideMilkLevel.upperLine) < 0.01)
+        let inputs: [(TimeInterval, [PracticeGuide])] = [
+            (0, [.missingAeration, .missingAeration, .missingAeration, .missingAeration]),
+            (0.01, [.short, .shortScratch, .shortBubble, .shortBoth]),
+            (lower - 0.01, [.short, .shortScratch, .shortBubble, .shortBoth]),
+            (lower, [.onTarget, .targetScratch, .targetBubble, .targetBoth]),
+            (upper, [.onTarget, .targetScratch, .targetBubble, .targetBoth]),
+            (upper + 0.01, [.long, .longScratch, .longBubble, .longBoth])
+        ]
+        for (air, expected) in inputs {
+            for rolling in [0.0, 0.01] {
+                for (index, warnings) in [[], [DetectedSound.lackOfAir], [.overAeration], [.lackOfAir, .overAeration]].enumerated() {
+                    var segments = warnings.map { DetectedSegment(sound: $0, start: 12, end: 13) }
+                    segments.append(DetectedSegment(sound: .rolling, start: 10, end: 10 + rolling))
+                    segments.append(DetectedSegment(sound: .normalAeration, start: 0, end: air))
+                    let record = PracticeResult(practicedAt: start, dailyOrder: 1, segments: segments, model: model)
+                    let guide = PracticeGuide(result: record)
+                    precondition(guide == (rolling > 0 ? expected[index] : air > 0 ? .missingRolling : .missingBoth))
+                }
+            }
+        }
+        let split = PracticeResult(practicedAt: start, dailyOrder: 1, segments: [
+            .init(sound: .normalAeration, start: 0, end: lower / 2),
+            .init(sound: .rolling, start: lower / 2, end: lower),
+            .init(sound: .normalAeration, start: lower, end: lower + lower / 2)
+        ], model: model)
+        precondition(PracticeGuide(result: split) == .onTarget)
+        var segments = split.segments + [
+            .init(sound: .overAeration, start: 20, end: 20.75),
+            .init(sound: .lackOfAir, start: 21, end: 21.999)
+        ]
+        func guide() -> PracticeGuide {
+            PracticeGuide(result: PracticeResult(practicedAt: start, dailyOrder: 1, segments: segments, model: model))
+        }
+        precondition(guide() == .onTarget)
+        segments.append(.init(sound: .overAeration, start: 22, end: 22.25))
+        precondition(guide() == .targetBubble)
+    }
+
+    /// 소리가 끊긴 시각(마지막 기록보다 앞)으로 끝내면 그 뒤 구간을 잘라 냅니다.
+    private static func verifyEarlierFinish() {
+        var timeline = PracticeTimeline()
+        timeline.update(phase: .aeration, at: 2)
+        timeline.update(phase: .bubble, at: 6)
+        timeline.update(phase: .milkFlow, at: 10)
+        timeline.finish(at: 8)
+        precondition(timeline.segments.map(\.sound) == [.normalAeration, .overAeration])
+        precondition(timeline.segments.map(\.start) == [2, 6] && timeline.segments.map(\.end) == [6, 8])
+        timeline.finish(at: 8)
+        precondition(timeline.segments.count == 2)
     }
 
     private static func verifyInitialRolling(start: Date) {
@@ -82,12 +159,38 @@ struct PracticeResultTests {
     }
 
     @MainActor
-    private static func save(record: PracticeRecord, segments: [DetectedSegment], directory: URL) throws {
+    private static func save(record: PracticeRecord, segments: [DetectedSegment], directory: URL, model: ChicModelSelection = .standard) throws {
         let store = try PracticeHistoryStore(directory: directory)
-        try store.save(record: record, dailyOrder: 1, segments: segments)
-        try store.save(record: record, dailyOrder: 1, segments: segments)
+        try store.save(record: record, dailyOrder: 1, segments: segments, model: model)
+        try store.save(record: record, dailyOrder: 1, segments: segments, model: model)
         let saved = try store.records()
         precondition(saved.count == 1)
+    }
+
+    /// 기록 삭제: 지정한 기록만 지워지고, 없는 id는 무시하며, 저장소를 다시 열어도 삭제가 유지됩니다.
+    @MainActor
+    private static func verifyDelete(in directory: URL, segments: [DetectedSegment], start: Date) throws {
+        let kept = PracticeRecord(id: UUID(), startedAt: start, endedAt: start.addingTimeInterval(25))
+        let removed = PracticeRecord(id: UUID(), startedAt: start.addingTimeInterval(60), endedAt: start.addingTimeInterval(85))
+        do {
+            let store = try PracticeHistoryStore(directory: directory)
+            try store.save(record: kept, dailyOrder: 1, segments: segments)
+            try store.save(record: removed, dailyOrder: 2, segments: segments)
+            let before = try store.records()
+            precondition(before.count == 2)
+
+            try store.delete(id: removed.id)
+            let afterDelete = try store.records().map(\.record)
+            precondition(afterDelete == [kept])
+
+            try store.delete(id: UUID()) // 없는 id는 아무것도 지우지 않습니다.
+            let afterUnknown = try store.records().map(\.record)
+            precondition(afterUnknown == [kept])
+        }
+        // 저장소를 다시 열어 확인합니다. (기록은 저장소가 살아 있는 동안에만 읽을 수 있어 저장소를 변수에 둡니다)
+        let reopened = try PracticeHistoryStore(directory: directory)
+        let afterReopen = try reopened.records().map(\.record)
+        precondition(afterReopen == [kept])
     }
 
     @MainActor
@@ -96,6 +199,8 @@ struct PracticeResultTests {
         let saved = try store.records()
         precondition(saved.count == 1 && saved[0].record == record)
         let restored = saved[0].result
+        precondition(restored.model == expected.model)
+        precondition(PracticeGuide(result: restored) == PracticeGuide(result: expected))
         precondition(restored.timelineStart == expected.timelineStart)
         precondition(restored.totalSeconds == expected.totalSeconds)
         precondition(restored.normalSeconds == expected.normalSeconds && restored.cautionSeconds == expected.cautionSeconds)

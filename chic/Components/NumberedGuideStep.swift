@@ -8,8 +8,7 @@ import SwiftUI
 struct NumberedGuideStep: View {
     let number: Int
     let title: String
-    let line1: String
-    let line2: String
+    let description: String
     /// 설명 두 줄 사이 간격 (스티밍 가이드 2, 연습 준비 0)
     var descriptionLineGap: CGFloat = 2
 
@@ -32,15 +31,12 @@ struct NumberedGuideStep: View {
                     .foregroundStyle(Color.white)
                     .frame(height: 25, alignment: .leading)
 
-                Text(line1)
+                Text(description)
                     .font(.pretendard(.regular, size: 12))
                     .foregroundStyle(AppColors.darkSubtitle)
+                    .lineSpacing(descriptionLineGap)
+                    .fixedSize(horizontal: false, vertical: true)
                     .padding(.top, 1)
-
-                Text(line2)
-                    .font(.pretendard(.regular, size: 12))
-                    .foregroundStyle(AppColors.darkSubtitle)
-                    .padding(.top, descriptionLineGap)
             }
         }
     }

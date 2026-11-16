@@ -7,6 +7,9 @@ import SwiftUI
 /// 다크 화면 주요 버튼: 하늘색 캡슐 + 검정 텍스트
 struct DarkPrimaryButton: View {
     let title: String
+    /// 버튼 폭 (기본 363 = iPhone 17 시안. 다른 기기에서는 `363.h(scale)`을 넘깁니다)
+    var width: CGFloat = ScreenMetrics.bottomButtonWidth
+    var height: CGFloat = 52
     var action: () -> Void = {}
 
     var body: some View {
@@ -14,7 +17,7 @@ struct DarkPrimaryButton: View {
             Text(title)
                 .font(.pretendard(.bold, size: 16))
                 .foregroundStyle(AppColors.darkChipTextSelected)
-                .frame(width: 363, height: 52)
+                .frame(width: width, height: height)
                 .background(
                     Capsule()
                         .fill(AppColors.darkChipSelected)
@@ -24,38 +27,43 @@ struct DarkPrimaryButton: View {
     }
 }
 
-/// 다크 화면 보조 버튼: 아주 옅은 하늘색 캡슐 + 검정 텍스트
-struct DarkSecondaryButton: View {
-    let title: String
-    var action: () -> Void = {}
+// MARK: - 하단 큰 버튼
 
-    var body: some View {
-        Button(action: action) {
-            Text(title)
-                .font(.pretendard(.bold, size: 16))
-                .foregroundStyle(AppColors.darkChipTextSelected)
-                .frame(width: 363, height: 52)
-                .background(
-                    Capsule()
-                        .fill(AppColors.darkSecondaryButton)
-                )
-        }
-        .buttonStyle(.plain)
-    }
+/// 화면 하단 큰 버튼의 공통 치수 (시안: 버튼 위 754.5 ~ 아래 809.5, 화면 아래와 64.5 간격). 모든 하단 버튼 화면이 같은 자리에 오도록 여기서만 정한다.
+enum BottomButton {
+    static let height: CGFloat = 55
+    static let bottomGap: CGFloat = 64.5
 }
 
-/// 다크 화면 하단의 [주요 버튼 / 보조 버튼] 세로 2단 묶음 (간격 11)
-struct DarkButtonPair: View {
-    let primaryTitle: String
-    let secondaryTitle: String
-    var primaryAction: () -> Void = {}
-    var secondaryAction: () -> Void = {}
+/// 화면 하단 큰 버튼: 하늘색 캡슐(폭 363 · 높이 55) + 화면 아래에서 64.5 떨어진 자리
+///
+/// 폭은 화면 폭 비율(`.h`)로, 아래 간격은 화면 높이 비율(`.v`)로 바꿔요. 버튼 높이는 고정이라, 버튼 위쪽 선이 시안 비율 위치에 오도록
+/// 아래 간격에 `fixedHeightAdjustment` 를 더해요. 그래서 화면의 맨 아래 자식(`VStack` 마지막)으로 두기만 하면 돼요.
+///
+///     VStack(spacing: 0) {
+///         ...
+///         Spacer(minLength: 0)
+///         BottomPrimaryButton(title: title, action: onCheck)
+///     }
+///
+/// 아래 두 줄과 똑같아요 (모든 하단 버튼 화면이 이 두 줄을 따로 적고 있었어요).
+///
+///     DarkPrimaryButton(title: title, width: 363.h(scale), height: BottomButton.height, action: action)
+///         .padding(.bottom, BottomButton.bottomGap.v(scale) + scale.fixedHeightAdjustment(BottomButton.height))
+struct BottomPrimaryButton: View {
+    @Environment(\.designScale) private var scale
+
+    let title: String
+    let action: () -> Void
 
     var body: some View {
-        VStack(spacing: 11) {
-            DarkPrimaryButton(title: primaryTitle, action: primaryAction)
-            DarkSecondaryButton(title: secondaryTitle, action: secondaryAction)
-        }
+        DarkPrimaryButton(
+            title: title,
+            width: ScreenMetrics.bottomButtonWidth.h(scale),
+            height: BottomButton.height,
+            action: action
+        )
+        .padding(.bottom, BottomButton.bottomGap.v(scale) + scale.fixedHeightAdjustment(BottomButton.height))
     }
 }
 
@@ -81,6 +89,37 @@ struct SteamingStopButton: View {
             }
         }
         .buttonStyle(.plain)
-        .accessibilityLabel("연습 종료")
+        .accessibilityLabel(String(localized: "스티밍 종료"))
+    }
+}
+
+// MARK: - 스티밍 종료하기 버튼
+
+/// 스티밍 피드백 화면 하단의 "종료하기" 캡슐 버튼: 옅은 하늘빛 흰 캡슐(274x60) 안에 상태색 사각형(20) + 글자
+/// - Hi-Fi 160: 캡슐 x 64~338, y 720~780 / 사각형 20x20(모서리 3) / 글자와 간격 9
+struct SteamingEndButton: View {
+    /// 사각형 색상 (화면 배경 아래쪽 색 = 상태 팔레트 색)
+    let squareColor: Color
+    /// 버튼 폭 (기본 274 = iPhone 17 시안. 다른 기기에서는 `274.h(scale)`을 넘깁니다)
+    var width: CGFloat = 274
+    /// 캡슐 배경 불투명도 (기본 1 = 불투명. 새 연습 중 시안은 0.73으로 배경색이 비쳐요)
+    var backgroundOpacity: Double = 1
+    var action: () -> Void = {}
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 9) {
+                RoundedRectangle(cornerRadius: 3, style: .continuous)
+                    .fill(squareColor)
+                    .frame(width: 20, height: 20)
+                Text(String(localized: "종료하기"))
+                    .font(.pretendard(.semibold, size: 20))
+                    .foregroundStyle(AppColors.darkChipTextSelected)
+            }
+            .frame(width: width, height: 60)
+            .background(Capsule().fill(AppColors.darkSecondaryButton.opacity(backgroundOpacity)))
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(String(localized: "스티밍 종료"))
     }
 }

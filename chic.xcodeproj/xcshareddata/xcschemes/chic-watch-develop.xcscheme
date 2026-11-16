@@ -31,6 +31,7 @@
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "936A3CD3307802AD00F6FB73"
                BuildableName = "chic.app"
+               BlueprintName = "chic"
                ReferencedContainer = "container:chic.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>

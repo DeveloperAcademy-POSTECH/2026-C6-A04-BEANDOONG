@@ -33,7 +33,7 @@ struct cheekWatchApp: App {
                 .environmentObject(connection)
                 #if DEBUG
                 .simultaneousGesture(LongPressGesture(minimumDuration: 1).onEnded { _ in showsDiagnostics = true })
-                .accessibilityAction(named: "진동 진단") { showsDiagnostics = true }
+                .accessibilityAction(named: String(localized: "진동 진단")) { showsDiagnostics = true }
                 .sheet(isPresented: $showsDiagnostics) {
                     WatchFeedbackDiagnosticsView(haptics: feedbackHaptics)
                 }

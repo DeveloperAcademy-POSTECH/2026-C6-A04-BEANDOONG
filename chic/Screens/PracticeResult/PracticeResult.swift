@@ -12,7 +12,7 @@
 //                └─ normal / caution → 상단 도넛 차트 · 요약 (첫 감지 전 대기 시간 제외)
 //
 
-import SwiftUI
+import Foundation
 
 // MARK: - 스티밍 단계
 
@@ -26,16 +26,8 @@ enum SteamingStage: CaseIterable {
     /// 상태별 감지 시간 카드에서 사용하는 단계 제목
     var title: String {
         switch self {
-        case .aeration: "공기 주입"
-        case .rolling: "롤링"
-        }
-    }
-
-    /// 전체 타임라인 카드 왼쪽 라벨에서 사용하는 단계 제목
-    var timelineTitle: String {
-        switch self {
-        case .aeration: "공기 주입"
-        case .rolling: "롤링 소리"
+        case .aeration: String(localized: "공기 주입")
+        case .rolling: String(localized: "롤링")
         }
     }
 
@@ -63,10 +55,10 @@ enum DetectedSound: String, Codable, CaseIterable, Hashable {
 
     var title: String {
         switch self {
-        case .normalAeration: "정상 공기 주입"
-        case .overAeration: "공기과다"
-        case .lackOfAir: "공기 부족"
-        case .rolling: "롤링"
+        case .normalAeration: String(localized: "정상 공기 주입")
+        case .overAeration: String(localized: "공기과다")
+        case .lackOfAir: String(localized: "공기 부족")
+        case .rolling: String(localized: "롤링")
         }
     }
 
@@ -85,29 +77,13 @@ enum DetectedSound: String, Codable, CaseIterable, Hashable {
         case .overAeration, .lackOfAir: true
         }
     }
-
-    /// 타임라인 막대 색상 (Hi-Fi 원본 픽셀에서 추출)
-    var timelineColor: Color {
-        switch self {
-        case .normalAeration: Color(hex: 0x1BA7E9)
-        case .overAeration: Color(hex: 0xFFA615)
-        case .lackOfAir: Color(hex: 0xA480EB)
-        case .rolling: Color(hex: 0x1ABC37)
-        }
-    }
-
-    /// 상태별 감지 시간 타일의 소리 이름 색상
-    var labelColor: Color {
-        timelineColor
-    }
 }
 
 // MARK: - 감지 구간
 
 /// 한 소리가 끊기지 않고 연속으로 감지된 구간
 /// - 시간은 연습을 시작한 순간을 0초로 둔 경과 시간(초)입니다.
-struct DetectedSegment: Identifiable, Hashable {
-    let id = UUID()
+struct DetectedSegment: Hashable {
     let sound: DetectedSound
     /// 구간 시작 (초)
     let start: TimeInterval
@@ -128,15 +104,26 @@ struct PracticeResult: Hashable {
     let segments: [DetectedSegment]
     /// 소리를 확인 중이던 시간까지 포함한 실제 연습 길이입니다.
     var duration: TimeInterval? = nil
+    var model: ChicModelSelection = .standard
     /// 상태별 감지 시간을 별도로 지정할 때 사용 (nil 이면 segments 합계로 자동 계산)
     var customDetectedSeconds: [DetectedSound: Int]? = nil
     /// 타임라인 눈금 라벨을 별도로 지정할 때 사용 (nil 이면 timelineLength 로 자동 계산)
     var customTickSeconds: [Int]? = nil
+    /// 상단 요약 "정상 소리" / "주의 소리"를 별도로 지정할 때 사용 (시안 샘플용, nil 이면 상태별 합계)
+    var customNormalSeconds: Int? = nil
+    var customCautionSeconds: Int? = nil
 
-    /// 상단 네비게이션 바 제목 (예: "9월 26일 1차")
+    /// 기록 이름: 기록 목록 카드 · 기록 상세 상단 바 제목 (예: "9월 28일 - 1차", 올해가 아니면 "2025년 9월 28일 - 1차")
     var title: String {
-        let date = Calendar.current.dateComponents([.month, .day], from: practicedAt)
-        return "\(date.month ?? 0)월 \(date.day ?? 0)일 \(dailyOrder)차"
+        let calendar = Calendar.current
+        let isThisYear = calendar.isDate(practicedAt, equalTo: Date(), toGranularity: .year)
+        return title(includingYear: !isThisYear)
+    }
+
+    func title(includingYear: Bool, locale: Locale = .current) -> String {
+        let formatter = TitleDateFormatters.shared.formatter(includingYear: includingYear, locale: locale)
+        let date = formatter.string(from: practicedAt)
+        return String(localized: "\(date) - \(dailyOrder)차", locale: locale)
     }
 
     /// 결과의 0초로 사용할 첫 감지 시점입니다. 감지 구간이 없으면 원래 시간 기준을 유지합니다.
@@ -175,27 +162,39 @@ struct PracticeResult: Hashable {
 
     /// 상단 요약 "정상소리"
     var normalSeconds: Int {
-        DetectedSound.allCases.filter { !$0.needsCaution }.reduce(0) { $0 + detectedSeconds(of: $1) }
+        if let customNormalSeconds { return customNormalSeconds }
+        return detectedSeconds { !$0.needsCaution }
     }
 
     /// 상단 요약 "주의 소리"
     var cautionSeconds: Int {
-        DetectedSound.allCases.filter(\.needsCaution).reduce(0) { $0 + detectedSeconds(of: $1) }
+        if let customCautionSeconds { return customCautionSeconds }
+        return detectedSeconds(where: \.needsCaution)
+    }
+
+    /// 조건에 맞는 소리들의 감지 시간 합계 (초). 반올림 배분은 한 번만 계산합니다.
+    /// (소리마다 `detectedSeconds(of:)`를 부르면 구간 전체 계산을 소리 수만큼 반복해요)
+    private func detectedSeconds(where include: (DetectedSound) -> Bool) -> Int {
+        let rounded = roundedDetectedSeconds
+        return DetectedSound.allCases.filter(include).reduce(0) { total, sound in
+            total + (customDetectedSeconds?[sound] ?? rounded[sound, default: 0])
+        }
     }
 
     /// 상단 요약 "전체 시간". 첫 감지 이후의 미분류 구간은 포함합니다.
     var totalSeconds: Int { Int(timelineLength.rounded()) }
 
-    /// 도넛 차트 바깥 링(정상소리) 비율 (0.0 ... 1.0)
-    var normalRatio: Double {
-        guard totalSeconds > 0 else { return 0 }
-        return min(max(Double(normalSeconds) / Double(totalSeconds), 0), 1)
-    }
+    /// 정상 소리 비율 (0.0 ... 1.0)
+    var normalRatio: Double { ratio(of: normalSeconds) }
 
-    /// 도넛 차트 안쪽 링(주의 소리) 비율 (0.0 ... 1.0)
-    var cautionRatio: Double {
-        guard totalSeconds > 0 else { return 0 }
-        return min(max(Double(cautionSeconds) / Double(totalSeconds), 0), 1)
+    /// 주의 소리 비율 (0.0 ... 1.0): 연습 결과 · 기록 상세 링과 가운데 숫자
+    var cautionRatio: Double { ratio(of: cautionSeconds) }
+
+    /// 전체 시간에 대한 비율을 0 ... 1 로 맞춥니다. 전체 시간이 0이면 0입니다.
+    private func ratio(of seconds: Int) -> Double {
+        let total = totalSeconds
+        guard total > 0 else { return 0 }
+        return min(max(Double(seconds) / Double(total), 0), 1)
     }
 }
 
@@ -217,6 +216,23 @@ extension PracticeResult {
         customTickSeconds: [0, 8, 12, 16, 20, 24]
     )
 
+    /// Hi-Fi 255 · 243 · 257 · 269~272 시안과 같은 값: 24초, 정상 16초 / 주의 8초, 공기 주입 6초 · 과다 2초 · 부족 2초 · 롤링 10초
+    static let hifiSample = PracticeResult(
+        practicedAt: Calendar.current.date(from: DateComponents(year: Calendar.current.component(.year, from: .now), month: 9, day: 28)) ?? .now,
+        dailyOrder: 1,
+        segments: [
+            DetectedSegment(sound: .normalAeration, start: 0, end: 3.7),
+            DetectedSegment(sound: .rolling, start: 3.7, end: 13.9),
+            DetectedSegment(sound: .normalAeration, start: 13.9, end: 17.2),
+            DetectedSegment(sound: .overAeration, start: 17.2, end: 20.4),
+            DetectedSegment(sound: .lackOfAir, start: 20.4, end: 24)
+        ],
+        customDetectedSeconds: [.normalAeration: 6, .overAeration: 2, .lackOfAir: 2, .rolling: 10],
+        customTickSeconds: [0, 8, 12, 16, 20, 24],
+        customNormalSeconds: 16,
+        customCautionSeconds: 8
+    )
+
     /// 1분이 넘는 긴 연습 — 시간 표기("1분 15초")와 눈금 간격 · 도넛 비율이 동적으로 바뀌는지 확인하는 용도
     static let longSample = PracticeResult(
         practicedAt: .now,
@@ -234,6 +250,37 @@ extension PracticeResult {
     static let empty = PracticeResult(practicedAt: .now, dailyOrder: 1, segments: [])
 }
 
+// MARK: - 기록 이름의 날짜 문구
+
+/// 기록 이름(`PracticeResult.title`)의 날짜 문구를 만드는 `DateFormatter` 보관소
+///
+/// `DateFormatter` 는 만드는 값이 비싸고 (`setLocalizedDateFormatFromTemplate` 가 로케일 패턴을 찾아요) 기록 목록은 카드마다 이름을 불러서,
+/// 부를 때마다 새로 만들지 않고 같은 조건(로케일 · 연도 포함 여부)이면 만들어 둔 것을 다시 써요. 문구는 전과 같아요.
+/// 시간대와 달력은 설정하지 않은 `DateFormatter` 가 쓸 때마다 지금 값을 따라가서, 설정에서 시간대가 바뀌어도 달라지지 않아요.
+final class TitleDateFormatters: @unchecked Sendable {
+    static let shared = TitleDateFormatters()
+
+    private struct Key: Hashable {
+        let locale: Locale
+        let includingYear: Bool
+    }
+
+    private let lock = NSLock()
+    private var formatters: [Key: DateFormatter] = [:]
+
+    func formatter(includingYear: Bool, locale: Locale) -> DateFormatter {
+        let key = Key(locale: locale, includingYear: includingYear)
+        lock.lock()
+        defer { lock.unlock() }
+        if let cached = formatters[key] { return cached }
+        let formatter = DateFormatter()
+        formatter.locale = locale
+        formatter.setLocalizedDateFormatFromTemplate(includingYear ? "yMMMd" : "MMMd")
+        formatters[key] = formatter
+        return formatter
+    }
+}
+
 // MARK: - 시간 문구
 
 extension Int {
@@ -241,8 +288,8 @@ extension Int {
     var practiceSecondsText: String {
         let minutes = self / 60
         let seconds = self % 60
-        if minutes == 0 { return "\(seconds)초" }
-        if seconds == 0 { return "\(minutes)분" }
-        return "\(minutes)분 \(seconds)초"
+        if minutes == 0 { return String(localized: "\(seconds)초") }
+        if seconds == 0 { return String(localized: "\(minutes)분") }
+        return String(localized: "\(minutes)분 \(seconds)초")
     }
 }

@@ -8,10 +8,10 @@ struct WatchFeedbackDiagnosticsView: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 8) {
-                Text("진동 진단").font(.headline)
-                Button("직접 진동 테스트", action: haptics.testHaptic)
+                Text(String(localized: "진동 진단")).font(.headline)
+                Button(String(localized: "직접 진동 테스트"), action: haptics.testHaptic)
                 Divider()
-                Text(haptics.history.isEmpty ? "아직 처리한 상태가 없어요" : haptics.history.joined(separator: "\n"))
+                Text(haptics.history.isEmpty ? String(localized: "아직 처리한 상태가 없어요") : haptics.history.joined(separator: "\n"))
             }
             .font(.caption)
         }

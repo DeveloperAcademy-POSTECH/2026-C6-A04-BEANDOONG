@@ -4,32 +4,113 @@
 //  연습 상태를 관찰하며 기본 화면 위에 연습·결과 화면을 표시하는 앱의 루트 뷰입니다.
 //  객체 생성은 cheekApp이 담당하고, 화면 갱신과 오류 안내는 이 View가 담당합니다.
 //  .finished에서도 결과 화면을 유지하고, '다시 연습'으로 .idle이 되어야 기본 화면을 표시합니다.
+//  앱을 켜면 맨 위에 스플래시(LaunchView)를 잠깐 보여 준 뒤 부드럽게 걷어 냅니다.
 //
 
 import SwiftUI
 
 struct AppRootView: View {
     @EnvironmentObject private var practice: PracticeSession
+    /// 앱을 켠 직후 또는 온보딩을 다시 시작할 때 스플래시를 보여 주는 중인지
+    @State private var showsSplash = true
+    @State private var splashCycle = 0
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.designScale) private var scale
+    /// 결과 화면을 닫는 중인지 (연습은 이미 끝나 `.idle`이지만, 결과 화면이 밀려 나가는 동안은 계속 보여요)
+    @State private var isClosingSession = false
+    /// 닫히는 동안 결과 화면이 화면 밖으로 나갔는지 (이 값이 바뀔 때 애니메이션이 돌아요)
+    @State private var sessionSlidOut = false
+
+    /// 연습·결과 화면을 보여야 하는지
+    private var showsSession: Bool { practice.state.phase != .idle || isClosingSession }
+    /// 결과 화면이 홈을 덮고 있는지 (홈이 뒤로 물러나 어두워 있는 상태)
+    private var homeIsCovered: Bool { showsSession && !sessionSlidOut }
+
+    init() {
+        // 홈 연습 카드의 큰 사진을 앱이 시작되는 순간(스플래시가 뜨기 전) 백그라운드에서 디코딩해 둬요.
+        // 이미 온보딩을 마친 사용자는 첫 화면부터 홈을 그려서, 디코딩이 늦으면 첫 그리기에서 직접 디코딩하느라 스플래시가 멈칫해요.
+        // 온보딩 마지막 쪽에서 홈을 미리 만들 때 그 사진을 처음 그리느라 그래프 애니메이션이 멈칫하던 것도 막아요.
+        // 쓰는 언어의 사진 하나만 해요 (홈 카드가 그리는 이름과 같은 값).
+        PreparedImage.prepare([HomeHeroImage.assetName])
+    }
 
     var body: some View {
         ZStack {
-            ContentView()
+            ContentView(onRestartSplash: replaySplash)
                 .opacity(practice.state.phase == .idle ? 1 : 0)
+                // 투명도는 바로 바꾸고(결과 화면이 밀려 나가는 동안 뒤에 홈이 이미 보이게), 아래 위치·어두움만 움직여요.
+                .animation(nil, value: practice.state.phase == .idle)
+                // 결과 화면을 닫을 때: 홈이 왼쪽에서 살짝 밀려 들어오며 제자리로 와요 (시스템 뒤로가기의 시차 효과)
+                .offset(x: homeIsCovered && !reduceMotion ? -ScreenPopMotion.homeParallax : 0)
+                .overlay { Color.black.opacity(homeIsCovered ? ScreenPopMotion.homeDim : 0).allowsHitTesting(false) }
                 .allowsHitTesting(practice.state.phase == .idle)
                 .accessibilityHidden(practice.state.phase != .idle)
+                // 스플래시나 연습 화면이 덮고 있는 동안에는 아래 화면의 반복 애니메이션을 멈춰 둬요.
+                // (보이지 않는 화면이 매 프레임 그려지며 메인 스레드를 쓰지 않게) 다시 보일 때 0부터 시작해요.
+                .environment(\.loopAnimationsPaused, showsSplash || practice.state.phase != .idle)
 
             // 이전 화면이 연결 완료인지 준비 화면인지와 관계없이 결과 화면을 유지합니다.
-            if practice.state.phase != .idle {
-                PracticeSessionView()
+            if showsSession {
+                PracticeSessionView(onResultClose: closeSession)
+                    // 결과 화면을 닫을 때만 움직여요: 오른쪽으로 밀려 나가요 (연습 시작은 예전처럼 바로 나타나요)
+                    .offset(x: sessionSlidOut && !reduceMotion ? Self.designWidth * scale.x : 0)
+                    .opacity(sessionSlidOut && reduceMotion ? 0 : 1)
+                    .allowsHitTesting(!isClosingSession)
+            }
+
+            // 스플래시: 아래 화면은 미리 준비해 두고, 로고 애니메이션이 끝나면 걷어 내요.
+            if showsSplash {
+                LaunchView()
+                    .id(splashCycle)
+                    .transition(.opacity)
+                    .zIndex(1)
             }
         }
-        .alert("연습 안내", isPresented: Binding(
+        // 모든 화면이 다크라서 앱 전체를 다크로 고정해요. 화면을 바꿔 끼우는 순간(스플래시가 걷힐 때, 화면을 넣고 뺄 때)
+        // 다크 지정이 잠깐 비어 시스템 라이트 배경이 한 프레임 비치는 일을 막아요. 각 화면의 지정은 그대로 둬요.
+        .preferredColorScheme(.dark)
+        .task(id: splashCycle) { await hideSplashAfterDisplay() }
+        .alert(String(localized: "스티밍 안내"), isPresented: Binding(
             get: { practice.errorMessage != nil && practice.state.phase == .idle },
             set: { if !$0 { practice.errorMessage = nil } }
         )) {
-            Button("확인") { practice.errorMessage = nil }
+            Button(String(localized: "확인")) { practice.errorMessage = nil }
         } message: {
             Text(practice.errorMessage ?? "")
+        }
+    }
+
+    private static let designWidth = DesignScale.baseSize.width
+
+    private func replaySplash() {
+        showsSplash = true
+        splashCycle += 1
+    }
+
+    /// 결과 화면의 뒤로가기: 연습 상태를 `.idle`로 돌리고, 결과 화면을 오른쪽으로 밀어내며 메인을 보여 줘요.
+    private func closeSession() {
+        isClosingSession = true
+        practice.finishReview()
+        withAnimation(ScreenPopMotion.animation, completionCriteria: .logicallyComplete) {
+            sessionSlidOut = true
+        } completion: {
+            isClosingSession = false
+            sessionSlidOut = false
+        }
+    }
+
+    /// 스플래시를 정해진 시간만큼 보여 준 뒤 서서히 걷어 내요.
+    private func hideSplashAfterDisplay() async {
+        // 로고 애니메이션과 같은 기준(첫 프레임이 그려진 뒤)에서 시간을 재요.
+        await FrameClock.nextFrame()
+        guard !Task.isCancelled else { return }
+        do {
+            try await Task.sleep(for: .seconds(SplashTiming.displayDuration))
+        } catch {
+            return
+        }
+        withAnimation(.easeOut(duration: SplashTiming.fadeOutDuration)) {
+            showsSplash = false
         }
     }
 }

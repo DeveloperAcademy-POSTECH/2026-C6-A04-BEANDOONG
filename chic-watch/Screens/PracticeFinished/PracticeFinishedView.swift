@@ -25,36 +25,34 @@ struct PracticeFinishedView: View {
     var body: some View {
         WatchFullScreenStack {
             // MARK: 안내 문구
-            Text("연습을 마쳤어요")
-                .font(.watchScaled(18))
-                .lineLimit(1)
-                .minimumScaleFactor(0.8)
-                .watchCenterY(Metrics.finishedMessageCenterY)
+            Text(String(localized: "연습을 마쳤어요"))
+                .watchSingleLineStyle(16)
+                .watchCenterY(Layout.finishedMessageCenterY)
 
             // MARK: 총 연습 시간
             Text(practiceDurationText)
-                .font(.watchScaled(19, weight: .bold))
+                .font(.watchScaled(20, weight: .semibold))
                 // 숫자 너비를 모두 같게 해서, 시간이 바뀌어도 글자가 좌우로 흔들리지 않게 합니다.
                 .monospacedDigit()
-                .watchCenterY(Metrics.practiceDurationCenterY)
+                .watchCenterY(Layout.practiceDurationCenterY)
 
             // MARK: 하단 버튼
-            WatchCapsuleButton(title: "완료", action: onDoneTap)
-                .watchCenterY(Metrics.doneButtonCenterY)
+            WatchCapsuleButton(title: String(localized: "완료"), action: onDoneTap)
+                .watchCenterY(Layout.doneButtonCenterY)
         }
         .foregroundStyle(.white)
         .background(AppColors.watchDarkScreenBackground)
     }
 }
 
-// MARK: - Metrics
+// MARK: - Layout
 
 /// Hi-Fi(46mm, 248pt 높이) 기준 수치입니다.
 /// - ~CenterY: 요소 중심의 세로 위치 (화면 맨 위 = 0, 맨 아래 = 1)
-private enum Metrics {
+private enum Layout {
     static let finishedMessageCenterY: CGFloat = 0.269   // "연습을 마쳤어요" 중심
-    static let practiceDurationCenterY: CGFloat = 0.399  // 총 연습 시간 중심
-    static let doneButtonCenterY: CGFloat = 0.648        // [완료] 버튼 중심 (시작 요청 화면 버튼과 같은 위치)
+    static let practiceDurationCenterY: CGFloat = 0.391  // 총 연습 시간 중심
+    static let doneButtonCenterY: CGFloat = 0.648        // [완료] 버튼 중심
 }
 
 #Preview {

@@ -16,7 +16,7 @@ struct WatchPracticeView: View {
             if connection.state.isWatchEnabled {
                 practiceScreen
             } else {
-                Text("iPhone에서 워치 없이 연습 중이에요.")
+                Text(String(localized: "iPhone에서 워치 없이 연습 중이에요."))
                     .multilineTextAlignment(.center)
                     .padding()
             }
@@ -25,11 +25,11 @@ struct WatchPracticeView: View {
         .onChange(of: scenePhase) { _, phase in
             if phase == .active { Task { await connection.send(.sync) } }
         }
-        .alert("연습 안내", isPresented: Binding(
+        .alert(String(localized: "연습 안내"), isPresented: Binding(
             get: { connection.errorMessage != nil },
             set: { if !$0 { connection.errorMessage = nil } }
         )) {
-            Button("확인") { connection.errorMessage = nil }
+            Button(String(localized: "확인")) { connection.errorMessage = nil }
         } message: {
             Text(connection.errorMessage ?? "")
         }
@@ -43,13 +43,13 @@ struct WatchPracticeView: View {
         case .listening:
             SoundCheckingView(onCloseTap: stop)
         case .aeration:
-            SteamingFeedbackView(feedback: .aeration, onCloseTap: stop)
+            SteamingFeedbackView(feedback: .aeration, onStop: stop)
         case .bubble:
-            SteamingFeedbackView(feedback: .bubble, onCloseTap: stop)
+            SteamingFeedbackView(feedback: .bubble, onStop: stop)
         case .moreAir:
-            SteamingFeedbackView(feedback: .moreAir, onCloseTap: stop)
+            SteamingFeedbackView(feedback: .moreAir, onStop: stop)
         case .milkFlow:
-            SteamingFeedbackView(feedback: .milkFlow, onCloseTap: stop)
+            SteamingFeedbackView(feedback: .milkFlow, onStop: stop)
         case .finished:
             PracticeFinishedView(
                 practiceDurationText: connection.state.durationText,

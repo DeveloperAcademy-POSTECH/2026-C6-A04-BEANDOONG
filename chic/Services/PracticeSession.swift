@@ -21,14 +21,21 @@ final class PracticeSession: ObservableObject {
     @Published var errorMessage: String?
     @Published private(set) var history: [PracticeRecordEntity] = []
     @Published private(set) var result: PracticeResult?
+    /// "스티밍이 끝났나요?" 묻기 (소리 끊김 · 종료음 · 청소음). 묻는 동안 화면에 창이 떠 있고, 사용자가 답할 때까지 닫지 않아요.
+    /// 소리로는 자동 종료하지 않아요. (iPhone에서만, 워치에는 보내지 않아요)
+    @Published private(set) var endQuestion = EndQuestion()
+    /// 이번 연습에서 공기 주입(파랑) 화면이 떠 있던 누적 시간. 연습 화면의 비커 수위가 이 값을 따라가요. (iPhone에서만)
+    @Published private(set) var aerationClock = AerationClock()
     private var historyStore: PracticeHistoryStore?
     private var timeline = PracticeTimeline()
     // 워치와 메시지를 주고받는 통신 담당입니다.
     let connection: WatchConnection
     // 마이크 소리를 모델로 분석하는 담당이며 연습과 함께 시작·종료합니다.
     private var soundAnalyzer: SteamingAudioAnalyzer?
-    // 마이크 권한을 기다리는 동안 시작 버튼을 다시 눌러도 요청이 겹치지 않게 합니다.
+    // 마이크 권한이나 오디오 준비를 기다리는 동안 시작 요청(iPhone 버튼 · 워치)이 겹치지 않게 합니다.
     private var isStarting = false
+    // 직전 연습의 오디오 정리(엔진 종료 · 세션 비활성화) 작업입니다. 새 연습은 이 작업이 끝난 뒤 시작합니다.
+    private var audioTeardown: Task<Void, Never>?
     // 전화 등으로 오디오 사용이 중단되는 알림의 구독을 보관합니다.
     private var interruptionObserver: NSObjectProtocol?
 
@@ -41,40 +48,38 @@ final class PracticeSession: ObservableObject {
             let store = try PracticeHistoryStore(
                 legacyDirectory: URL.documentsDirectory.appending(path: "PracticeRecordings", directoryHint: .isDirectory)
             )
-            history = try store.records()
-            state.records = history.map(\.record)
+            setHistory(try store.records())
             historyStore = store
-        } catch { errorMessage = "연습 기록 저장소를 열 수 없어요. 앱을 다시 실행해 주세요." }
+        } catch { errorMessage = String(localized: "기록을 사용할 수 없어요. 앱을 다시 실행해 주세요.") }
         // WatchConnection이 워치 요청을 받으면 이 클로저를 실행합니다.
         // [weak self]는 두 객체가 서로를 계속 붙잡아 해제되지 않는 것을 방지합니다.
         connection.onCommand = { [weak self] request in
-            guard let self else { throw ConnectionError.message("iPhone 앱을 열어주세요.") }
+            guard let self else { throw ConnectionError.localized("iPhone 앱을 열어주세요.") }
             // 워치 없이 연습 중이면 동기화 요청에만 응답합니다.
             guard request.command == .sync || self.state.isWatchEnabled else {
-                throw ConnectionError.message("iPhone에서 워치 없이 연습 중이에요.")
+                throw ConnectionError.localized("iPhone에서 워치 없이 연습 중이에요.")
             }
             switch request.command {
             case .sync: break // 아래에서 현재 상태만 응답합니다.
             case .start:
                 guard !self.isStarting else {
-                    throw ConnectionError.message("iPhone에서 연습을 시작하고 있어요. 잠시 기다려주세요.")
+                    throw ConnectionError.localized("iPhone에서 연습을 시작하고 있어요. 잠시 기다려주세요.")
                 }
                 // 워치 요청에서는 권한 팝업을 띄우지 않고, iPhone에서 미리 허용했는지 확인합니다.
                 guard MicrophonePermission.isGranted else {
-                    throw ConnectionError.message("iPhone에서 마이크 권한을 허용해주세요.")
+                    throw ConnectionError.localized("iPhone에서 마이크 권한을 허용해주세요.")
                 }
-                try self.startAnalysis() // iPhone 버튼과 같은 시작 함수를 사용합니다.
+                // 오디오를 준비하는 동안 iPhone 버튼이 같은 시작을 겹쳐 요청하지 않게 합니다.
+                self.isStarting = true
+                defer { self.isStarting = false }
+                try await self.startAnalysis() // iPhone 버튼과 같은 시작 함수를 사용합니다.
             case .stop:
                 // 이전 연습의 종료 요청이 새 연습에 적용되지 않도록 확인합니다.
-                guard request.sessionID == self.state.sessionID else {
-                    throw ConnectionError.message("연습 상태가 변경되었어요. 다시 확인해주세요.")
-                }
+                try self.ensureCurrentSession(request)
                 self.stop()
             case .finishReview:
                 // 이전 결과 화면의 완료 요청이 새 연습에 적용되지 않도록 확인합니다.
-                guard request.sessionID == self.state.sessionID else {
-                    throw ConnectionError.message("연습 상태가 변경되었어요. 다시 확인해주세요.")
-                }
+                try self.ensureCurrentSession(request)
                 self.finishReview()
             }
             return self.connection.state // 동기화 응답에도 일반 전송과 같은 최신 워치 스냅샷을 사용합니다.
@@ -88,7 +93,7 @@ final class PracticeSession: ObservableObject {
             Task { @MainActor [weak self] in
                 guard let self, self.state.phase.isRunning else { return }
                 self.stop()
-                self.errorMessage = "오디오 사용이 중단되어 연습을 종료했어요."
+                self.errorMessage = String(localized: "오디오 사용이 중단되어 실시간 피드백을 종료했어요.")
             }
         }
     }
@@ -99,55 +104,79 @@ final class PracticeSession: ObservableObject {
         isStarting = true
         defer { isStarting = false } // 함수가 어떤 경로로 끝나든 시작 처리 중 상태를 해제합니다.
         guard await MicrophonePermission.request() else {
-            errorMessage = "설정에서 마이크 권한을 허용해주세요."
+            errorMessage = String(localized: "설정에서 마이크 권한을 허용해주세요.")
             return
         }
-        do { try startAnalysis(usingWatch: usingWatch) }
+        do { try await startAnalysis(usingWatch: usingWatch) }
         catch { errorMessage = error.localizedDescription }
     }
 
     /// 두 기기의 시작 요청이 함께 사용하는 실시간 분석 처리입니다. 소리 원본은 저장하지 않습니다.
-    private func startAnalysis(usingWatch: Bool = true) throws {
+    /// 무거운 일(모델 로드 · 오디오 세션 활성화 · 엔진 시작)은 메인 스레드 밖에서 하고, 상태 변경은 성공한 뒤 여기서 합니다.
+    /// 그래서 시작 버튼을 누른 뒤에도 화면이 멈추지 않아요. 시작 순서와 결과는 전과 같습니다.
+    private func startAnalysis(usingWatch: Bool = true) async throws {
         // 어느 기기에서 요청하든 이미 연습 중이라면 중복 분석을 시작하지 않습니다.
         guard !state.phase.isRunning else { return }
         guard historyStore != nil else {
-            throw ConnectionError.message("연습 기록 저장소를 열 수 없어 연습을 시작하지 못했어요. 앱을 다시 실행해 주세요.")
+            throw ConnectionError.localized("연습 기록 저장소를 열 수 없어 연습을 시작하지 못했어요. 앱을 다시 실행해 주세요.")
         }
         // 워치 요청으로 백그라운드 앱이 깨어나도 새 마이크 입력은 시작하지 않습니다.
         guard UIApplication.shared.applicationState == .active else {
-            throw ConnectionError.message("연습을 시작하려면 iPhone에서 chic 앱을 열어주세요.")
+            throw ConnectionError.localized(Self.openAppMessageKey)
         }
-        let analyzer = try SteamingAudioAnalyzer()
-        // 앱이 마이크 입력을 사용할 수 있도록 오디오 세션을 준비합니다.
-        let audio = AVAudioSession.sharedInstance()
-        try audio.setCategory(.record, mode: .measurement)
-        try audio.setActive(true)
+        // 직전 연습의 오디오 정리가 끝나야 새 세션을 켭니다. (늦게 끝난 setActive(false)가 새로 켠 세션을 끄지 않게)
+        await audioTeardown?.value
         // 이전 연습과 구분되는 ID를 만듭니다.
         let id = UUID()
-        do {
-            try analyzer.start(onResult: { [weak self] phase in
-                Task { @MainActor [weak self] in
-                    guard let self, self.state.sessionID == id else { return }
-                    self.updateFeedback(phase)
+        let onResult: @Sendable (PracticePhase, ChicAnalysisLog?) -> Void = { [weak self] phase, log in
+            Task { @MainActor [weak self] in
+                guard let self, self.state.sessionID == id else { return }
+                let previous = self.state.phase
+                self.updateFeedback(phase)
+                if let log, previous != self.state.phase, !log.isStartFrame, !self.endQuestion.isAsking {
+                    log.write(.feedback(phase.title))
                 }
-            }, onError: { [weak self] message in
-                Task { @MainActor [weak self] in
-                    guard let self, self.state.sessionID == id, self.state.phase.isRunning else { return }
-                    self.stop()
-                    self.errorMessage = message
-                }
-            })
-            soundAnalyzer = analyzer
-        } catch {
-            analyzer.stop()
-            // 분석 시작에 실패하면 오디오 세션을 정리하고 오류를 호출자에게 전달합니다.
-            try? audio.setActive(false)
-            throw error
+            }
         }
+        let onSilence: @Sendable (TimeInterval, ChicEndRule.Reason, ChicAnalysisLog?) -> Void = { [weak self] elapsed, reason, log in
+            Task { @MainActor [weak self] in
+                guard let self, self.state.sessionID == id, self.state.phase.isRunning else { return }
+                guard !self.endQuestion.isAsking else { return }
+                self.endQuestion.ask(endedAt: Date().addingTimeInterval(-elapsed))
+                log?.write(.end(reason))
+            }
+        }
+        let onError: @Sendable (String) -> Void = { [weak self] message in
+            Task { @MainActor [weak self] in self?.stopIfCurrent(id, errorMessage: message) }
+        }
+        let analyzer = try await Task.detached(priority: .userInitiated) {
+            let analyzer = try SteamingAudioAnalyzer()
+            // 앱이 마이크 입력을 사용할 수 있도록 오디오 세션을 준비합니다.
+            let audio = AVAudioSession.sharedInstance()
+            try audio.setCategory(.record, mode: .measurement)
+            try audio.setActive(true)
+            do {
+                try analyzer.start(onResult: onResult, onSilence: onSilence, onError: onError)
+            } catch {
+                analyzer.stop()
+                // 분석 시작에 실패하면 오디오 세션을 정리하고 오류를 호출자에게 전달합니다.
+                try? audio.setActive(false)
+                throw error
+            }
+            return analyzer
+        }.value
+        // 준비하는 동안 앱이 백그라운드로 갔다면, 켠 마이크를 바로 정리하고 시작하지 않습니다. (전에는 준비 중에 앱을 떠날 수 없었어요)
+        guard UIApplication.shared.applicationState == .active else {
+            audioTeardown = Self.tearDownAudio(analyzer)
+            throw ConnectionError.localized(Self.openAppMessageKey)
+        }
+        soundAnalyzer = analyzer
         // 분석 시작에 성공한 뒤에만 새 연습 상태로 바꿉니다. 이전 기록 목록은 유지합니다.
         state.isWatchEnabled = usingWatch
         timeline = PracticeTimeline()
+        aerationClock = AerationClock(model: analyzer.selection)
         result = nil
+        endQuestion.close()
         state.sessionID = id
         state.startedAt = Date()
         state.endedAt = nil // 이전 연습의 종료 시간이 새 연습에 남지 않게 합니다.
@@ -155,17 +184,41 @@ final class PracticeSession: ObservableObject {
         publish()
     }
 
-    /// iPhone 정지 버튼, 워치 종료 요청 또는 오디오 중단·오류 시 호출합니다.
+    /// iPhone 정지 버튼, 워치 종료 요청 또는 오디오 중단·오류 시 호출합니다. (소리로는 자동 종료하지 않고 먼저 물어요)
     /// 분석을 끝내고 결과를 저장하며, .finished로 바꿔 결과 화면을 표시하게 합니다.
     func stop() {
+        finish(endedAt: Date())
+    }
+
+    /// "스티밍이 끝났나요?"에서 '계속 연습': 묻기를 닫고 연습을 이어갑니다.
+    /// 스팀 소리가 다시 이어진 뒤 또 끝난 것 같으면 다시 묻습니다.
+    func continueAfterSilence() {
+        endQuestion.close()
+    }
+
+    /// "스티밍이 끝났나요?"에서 '연습 종료': 처음 물어본 시각(끝난 것 같은 시각)을 종료 시각으로 기록합니다.
+    /// (묻기를 보며 머문 시간은 연습 시간에 넣지 않아요)
+    func finishAfterSilence() {
+        finish(endedAt: endQuestion.endedAt ?? Date())
+    }
+
+    private func finish(endedAt requestedEnd: Date) {
+        let wasAsking = endQuestion.isAsking
+        endQuestion.close()
         // 이미 종료된 연습이면 다시 저장하지 않습니다.
         guard state.phase.isRunning, let id = state.sessionID,
               let startedAt = state.startedAt else { return }
-        let endedAt = Date()
-        soundAnalyzer?.stop()
+        let endedAt = max(startedAt, min(requestedEnd, Date()))
+        // 엔진 종료와 오디오 세션 비활성화는 오래 걸릴 수 있어 메인 스레드 밖에서 합니다.
+        // 그사이 도착한 분석 결과는 updateFeedback 의 phase · sessionID 검사로 버려집니다.
+        let analyzer = soundAnalyzer
+        if let analyzer, analyzer.selection != .standard, !wasAsking {
+            analyzer.logFinish(elapsed: endedAt.timeIntervalSince(startedAt))
+        }
         soundAnalyzer = nil
-        try? AVAudioSession.sharedInstance().setActive(false)
+        audioTeardown = Self.tearDownAudio(analyzer)
         state.endedAt = endedAt
+        aerationClock.pause(at: endedAt)
         timeline.finish(at: max(0, endedAt.timeIntervalSince(startedAt)))
         state.phase = .finished
         let record = PracticeRecord(id: id, startedAt: startedAt, endedAt: endedAt)
@@ -173,19 +226,24 @@ final class PracticeSession: ObservableObject {
         let dailyOrder = (history.filter { Calendar.current.isDate($0.startedAt, inSameDayAs: startedAt) }
             .map(\.dailyOrder).max() ?? 0) + 1
         let completedResult = PracticeResult(practicedAt: startedAt, dailyOrder: dailyOrder,
-                                              segments: segments, duration: record.duration)
+                                              segments: segments, duration: record.duration, model: aerationClock.model)
         publish()
         // 종료 상태를 먼저 표시해 로딩 화면을 연 뒤 저장합니다. 워치에서 닫아도 저장은 완료합니다.
         Task {
             await Task.yield()
             do {
-                guard let historyStore else { throw ConnectionError.message("저장소를 열 수 없어요.") }
-                try historyStore.save(record: record, dailyOrder: dailyOrder, segments: segments)
-                history = try historyStore.records()
-                state.records = history.map(\.record)
+                guard let historyStore else { throw ConnectionError.localized("저장소를 열 수 없어요.") }
+                if let saved = try historyStore.save(record: record, dailyOrder: dailyOrder, segments: segments, model: completedResult.model) {
+                    // 새 기록만 목록에 끼워 넣습니다. 저장소를 다시 다 불러온 것(records(): 시작 시각 최신순)과 같은 목록이에요.
+                    var updated = history
+                    updated.insert(saved, at: updated.firstIndex { $0.startedAt < saved.startedAt } ?? updated.endIndex)
+                    setHistory(updated)
+                } else {
+                    setHistory(try historyStore.records())
+                }
                 publish()
             } catch {
-                errorMessage = "연습 결과 저장에 실패했어요."
+                errorMessage = String(localized: "스티밍 기록을 저장하지 못했어요.")
             }
             if state.sessionID == id, state.phase == .finished { result = completedResult }
         }
@@ -200,6 +258,7 @@ final class PracticeSession: ObservableObject {
             if let startedAt = state.startedAt {
                 timeline.update(phase: phase, at: max(0, now.timeIntervalSince(startedAt)))
             }
+            if phase == .aeration { aerationClock.resume(at: now) } else { aerationClock.pause(at: now) }
             state.phase = phase
         } else {
             guard phase == .aeration, state.isWatchEnabled,
@@ -218,11 +277,57 @@ final class PracticeSession: ObservableObject {
         publish()
     }
 
+    /// 저장된 연습 기록 하나를 삭제하고 목록과 워치에 보내는 기록을 갱신합니다.
+    func deleteRecord(id: UUID) {
+        guard let historyStore else {
+            errorMessage = String(localized: "저장소를 열 수 없어요.")
+            return
+        }
+        do {
+            try historyStore.delete(id: id)
+            setHistory(try historyStore.records())
+            publish()
+        } catch {
+            errorMessage = String(localized: "기록을 삭제하지 못했어요.")
+        }
+    }
+
+    /// 저장된 기록 목록을 바꾸고, 워치에 보내는 기록도 같은 목록으로 맞춥니다.
+    private func setHistory(_ records: [PracticeRecordEntity]) {
+        history = records
+        state.records = records.map(\.record)
+    }
+
     /// 연결이 끊긴 연습을 워치 없이 계속합니다. 진행 중인 iPhone 분석은 유지합니다.
     func continueWithoutWatch() {
         guard state.phase.isRunning else { return }
         state.isWatchEnabled = false
         publish()
+    }
+
+    /// 연습을 시작할 수 없는 상태(앱이 앞에 없음)일 때의 안내입니다.
+    private static let openAppMessageKey = "연습을 시작하려면 iPhone에서 chic 앱을 열어주세요."
+
+    /// 워치 요청이 지금 연습(sessionID)에 대한 것인지 확인합니다. 아니면 다시 확인하라고 안내합니다.
+    private func ensureCurrentSession(_ request: WatchRequest) throws {
+        guard request.sessionID == state.sessionID else {
+            throw ConnectionError.localized("연습 상태가 변경되었어요. 다시 확인해주세요.")
+        }
+    }
+
+    /// 분석기가 오류를 알렸을 때, 그 분석이 지금 진행 중인 연습의 것이면 종료합니다.
+    private func stopIfCurrent(_ id: UUID, errorMessage message: String? = nil) {
+        guard state.sessionID == id, state.phase.isRunning else { return }
+        stop()
+        if let message { errorMessage = message }
+    }
+
+    /// 엔진 종료와 오디오 세션 비활성화를 메인 스레드 밖에서 합니다. 다음 시작은 이 작업이 끝난 뒤에 해요.
+    private nonisolated static func tearDownAudio(_ analyzer: SteamingAudioAnalyzer?) -> Task<Void, Never> {
+        Task.detached(priority: .userInitiated) {
+            analyzer?.stop()
+            try? AVAudioSession.sharedInstance().setActive(false)
+        }
     }
 
     /// 현재 상태를 통신 담당에게 전달합니다. 실제 전송 방식은 WatchConnection이 처리합니다.
