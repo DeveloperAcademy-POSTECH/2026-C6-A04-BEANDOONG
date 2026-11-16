@@ -14,7 +14,7 @@ struct WatchReadyView: View {
     var body: some View {
         WatchStatusScreen(
             title: String(localized: "Apple Watch 가\n준비되었어요"),
-            subtitle: String(localized: "이제 스팀 연습을 시작하면\n워치에서 진동 피드백을 받을 수 있어요")
+            subtitle: String(localized: "이제 스티밍을 시작하면\n워치에서 진동 피드백을 받을 수 있어요")
         ) {
             AssetImageView(name: "IllustWatchReady", size: ScreenMetrics.WatchStatus.illustrationSize)
         } footer: {

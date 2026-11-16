@@ -3307,19 +3307,19 @@
         }
       }
     },
-    "이제 스팀 연습을 시작하면\n워치에서 진동 피드백을 받을 수 있어요" : {
+    "이제 스티밍을 시작하면\n워치에서 진동 피드백을 받을 수 있어요" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Start steaming practice to get\nhaptic feedback on your watch."
+            "value" : "Start steaming to get\nhaptic feedback on your watch."
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "이제 스팀 연습을 시작하면\n워치에서 진동 피드백을 받을 수 있어요"
+            "value" : "이제 스티밍을 시작하면\n워치에서 진동 피드백을 받을 수 있어요"
           }
         }
       }
