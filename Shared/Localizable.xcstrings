@@ -2454,19 +2454,19 @@
         }
       }
     },
-    "연습 가이드" : {
+    "스팀 가이드" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Practice Guide"
+            "value" : "Steam Guide"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "연습 가이드"
+            "value" : "스팀 가이드"
           }
         }
       }

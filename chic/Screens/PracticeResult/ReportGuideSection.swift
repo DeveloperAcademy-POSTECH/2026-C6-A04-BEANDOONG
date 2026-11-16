@@ -1,8 +1,8 @@
 import SwiftUI
 
-// MARK: - 연습 가이드
+// MARK: - 스팀 가이드
 
-/// "연습 가이드" 제목 + 비커 그림 + 안내 카드. 위치는 섹션 맨 위(제목 글자 상자 위) 기준 (Hi-Fi 연습 가이드 3종)
+/// "스팀 가이드" 제목 + 비커 그림 + 안내 카드. 위치는 섹션 맨 위(제목 글자 상자 위) 기준 (Hi-Fi 연습 가이드 3종)
 struct ReportGuideSection: View {
     @Environment(\.designScale) private var scale
     let guide: PracticeGuide
@@ -12,7 +12,7 @@ struct ReportGuideSection: View {
     var body: some View {
         VStack(spacing: 0) {
             ZStack(alignment: .topLeading) {
-                Text(String(localized: "연습 가이드"))
+                Text(String(localized: "스팀 가이드"))
                     .font(.pretendard(.bold, size: 20))
                     .foregroundStyle(Color.white)
                     .at(x: ReportLayout.sectionTitleX, y: 0, scale)
