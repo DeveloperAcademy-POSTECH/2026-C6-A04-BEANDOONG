@@ -15,9 +15,6 @@ enum ScreenMetrics {
     /// 화면 위 ↔ 상단 바 (Hi-Fi 글자 y0 86.5 − 2.5)
     /// - 설정 · 기록 · 결과 리포트 · 온보딩 · 연습 준비 · 마이크 권한 · 워치 연결 화면이 같은 자리에 상단 바를 둬요.
     static let topBarTop: CGFloat = 84
-    /// 화면 위 ↔ 연습 중 상단 바 `SteamingPracticeTopBar` (Hi-Fi 글자 y0 75 − 3)
-    /// - 소리 확인 중 · 스티밍 피드백 화면
-    static let practiceTopBarTop: CGFloat = 72
     /// 하단 큰 버튼 폭 (Hi-Fi 버튼 폭). 높이와 아래 간격은 `BottomButton` 이에요.
     static let bottomButtonWidth: CGFloat = 363
 
