@@ -26,6 +26,8 @@ for relative in ("Shared/Localizable.xcstrings", "chic/InfoPlist.xcstrings"):
     assert catalog["sourceLanguage"] == "ko", relative
     catalogs[Path(relative).stem] = catalog["strings"]
     for key, entry in catalog["strings"].items():
+        if entry.get("shouldTranslate") is False:
+            continue
         values = {}
         for language in ("ko", "en"):
             unit = entry["localizations"][language]["stringUnit"]
@@ -66,6 +68,9 @@ if len(sys.argv) > 1:
             for language in ("ko", "en"):
                 strings = plistlib.loads((app / f"{language}.lproj/{table}.strings").read_bytes())
                 for key, entry in catalogs[table].items():
+                    if entry.get("shouldTranslate") is False:
+                        assert key not in strings, (app.name, language, key)
+                        continue
                     expected = entry["localizations"][language]["stringUnit"]["value"]
                     assert strings.get(key) == expected, (app.name, language, key)
     print(f"PASS: {len(extracted_files)} extraction files and both app bundles")

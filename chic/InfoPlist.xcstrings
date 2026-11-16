@@ -3,37 +3,29 @@
   "strings" : {
     "CFBundleDisplayName" : {
       "comment" : "Bundle display name",
+      "extractionState" : "extracted_with_value",
       "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "chic"
-          }
-        },
         "ko" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "new",
             "value" : "chic"
           }
         }
-      }
+      },
+      "shouldTranslate" : false
     },
     "CFBundleName" : {
       "comment" : "Bundle name",
+      "extractionState" : "extracted_with_value",
       "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "chic"
-          }
-        },
         "ko" : {
           "stringUnit" : {
-            "state" : "translated",
+            "state" : "new",
             "value" : "chic"
           }
         }
-      }
+      },
+      "shouldTranslate" : false
     },
     "NSMicrophoneUsageDescription" : {
       "extractionState" : "manual",
