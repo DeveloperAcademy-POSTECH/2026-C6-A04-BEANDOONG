@@ -239,13 +239,34 @@
       }
     },
     "4단계 가이드를 모두 살펴봤어요\n안내받은 동작을 떠올리며\n이제 스티밍을 시작해 볼까요?" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You've reviewed all four steps.\nKeep the guidance in mind,\nand let's start steaming."
+          }
+        }
+      }
     },
     "4단계 안내를\n모두 살펴봤어요" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You've reviewed\nall four steps"
+          }
+        }
+      }
     },
     "4단계 중 %lld단계" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Step %lld of 4"
+          }
+        }
+      }
     },
     "32kHz 이상의 고정된 마이크 입력이 필요해요. 입력 장치를 확인해 주세요." : {
       "extractionState" : "manual",
@@ -571,7 +592,14 @@
       }
     },
     "가이드 진행 단계" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Guide progress"
+          }
+        }
+      }
     },
     "같은 경고 상태" : {
       "extractionState" : "manual",
@@ -897,7 +925,14 @@
       }
     },
     "공기 주입에서 롤링으로 이어가요" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Move from aeration to rolling"
+          }
+        }
+      }
     },
     "공기 주입이\n조금 부족했어요" : {
       "extractionState" : "manual",
@@ -1036,7 +1071,14 @@
       }
     },
     "공기주입" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aeration"
+          }
+        }
+      }
     },
     "공기주입 상태를\n한눈에 확인해요" : {
       "extractionState" : "manual",
@@ -1243,7 +1285,14 @@
       }
     },
     "노즐과 피처의 위치를 잡아요" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Position the wand and pitcher"
+          }
+        }
+      }
     },
     "다시 연결 확인하기" : {
       "extractionState" : "manual",
@@ -1400,7 +1449,14 @@
       }
     },
     "마무리" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Finish Up"
+          }
+        }
+      }
     },
     "마이크 설정" : {
       "extractionState" : "manual",
@@ -1522,7 +1578,14 @@
       }
     },
     "목표 온도에 도달하면 스팀을 끄고 노즐을 빼주세요.\n완드를 닦고 짧게 스팀을 내보낸 뒤, 피처를 가볍게 두드리고 돌려 거품을 정리해요." : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "When the milk reaches your target temperature, turn off the steam before removing the wand.\nWipe the wand and release a short burst of steam, then gently tap and swirl the pitcher to smooth the foam."
+          }
+        }
+      }
     },
     "문의하기" : {
       "extractionState" : "manual",
@@ -1882,7 +1945,14 @@
       }
     },
     "손잡이를 안정되게 잡고 조금 기울여요.\n중앙에서 살짝 옆, 표면 바로 아래에\n팁을 잠기게 두고 스팀을 준비해요" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hold the handle firmly and tilt the pitcher slightly.\nPlace the tip just below the surface, slightly off center,\nthen get ready to steam."
+          }
+        }
+      }
     },
     "수동 테스트" : {
       "extractionState" : "manual",
@@ -2072,7 +2142,14 @@
       }
     },
     "스티밍 액팅 가이드" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Steaming Guide"
+          }
+        }
+      }
     },
     "스티밍 연습" : {
       "extractionState" : "manual",
@@ -2228,10 +2305,24 @@
       }
     },
     "스팀을 끈 뒤 노즐을 빼주세요" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Turn off the steam before removing the wand"
+          }
+        }
+      }
     },
     "스팀을 켜고 피처를 조금 내려\n노즐을 우유 표면 가까이에 유지해 주세요\n공기가 들어가면서 우유의 부피가 서서히 늘어나요" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Turn on the steam and lower the pitcher slightly.\nKeep the wand tip near the milk surface.\nAs air enters, the milk gradually expands."
+          }
+        }
+      }
     },
     "시간" : {
       "extractionState" : "manual",
@@ -3033,7 +3124,14 @@
       }
     },
     "우유와 스팀 완드를 준비해요" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Prepare the milk and steam wand"
+          }
+        }
+      }
     },
     "우유의 거품 상태를 살펴보세요" : {
       "extractionState" : "manual",
@@ -3767,10 +3865,24 @@
       }
     },
     "차가운 우유를 피처에 담아주세요.\n스팀 완드를 물받이 쪽으로 향하게 해 잠깐 스팀을 내보낸 뒤 꺼주세요." : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pour cold milk into the pitcher.\nPoint the steam wand toward the drip tray, release a brief burst of steam, then turn it off."
+          }
+        }
+      }
     },
     "처음부터 다시보기" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Back to Start"
+          }
+        }
+      }
     },
     "첫 스티밍 시작하기" : {
       "extractionState" : "manual",
@@ -4249,7 +4361,14 @@
       }
     },
     "필요한 공기가 다 들어갔다면\n피처를 살짝 올려 노즐을 더 넣어 주세요\n우유가 한 방향으로 부드럽게 회전하도록 위치를 유지해 주세요" : {
-
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Once you've added enough air,\nraise the pitcher slightly to submerge the tip further.\nKeep it in place so the milk rolls smoothly in one direction."
+          }
+        }
+      }
     },
     "한 잔의 시작, 작은 소리부터 함께해요" : {
       "extractionState" : "manual",
