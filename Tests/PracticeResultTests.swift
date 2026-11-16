@@ -86,7 +86,7 @@ struct PracticeResultTests {
         for (air, expected) in inputs {
             for rolling in [0.0, 0.01] {
                 for (index, warnings) in [[], [DetectedSound.lackOfAir], [.overAeration], [.lackOfAir, .overAeration]].enumerated() {
-                    var segments = warnings.map { DetectedSegment(sound: $0, start: 12, end: 12.1) }
+                    var segments = warnings.map { DetectedSegment(sound: $0, start: 12, end: 13) }
                     segments.append(DetectedSegment(sound: .rolling, start: 10, end: 10 + rolling))
                     segments.append(DetectedSegment(sound: .normalAeration, start: 0, end: air))
                     let record = PracticeResult(practicedAt: start, dailyOrder: 1, segments: segments, model: model)
@@ -101,6 +101,16 @@ struct PracticeResultTests {
             .init(sound: .normalAeration, start: lower, end: lower + lower / 2)
         ], model: model)
         precondition(PracticeGuide(result: split) == .onTarget)
+        var segments = split.segments + [
+            .init(sound: .overAeration, start: 20, end: 20.75),
+            .init(sound: .lackOfAir, start: 21, end: 21.999)
+        ]
+        func guide() -> PracticeGuide {
+            PracticeGuide(result: PracticeResult(practicedAt: start, dailyOrder: 1, segments: segments, model: model))
+        }
+        precondition(guide() == .onTarget)
+        segments.append(.init(sound: .overAeration, start: 22, end: 22.25))
+        precondition(guide() == .targetBubble)
     }
 
     /// 소리가 끊긴 시각(마지막 기록보다 앞)으로 끝내면 그 뒤 구간을 잘라 냅니다.

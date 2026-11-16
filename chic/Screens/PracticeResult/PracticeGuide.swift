@@ -19,8 +19,9 @@ enum PracticeGuide: Equatable {
             return
         }
 
-        let scratch = result.guideDuration(of: .lackOfAir) > 0
-        let bubble = result.guideDuration(of: .overAeration) > 0
+        let minimumWarningDuration: TimeInterval = 1
+        let scratch = result.guideDuration(of: .lackOfAir) >= minimumWarningDuration
+        let bubble = result.guideDuration(of: .overAeration) >= minimumWarningDuration
         let range = result.model.aerationRange
         switch (air, scratch, bubble) {
         case (..<range.lowerBound, false, false): self = .short
