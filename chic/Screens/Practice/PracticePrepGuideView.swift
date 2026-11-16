@@ -4,7 +4,7 @@ import SwiftUI
 /// - 새 시안 4장 — 워치 화면 4종(정상·과다·부족·롤링)을 좌우로 넘겨 보는 캐러셀 (`PrepWatchCarousel`)
 /// - 2026-11-13: "휴대폰은 머신 가까이" 쪽(머신+휴대폰, Hi-Fi 249)은 사용자 결정으로 삭제
 ///
-///     ┌ 상단 바: < 연습 준비
+///     ┌ 상단 바: < 스팀 준비
 ///     ├ 워치 캐러셀 + 점 4개
 ///     ├ 타이틀 + 설명
 ///     └ 버튼 "바로 시작할 수 있어요" (어느 칸에서든 바로 소리 인식 대기로)
@@ -40,7 +40,7 @@ struct PracticePrepGuideView: View {
     var body: some View {
         VStack(spacing: 0) {
             // MARK: 상단 바
-            TopNavigationHeader(title: String(localized: "연습 준비"), isDark: true)
+            TopNavigationHeader(title: String(localized: "스팀 준비"), isDark: true)
                 .padding(.top, ScreenMetrics.topBarTop.v(scale))
 
             // MARK: 워치 캐러셀 (원형)

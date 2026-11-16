@@ -2658,19 +2658,19 @@
         }
       }
     },
-    "연습 준비" : {
+    "스팀 준비" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Get Ready"
+            "value" : "Get Ready to Steam"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "연습 준비"
+            "value" : "스팀 준비"
           }
         }
       }
