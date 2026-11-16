@@ -5,16 +5,10 @@ import SwiftUI
 // MARK: - 다크 화면 버튼 (363 x 52)
 
 /// 다크 화면 주요 버튼: 하늘색 캡슐 + 검정 텍스트
-/// 화면 하단 큰 버튼의 공통 치수 (시안: 버튼 위 754.5 ~ 아래 809.5, 화면 아래와 64.5 간격). 모든 하단 버튼 화면이 같은 자리에 오도록 여기서만 정한다.
-enum BottomButton {
-    static let height: CGFloat = 55
-    static let bottomGap: CGFloat = 64.5
-}
-
 struct DarkPrimaryButton: View {
     let title: String
     /// 버튼 폭 (기본 363 = iPhone 17 시안. 다른 기기에서는 `363.h(scale)`을 넘깁니다)
-    var width: CGFloat = 363
+    var width: CGFloat = ScreenMetrics.bottomButtonWidth
     var height: CGFloat = 52
     var action: () -> Void = {}
 
@@ -33,42 +27,43 @@ struct DarkPrimaryButton: View {
     }
 }
 
-/// 다크 화면 보조 버튼: 아주 옅은 하늘색 캡슐 + 검정 텍스트
-struct DarkSecondaryButton: View {
-    let title: String
-    var width: CGFloat = 363
-    var action: () -> Void = {}
+// MARK: - 하단 큰 버튼
 
-    var body: some View {
-        Button(action: action) {
-            Text(title)
-                .font(.pretendard(.bold, size: 16))
-                .foregroundStyle(AppColors.darkChipTextSelected)
-                .frame(width: width, height: 52)
-                .background(
-                    Capsule()
-                        .fill(AppColors.darkSecondaryButton)
-                )
-        }
-        .buttonStyle(.plain)
-    }
+/// 화면 하단 큰 버튼의 공통 치수 (시안: 버튼 위 754.5 ~ 아래 809.5, 화면 아래와 64.5 간격). 모든 하단 버튼 화면이 같은 자리에 오도록 여기서만 정한다.
+enum BottomButton {
+    static let height: CGFloat = 55
+    static let bottomGap: CGFloat = 64.5
 }
 
-/// 다크 화면 하단의 [주요 버튼 / 보조 버튼] 세로 2단 묶음 (간격 11)
-struct DarkButtonPair: View {
-    let primaryTitle: String
-    let secondaryTitle: String
-    var width: CGFloat = 363
-    /// 두 버튼 사이 간격. 버튼 높이 52가 고정이라 간격도 모든 기기에서 11로 고정한다(비율로 바꾸면 화면이 짧은 기기에서 버튼이 붙는다)
-    var spacing: CGFloat = 11
-    var primaryAction: () -> Void = {}
-    var secondaryAction: () -> Void = {}
+/// 화면 하단 큰 버튼: 하늘색 캡슐(폭 363 · 높이 55) + 화면 아래에서 64.5 떨어진 자리
+///
+/// 폭은 화면 폭 비율(`.h`)로, 아래 간격은 화면 높이 비율(`.v`)로 바꿔요. 버튼 높이는 고정이라, 버튼 위쪽 선이 시안 비율 위치에 오도록
+/// 아래 간격에 `fixedHeightAdjustment` 를 더해요. 그래서 화면의 맨 아래 자식(`VStack` 마지막)으로 두기만 하면 돼요.
+///
+///     VStack(spacing: 0) {
+///         ...
+///         Spacer(minLength: 0)
+///         BottomPrimaryButton(title: title, action: onCheck)
+///     }
+///
+/// 아래 두 줄과 똑같아요 (모든 하단 버튼 화면이 이 두 줄을 따로 적고 있었어요).
+///
+///     DarkPrimaryButton(title: title, width: 363.h(scale), height: BottomButton.height, action: action)
+///         .padding(.bottom, BottomButton.bottomGap.v(scale) + scale.fixedHeightAdjustment(BottomButton.height))
+struct BottomPrimaryButton: View {
+    @Environment(\.designScale) private var scale
+
+    let title: String
+    let action: () -> Void
 
     var body: some View {
-        VStack(spacing: spacing) {
-            DarkPrimaryButton(title: primaryTitle, width: width, action: primaryAction)
-            DarkSecondaryButton(title: secondaryTitle, width: width, action: secondaryAction)
-        }
+        DarkPrimaryButton(
+            title: title,
+            width: ScreenMetrics.bottomButtonWidth.h(scale),
+            height: BottomButton.height,
+            action: action
+        )
+        .padding(.bottom, BottomButton.bottomGap.v(scale) + scale.fixedHeightAdjustment(BottomButton.height))
     }
 }
 

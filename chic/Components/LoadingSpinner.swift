@@ -17,47 +17,44 @@ import SwiftUI
 /// - 점마다 위 → 아래 그라데이션이 들어 있고, 점이 돌지 않으니 그라데이션 방향도 항상 위 → 아래예요.
 /// - 레이아웃 크기는 기존 일러스트(`IllustSpinner`, 62×70)와 같아서 화면 배치가 바뀌지 않아요.
 struct LoadingSpinner: View {
+    /// 화면 레이아웃에서 차지하는 크기(pt). `.designScaled(size:_:)` 에 그대로 넘겨요.
+    static let size = Spec.layoutSize
+
     var body: some View {
         LoopTimeline(period: SpinnerMotion.period) { progress in
-            Canvas { context, _ in
+            // 매 프레임 다시 그리는 캔버스라 메인 스레드 밖에서 그려요. 그려지는 모습은 같아요.
+            Canvas(rendersAsynchronously: true) { context, _ in
                 drawDots(in: &context, progress: progress)
             }
-            .frame(width: SpinnerGeometry.canvasSize, height: SpinnerGeometry.canvasSize)
+            .frame(width: Spec.canvasSize, height: Spec.canvasSize)
         }
         // 캔버스는 점이 잘리지 않게 넉넉히 그리고, 레이아웃은 기존 일러스트 크기만 차지해요.
-        .frame(width: SpinnerGeometry.layoutSize.width, height: SpinnerGeometry.layoutSize.height)
+        .frame(width: Self.size.width, height: Self.size.height)
         .accessibilityHidden(true)
     }
 
     /// 크기 배치가 `progress`만큼 시계 방향으로 흐른 상태로 점 12개를 그려요.
     private func drawDots(in context: inout GraphicsContext, progress: Double) {
-        let slotCount = SpinnerGeometry.slotCount
+        let slotCount = Spec.slotCount
         // 가장 큰 점이 지금 있는 칸 (소수: 칸 사이를 부드럽게 지나감)
         let headSlot = Double(slotCount) * progress
 
         for slot in 0..<slotCount {
-            let radius = SpinnerGeometry.dotRadius(atDistance: circularDistance(Double(slot), headSlot, count: slotCount))
-            guard radius > SpinnerGeometry.hiddenRadius else { continue }
+            let radius = Spec.dotRadius(atDistance: Easing.circularDistance(Double(slot), headSlot, count: slotCount))
+            guard radius > Spec.hiddenRadius else { continue }
 
-            let center = SpinnerGeometry.position(ofSlot: slot)
-            let dotRect = CGRect(x: center.x - radius, y: center.y - radius, width: radius * 2, height: radius * 2)
+            let center = Spec.position(ofSlot: slot)
+            // 점마다 위 → 아래 그라데이션: 점이 꼭 맞게 들어가는 정사각형의 위 · 아래 끝을 잇는 선이에요.
+            let dotBounds = CGRect.circleBounds(center: center, radius: radius)
             context.fill(
-                Path(ellipseIn: dotRect),
+                Path.circle(center: center, radius: radius),
                 with: .linearGradient(
-                    SpinnerGeometry.dotGradient,
-                    startPoint: CGPoint(x: dotRect.midX, y: dotRect.minY),
-                    endPoint: CGPoint(x: dotRect.midX, y: dotRect.maxY)
+                    Spec.dotGradient,
+                    startPoint: CGPoint(x: dotBounds.midX, y: dotBounds.minY),
+                    endPoint: CGPoint(x: dotBounds.midX, y: dotBounds.maxY)
                 )
             )
         }
-    }
-
-    /// 원 위 두 칸 사이의 거리 (시계·반시계 중 가까운 쪽, 0 ... count/2)
-    private func circularDistance(_ a: Double, _ b: Double, count: Int) -> Double {
-        let n = Double(count)
-        let forward = (a - b).truncatingRemainder(dividingBy: n)
-        let wrapped = forward < 0 ? forward + n : forward
-        return min(wrapped, n - wrapped)
     }
 }
 
@@ -68,9 +65,9 @@ private enum SpinnerMotion {
     static let period: TimeInterval = 1.4
 }
 
-// MARK: - 모양 (Hi-Fi 스피너 실측값, pt)
+// MARK: - 사양 (Hi-Fi 스피너 실측값, pt)
 
-private enum SpinnerGeometry {
+private enum Spec {
     /// 화면 레이아웃에서 차지하는 크기 (기존 일러스트와 같음)
     static let layoutSize = CGSize(width: 62, height: 70)
     /// 점이 레이아웃 밖으로 조금 나가도 잘리지 않도록 넉넉히 잡은 캔버스 크기

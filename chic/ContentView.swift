@@ -8,8 +8,6 @@
 import SwiftUI
 
 struct ContentView: View {
-    @EnvironmentObject private var practice: PracticeSession
-    @EnvironmentObject private var connection: WatchConnection
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     /// 지금 홈을 보여 주는지. 저장값(`hasCompletedOnboarding`)으로 시작하고, 온보딩을 마칠 때 애니메이션과 함께 바꿔요.
     /// (@AppStorage 값 변경은 withAnimation 의 전환 애니메이션이 전달되지 않아서 화면 전환은 이 값으로 해요)
@@ -36,7 +34,9 @@ struct ContentView: View {
         ZStack {
             if showsHome || preparesHome {
                 HomeView(animatesEntrance: arrivesFromOnboarding, isEntranceActive: showsHome)
-                    .opacity(showsHome ? 1 : Self.hiddenOpacity)
+                    // 보이기 전 홈은 0이 아니라 거의 투명하게 둬요. 0이면 그리지 않아서 넘어가는 순간 처음 그리느라 버벅여요.
+                    // 위에 불투명한 온보딩이 덮고 있어서 화면에는 보이지 않아요.
+                    .opacity(showsHome ? 1 : MotionOpacity.nearlyHidden)
                     .allowsHitTesting(showsHome)
                     .accessibilityHidden(!showsHome)
                     // 미리 만들지 못하고(건너뛰기 등) 넘어가는 순간 올라올 때는 전처럼 투명도로 나타나요
@@ -55,18 +55,11 @@ struct ContentView: View {
                     .accessibilityHidden(showsHome)
             }
         }
-        // 홈 연습 카드의 큰 사진을 앱이 켜질 때(스플래시 동안) 백그라운드에서 디코딩해 둬요.
-        // 온보딩 마지막 쪽에서 홈을 미리 만들 때 그 사진을 처음 그리느라 그래프 애니메이션이 멈칫하던 것을 막아요.
-        .task { PreparedImage.prepare(["HomeWatchPractice", "HomeWatchPracticeEnglish"]) }
     }
-
-    /// 보이기 전 홈의 투명도. 0이면 그리지 않아서 넘어가는 순간 처음 그리느라 버벅여요.
-    /// 위에 불투명한 온보딩이 덮고 있어서 화면에는 보이지 않아요.
-    private static let hiddenOpacity = 0.001
 
     /// 온보딩 1/5 → … → 5/5. 쪽이 바뀔 때의 넘김 애니메이션은 OnboardingView 가 해요.
     private var onboarding: some View {
-        OnboardingView(page: step, onNext: showNextStep, onSkip: skipToPractice, onSwipe: swipeStep,
+        OnboardingFlow(page: step, onNext: showNextStep, onComplete: completeOnboarding, onSwipe: swipeStep,
                        onPageSettled: { page in if page == .review && reduceMotion { preparesHome = true } })
             .environment(\.loopRestAction, { preparesHome = true })
     }
@@ -88,12 +81,6 @@ struct ContentView: View {
         }
     }
 
-    /// 건너뛰기: 온보딩을 마치고 바로 소리 인식(연습)을 시작한다
-    private func skipToPractice() {
-        completeOnboarding()
-        Task { await practice.start(usingWatch: connection.isReachable) }
-    }
-
     private func completeOnboarding() {
         hasCompletedOnboarding = true
         withAnimation(.easeIn(duration: OnboardingExit.duration)) {
@@ -102,6 +89,33 @@ struct ContentView: View {
             // 다 걷힌 온보딩은 내려요 (보이지 않으니 애니메이션 없이)
             mountsOnboarding = false
         }
+    }
+}
+
+/// 온보딩 화면과 "건너뛰기" 동작
+///
+/// 건너뛰기는 온보딩을 마치자마자 연습을 시작해서 연습(`PracticeSession`) · 워치 연결(`WatchConnection`)이 필요해요.
+/// 이 두 객체는 연습 중 계속 바뀌는데, `ContentView` 가 직접 관찰하면 온보딩을 마친 뒤에도 연습 중 내내 다시 계산돼요.
+/// 그래서 관찰은 이 뷰만 해요. 온보딩이 내려가면(`mountsOnboarding` = false) 이 뷰도 같이 내려가서 관찰이 끝나요.
+/// 상태(쪽 · 홈 전환 · `preparesHome`)와 애니메이션은 모두 `ContentView` 에 그대로 있어요.
+private struct OnboardingFlow: View {
+    @EnvironmentObject private var practice: PracticeSession
+    @EnvironmentObject private var connection: WatchConnection
+    let page: OnboardingPage
+    let onNext: () -> Void
+    /// 온보딩을 마쳐요 (홈으로 넘어가는 애니메이션까지)
+    let onComplete: () -> Void
+    let onSwipe: (Int) -> Void
+    let onPageSettled: (OnboardingPage) -> Void
+
+    var body: some View {
+        OnboardingView(page: page, onNext: onNext, onSkip: skipToPractice, onSwipe: onSwipe, onPageSettled: onPageSettled)
+    }
+
+    /// 건너뛰기: 온보딩을 마치고 바로 소리 인식(연습)을 시작한다
+    private func skipToPractice() {
+        onComplete()
+        Task { await practice.start(usingWatch: connection.isReachable) }
     }
 }
 

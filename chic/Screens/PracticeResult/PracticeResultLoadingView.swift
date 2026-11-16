@@ -15,16 +15,19 @@ struct PracticeResultLoadingView: View {
                 .padding(.top, Layout.titleTop.v(scale))
 
             DarkScreenSubtitle(String(localized: "이번 연습을 함께 돌아봐요"), color: PracticeResultColors.primaryText)
-                .padding(.top, Layout.subtitleTop.v(scale))
+                .padding(.top, ScreenMetrics.subtitleTop.v(scale))
 
             LoadingSpinner()
-                .designScaled(width: 62, height: 70, scale)
+                .designScaled(size: LoadingSpinner.size, scale)
                 .padding(.top, Layout.spinnerTop.v(scale))
 
             Spacer(minLength: 0)
         }
         .ignoresSafeArea()
         .darkScreenBackground()
+        // 이 화면 밑에 미리 만들어 두는 결과 화면의 큰 비커 그림(869×651px)을 미리 디코딩해 둬요.
+        // 결과 화면은 투명도 0이라 그려지지 않다가, 이 화면이 걷히는 순간 처음 그려지면서 디코딩하면 그 프레임이 늦어져요.
+        .onAppear { PreparedImage.prepare([ReportGuidePitcher.imageName]) }
     }
 }
 
@@ -33,7 +36,6 @@ struct PracticeResultLoadingView: View {
 /// Hi-Fi에서 제목·설명·스피너가 소리 확인 중 화면(`ListeningView`)과 같은 자리에 있어 같은 값을 씁니다.
 private enum Layout {
     static let titleTop: CGFloat = 171.5  // 화면 위 ↔ 타이틀 (Hi-Fi 220: 글자 y0 175, 프레임 보정)
-    static let subtitleTop: CGFloat = 14  // 타이틀 ↔ 설명
     static let spinnerTop: CGFloat = 193  // 설명 ↔ 스피너
 }
 

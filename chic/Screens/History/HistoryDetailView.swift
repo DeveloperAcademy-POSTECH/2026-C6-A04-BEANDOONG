@@ -10,11 +10,12 @@ import SwiftUI
 /// 히스토리 연습 기록 상세 화면 (다크 테마)
 /// - Hi-Fi: iPhone 17 - 307 (2026-11-14) · 272(삭제 팝업)
 ///
+/// 구성은 연습 직후 결과 화면(`PracticeResultView`)과 같아요 (히어로 → 스티밍 기록 → 연습 가이드 → 안내 문구, 모두 `PracticeReportScreen`).
+/// 다른 점은 셋이에요.
+///
 ///     ┌ 상단 바: < 9월 28일 - 1차                🗑   (기록 이름, 연습 결과 화면은 "스티밍 결과")
-///     ├ 히어로: 결과에 따른 타이틀(`PracticeGuide.historyHeadline`) + 주의 소리 링 + 3열 요약
-///     ├ 스티밍 기록: 소리 유형별 막대 표
-///     ├ 연습 가이드: 비커 그림 + 공기 주입 시간 안내 카드 (기준 안 · 너무 김 · 너무 짧음)
-///     └ 안내 문구
+///     ├ 히어로 타이틀: `PracticeGuide.historyHeadline` (결과 화면은 `resultHeadline`)
+///     └ 삭제를 확인하면 이 화면을 닫아요 (결과 화면은 `onClose`)
 struct HistoryDetailView: View {
     @Environment(\.dismiss) private var dismiss
     let result: PracticeResult

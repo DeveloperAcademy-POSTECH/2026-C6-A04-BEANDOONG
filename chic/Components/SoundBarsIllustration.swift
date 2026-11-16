@@ -19,6 +19,9 @@ import SwiftUI
 ///   자른 뒤에 흐리게 해서 흐림이 옆 막대와 섞이지 않아요.
 /// - 동작 줄이기(Reduce Motion)가 켜져 있으면 다 켜진 Hi-Fi 정지 화면으로 멈춰 있어요.
 struct SoundBarsIllustration: View {
+    /// 화면에 놓이는 크기(pt). `.designScaled(size:_:)` 에 그대로 넘겨요.
+    static let size = Spec.frameSize
+
     var body: some View {
         LoopTimeline(period: BarMotion.period, restProgress: BarMotion.restProgress) { progress in
             let time = BarMotion.motionTime(progress: progress)
@@ -33,7 +36,7 @@ struct SoundBarsIllustration: View {
     }
 
     private func bar(_ bar: Spec.Bar, look: BarLook) -> some View {
-        AssetImageView(name: "IllustSoundBars", width: Spec.frameSize.width, height: Spec.frameSize.height)
+        AssetImageView(name: "IllustSoundBars", size: Spec.frameSize)
             // 이 막대가 있는 세로 띠만 남겨요
             .mask(alignment: .topLeading) {
                 Rectangle()
@@ -116,7 +119,7 @@ private enum BarMotion {
         // 그라데이션 길이 = 막대 높이. 그래서 그라데이션이 지나가는 거리는 막대 높이의 2배예요.
         let travel = height * 2
 
-        let fading = smooth(clamp01((time - offAt - order * offStep) / off))
+        let fading = Easing.smoothstep((time - offAt - order * offStep) / off)
         if fading >= 1 { return .hidden }
         if fading > 0 {
             // 그라데이션이 위 → 아래로 쓸고 지나가요: 위쪽부터 옅어지며 흐림이 번지고 전체 투명도도 빠져요
@@ -125,12 +128,12 @@ private enum BarMotion {
                 opaqueEdge: clearEdge + height,
                 clearEdge: clearEdge,
                 blur: maxBlur * fading,
-                opacity: 1 - smooth(clamp01((fading - 0.1) / 0.9))
+                opacity: 1 - Easing.smoothstep((fading - 0.1) / 0.9)
             )
         }
 
         // 사라짐을 거꾸로: 그라데이션이 위 → 아래로 차오르며 흐림이 걷히고 투명도가 올라요
-        let filling = easeOutQuad(clamp01((time - order * step) / fill))
+        let filling = Easing.easeOutQuad(Easing.clamp01((time - order * step) / fill))
         if filling <= 0 { return .hidden }
         if filling >= 1 { return .lit }
         let clearEdge = bar.top + travel * filling
@@ -138,15 +141,9 @@ private enum BarMotion {
             opaqueEdge: clearEdge - height,
             clearEdge: clearEdge,
             blur: maxBlur * (1 - filling),
-            opacity: smooth(clamp01(filling / 0.9))
+            opacity: Easing.smoothstep(filling / 0.9)
         )
     }
-
-    private static func clamp01(_ value: Double) -> Double { min(max(value, 0), 1) }
-    /// 처음과 끝이 부드러운 곡선 (smoothstep)
-    private static func smooth(_ value: Double) -> Double { value * value * (3 - 2 * value) }
-    /// 빠르게 출발해 부드럽게 멈춤
-    private static func easeOutQuad(_ value: Double) -> Double { 1 - (1 - value) * (1 - value) }
 }
 
 // MARK: - 사양

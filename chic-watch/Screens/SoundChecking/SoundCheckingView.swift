@@ -21,17 +21,15 @@ struct SoundCheckingView: View {
         WatchFullScreenStack {
             // MARK: 상태 문구
             Text(String(localized: "소리를 확인하고 있어요"))
-                .font(.watchScaled(16))
-                .lineLimit(1)
-                .minimumScaleFactor(0.8)
-                .watchCenterY(Metrics.statusTextCenterY)
+                .watchSingleLineStyle(16)
+                .watchCenterY(Layout.statusTextCenterY)
 
             // MARK: 로딩 인디케이터
             // watchOS 기본 로딩 인디케이터는 Hi-Fi보다 작아서, 지름이 약 31pt가 되도록 키웁니다.
             ProgressView()
                 .tint(.white)
-                .scaleEffect(WatchDesignSize.scaled(Metrics.loadingIndicatorScale))
-                .watchCenterY(Metrics.loadingIndicatorCenterY)
+                .scaleEffect(WatchDesignSize.scaled(Layout.loadingIndicatorScale))
+                .watchCenterY(Layout.loadingIndicatorCenterY)
         }
         .foregroundStyle(.white)
         .background(AppColors.watchDarkScreenBackground)
@@ -39,11 +37,11 @@ struct SoundCheckingView: View {
     }
 }
 
-// MARK: - Metrics
+// MARK: - Layout
 
 /// Hi-Fi(46mm, 248pt 높이) 기준 수치입니다.
 /// - ~CenterY: 요소 중심의 세로 위치 (화면 맨 위 = 0, 맨 아래 = 1)
-private enum Metrics {
+private enum Layout {
     static let statusTextCenterY: CGFloat = 0.31        // 상태 문구 중심
     static let loadingIndicatorCenterY: CGFloat = 0.5   // 로딩 인디케이터 중심 (화면 정중앙)
     static let loadingIndicatorScale: CGFloat = 1.9     // 로딩 인디케이터 확대 배율 (watchOS 기본 크기 = 1)

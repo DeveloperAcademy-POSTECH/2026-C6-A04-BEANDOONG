@@ -12,7 +12,7 @@
 //                └─ normal / caution → 상단 도넛 차트 · 요약 (첫 감지 전 대기 시간 제외)
 //
 
-import SwiftUI
+import Foundation
 
 // MARK: - 스티밍 단계
 
@@ -28,14 +28,6 @@ enum SteamingStage: CaseIterable {
         switch self {
         case .aeration: String(localized: "공기 주입")
         case .rolling: String(localized: "롤링")
-        }
-    }
-
-    /// 전체 타임라인 카드 왼쪽 라벨에서 사용하는 단계 제목
-    var timelineTitle: String {
-        switch self {
-        case .aeration: String(localized: "공기 주입")
-        case .rolling: String(localized: "롤링 소리")
         }
     }
 
@@ -85,29 +77,13 @@ enum DetectedSound: String, Codable, CaseIterable, Hashable {
         case .overAeration, .lackOfAir: true
         }
     }
-
-    /// 타임라인 막대 색상 (디자인 시스템 팔레트, Hi-Fi 269/270/271 측정으로 확인)
-    var timelineColor: Color {
-        switch self {
-        case .normalAeration: AppColors.soundNormalAeration
-        case .overAeration: AppColors.soundOverAeration
-        case .lackOfAir: AppColors.soundLackOfAir
-        case .rolling: AppColors.soundRolling
-        }
-    }
-
-    /// 상태별 감지 시간 타일의 소리 이름 색상
-    var labelColor: Color {
-        timelineColor
-    }
 }
 
 // MARK: - 감지 구간
 
 /// 한 소리가 끊기지 않고 연속으로 감지된 구간
 /// - 시간은 연습을 시작한 순간을 0초로 둔 경과 시간(초)입니다.
-struct DetectedSegment: Identifiable, Hashable {
-    let id = UUID()
+struct DetectedSegment: Hashable {
     let sound: DetectedSound
     /// 구간 시작 (초)
     let start: TimeInterval
@@ -144,9 +120,7 @@ struct PracticeResult: Hashable {
     }
 
     func title(includingYear: Bool, locale: Locale = .current) -> String {
-        let formatter = DateFormatter()
-        formatter.locale = locale
-        formatter.setLocalizedDateFormatFromTemplate(includingYear ? "yMMMd" : "MMMd")
+        let formatter = TitleDateFormatters.shared.formatter(includingYear: includingYear, locale: locale)
         let date = formatter.string(from: practicedAt)
         return String(localized: "\(date) - \(dailyOrder)차", locale: locale)
     }
@@ -273,6 +247,37 @@ extension PracticeResult {
 
     /// 감지된 소리가 하나도 없는 연습 — 빈 화면이 깨지지 않는지 확인하는 용도
     static let empty = PracticeResult(practicedAt: .now, dailyOrder: 1, segments: [])
+}
+
+// MARK: - 기록 이름의 날짜 문구
+
+/// 기록 이름(`PracticeResult.title`)의 날짜 문구를 만드는 `DateFormatter` 보관소
+///
+/// `DateFormatter` 는 만드는 값이 비싸고 (`setLocalizedDateFormatFromTemplate` 가 로케일 패턴을 찾아요) 기록 목록은 카드마다 이름을 불러서,
+/// 부를 때마다 새로 만들지 않고 같은 조건(로케일 · 연도 포함 여부)이면 만들어 둔 것을 다시 써요. 문구는 전과 같아요.
+/// 시간대와 달력은 설정하지 않은 `DateFormatter` 가 쓸 때마다 지금 값을 따라가서, 설정에서 시간대가 바뀌어도 달라지지 않아요.
+final class TitleDateFormatters: @unchecked Sendable {
+    static let shared = TitleDateFormatters()
+
+    private struct Key: Hashable {
+        let locale: Locale
+        let includingYear: Bool
+    }
+
+    private let lock = NSLock()
+    private var formatters: [Key: DateFormatter] = [:]
+
+    func formatter(includingYear: Bool, locale: Locale) -> DateFormatter {
+        let key = Key(locale: locale, includingYear: includingYear)
+        lock.lock()
+        defer { lock.unlock() }
+        if let cached = formatters[key] { return cached }
+        let formatter = DateFormatter()
+        formatter.locale = locale
+        formatter.setLocalizedDateFormatFromTemplate(includingYear ? "yMMMd" : "MMMd")
+        formatters[key] = formatter
+        return formatter
+    }
 }
 
 // MARK: - 시간 문구

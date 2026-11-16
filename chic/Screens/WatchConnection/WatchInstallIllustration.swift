@@ -10,12 +10,15 @@ import SwiftUI
 /// - 첫 프레임은 Hi-Fi 정지 화면과 같은 자리예요.
 /// - 동작 줄이기(Reduce Motion)가 켜져 있으면 Hi-Fi 정지 화면으로 멈춰 있어요.
 struct WatchInstallIllustration: View {
+    /// 화면에 놓이는 크기(pt). `.designScaled(size:_:)` 에 그대로 넘겨요.
+    static let size = Spec.frameSize
+
     var body: some View {
         ZStack {
-            AssetImageView(name: "IllustWatchInstallBase", width: Spec.frameSize.width, height: Spec.frameSize.height)
+            AssetImageView(name: "IllustWatchInstallBase", size: Spec.frameSize)
 
             LoopTimeline(period: Spec.period) { progress in
-                IllustrationCanvas(pixelSize: Spec.frameSize, frameSize: Spec.frameSize) { context in
+                IllustrationCanvas(pixelSize: Spec.frameSize, frameSize: Spec.frameSize, rendersAsynchronously: true) { context in
                     drawRing(in: &context, turned: progress * 360)
                 }
             }
@@ -30,10 +33,7 @@ struct WatchInstallIllustration: View {
     private func drawRing(in context: inout GraphicsContext, turned: Double) {
         // 베이스 이미지의 비운 자리는 화면에 놓일 때 픽셀 경계에 딱 맞지 않아(일러스트 위치 234.6pt) 링 가장자리 밖으로
         // 뒤의 어두운 배경이 1px 비쳤어요. 링보다 조금 넓게 워치 화면색을 먼저 칠해 비운 자리를 메운 뒤 링을 그려요.
-        let fill = Path(ellipseIn: CGRect(
-            x: Spec.ringCenter.x - Spec.ringRadius, y: Spec.ringCenter.y - Spec.ringRadius,
-            width: Spec.ringRadius * 2, height: Spec.ringRadius * 2
-        ))
+        let fill = Path.circle(center: Spec.ringCenter, radius: Spec.ringRadius)
         context.stroke(fill, with: .linearGradient(Spec.screenGradient, startPoint: Spec.screenGradientStart, endPoint: Spec.screenGradientEnd),
                        lineWidth: Spec.lineWidth + Spec.fillOverhang * 2)
 

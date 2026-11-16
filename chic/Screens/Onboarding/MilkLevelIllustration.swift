@@ -14,23 +14,18 @@ import SwiftUI
 /// - 첫 프레임은 연습 화면처럼 잔잔한 윗면이라, 물결이 그려진 Hi-Fi 정지 화면과 윗면 모양이 조금 달라요.
 /// - 동작 줄이기(Reduce Motion)·`-uiTestStill`에서는 원본 `IllustMilkLevelPitcher`를 그대로 보여 줘서 Hi-Fi와 같아요.
 struct MilkLevelIllustration: View {
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    /// 화면에 놓이는 크기(pt). `.designScaled(size:_:)` 에 그대로 넘겨요.
+    static let size = Spec.frameSize
 
-    private var isStill: Bool {
-        #if DEBUG
-        return reduceMotion || ProcessInfo.processInfo.arguments.contains("-uiTestStill")
-        #else
-        return reduceMotion
-        #endif
-    }
+    @MotionStill private var isStill: Bool
 
     var body: some View {
         Group {
             if isStill {
-                AssetImageView(name: "IllustMilkLevelPitcher", width: Spec.frameSize.width, height: Spec.frameSize.height)
+                AssetImageView(name: "IllustMilkLevelPitcher", size: Spec.frameSize)
             } else {
                 ZStack {
-                    AssetImageView(name: "IllustMilkLevelBase", width: Spec.frameSize.width, height: Spec.frameSize.height)
+                    AssetImageView(name: "IllustMilkLevelBase", size: Spec.frameSize)
 
                     LoopTimeline(period: MilkLevelLoop.period) { progress in
                         let frame = MilkLevelLoop.shared.frame(at: progress)
@@ -46,9 +41,9 @@ struct MilkLevelIllustration: View {
                                              with: .linearGradient(Spec.milkGradient, startPoint: Spec.milkGradientStart, endPoint: Spec.milkGradientEnd))
                             }
 
-                            AssetImageView(name: "IllustMilkLevelDashes", width: Spec.frameSize.width, height: Spec.frameSize.height)
+                            AssetImageView(name: "IllustMilkLevelDashes", size: Spec.frameSize)
 
-                            AssetImageView(name: "IllustMilkLevelArrow", width: Spec.frameSize.width, height: Spec.frameSize.height)
+                            AssetImageView(name: "IllustMilkLevelArrow", size: Spec.frameSize)
                                 .offset(y: MilkLevelLoop.arrowOffset(forTop: frame.top))
                         }
                     }

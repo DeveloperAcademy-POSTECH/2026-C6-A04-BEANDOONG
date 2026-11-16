@@ -14,22 +14,17 @@ import SwiftUI
 /// - 첫 프레임은 빈 상태예요.
 /// - 동작 줄이기(Reduce Motion)·`-uiTestStill`에서는 다 그려진 그림으로 멈춰 있어서 Hi-Fi와 같아요.
 struct ReviewGraphIllustration: View {
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    /// 화면에 놓이는 크기(pt). `.designScaled(size:_:)` 에 그대로 넘겨요.
+    static let size = Spec.frameSize
+
+    @MotionStill private var isStill: Bool
     /// 그래프가 사라진 뒤 빈 채 쉬는 구간(3.2 ~ 3.6초)에 들어설 때 부를 동작 (온보딩이 홈을 이때 미리 만들어요)
     @Environment(\.loopRestAction) private var loopRestAction
-
-    private var isStill: Bool {
-        #if DEBUG
-        return reduceMotion || ProcessInfo.processInfo.arguments.contains("-uiTestStill")
-        #else
-        return reduceMotion
-        #endif
-    }
 
     var body: some View {
         Group {
             if isStill {
-                AssetImageView(name: Spec.imageName, width: Spec.frameSize.width, height: Spec.frameSize.height)
+                AssetImageView(name: Spec.imageName, size: Spec.frameSize)
             } else {
                 LoopTimeline(period: Spec.period) { progress in
                     let time = progress * Spec.period
@@ -50,21 +45,21 @@ struct ReviewGraphIllustration: View {
     /// - 이미지는 한 번 디코딩해 두고 GPU가 마스크 · 크기 · 투명도만 합성해서 프레임마다 가벼워요.
     /// - 첫 프레임(빈 그래프)도 이미지는 마스크에 가려 있을 뿐 화면에 올라가 있어서, 미리 만든 이웃 쪽일 때
     ///   이미지를 디코딩해 둬요. 처음 보이는 순간 디코딩이 몰려 버벅이던 문제를 막아요.
-    /// - 완전히 0인 투명도는 그리기를 건너뛰어 다음에 보일 때 다시 준비하므로, 숨길 때도 `Spec.hidden`(0.001)으로 둬요.
+    /// - 완전히 0인 투명도는 그리기를 건너뛰어 다음에 보일 때 다시 준비하므로, 숨길 때도 `MotionOpacity.nearlyHidden`(0.001)으로 둬요.
     private func frame(at time: TimeInterval) -> some View {
         let reveal = Spec.revealCurve(time / Spec.drawDuration)
-        let fade = 1 - Spec.smoothstep((time - Spec.fadeStart) / Spec.fadeDuration)
+        let fade = 1 - Easing.smoothstep((time - Spec.fadeStart) / Spec.fadeDuration)
         let edge = Spec.edge(at: reveal)
 
         return ZStack(alignment: .topLeading) {
             // MARK: 그래프: 왼쪽부터 드러나고, 머문 뒤 사라짐
-            AssetImageView(name: Spec.imageName, width: Spec.frameSize.width, height: Spec.frameSize.height)
+            AssetImageView(name: Spec.imageName, size: Spec.frameSize)
                 .mask {
                     LinearGradient(colors: [.black, .clear],
                                    startPoint: UnitPoint(x: (edge - Spec.feather) / Spec.frameSize.width, y: 0),
                                    endPoint: UnitPoint(x: edge / Spec.frameSize.width, y: 0))
                 }
-                .opacity(max(fade, Spec.hidden))
+                .opacity(max(fade, MotionOpacity.nearlyHidden))
 
             // MARK: 점이 톡 튀기 (같은 그림을 원으로 잘라 키워요)
             // 점 크기만 한 상자에 그림을 옮겨 놓고 원으로 잘라요. 상자 전체를 채우는 원이라 GPU가 모서리 둥글리기로 바로 자르고,
@@ -75,13 +70,13 @@ struct ReviewGraphIllustration: View {
                 let popping = b > 0 && b < 1
                 let k = popping ? 1 + node.popScale * sin(.pi * b) * (1 - b * 0.3) : 1
                 let clip = node.clipRect
-                AssetImageView(name: Spec.imageName, width: Spec.frameSize.width, height: Spec.frameSize.height)
+                AssetImageView(name: Spec.imageName, size: Spec.frameSize)
                     .offset(x: -clip.minX, y: -clip.minY)
                     .frame(width: clip.width, height: clip.height, alignment: .topLeading)
                     .clipShape(Circle())
                     .scaleEffect(k)
                     .position(node.center)
-                    .opacity(popping ? 1 : Spec.hidden)
+                    .opacity(popping ? 1 : MotionOpacity.nearlyHidden)
             }
 
             // MARK: 큰 점 둘레로 퍼지는 링
@@ -96,7 +91,7 @@ struct ReviewGraphIllustration: View {
                     .frame(width: last.radius * 2, height: last.radius * 2)
                     .scaleEffect(k)
                     .position(last.center)
-                    .opacity(ringOn ? Spec.Ring.opacity * (1 - rb) : Spec.hidden)
+                    .opacity(ringOn ? Spec.Ring.opacity * (1 - rb) : MotionOpacity.nearlyHidden)
             }
         }
         .frame(width: Spec.frameSize.width, height: Spec.frameSize.height, alignment: .topLeading)
@@ -110,8 +105,6 @@ private enum Spec {
     static let imageName = "IllustReviewGraph"
     /// 화면에 놓이는 크기 (Hi-Fi 237)
     static let frameSize = CGSize(width: 303, height: 212)
-    /// 숨긴 요소의 투명도: 0이면 그리기를 건너뛰어 다시 보일 때 준비가 몰려요. 0.001은 눈에 보이지 않아요.
-    static let hidden: Double = 0.001
 
     /// 한 바퀴 길이 (초)
     static let period: TimeInterval = 3.6
@@ -173,7 +166,7 @@ private enum Spec {
 
     /// 그려진 정도 (0 ~ 1). `t`는 그리는 시간 대비 진행률이에요.
     static func revealCurve(_ t: Double) -> Double {
-        MotionCurve.easeInOutReveal.value(at: min(max(t, 0), 1))
+        MotionCurve.easeInOutReveal.value(at: Easing.clamp01(t))
     }
 
     /// 드러내는 경계(투명해지는 쪽)의 x
@@ -186,10 +179,6 @@ private enum Spec {
         time >= fadeStart + fadeDuration
     }
 
-    static func smoothstep(_ t: Double) -> Double {
-        let x = min(max(t, 0), 1)
-        return x * x * (3 - 2 * x)
-    }
 }
 
 #Preview {

@@ -3,7 +3,7 @@
 //
 //  워치 화면 두 곳 이상에서 함께 쓰는 색상입니다.
 //  iPhone 앱과 같은 `AppColors` 이름으로 쓸 수 있도록, AppColors를 확장해 워치 폴더에 둡니다.
-//  (`AppColors`와 `Color(hex:)`는 chee-k/DesignSystem/AppColors.swift 에 있고, 워치 타깃에도 포함되어 있습니다.)
+//  (`AppColors`와 `Color(hex:)`는 chic/DesignSystem/AppColors.swift 에 있고, 워치 타깃에도 포함되어 있습니다.)
 //
 //  한 화면에서만 쓰는 색상은 해당 화면 파일 하단의 `private extension AppColors`에 둡니다.
 //
