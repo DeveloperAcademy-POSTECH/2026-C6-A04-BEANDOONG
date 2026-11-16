@@ -913,16 +913,23 @@ footer .wordmark {
   min-width: 0;
   justify-self: end;
 }
-.result-device {
+.result-device-wrap {
   --result-scale: 0.62;
   width: calc(402px * var(--result-scale));
   height: calc(874px * var(--result-scale));
   margin: 20px auto 35px;
-  overflow-y: auto;
-  overscroll-behavior-y: contain;
+  overflow: hidden;
   border-radius: 28px;
   background: var(--night);
   box-shadow: 0 0 0 5px #35373e, 0 18px 48px #1d364a20;
+}
+.result-device {
+  width: 402px;
+  height: 874px;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  transform: scale(var(--result-scale));
+  transform-origin: top left;
   scrollbar-width: none;
 }
 .result-device::-webkit-scrollbar {
@@ -931,7 +938,6 @@ footer .wordmark {
 .result-screen {
   width: 402px;
   min-height: 1384px;
-  zoom: var(--result-scale);
   color: var(--white);
   background: var(--night);
   font-size: 12px;
@@ -1220,7 +1226,7 @@ footer .wordmark {
   .result-preview {
     justify-self: center;
   }
-  .result-device {
+  .result-device-wrap {
     --result-scale: 0.58;
   }
 
