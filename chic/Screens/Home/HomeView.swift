@@ -6,7 +6,7 @@ import SwiftUI
 ///     ┌ 상단 행: chic 로고 · 워치 페어링 배지(연결 상태만 표시, 2026-11-13부터 누를 수 없음) · 설정
 ///     ├ 헤드라인 "다음 한잔을 / 위한 작은 연습" + 설명
 ///     ├ 메인 연습 카드 (워치 + 피처 이미지, 좌하단 문구, 우하단 [연습하기 →]) — 누르면 (마이크 권한 →) 연습 준비 가이드 → 연습 시작
-///     └ 아래 행: 가이드 카드 (책 아이콘, 아직 가는 곳 없음) · 기록 카드 ("연습 기록 보러가기", 오른쪽 아래 기록 링)
+///     └ 아래 행: 가이드 카드 (스티밍 액팅 가이드) · 기록 카드 ("연습 기록 보러가기", 오른쪽 아래 기록 링)
 ///
 /// `animatesEntrance`를 켜면 화면이 나타날 때 로고 → 헤드라인 → 설명 → 메인 카드 → 아래 카드 행 순서로
 /// 아래에서 살짝 떠오르며 차례로 나타나요. (온보딩을 마치고 홈으로 넘어올 때)
@@ -31,6 +31,7 @@ struct HomeView: View {
     private enum Destination: Hashable {
         case microphone
         case prepGuide      // 연습 준비 가이드 → 바로 연습 시작
+        case steamingGuide
         case watchSetup     // 워치 연결 과정 (설정 > 워치 페어링 > 애플 워치 연결에서 진입)
         case history
         case settings
@@ -52,6 +53,8 @@ struct HomeView: View {
                         case .prepGuide:
                             // 연습하기: 워치 연결 과정 없이 준비 가이드를 보여 주고 바로 연습을 시작합니다.
                             PracticePrepGuideView()
+                        case .steamingGuide:
+                            SteamingGuideView()
                         case .watchSetup:
                             // 워치 연결이 끝나면(완료) 들어온 설정 화면으로 돌아갑니다.
                             WatchConnectionFlow(onReady: {
@@ -112,7 +115,7 @@ struct HomeView: View {
                 .padding(.top, Layout.heroCardTop.v(scale))
 
             // MARK: 가이드 카드 · 기록 카드
-            HomeBottomCards(onShowHistory: { path.append(.history) })
+            HomeBottomCards(onShowGuide: { path.append(.steamingGuide) }, onShowHistory: { path.append(.history) })
                 .homeEntrance(order: 4, hasEntered: hasEntered)
                 .padding(.top, Layout.bottomRowTop.v(scale))
 

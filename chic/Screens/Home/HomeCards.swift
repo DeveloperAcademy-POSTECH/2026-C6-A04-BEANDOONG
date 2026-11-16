@@ -75,6 +75,8 @@ enum HomeHeroImage {
 struct HomeBottomCards: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.designScale) private var scale
+    /// 가이드 카드를 눌렀을 때 (스티밍 액팅 가이드로)
+    let onShowGuide: () -> Void
     /// 기록 카드를 눌렀을 때 (기록 화면으로)
     let onShowHistory: () -> Void
 
@@ -86,11 +88,9 @@ struct HomeBottomCards: View {
     }
 
     /// "가이드" 카드 (오른쪽 위에 책 아이콘이 카드 밖으로 잘려 걸쳐 있음)
-    /// - 누를 수 있는 버튼만 있고, 가는 곳은 아직 정하지 않았어요.
+    /// - 스티밍 액팅 가이드로 이동해요.
     private var guideCard: some View {
-        Button {
-            // TODO: 가이드 화면 연결 (가는 곳이 정해지면)
-        } label: {
+        Button(action: onShowGuide) {
             bottomCardContent(title: String(localized: "가이드"), width: Layout.guideCardWidth.h(scale)) {
                 Image("IllustGuideBook")
                     .resizable()
