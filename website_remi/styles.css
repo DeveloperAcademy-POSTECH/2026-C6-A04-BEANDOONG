@@ -517,11 +517,14 @@ h3 {
   transform-origin: top center;
 }
 .member-grid--team .portrait {
-  object-fit: contain;
+  transform: translateY(var(--portrait-y, 0)) scale(var(--portrait-scale, 1)) scale(.9);
+  transform-origin: bottom center;
 }
 .portrait--anne { --portrait-scale: 1.05; --portrait-y: 1%; }
 .portrait--zen { --portrait-scale: 1.12; --portrait-y: -4%; }
 .portrait--esther { --portrait-scale: 1.1; --portrait-y: -9%; }
+.member-grid--team .portrait--zen,
+.member-grid--team .portrait--esther { --portrait-y: 0; }
 .portrait--leeo { --portrait-scale: 1.02; --portrait-y: -2%; }
 .portrait--sejin { --portrait-scale: 1.1; --portrait-y: -12%; }
 .portrait--senny { --portrait-scale: 1.12; --portrait-y: -6%; }
