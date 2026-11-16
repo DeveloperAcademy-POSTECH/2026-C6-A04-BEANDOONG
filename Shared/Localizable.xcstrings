@@ -1,13 +1,64 @@
 {
-  "sourceLanguage" : "ko",
-  "strings" : {
-    "\n\n\n---\n앱 버전: %@\n기기: %@ · iOS %@\n" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "\n\n\n---\nApp version: %@\nDevice: %@ · iOS %@\n"
+  "sourceLanguage": "ko",
+  "strings": {
+    "기존 모델": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Standard model"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "기존 모델"
+          }
+        }
+      }
+    },
+    "스티밍 모델": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Steaming model"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "스티밍 모델"
+          }
+        }
+      }
+    },
+    "홈 스티밍 모델": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Home steaming model"
+          }
+        },
+        "ko": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "홈 스티밍 모델"
+          }
+        }
+      }
+    },
+    "\n\n\n---\n앱 버전: %@\n기기: %@ · iOS %@\n": {
+      "extractionState": "manual",
+      "localizations": {
+        "en": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "\n\n\n---\nApp version: %@\nDevice: %@ · iOS %@\n"
           }
         },
         "ko" : {

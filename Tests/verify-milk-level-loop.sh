@@ -9,8 +9,8 @@ work=$(mktemp -d)
 trap 'rm -rf "$work"' EXIT
 
 xcrun swiftc -module-cache-path "$work/cache" \
-    "$root/chic/Services/SmoothFollower.swift" \
-    "$root/chic/DesignSystem/Easing.swift" \
+    "$root/chic/Services/SoundAnalysis/ChicModelSelection.swift" \
+    "$root/chic/Services/AerationClock.swift" \
     "$root/chic/Screens/Onboarding/MilkLevelLoop.swift" \
     "$root/Tests/MilkLevelLoopTests.swift" -o "$work/check"
 "$work/check"

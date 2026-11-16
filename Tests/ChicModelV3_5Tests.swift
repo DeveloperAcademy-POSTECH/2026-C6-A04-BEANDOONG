@@ -25,6 +25,13 @@ import Foundation
         var sound = ChicStartRule()
         for _ in 0..<9 { precondition(sound.consume(0.86, state: .other) == nil) }
         precondition(sound.consume(0.86, state: .other) == .startSound)
+        var home = ChicStartRule(forHome: true)
+        for _ in 0..<10 { precondition(home.consume(0.6999, state: .other) == nil) }
+        for _ in 0..<3 { precondition(home.consume(0, state: .other) == nil) }
+        for _ in 0..<6 { precondition(home.consume(1, state: .other) == nil) }
+        precondition(home.consume(1, state: .other) == .startSound)
+        var standard = ChicStartRule()
+        for _ in 0..<10 { precondition(standard.consume(0.70, state: .other) == nil) }
         var average = ChicStartRule()
         for _ in 0..<9 { precondition(average.consume(0.9, state: .other) == nil) }
         precondition(average.consume(0, state: .other) == nil)
@@ -51,8 +58,8 @@ import Foundation
 
     /// 실제 모델에서도 어느 경로로 시작했든 추론을 다시 호출하지 않습니다.
     static func checkStartModel(_ expected: StartExpected, url: URL) throws {
-        precondition(expected.highProbability > ChicStartRule.threshold)
-        precondition(expected.lowProbability < ChicStartRule.threshold)
+        precondition(expected.highProbability > ChicStartRule.standardThreshold)
+        precondition(expected.lowProbability < ChicStartRule.standardThreshold)
         for (features, state, reason) in [(expected.highFeatures, ChicModelV3_5.State.other, ChicStartRule.Reason.startSound),
                                          (expected.lowFeatures, .air, .air)] {
             let gate = try ChicStartGate(url: url)
@@ -64,6 +71,21 @@ import Foundation
             // 빈 특징은 추론 시 오류여야 하므로 양 경로 모두 호출 중단을 검증합니다.
             for _ in 0..<100 { let repeated = try gate.consume([], state: .other); precondition(repeated == nil) }
         }
+        let delayed = try ChicStartGate(url: url, delayStartSound: true)
+        for _ in 0..<10 {
+            let reason = try delayed.consume(expected.highFeatures, state: .other)
+            precondition(reason == nil && !delayed.isStarted)
+        }
+        for _ in 0..<93 {
+            let reason = try delayed.consume([], state: .air)
+            precondition(reason == nil && !delayed.isStarted)
+        }
+        let released = try delayed.consume([], state: .air)
+        precondition(released == .startSound && delayed.isStarted)
+        let immediate = try ChicStartGate(url: url, delayStartSound: true)
+        for _ in 0..<19 { let reason = try immediate.consume(expected.lowFeatures, state: .air); precondition(reason == nil) }
+        let air = try immediate.consume(expected.lowFeatures, state: .air)
+        precondition(air == .air && immediate.isStarted)
         let idle = try ChicStartGate(url: url)
         for _ in 0..<30 { let result = try idle.consume(expected.lowFeatures, state: .other); precondition(result == nil) }
         precondition(!idle.isStarted)
@@ -86,6 +108,8 @@ import Foundation
                     rollingURL: compiled.appendingPathComponent("ChicModelV3_5Metallic.mlmodelc"), startURL: url)
                 let end = try ChicEndDetector(modelURL: compiled.appendingPathComponent("ChicAudioFeatures.mlmodelc"), classifierURL: compiled.appendingPathComponent("ChicEndV3_5.mlmodelc"))
                 var display = ChicDisplayFilter(), endRule = ChicEndRule()
+                var log = ChicAnalysisLog(selection: .standard)
+                var freshEnd: ChicEndDetector.Scores?
                 var offset = 0, chunk = 0, spectra = 0, frames = 0, starts = 0, endScores = 0
                 while offset < samples.count {
                     let stop = min(samples.count, offset + chunks[chunk % chunks.count])
@@ -94,12 +118,20 @@ import Foundation
                     try stream.consume(block, sampleRate: 48000, onSpectrum: { power in
                         spectra += 1
                         if let score = try end.consume(spectrum: power) {
+                            freshEnd = score
                             endScores += 1
                             if starts == 0 { precondition(!endRule.isActive) }
                             _ = endRule.consume(work: score.work, end: score.end, purge: score.purge)
                         }
                     }) { frame in
+                        log.record(frame, endScores: freshEnd)
+                        freshEnd = nil
                         if let reason = frame.startReason {
+                            let time = String(format: "%.3f", Double(2048 + frames * 512) / 48_000)
+                            let message = log.message(.start(reason))
+                            precondition(log.isStartFrame && message.contains("시작음@"+time+"초"))
+                            precondition(!message.contains("종료@") && !message.contains("Gate["))
+                            if chunks == [4800] { print(message) }
                             precondition(starts == 0 && frames == expected.startFrame)
                             precondition(reason.rawValue == expected.startReason)
                             precondition(abs(stream.startProbability! - expected.startScore) < 1e-8)
@@ -119,6 +151,12 @@ import Foundation
                 }
                 precondition(spectra == expected.frames && frames == expected.frames && starts == (expected.startFrame >= 0 ? 1 : 0))
                 precondition(endScores == expected.frames / 10)
+                let feedback = log.message(.feedback("공기주입"))
+                precondition(feedback.contains("피드백: 공기주입") && feedback.contains("Gate[air="))
+                precondition(!feedback.contains("시작음@") && !feedback.contains("종료@"))
+                let finished = log.message(.end(nil))
+                precondition(finished.contains("연습 종료") && finished.contains("종료@"))
+                precondition(!finished.contains("시작음@") && !finished.contains("Gate["))
                 print("PASS OR pipeline: \(name), \(spectra) frames, start=\(expected.startReason) @\(expected.startFrame), chunks \(chunks)")
             }
         }
@@ -222,6 +260,16 @@ import Foundation
         precondition(ChicEndRule.Reason.disappearance.lookbackCount == ChicEndRule.silenceCount)
         precondition(ChicEndRule.Reason.cleaning.lookbackCount == ChicEndRule.cleaningCount)
 
+        #if DEVELOP
+        var home = ChicEndRule(selection: .home); home.activate()
+        for _ in 0..<600 { precondition(home.consume(work: 0, end: 0, purge: 0) == nil) }
+        precondition(home.consume(work: 0, end: 0.599999, purge: 0) == nil)
+        precondition(home.consume(work: 0, end: 0.60, purge: 0) == .endSound)
+        precondition(home.consume(work: 0, end: 0.99, purge: 0) == nil)
+        for _ in 0..<3 { precondition(home.consume(work: 0.5, end: 0, purge: 0) == nil) }
+        for _ in 0..<600 { precondition(home.consume(work: 0, end: 0.599999, purge: 1) == nil) }
+        precondition(home.consume(work: 0, end: 0.60, purge: 1) == .endSound)
+        #endif
         var priority = ChicEndRule(); priority.activate()
         for _ in 0..<19 { precondition(priority.consume(work: 0, end: 0, purge: 0) == nil) }
         precondition(priority.consume(work: 0, end: 0, purge: 1) == .disappearance)
@@ -311,8 +359,83 @@ import Foundation
         var fresh = ChicDisplayFilter()
         for _ in 0..<9 { precondition(fresh.consume(.air) == nil) }
         precondition(fresh.consume(.air) == .air)
+        var home = ChicDisplayFilter(forHome: true)
+        for _ in 0..<19 { precondition(home.consume(.air) == nil) }
+        precondition(home.consume(.air) == .air)
+        for work in [State.air, .sputter, .metallic] {
+            var active = ChicDisplayFilter(forHome: true)
+            active.activate()
+            func feed(_ frames: [State]) -> State? {
+                var result: State?
+                for frame in frames { result = active.consume(frame) }
+                return result
+            }
+            let steady = Array(repeating: work, count: 10)
+            let rolling = Array(repeating: State.other, count: 10)
+            let mixed = Array(repeating: State.other, count: 8) + [work, work]
+            _ = feed(steady + steady + steady)
+            precondition(feed(mixed + mixed) == work)
+            precondition(feed(steady) == work)
+            precondition(feed(mixed + mixed + mixed) == .other)
+            _ = feed(steady + steady + steady)
+            precondition(feed(rolling + rolling) == .other)
+            _ = feed(steady + steady + steady)
+            _ = feed(mixed + mixed)
+            let next: State = work == .air ? .sputter : .air
+            precondition(feed(Array(repeating: next, count: 20)) == next)
+        }
         print("PASS 10-frame mode, ties, strict consecutive runs and fresh session")
     }
+    #if DEVELOP
+    /// 실제 녹음에서 드롱기 1차 및 선별 2차 판정을 독립 학습본의 프레임별 정답과 대조합니다.
+    static func checkHomeWork(_ pcm: [Float], fixture: URL, in bundle: Bundle) throws {
+        struct Run: Decodable {
+            let frames: Int
+            let gate, state: String
+        }
+        let url = fixture.appendingPathComponent("expected-home-selective.json")
+        let runs = try JSONDecoder().decode([Run].self, from: Data(contentsOf: url))
+        let expected = runs.flatMap { Array(repeating: $0, count: $0.frames) }
+        let stream = try ChicModelV3_5(selection: .home, bundle: bundle)
+        var index = 0
+        try stream.consume(pcm, sampleRate: 48_000) { frame in
+            precondition(frame.gateLabel == expected[index].gate && frame.state.rawValue == expected[index].state)
+            index += 1
+        }
+        precondition(index == expected.count && runs.contains { $0.gate != $0.state })
+        print("PASS home selective work on \(index) frames")
+    }
+
+    /// 두 선택지가 각각의 모델 파일을 사용해 진행·종료 점수를 생성하는지 확인합니다.
+    static func checkModelSelection(in bundle: Bundle) throws {
+        let samples = [Float](repeating: 0, count: 24_000)
+        for selection in [ChicModelSelection.standard, .home] {
+            for state in [ChicModelV3_5.State.air, .sputter, .metallic, .other] {
+                precondition(selection.feedback(state, purge: 0.4999) == state)
+                precondition(selection.feedback(state, purge: 0.5) == (selection == .home ? .other : state))
+            }
+            let prefix = selection == .home ? "Delonghi" : ""
+            let workNames = ["ChicModelV3_5Gate", "ChicModelV3_5Air", "ChicModelV3_5Metallic"]
+            let soundNames = ["ChicStartSoundV1", "ChicEndV3_5"]
+            let soundFiles = selection == .home ? ["DelonghiChicStartSound", "DelonghiChicEndSound"] : soundNames
+            let expected = workNames.map { prefix + $0 } + soundFiles
+            for (name, file) in zip(workNames + soundNames, expected) {
+                let url = try selection.url(for: name, in: bundle)
+                precondition(url.lastPathComponent == file + ".mlmodelc")
+            }
+            let classifier = try ChicModelV3_5(selection: selection, bundle: bundle)
+            let detector = try ChicEndDetector(selection: selection, bundle: bundle)
+            var frames = 0, scores = 0
+            try detector.append(samples)
+            try classifier.consume(samples, sampleRate: 48_000, onSpectrum: {
+                if try detector.consume(spectrum: $0) != nil { scores += 1 }
+            }) { _ in frames += 1 }
+            precondition(frames > 0 && scores > 0)
+        }
+        print("PASS standard and home model selection and inference")
+    }
+    #endif
+
     /// 같은 소리를 서로 다른 버퍼 크기로 나눠도 결과가 같은지 확인합니다.
     static func main() throws {
         checkStartRule()
@@ -322,11 +445,17 @@ import Foundation
         let args = CommandLine.arguments
         let dir = URL(fileURLWithPath: args[1])
         let compiled = URL(fileURLWithPath: args[2])
+        #if DEVELOP
+        try checkModelSelection(in: Bundle(url: compiled)!)
+        #endif
         let expected = try JSONDecoder().decode([Expected].self, from: Data(contentsOf: dir.appendingPathComponent("expected.json")))
         let file = try AVAudioFile(forReading: dir.appendingPathComponent("fixture.wav"))
         let buf = AVAudioPCMBuffer(pcmFormat: file.processingFormat, frameCapacity: UInt32(file.length))!
         try file.read(into: buf)
         let x = Array(UnsafeBufferPointer(start: buf.floatChannelData![0], count: Int(buf.frameLength)))
+        #if DEVELOP
+        try checkHomeWork(x, fixture: dir, in: Bundle(url: compiled)!)
+        #endif
         try checkStartPipeline(fixture: dir, compiled: compiled)
         try checkEndClassifier(fixture: dir, compiled: compiled)
         try checkEndDetector(x, fixture: dir, compiled: compiled)

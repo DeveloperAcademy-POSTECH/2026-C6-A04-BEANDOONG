@@ -51,12 +51,11 @@ nonisolated final class ChicEndDetector {
     private let powerScale: Double
 
     /// 플랫폼 소리 특징 모델과 종료 분류 모델을 불러옵니다.
-    convenience init(bundle: Bundle = .main) throws {
-        guard let model = bundle.url(forResource: "ChicAudioFeatures", withExtension: "mlmodelc"),
-              let classifier = bundle.url(forResource: "ChicEndV3_5", withExtension: "mlmodelc") else {
-            throw ChicModelV3_5.Failure.resource("ChicEndV3_5")
+    convenience init(selection: ChicModelSelection = .standard, bundle: Bundle = .main) throws {
+        guard let model = bundle.url(forResource: "ChicAudioFeatures", withExtension: "mlmodelc") else {
+            throw ChicModelV3_5.Failure.resource("ChicAudioFeatures")
         }
-        try self.init(modelURL: model, classifierURL: classifier)
+        try self.init(modelURL: model, classifierURL: selection.url(for: "ChicEndV3_5", in: bundle))
     }
 
     /// 오프라인 재생도 앱과 동일한 특징 추출기와 분류 모델을 사용합니다.

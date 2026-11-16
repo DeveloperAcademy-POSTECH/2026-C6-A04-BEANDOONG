@@ -128,16 +128,22 @@ final class PracticeSession: ObservableObject {
         await audioTeardown?.value
         // 이전 연습과 구분되는 ID를 만듭니다.
         let id = UUID()
-        let onResult: @Sendable (PracticePhase) -> Void = { [weak self] phase in
+        let onResult: @Sendable (PracticePhase, ChicAnalysisLog?) -> Void = { [weak self] phase, log in
             Task { @MainActor [weak self] in
                 guard let self, self.state.sessionID == id else { return }
+                let previous = self.state.phase
                 self.updateFeedback(phase)
+                if let log, previous != self.state.phase, !log.isStartFrame, !self.endQuestion.isAsking {
+                    log.write(.feedback(phase.title))
+                }
             }
         }
-        let onSilence: @Sendable (TimeInterval) -> Void = { [weak self] elapsed in
+        let onSilence: @Sendable (TimeInterval, ChicEndRule.Reason, ChicAnalysisLog?) -> Void = { [weak self] elapsed, reason, log in
             Task { @MainActor [weak self] in
                 guard let self, self.state.sessionID == id, self.state.phase.isRunning else { return }
+                guard !self.endQuestion.isAsking else { return }
                 self.endQuestion.ask(endedAt: Date().addingTimeInterval(-elapsed))
+                log?.write(.end(reason))
             }
         }
         let onError: @Sendable (String) -> Void = { [weak self] message in
@@ -168,7 +174,7 @@ final class PracticeSession: ObservableObject {
         // 분석 시작에 성공한 뒤에만 새 연습 상태로 바꿉니다. 이전 기록 목록은 유지합니다.
         state.isWatchEnabled = usingWatch
         timeline = PracticeTimeline()
-        aerationClock = AerationClock()
+        aerationClock = AerationClock(model: analyzer.selection)
         result = nil
         endQuestion.close()
         state.sessionID = id
@@ -197,6 +203,7 @@ final class PracticeSession: ObservableObject {
     }
 
     private func finish(endedAt requestedEnd: Date) {
+        let wasAsking = endQuestion.isAsking
         endQuestion.close()
         // 이미 종료된 연습이면 다시 저장하지 않습니다.
         guard state.phase.isRunning, let id = state.sessionID,
@@ -205,6 +212,9 @@ final class PracticeSession: ObservableObject {
         // 엔진 종료와 오디오 세션 비활성화는 오래 걸릴 수 있어 메인 스레드 밖에서 합니다.
         // 그사이 도착한 분석 결과는 updateFeedback 의 phase · sessionID 검사로 버려집니다.
         let analyzer = soundAnalyzer
+        if let analyzer, analyzer.selection != .standard, !wasAsking {
+            analyzer.logFinish(elapsed: endedAt.timeIntervalSince(startedAt))
+        }
         soundAnalyzer = nil
         audioTeardown = Self.tearDownAudio(analyzer)
         state.endedAt = endedAt
@@ -216,14 +226,14 @@ final class PracticeSession: ObservableObject {
         let dailyOrder = (history.filter { Calendar.current.isDate($0.startedAt, inSameDayAs: startedAt) }
             .map(\.dailyOrder).max() ?? 0) + 1
         let completedResult = PracticeResult(practicedAt: startedAt, dailyOrder: dailyOrder,
-                                              segments: segments, duration: record.duration)
+                                              segments: segments, duration: record.duration, model: aerationClock.model)
         publish()
         // 종료 상태를 먼저 표시해 로딩 화면을 연 뒤 저장합니다. 워치에서 닫아도 저장은 완료합니다.
         Task {
             await Task.yield()
             do {
                 guard let historyStore else { throw ConnectionError.localized("저장소를 열 수 없어요.") }
-                if let saved = try historyStore.save(record: record, dailyOrder: dailyOrder, segments: segments) {
+                if let saved = try historyStore.save(record: record, dailyOrder: dailyOrder, segments: segments, model: completedResult.model) {
                     // 새 기록만 목록에 끼워 넣습니다. 저장소를 다시 다 불러온 것(records(): 시작 시각 최신순)과 같은 목록이에요.
                     var updated = history
                     updated.insert(saved, at: updated.firstIndex { $0.startedAt < saved.startedAt } ?? updated.endIndex)
