@@ -19,12 +19,15 @@ struct HomeView: View {
     /// 화면이 실제로 보이고 있는지 (기본: 보임). 온보딩 아래에 미리 만들어 둘 때 false 로 두면,
     /// true 가 되는 순간 등장 애니메이션이 출발해요.
     private let isEntranceActive: Bool
+    private let onResetOnboarding: () -> Void
     /// 홈 요소가 다 나타났는지 (등장 애니메이션을 하지 않으면 처음부터 true)
     @State private var hasEntered: Bool
 
-    init(animatesEntrance: Bool = false, isEntranceActive: Bool = true) {
+    init(animatesEntrance: Bool = false, isEntranceActive: Bool = true,
+         onResetOnboarding: @escaping () -> Void = {}) {
         self.animatesEntrance = animatesEntrance
         self.isEntranceActive = isEntranceActive
+        self.onResetOnboarding = onResetOnboarding
         _hasEntered = State(initialValue: !animatesEntrance)
     }
 
@@ -63,7 +66,8 @@ struct HomeView: View {
                         case .history:
                             HistoryView(onStartPractice: startPractice)
                         case .settings:
-                            SettingsView(onWatchPairing: { path.append(.watchSetup) })
+                            SettingsView(onWatchPairing: { path.append(.watchSetup) },
+                                         onResetOnboarding: onResetOnboarding)
                         }
                     }
                     .toolbar(.hidden, for: .navigationBar)

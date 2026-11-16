@@ -1,19 +1,19 @@
 {
   "sourceLanguage": "ko",
   "strings": {
-    "기존 모델": {
+    "통합 모델": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Standard model"
+            "value": "Unified model"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "기존 모델"
+            "value": "통합 모델"
           }
         }
       }
@@ -35,19 +35,19 @@
         }
       }
     },
-    "홈 스티밍 모델": {
+    "드롱기 아르떼 모델": {
       "extractionState": "manual",
       "localizations": {
         "en": {
           "stringUnit": {
             "state": "translated",
-            "value": "Home steaming model"
+            "value": "De'Longhi Arte model"
           }
         },
         "ko": {
           "stringUnit": {
             "state": "translated",
-            "value": "홈 스티밍 모델"
+            "value": "드롱기 아르떼 모델"
           }
         }
       }
@@ -586,6 +586,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "같은 경고 상태"
+          }
+        }
+      }
+    },
+    "개발자 설정" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Developer settings"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "개발자 설정"
+          }
+        }
+      }
+    },
+    "개발용 빌드" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Development build"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "개발용 빌드"
           }
         }
       }
@@ -2773,6 +2807,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "올해"
+          }
+        }
+      }
+    },
+    "온보딩 다시 보기" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show onboarding again"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "온보딩 다시 보기"
           }
         }
       }
