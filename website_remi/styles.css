@@ -498,7 +498,7 @@ h3 {
   min-width: 0;
 }
 .member-grid--team .member {
-  width: 90%;
+  width: 75%;
   justify-self: center;
 }
 .portrait-frame {
