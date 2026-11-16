@@ -4,9 +4,9 @@ import SwiftUI
 /// - 디자인: Hi-Fi iPhone 17 - 217(워치 미연결) · 311(워치 연결됨)
 ///
 ///     ┌ 상단 행: chic 로고 · 워치 페어링 배지(연결 상태만 표시, 2026-11-13부터 누를 수 없음) · 설정
-///     ├ 헤드라인 "다음 한잔을 / 위한 작은 연습" + 설명
-///     ├ 메인 연습 카드 (워치 + 피처 이미지, 좌하단 문구, 우하단 [연습하기 →]) — 누르면 (마이크 권한 →) 연습 준비 가이드 → 연습 시작
-///     └ 아래 행: 가이드 카드 (스티밍 액팅 가이드) · 기록 카드 ("연습 기록 보러가기", 오른쪽 아래 기록 링)
+///     ├ 헤드라인 "다음 한 잔을 / 위한 작은 시작" + 설명
+///     ├ 메인 연습 카드 (워치 + 피처 이미지, 좌하단 문구, 우하단 [시작하기 →]) — 누르면 (마이크 권한 →) 연습 준비 가이드 → 연습 시작
+///     └ 아래 행: 가이드 카드 (스티밍 액팅 가이드) · 기록 카드 ("기록 보러가기", 오른쪽 아래 기록 링)
 ///
 /// `animatesEntrance`를 켜면 화면이 나타날 때 로고 → 헤드라인 → 설명 → 메인 카드 → 아래 카드 행 순서로
 /// 아래에서 살짝 떠오르며 차례로 나타나요. (온보딩을 마치고 홈으로 넘어올 때)
@@ -54,7 +54,7 @@ struct HomeView: View {
                                 path[path.count - 1] = .prepGuide
                             }
                         case .prepGuide:
-                            // 연습하기: 워치 연결 과정 없이 준비 가이드를 보여 주고 바로 연습을 시작합니다.
+                            // 시작하기: 워치 연결 과정 없이 준비 가이드를 보여 주고 바로 연습을 시작합니다.
                             PracticePrepGuideView()
                         case .steamingGuide:
                             SteamingGuideView()
@@ -159,9 +159,9 @@ struct HomeView: View {
         path = [MicrophonePermission.isGranted ? .prepGuide : .microphone]
     }
 
-    /// "다음 **한잔**을 / 위한 작은 연습" — '한잔'만 강조색
+    /// "다음 **한 잔**을 / 위한 작은 시작" — '한 잔'만 강조색
     private var headline: some View {
-        Text("다음 \(Text("한잔").foregroundStyle(AppColors.darkChipSelected))을\n위한 작은 연습")
+        Text("다음 \(Text("한 잔").foregroundStyle(AppColors.darkChipSelected))을\n위한 작은 시작")
             .foregroundStyle(Color.white)
             .lineSpacing(3.3)
             .font(.pretendard(.bold, size: 28))

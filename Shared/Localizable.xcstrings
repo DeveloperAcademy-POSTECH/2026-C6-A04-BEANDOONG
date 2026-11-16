@@ -1279,20 +1279,20 @@
         }
       }
     },
-    "다음 %@을\n위한 작은 연습" : {
+    "다음 %@을\n위한 작은 시작" : {
       "comment" : "Home headline; placeholder is the highlighted word for cup.",
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "A little practice\nfor your next %@"
+            "value" : "A small start\nfor your next %@"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "다음 %@을\n위한 작은 연습"
+            "value" : "다음 %@을\n위한 작은 시작"
           }
         }
       }
@@ -2318,19 +2318,19 @@
         }
       }
     },
-    "애플 워치와 함께\n스티밍을 연습해요" : {
+    "애플 워치와 함께\n스티밍을 시작해요" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Steam with\nApple Watch"
+            "value" : "Start steaming\nwith Apple Watch"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "애플 워치와 함께\n스티밍을 연습해요"
+            "value" : "애플 워치와 함께\n스티밍을 시작해요"
           }
         }
       }
@@ -2505,19 +2505,19 @@
         }
       }
     },
-    "연습 기록 보러가기" : {
+    "기록 보러가기" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Your practice\nhistory"
+            "value" : "View history"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "연습 기록 보러가기"
+            "value" : "기록 보러가기"
           }
         }
       }
@@ -2743,19 +2743,19 @@
         }
       }
     },
-    "연습하기" : {
+    "시작하기" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Practice"
+            "value" : "Start"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "연습하기"
+            "value" : "시작하기"
           }
         }
       }
@@ -4251,7 +4251,7 @@
         }
       }
     },
-    "한잔" : {
+    "한 잔" : {
       "comment" : "Highlighted word in the home headline.",
       "extractionState" : "manual",
       "localizations" : {
@@ -4264,7 +4264,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "한잔"
+            "value" : "한 잔"
           }
         }
       }

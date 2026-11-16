@@ -6,7 +6,7 @@ import SwiftUI
 // MARK: - 메인 연습 카드
 
 /// 워치+피처 이미지 위로, 좌하단 안내 문구와 우하단 연습 버튼을 배치한 홈 카드
-/// - 카드 어디를 눌러도 우하단 [연습하기 →]와 같은 동작을 한다 (카드 전체가 버튼)
+/// - 카드 어디를 눌러도 우하단 [시작하기 →]와 같은 동작을 한다 (카드 전체가 버튼)
 struct HomePracticeCard: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.designScale) private var scale
@@ -16,21 +16,21 @@ struct HomePracticeCard: View {
     var body: some View {
         Button(action: action) { content }
             .buttonStyle(HomeCardPressStyle(reduceMotion: reduceMotion))
-            .accessibilityLabel(String(localized: "연습하기"))
+            .accessibilityLabel(String(localized: "시작하기"))
             .accessibilityHint(String(localized: "애플 워치와 함께 스티밍 연습을 시작해요"))
     }
 
     private var content: some View {
         // 문구 두 줄과 버튼은 세로 가운데를 맞춰요 (Hi-Fi 311)
         HStack(alignment: .center, spacing: 0) {
-            Text(String(localized: "애플 워치와 함께\n스티밍을 연습해요"))
+            Text(String(localized: "애플 워치와 함께\n스티밍을 시작해요"))
                 .lineSpacing(4)
                 .font(.pretendard(.semibold, size: 20))
                 .foregroundStyle(AppColors.homeCardText)
 
             Spacer(minLength: 0)
 
-            HomeCardCapsule(title: String(localized: "연습하기"), width: Layout.buttonWidth.h(scale))
+            HomeCardCapsule(title: String(localized: "시작하기"), width: Layout.buttonWidth.h(scale))
         }
         .padding(.leading, Layout.cardTextLeading.h(scale))
         .padding(.trailing, Layout.cardButtonTrailing.h(scale))
@@ -71,7 +71,7 @@ enum HomeHeroImage {
 
 // MARK: - 아래 행: 가이드 카드 · 기록 카드
 
-/// 메인 카드 아래 한 줄: "가이드" 카드와 "연습 기록 보러가기" 카드
+/// 메인 카드 아래 한 줄: "가이드" 카드와 "기록 보러가기" 카드
 struct HomeBottomCards: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.designScale) private var scale
@@ -102,10 +102,10 @@ struct HomeBottomCards: View {
         .accessibilityLabel(String(localized: "가이드"))
     }
 
-    /// "연습 기록 보러가기" 카드 (오른쪽 아래에 기록 링 에셋이 카드 밖으로 잘려 걸쳐 있음)
+    /// "기록 보러가기" 카드 (오른쪽 아래에 기록 링 에셋이 카드 밖으로 잘려 걸쳐 있음)
     private var recordCard: some View {
         Button(action: onShowHistory) {
-            bottomCardContent(title: String(localized: "연습 기록 보러가기"), width: recordCardWidth) {
+            bottomCardContent(title: String(localized: "기록 보러가기"), width: recordCardWidth) {
                 // 링 에셋을 시계 방향으로 60° 돌려 분홍 호가 12시 ~ 4시 쪽에 오게 해요 (Hi-Fi 311)
                 Image("IllustRecordRing")
                     .resizable()
@@ -147,7 +147,7 @@ struct HomeBottomCards: View {
 
 // MARK: - 카드 버튼
 
-/// 메인 카드 우측의 검정 캡슐: "연습하기 →" (136 x 44)
+/// 메인 카드 우측의 검정 캡슐: "시작하기 →" (136 x 44)
 /// - 카드 전체가 버튼이라 캡슐은 모양만 그린다 (따로 누르는 버튼이 아님, 접근성에서도 숨김)
 private struct HomeCardCapsule: View {
     let title: String
@@ -187,7 +187,7 @@ private enum Layout {
     static let heroCardHeight: CGFloat = 341   // Hi-Fi 311: 303 ~ 644
     static let cardCornerRadius: CGFloat = 12
     static let cardTextLeading: CGFloat = 15.5 // 카드 왼쪽 ↔ 글자 (Hi-Fi 311: 글자 x 35.7)
-    static let cardButtonTrailing: CGFloat = 23 // 연습하기 버튼 ↔ 카드 오른쪽 (Hi-Fi 311: 버튼 359 → 382)
+    static let cardButtonTrailing: CGFloat = 23 // 시작하기 버튼 ↔ 카드 오른쪽 (Hi-Fi 311: 버튼 359 → 382)
     // 문구 두 줄(약 52)이 버튼(44)보다 높아 여백은 문구 아래에 붙어요. 버튼 아래는 4pt 더 떠서 Hi-Fi 311의 619 → 644(25)가 돼요.
     static let cardContentBottom: CGFloat = 21
     static let buttonWidth: CGFloat = 136
