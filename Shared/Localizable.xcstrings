@@ -2151,23 +2151,6 @@
         }
       }
     },
-    "스티밍 연습" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Steaming Practice"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "스티밍 연습"
-          }
-        }
-      }
-    },
     "스티밍 연습 시작" : {
       "extractionState" : "manual",
       "localizations" : {

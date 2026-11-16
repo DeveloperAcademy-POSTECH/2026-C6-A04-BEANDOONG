@@ -94,26 +94,6 @@ private extension View {
     }
 }
 
-// MARK: - 스티밍 연습 상단 바
-
-/// 스티밍 진행 중 화면의 상단 바: 좌측 제목
-///
-///     [ 스티밍 연습                ]
-struct SteamingPracticeTopBar: View {
-    @Environment(\.designScale) private var scale
-    var title: String = String(localized: "스티밍 연습")
-
-    var body: some View {
-        Text(title)
-            .font(.pretendard(.medium, size: 16))
-            .foregroundStyle(Color.white)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .frame(height: 20)
-            .padding(.leading, CGFloat(20).h(scale))
-            .padding(.trailing, CGFloat(25).h(scale))
-    }
-}
-
 // MARK: - 온보딩 상단 바
 
 /// 온보딩 화면의 상단 바: 우측 "건너뛰기" 텍스트만 존재

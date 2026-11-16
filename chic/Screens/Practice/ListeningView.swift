@@ -3,8 +3,7 @@ import SwiftUI
 /// 스티밍 연습 – 소리 확인 중 화면
 /// - 디자인: Hi-Fi/iPhone 17 - 222.png
 ///
-///     ┌ 상단 바: 스티밍 연습
-///     ├ 타이틀 + 설명
+///     ┌ 타이틀 + 설명
 ///     ├ 소리 막대 일러스트 (`IllustSoundBars`, 90x136)
 ///     └ 하단 중앙: 정지 버튼
 struct ListeningView: View {
@@ -12,10 +11,6 @@ struct ListeningView: View {
     var onStop: () -> Void = {}
     var body: some View {
         VStack(spacing: 0) {
-            // MARK: 상단 바
-            SteamingPracticeTopBar()
-                .padding(.top, ScreenMetrics.practiceTopBarTop.v(scale))
-
             // MARK: 타이틀 + 설명
             DarkScreenTitle(String(localized: "스티밍을 시작하면\n소리를 확인해요"), lineSpacing: Layout.titleLineSpacing)
                 .padding(.top, Layout.titleTop.v(scale))
@@ -42,7 +37,7 @@ struct ListeningView: View {
 // MARK: - Layout
 
 private enum Layout {
-    static let titleTop: CGFloat = 75.5         // 상단 바 ↔ 타이틀 (Hi-Fi 222: 90 → 171)
+    static let titleTop: CGFloat = 167.5        // 화면 위 ↔ 타이틀 (기존 72pt 상단 여백 + 20pt 제목 높이 + 75.5pt 간격)
     static let titleLineSpacing: CGFloat = 4.7  // Hi-Fi 222: 타이틀 줄 높이 36
     static let illustrationTop: CGFloat = 118.5 // 타이틀 ↔ 막대 (Hi-Fi 222: 231 → 353, 측정 보정)
     static let stopButtonBottom: CGFloat = 94.5 // 정지 버튼 ↔ 화면 하단 (Hi-Fi 222: 874 − 779.5)

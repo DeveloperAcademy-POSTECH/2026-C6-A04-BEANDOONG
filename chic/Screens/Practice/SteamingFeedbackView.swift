@@ -4,7 +4,6 @@ import SwiftUI
 /// - 디자인: Hi-Fi 새 연습 중 화면 4종 (보라·주황·파랑·초록) · 265 (팝업)
 ///
 ///     ┌ 배경: 피드백별 위 → 아래 그라데이션 + 반투명 큰 기호 (↓ · ↑ · ✓ · 소용돌이)
-///     ├ 상단 바: 스티밍 연습
 ///     ├ 타이틀 (+ 설명: 보라·주황만)
 ///     ├ 비커: 누적 공기 주입 시간만큼 우유 수위가 부드럽게 올라감 (모델의 적정 구간이면 두 점선 사이, 공기 주입 중 잔물결)
 ///     ※ 색이 바뀌면 배경·기호·문구·점선 색이 0.4초 동안 섞이며 바뀜
@@ -74,10 +73,6 @@ struct SteamingFeedbackView: View {
             .accessibilityHidden(true)
 
             VStack(spacing: 0) {
-                // MARK: 상단 바
-                SteamingPracticeTopBar()
-                    .padding(.top, ScreenMetrics.practiceTopBarTop.v(scale))
-
                 // MARK: 타이틀 + 설명
                 // 색이 바뀌면 이전 문구가 먼저 사라지고 새 문구가 나타나요. (글자끼리 겹쳐 보이지 않게)
                 ZStack(alignment: .top) {
@@ -150,8 +145,8 @@ struct SteamingFeedbackView: View {
 // MARK: - Layout (iPhone 17 시안 측정값, pt)
 
 private enum Layout {
-    /// 상단 바 ↔ 타이틀. 4종 모두 같은 자리 (새 Hi-Fi 파랑: 글자 윗선 168.5)
-    static let titleTop: CGFloat = 72.3
+    /// 화면 위 ↔ 타이틀. 기존 상단 제목을 제거해도 4종 모두 같은 자리 (72 + 20 + 72.3)
+    static let titleTop: CGFloat = 164.3
     static let titleLineSpacing: CGFloat = 4.7   // Hi-Fi 160: 타이틀 줄 높이 36 (171 → 207)
     /// 비커 그림(322×294) 가운데 점: 왼쪽 79 · 위 382 (Hi-Fi: 노즐 위 383, 비커 바닥 675.5, 노즐이 화면 오른쪽 끝까지)
     static let pitcherCenter = CGPoint(x: 79 + 161, y: 382 + 147)
