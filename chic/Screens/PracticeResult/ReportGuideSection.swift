@@ -6,8 +6,8 @@ import SwiftUI
 struct ReportGuideSection: View {
     @Environment(\.designScale) private var scale
     let guide: PracticeGuide
-    /// 이번 연습의 공기 주입 시간 (초). 비커 우유 높이가 이 값을 따라가요.
-    let aerationSeconds: Double
+    /// 이번 연습의 모델과 공기 주입 시간으로 계산한 우유 높이예요.
+    let milkTop: CGFloat
 
     var body: some View {
         VStack(spacing: 0) {
@@ -17,7 +17,7 @@ struct ReportGuideSection: View {
                     .foregroundStyle(Color.white)
                     .at(x: ReportLayout.sectionTitleX, y: 0, scale)
 
-                ReportGuidePitcher(milkTop: GuideMilkLevel.top(forAeration: aerationSeconds))
+                ReportGuidePitcher(milkTop: milkTop)
                     .designScaled(size: ReportLayout.guidePitcherSize, scale)
                     .at(x: ReportLayout.guidePitcherX, y: ReportLayout.guidePitcherTop, scale)
                     .accessibilityHidden(true)
@@ -30,7 +30,7 @@ struct ReportGuideSection: View {
     }
 }
 
-/// 가이드 비커: 빈 비커 그림 위에 공기 주입한 만큼 우유를 채우고, 두 점선(2초 · 4초)을 그려요.
+/// 가이드 비커: 빈 비커 그림 위에 공기 주입한 만큼 우유를 채우고, 적정 범위의 두 점선을 그려요.
 /// 좌표는 비커 그림(289.7×217pt) 기준, Hi-Fi 260과 3x 에셋에서 잰 값이에요.
 struct ReportGuidePitcher: View {
     /// 비커 그림 에셋 이름 (결과 로딩 화면이 뜰 때 미리 디코딩해 둬요)
