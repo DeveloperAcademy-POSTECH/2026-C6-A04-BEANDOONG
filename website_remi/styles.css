@@ -710,14 +710,6 @@ footer .wordmark {
 }
 
 /* 앱 화면 내부의 제목과 안내 */
-.screen-label {
-  position: absolute;
-  left: 20px;
-  top: 73px;
-  font-size: 16px;
-  font-weight: 700;
-  line-height: 19px;
-}
 .screen-message {
   position: absolute;
   left: 0;
