@@ -1045,31 +1045,31 @@ footer .wordmark {
 }
 .result-table-labels {
   display: grid;
-  grid-template-columns: 1fr 42px 26px;
+  grid-template-columns: 272px 42px 40px;
+  column-gap: 3px;
   font-size: 11px;
   color: #b9b9b9;
   margin-bottom: 12px;
 }
 .result-table-row {
-  display: flex;
+  display: grid;
+  grid-template-columns: 55px 214px 42px 40px;
+  column-gap: 3px;
   align-items: center;
-  justify-content: space-between;
   margin-bottom: 12px;
   font-size: 12px;
 }
 .result-table-row > span:first-child {
-  width: 45px;
   white-space: nowrap;
 }
 .result-table-row > span:nth-last-child(2) {
   color: #b9b9b9;
-  width: 42px;
   white-space: nowrap;
   text-align: right;
 }
 .result-table-row > span:last-child {
-  width: 25px;
   text-align: right;
+  white-space: nowrap;
 }
 .result-ticks {
   display: flex;
