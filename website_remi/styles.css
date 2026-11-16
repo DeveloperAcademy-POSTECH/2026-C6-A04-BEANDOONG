@@ -520,7 +520,11 @@ h3 {
 .portrait--zen { --portrait-scale: 1.12; --portrait-y: -4%; }
 .portrait--esther { --portrait-scale: 1.1; --portrait-y: -9%; }
 .portrait--leeo { --portrait-scale: 1.02; --portrait-y: -2%; }
-.portrait--sejin { --portrait-scale: 1.1; --portrait-y: -12%; }
+.portrait--sejin {
+  --portrait-scale: 1.1;
+  --portrait-y: -10%;
+  transform: translate(-3%, var(--portrait-y)) scale(var(--portrait-scale));
+}
 .portrait--senny { --portrait-scale: 1.12; --portrait-y: -6%; }
 .member h4 {
   display: flex;
