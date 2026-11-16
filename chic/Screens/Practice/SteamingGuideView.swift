@@ -44,6 +44,15 @@ struct SteamingGuideView: View {
                     }
                 }
                 .clipped()
+                .overlay(alignment: .top) {
+                    LinearGradient(
+                        colors: [AppColors.darkBackground, AppColors.darkBackground.opacity(0)],
+                        startPoint: .top,
+                        endPoint: .bottom
+                    )
+                    .frame(height: Layout.topFade.v(scale))
+                    .allowsHitTesting(false)
+                }
             }
             .overlay(alignment: .bottom) {
                 if showsCompletion {
@@ -216,6 +225,7 @@ private extension View {
 private enum Layout {
     static let headerTop: CGFloat = 84
     static let progressTop: CGFloat = 35
+    static let topFade: CGFloat = 18
     static let horizontalPadding: CGFloat = 20
     static let contentTop: CGFloat = 52
     static let sectionSpacing: CGFloat = 50
