@@ -77,7 +77,7 @@ struct PageTurnStack<Page: Hashable & Comparable, Content: View>: View {
     }
 
     /// 미리 만든(아직 안 보이는) 쪽의 투명도
-    private static var preloadedOpacity: Double { 0.001 }
+    private static var preloadedOpacity: Double { MotionOpacity.nearlyHidden }
 
     /// 화면에 올려 둔 쪽: 보이는 쪽 + 지금 쪽의 이웃 쪽(미리 만들어 둠)
     private var mountedPages: [Page] {

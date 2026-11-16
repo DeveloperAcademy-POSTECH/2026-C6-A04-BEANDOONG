@@ -21,8 +21,13 @@ struct OnboardingView: View {
     var onPageSettled: (OnboardingPage) -> Void = { _ in }
 
     @Environment(\.designScale) private var scale
+    /// 스플래시나 연습 화면이 덮고 있어서 반복 애니메이션이 멈춰 있는지 (앱을 켠 직후에는 스플래시가 덮고 있어요)
+    @Environment(\.loopAnimationsPaused) private var loopsPaused
+    @MotionStill private var isStill: Bool
     /// 페이지 인디케이터가 가리키는 쪽 (내용보다 조금 늦게 옮겨 가요)
     @State private var indicatorIndex: Int
+    /// 지금 쪽 말고 나머지 쪽도 미리 만들어 두는지. 스플래시가 걷힌 뒤에 켜고, 한 번 켜면 다시 끄지 않아요.
+    @State private var preloadsAllPages = false
 
     init(page: OnboardingPage, onNext: @escaping () -> Void = {}, onSkip: @escaping () -> Void = {}, onSwipe: @escaping (Int) -> Void = { _ in },
          onPageSettled: @escaping (OnboardingPage) -> Void = { _ in }) {
@@ -38,15 +43,18 @@ struct OnboardingView: View {
         VStack(spacing: 0) {
             // MARK: 상단 바
             OnboardingSkipTopBar(action: onSkip)
-                .padding(.top, Metrics.topBarTop.v(scale))
+                .padding(.top, ScreenMetrics.topBarTop.v(scale))
 
             // MARK: 쪽 내용 (넘김 애니메이션은 PageTurnStack 이 해요. 연습 준비 가이드와 같은 것)
             PageTurnStack(
                 page: page, indicatorIndex: $indicatorIndex, indexOf: \.rawValue,
-                // 다섯 쪽을 처음부터 모두 만들어 둬요 (스플래시가 덮고 있는 동안). 앞뒤 쪽만 두면 넘김이 끝날 때마다
+                // 다섯 쪽을 모두 만들어 둬요 (넘김 중에는 만들지 않게). 앞뒤 쪽만 두면 넘김이 끝날 때마다
                 // 새 이웃 쪽을 만드는 일(이미지 디코딩 · 캔버스 준비)이 막 시작된 새 쪽의 애니메이션과 겹쳐 버벅였어요.
                 // 미리 만든 쪽은 투명하고 반복 애니메이션도 멈춰 있어서 매 프레임 드는 일이 거의 없어요.
-                preloadedPages: { _ in OnboardingPage.allCases },
+                // 다만 앱을 켠 직후 스플래시가 덮고 있는 동안에는 지금 쪽만 만들어요. 스플래시의 로고 애니메이션과 같은 시간에
+                // 다섯 쪽을 한꺼번에 만들면 메인 스레드가 몰려 버벅일 수 있어서, 스플래시가 걷힌 뒤에 나머지 쪽을 만들어요
+                // (사용자가 첫 쪽을 넘기기 전에 끝나요).
+                preloadedPages: { _ in preloadsAllPages ? OnboardingPage.allCases : [] },
                 onSettled: onPageSettled
             ) { visiblePage, motion in
                 pageContent(visiblePage, motion: motion)
@@ -57,13 +65,25 @@ struct OnboardingView: View {
 
             // MARK: 페이지 인디케이터 + 하단 버튼
             OnboardingPageIndicator(activeIndex: indicatorIndex, pageCount: OnboardingPage.allCases.count)
-                .padding(.bottom, Metrics.indicatorBottom.v(scale))
+                .padding(.bottom, Layout.indicatorBottom.v(scale))
 
-            DarkPrimaryButton(title: page == OnboardingPage.allCases.last ? String(localized: "홈으로 가기") : String(localized: "다음"), width: Metrics.buttonWidth.h(scale), height: BottomButton.height, action: onNext)
-                .padding(.bottom, BottomButton.bottomGap.v(scale) + scale.fixedHeightAdjustment(BottomButton.height))
+            BottomPrimaryButton(title: page == OnboardingPage.allCases.last ? String(localized: "홈으로 가기") : String(localized: "다음"), action: onNext)
         }
         .ignoresSafeArea()
         .darkScreenBackgroundWithTopGlow()
+        .onChange(of: loopsPaused, initial: true) { _, paused in
+            // 스플래시가 걷히면(반복 애니메이션이 움직이기 시작하면) 나머지 쪽을 미리 만들어요.
+            // 처음부터 멈춰 있지 않은 곳(미리보기 · 캡처)에서는 나타나자마자 만들어요.
+            if !paused { preloadsAllPages = true }
+        }
+        .task {
+            // 4/5 쪽의 우유 수위 표(`MilkLevelLoop.shared`, 240Hz × 3바퀴 스프링 계산)를 스플래시가 덮고 있는 동안 백그라운드에서 미리 계산해 둬요.
+            // 처음 접근하는 순간(쪽을 미리 만들 때)에 메인 스레드에서 계산하면 그 프레임이 늦어져요.
+            // `MilkLevelLoop` 는 `nonisolated` 이고 `shared` 는 값이 바뀌지 않는 `static let` 이라 어느 스레드에서 처음 접근해도 안전해요
+            // (Swift 가 첫 접근을 한 번만 실행하고, 그동안 다른 스레드는 끝나길 기다려요). 움직임이 없는 화면(동작 줄이기)에서는 표를 안 써요.
+            guard !isStill else { return }
+            Task.detached(priority: .utility) { _ = MilkLevelLoop.shared }
+        }
     }
 
     /// 좌우 스와이프: 왼쪽으로 밀면 다음 쪽(+1), 오른쪽으로 밀면 이전 쪽(-1). 세로로 더 많이 움직인 제스처는 무시한다.
@@ -161,13 +181,10 @@ extension View {
     }
 }
 
-// MARK: - Metrics
+// MARK: - Layout
 
-/// 세 쪽이 같이 쓰는 고정 영역 간격 (Hi-Fi 기준)
-private enum Metrics {
-    static let topBarTop: CGFloat = 84         // 화면 위 ↔ 상단 바 (Hi-Fi 108: 글자 y0 86.5 − 2.5)
+private enum Layout {
     static let indicatorBottom: CGFloat = 28   // 인디케이터 ↔ 버튼 (Hi-Fi 108: 인디케이터 y1 700 → 버튼 y0 728)
-    static let buttonWidth: CGFloat = 363      // Hi-Fi 버튼 폭
 }
 
 #Preview {

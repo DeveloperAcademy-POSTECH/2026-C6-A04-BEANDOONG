@@ -10,7 +10,6 @@ trap 'rm -rf "$work"' EXIT
 
 xcrun swiftc -D DEVELOP -module-cache-path "$work/cache" \
     "$root/Shared/PracticeState.swift" \
-    "$root/chic/DesignSystem/AppColors.swift" \
     "$root/chic/Screens/PracticeResult/PracticeResult.swift" \
     "$root/chic/Models/PracticeRecordEntity.swift" \
     "$root/chic/Services/PracticeTimeline.swift" \

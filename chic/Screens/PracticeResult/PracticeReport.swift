@@ -1,5 +1,4 @@
 import SwiftUI
-import UIKit
 
 //
 //  PracticeReport.swift
@@ -11,6 +10,12 @@ import UIKit
 //  - 하단 안내 문구
 //  Hi-Fi: iPhone 17 - 304 (연습 직후, 상단 바 "스티밍 결과") · 307 (기록 상세, 상단 바 "9월 28일 - 1차") (2026-11-14)
 //         연습가이드 공기 과도 · 부족 (2026-11-13, 링을 뺀 나머지)
+//
+//  [구성] (이 파일은 화면 · 페이지 · 안내 문구, 나머지는 따로)
+//  - ReportHero.swift         : 상단 히어로 (타이틀 + 링 + 3열 요약)
+//  - ReportOverviewChart.swift: "스티밍 기록" 소리 유형별 막대 표 (+ 막대 · 눈금)
+//  - ReportGuideSection.swift : "연습 가이드" 비커 그림 + 안내 카드
+//  - ReportLayout.swift       : 리포트 색 · 시안 좌표
 //
 
 // MARK: - 화면 (스크롤 + 고정 상단 바 + 삭제 팝업)
@@ -58,7 +63,7 @@ struct PracticeReportScreen: View {
                     title: barTitle, isDark: true, onBack: onBack,
                     trailingSystemImage: "trash", onTrailingIcon: { showsDeleteDialog = true }
                 )
-                .padding(.top, ReportLayout.topBarTop.v(scale))
+                .padding(.top, ScreenMetrics.topBarTop.v(scale))
                 .padding(.bottom, ReportLayout.topBarBottomPadding.v(scale))
                 .background(AppColors.darkBackground)
 
@@ -370,250 +375,4 @@ private struct ReportFootnote: View {
         .foregroundStyle(PracticeResultColors.footnote)
         .frame(maxWidth: .infinity)
     }
-}
-
-// MARK: - 한 번에 보기
-
-private struct ReportOverviewChart: View {
-    @Environment(\.designScale) private var scale
-    @ScaledMetric(relativeTo: .body) private var labelFontSize: CGFloat = 12
-    let result: PracticeResult
-
-    /// 줄 순서: 시안 304 · 307처럼 스크레칭이 버블링보다 위 (2026-11-14).
-    /// 이름과 소리의 짝은 앱 전체와 같아요: 스크레칭 = 공기 부족(보라), 버블링 = 공기 과다(주황).
-    /// 시안은 2번째 줄 막대가 주황이지만, 이름을 기준으로 맞춰서 앱에서는 보라 → 주황 순이에요.
-    private static let rows: [(String, DetectedSound)] = [
-        (String(localized: "공기 주입"), .normalAeration), (String(localized: "스크레칭"), .lackOfAir), (String(localized: "버블링"), .overAeration), (String(localized: "롤링 소리"), .rolling)
-    ]
-
-    /// 번역된 이름의 실제 폭만큼 공간을 확보하고 막대·눈금의 시작점을 함께 옮깁니다.
-    private var trackX: CGFloat {
-        FontRegistrar.registerIfNeeded()
-        let font = UIFont(name: PretendardWeight.regular.rawValue, size: labelFontSize)
-            ?? UIFont.systemFont(ofSize: labelFontSize)
-        let names = Self.rows.map(\.0) + [String(localized: "소리 유형")]
-        let textWidth = names.map { ($0 as NSString).size(withAttributes: [.font: font]).width }.max() ?? 0
-        return max(ReportLayout.overviewTrackX, ReportLayout.overviewLabelX + (ceil(textWidth) + 8) / scale.x)
-    }
-
-    private var trackWidth: CGFloat {
-        max(1, ReportLayout.overviewTrackX + ReportLayout.overviewTrackWidth - trackX).h(scale)
-    }
-
-    var body: some View {
-        ZStack(alignment: .topLeading) {
-            Group {
-                Text(String(localized: "소리 유형")).at(x: ReportLayout.overviewLabelX, y: ReportLayout.overviewHeaderY, scale)
-                Text(String(localized: "비율")).at(x: ReportLayout.overviewRatioX, y: ReportLayout.overviewHeaderY, scale)
-                timeText(String(localized: "시간"), y: ReportLayout.overviewHeaderY)
-            }
-            .font(.pretendard(.regular, size: 11))
-            .foregroundStyle(PracticeResultColors.secondaryText)
-
-            ForEach(Array(Self.rows.enumerated()), id: \.offset) { index, row in
-                let y = ReportLayout.overviewFirstRowY + CGFloat(index) * ReportLayout.overviewRowPitch
-                let seconds = result.detectedSeconds(of: row.1)
-
-                rowText(row.0, color: .white, x: ReportLayout.overviewLabelX, y: y)
-
-                ReportBar(result: result, sounds: [row.1], width: trackWidth, height: ReportLayout.overviewBarHeight.v(scale))
-                    .at(x: trackX, y: y, scale)
-
-                rowText(Self.percentText(seconds: seconds, total: result.totalSeconds), color: ReportColors.summaryLabel,
-                        x: ReportLayout.overviewRatioX, y: y)
-
-                timeText(String(localized: "\(seconds)초"), y: y)
-                    .font(.pretendard(.regular, size: 12))
-                    .foregroundStyle(Color.white)
-                    .frame(height: ReportLayout.overviewBarHeight.v(scale))
-            }
-
-            ReportAxis(width: trackWidth, ticks: result.tickLabels) // 막대(.h(scale))와 같은 폭이어야 눈금 숫자가 막대 눈금선에 맞는다
-                .at(x: trackX, y: ReportLayout.overviewAxisY, scale)
-        }
-    }
-
-    /// 줄 하나의 글자 (막대와 같은 높이 안에서 세로 가운데)
-    private func rowText(_ text: String, color: Color, x: CGFloat, y: CGFloat) -> some View {
-        Text(text)
-            .font(.pretendard(.regular, size: 12))
-            .foregroundStyle(color)
-            .frame(height: ReportLayout.overviewBarHeight.v(scale))
-            .at(x: x, y: y, scale)
-    }
-
-    /// 시간 열: 오른쪽 끝(Hi-Fi: x 382)에 맞춰 오른쪽 정렬 ("6초" · "10초"의 끝이 같은 자리)
-    private func timeText(_ text: String, y: CGFloat) -> some View {
-        Text(text)
-            .fixedSize()
-            .frame(width: ReportLayout.overviewTimeWidth.h(scale), alignment: .trailing)
-            .at(x: ReportLayout.overviewTimeRight - ReportLayout.overviewTimeWidth, y: y, scale)
-    }
-
-    /// 25 → "25%", 2/24 → "8.33%", 10/24 → "41.67%"
-    static func percentText(seconds: Int, total: Int) -> String {
-        guard total > 0 else { return "0%" }
-        var text = String(format: "%.2f", Double(seconds) / Double(total) * 100)
-        while text.hasSuffix("0") { text.removeLast() }
-        if text.hasSuffix(".") { text.removeLast() }
-        return text + "%"
-    }
-}
-
-// MARK: - 막대 · 눈금
-
-/// 어두운 트랙 위에 소리 구간을 칠하고, 눈금 위치(8 · 12 · 16 · 20)에 가는 선을 긋는 막대
-private struct ReportBar: View {
-    let result: PracticeResult
-    let sounds: [DetectedSound]
-    let width: CGFloat
-    let height: CGFloat
-
-    var body: some View {
-        let length = max(result.timelineLength, 1)
-        return ZStack(alignment: .topLeading) {
-            Rectangle().fill(ReportColors.track)
-
-            tickLines(ReportColors.gridLine)
-
-            ForEach(result.segments.filter { sounds.contains($0.sound) }) { segment in
-                let start = (segment.start - result.timelineStart) / length
-                let end = (segment.end - result.timelineStart) / length
-                Rectangle()
-                    .fill(segment.sound.timelineColor)
-                    .frame(width: max(0, width * (end - start)))
-                    .offset(x: width * start)
-            }
-
-            tickLines(Color.black.opacity(0.3))
-        }
-        .frame(width: width, height: height, alignment: .topLeading)
-        .clipped()
-    }
-
-    /// 눈금 위치(8 · 12 · 16 · 20)의 가는 세로선. 트랙 위(구간 아래)와 구간 위에 한 번씩 그려요.
-    private func tickLines(_ color: Color) -> some View {
-        ForEach(Array(ReportLayout.tickFractions.enumerated()), id: \.offset) { _, fraction in
-            Rectangle().fill(color).frame(width: 1).offset(x: width * fraction)
-        }
-    }
-}
-
-/// 막대 아래 눈금 숫자 (0 · 8 · 12 · 16 · 20 · 24초). 가운데 네 개는 막대 폭의 같은 비율 자리에 놓입니다.
-private struct ReportAxis: View {
-    let width: CGFloat
-    let ticks: [String]
-
-    var body: some View {
-        ZStack(alignment: .topLeading) {
-            ForEach(Array(ticks.enumerated()), id: \.offset) { index, text in
-                Text(text)
-                    .font(.pretendard(.regular, size: 11))
-                    .foregroundStyle(PracticeResultColors.secondaryText)
-                    .fixedSize()
-                    .position(x: centerX(index: index, count: ticks.count), y: 7)
-            }
-        }
-        .frame(width: width, height: 14, alignment: .topLeading)
-    }
-
-    private func centerX(index: Int, count: Int) -> CGFloat {
-        if index == 0 { return 2 }
-        if index == count - 1 { return width - 0.7 }
-        let fractions = ReportLayout.tickFractions
-        return width * fractions[min(index - 1, fractions.count - 1)]
-    }
-}
-
-extension PracticeResult {
-    /// 막대 아래 눈금 문구: 마지막만 "초"가 붙는다 ("0 8 12 16 20 24초")
-    var tickLabels: [String] {
-        let seconds: [Int]
-        if let customTickSeconds { seconds = customTickSeconds }
-        else {
-            let end = max(Int(timelineLength.rounded()), 1)
-            seconds = [0, end / 3, end / 2, end * 2 / 3, end * 5 / 6, end]
-        }
-        return seconds.enumerated().map { index, value in index == seconds.count - 1 ? String(localized: "\(value)초") : "\(value)" }
-    }
-}
-
-// MARK: - 색상
-
-enum ReportColors {
-    static let track = Color(hex: 0x202020)
-    static let gridLine = Color(hex: 0x282A2E)
-    static let summaryLabel = Color(hex: 0xB9B9B9)
-}
-
-// MARK: - Layout (iPhone 17 시안 측정값, pt · 왼쪽 위 기준 절대 좌표)
-
-enum ReportLayout {
-    // 페이지 높이 (Hi-Fi 연습가이드 3종: 402x1384)
-    static let pageHeight: CGFloat = 1384
-
-    // 상단 바
-    static let topBarBottomPadding: CGFloat = 16 // 상단 바 아래 배경 여유
-    static let topBarFade: CGFloat = 18           // 상단 바 배경 아래 흐려지는 구간
-    static let topBarTop: CGFloat = 84           // 글자 y0 83~86 (Hi-Fi 255: 제목 글자 y0 86.5 − 2.5)
-
-    // 히어로 (Hi-Fi 연습가이드 적정 · -1: 도넛 106 ~ 296.5 / 270.5 ~ 457.5, 요약 구분선 521.5 ~ 573)
-    static let heroHeight: CGFloat = 609.5       // 컨테이너 아래 끝
-    static let heroCornerRadius: CGFloat = 26
-    static let headlineY: CGFloat = 154.3        // 타이틀 첫 줄 글자 y0 158.5 (측정 보정)
-    static let headlineLineSpacing: CGFloat = 4 // 피그마 상단 문구의 두 줄 사이 간격
-    static let donutDiameter: CGFloat = 189.2    // 바깥 반지름 94.6
-    static let donutLineWidth: CGFloat = 34.2
-    static let donutY: CGFloat = 269.2
-    static let donutCenterX: CGFloat = 201.2     // (106 + 296.5) / 2
-    /// 주의 소리 호가 시작하는 각도: 12시 방향 0°에서 시계 방향 (Hi-Fi 공기 과도: 첫 조각 둥근 끝이 12시 선에 닿음)
-    static let donutStartDegrees: Double = 0
-    static let donutTextSpacing: CGFloat = 5.3
-    static let donutLabelSize: CGFloat = 20.5    // "주의소리" 글자 높이 18
-    static let donutLabelDY: CGFloat = -1
-    static let summaryX: CGFloat = 18
-    static let summaryY: CGFloat = 521.7         // 구분선 y 521.5 ~ 573
-    static let summaryHeight: CGFloat = 50
-    static let summaryColumnWidth: CGFloat = 122
-    static let summaryTextSpacing: CGFloat = 4
-
-    // 섹션 제목 (글자 y0 658)
-    static let sectionTitleX: CGFloat = 20
-    static let sectionTitleY: CGFloat = 655
-
-    // 눈금: 막대 폭에 대한 비율 (8 · 12 · 16 · 20)
-    static let tickFractions: [CGFloat] = [0.182, 0.394, 0.608, 0.820]
-
-    // 소리 유형별 막대 표. 탭 바가 빠져 예전(Hi-Fi 255)보다 78pt 위 (첫 막대 812 → 734)
-    static let overviewHeaderY: CGFloat = 709    // 머리 글자 y0 710
-    static let overviewFirstRowY: CGFloat = 734  // 첫 막대 위
-    static let overviewRowPitch: CGFloat = 34.7
-    static let overviewBarHeight: CGFloat = 22.5
-    static let overviewLabelX: CGFloat = 20
-    static let overviewTrackX: CGFloat = 77
-    static let overviewTrackWidth: CGFloat = 214
-    static let overviewRatioX: CGFloat = 307.4
-    static let overviewTimeRight: CGFloat = 382  // 시간 열 오른쪽 끝 ("시간" · "6초" · "10초" 끝 381.5 ~ 382)
-    static let overviewTimeWidth: CGFloat = 40
-    static let overviewAxisY: CGFloat = 866      // 눈금 글자 y0 868.5
-
-    // 연습 가이드 (섹션 맨 위 = 제목 글자 상자 위 기준, 제목 글자 y0 929)
-    static let guideY: CGFloat = 1003.7 - 78
-    static let guidePitcherX: CGFloat = 112.7             // 비커 그림 왼쪽 (Hi-Fi 260: 비커 바닥 왼쪽 114 − 에셋 여백 1.3). 2026-11-13 시안부터 노즐 없음 (에셋 캔버스 크기는 그대로)
-    static let guidePitcherTop: CGFloat = 1045.8 - 1003.7 // 제목 ↔ 비커 그림(캔버스) 위 (Hi-Fi 260: 노즐 위 1046)
-    static let guidePitcherSize = CGSize(width: 869.0 / 3, height: 651.0 / 3)
-    static let guideCardX: CGFloat = 19.7
-    static let guideCardTop: CGFloat = 1289.3 - 1003.7
-    static let guideCardWidth: CGFloat = 362.6
-    static let guideCardHeight: CGFloat = 87.7
-    static let guideCardRadius: CGFloat = 10
-    static let guideIconCenter = CGPoint(x: 51.8 - 19.7, y: 1316.6 - 1289.3)
-    static let guideTextX: CGFloat = 78.9 - 19.7
-    static let guideTextTop: CGFloat = 15.6           // 카드 위 ↔ 제목 글자 상자 (Hi-Fi: 글자 윗선 16.8)
-    static let guideTextWidth: CGFloat = 290
-    static let guideTitleToMessage: CGFloat = 7.4     // Hi-Fi: 설명 글자 윗선 43.1
-    static let guideMessageLineSpacing: CGFloat = 1.8 // Hi-Fi: 설명 줄 높이 16.1
-
-    // 안내 문구 (글자 y0 1337)
-    static let footnoteY: CGFloat = 1412.7 - 78
 }

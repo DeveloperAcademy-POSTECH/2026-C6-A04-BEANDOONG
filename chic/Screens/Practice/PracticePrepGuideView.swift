@@ -15,7 +15,7 @@ import SwiftUI
 /// 왼쪽 50pt 띠에서 오른쪽으로 밀면 이전 화면으로 돌아가고(시스템 뒤로가기), 그 밖에서는 캐러셀이 넘어간다.
 struct PracticePrepGuideView: View {
     @Environment(\.designScale) private var scale
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @MotionStill private var isStill: Bool
     @Environment(\.accessibilityVoiceOverEnabled) private var voiceOverEnabled
     @Environment(\.loopAnimationsPaused) private var loopsPaused
     @EnvironmentObject private var practice: PracticeSession
@@ -41,7 +41,7 @@ struct PracticePrepGuideView: View {
         VStack(spacing: 0) {
             // MARK: 상단 바
             TopNavigationHeader(title: String(localized: "연습 준비"), isDark: true)
-                .padding(.top, Layout.topBarTop.v(scale))
+                .padding(.top, ScreenMetrics.topBarTop.v(scale))
 
             // MARK: 워치 캐러셀 (원형)
             PrepWatchCarousel(position: position)
@@ -51,13 +51,7 @@ struct PracticePrepGuideView: View {
             .gesture(swipe)
 
             // MARK: 버튼
-            DarkPrimaryButton(
-                title: String(localized: "연습 시작하기"),
-                width: Layout.buttonWidth.h(scale),
-                height: BottomButton.height,
-                action: startPractice
-            )
-            .padding(.bottom, BottomButton.bottomGap.v(scale) + scale.fixedHeightAdjustment(BottomButton.height))
+            BottomPrimaryButton(title: String(localized: "연습 시작하기"), action: startPractice)
         }
         .ignoresSafeArea()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -78,12 +72,9 @@ struct PracticePrepGuideView: View {
 
     // MARK: 동작
 
-    /// 동작 줄이기 · VoiceOver · UI 테스트 정지 화면 · 다른 화면에 가려졌을 때는 자동으로 넘기지 않는다
+    /// 동작 줄이기 · UI 테스트 정지 화면(`-uiTestStill`, 둘 다 `isStill`) · VoiceOver · 다른 화면에 가려졌을 때는 자동으로 넘기지 않는다
     private var autoAdvances: Bool {
-        #if DEBUG
-        if ProcessInfo.processInfo.arguments.contains("-uiTestStill") { return false }
-        #endif
-        return !reduceMotion && !voiceOverEnabled && !loopsPaused
+        !isStill && !voiceOverEnabled && !loopsPaused
     }
 
     /// 가장 가까운 칸 자리 (바퀴 수를 포함한 정수, 예: 둘째 바퀴의 과다 = 5)
@@ -142,9 +133,7 @@ struct PracticePrepGuideView: View {
 // MARK: - Layout (iPhone 17 시안 측정값, pt)
 
 private enum Layout {
-    static let topBarTop: CGFloat = 84              // 화면 위 ↔ 상단 바 (Hi-Fi 249: 글자 y0 86.5 − 2.5)
     static let carouselPitch: Double = 196          // 캐러셀 한 칸 이동에 필요한 손가락 거리 (칸 사이 거리와 같다)
-    static let buttonWidth: CGFloat = 363
     static let backSwipeZoneWidth: CGFloat = 50     // 밀어서 뒤로가기를 받는 왼쪽 띠 폭 (요청 이미지: 빨간 영역 100px @2x)
 }
 

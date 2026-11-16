@@ -9,16 +9,6 @@
 
 import SwiftUI
 
-/// 연습 결과 화면에서 뒤로가기로 메인에 돌아갈 때의 움직임 (시스템 화면 뒤로가기와 같은 느낌)
-enum ScreenPopMotion {
-    /// 결과 화면이 오른쪽으로 밀려 나가고 홈이 제자리로 오는 시간·곡선
-    static let animation = Animation.timingCurve(MotionCurve.easeOutQuint, duration: 0.42)
-    /// 홈이 밀려 들어오기 전에 왼쪽으로 물러나 있는 거리(pt)
-    static let homeParallax: CGFloat = 90
-    /// 결과 화면 뒤에서 홈을 덮고 있다가 걷히는 검정 (0이면 안 덮음)
-    static let homeDim: Double = 0.35
-}
-
 struct AppRootView: View {
     @EnvironmentObject private var practice: PracticeSession
     /// 앱을 켠 직후 스플래시를 보여 주는 중인지
@@ -34,6 +24,14 @@ struct AppRootView: View {
     private var showsSession: Bool { practice.state.phase != .idle || isClosingSession }
     /// 결과 화면이 홈을 덮고 있는지 (홈이 뒤로 물러나 어두워 있는 상태)
     private var homeIsCovered: Bool { showsSession && !sessionSlidOut }
+
+    init() {
+        // 홈 연습 카드의 큰 사진을 앱이 시작되는 순간(스플래시가 뜨기 전) 백그라운드에서 디코딩해 둬요.
+        // 이미 온보딩을 마친 사용자는 첫 화면부터 홈을 그려서, 디코딩이 늦으면 첫 그리기에서 직접 디코딩하느라 스플래시가 멈칫해요.
+        // 온보딩 마지막 쪽에서 홈을 미리 만들 때 그 사진을 처음 그리느라 그래프 애니메이션이 멈칫하던 것도 막아요.
+        // 쓰는 언어의 사진 하나만 해요 (홈 카드가 그리는 이름과 같은 값).
+        PreparedImage.prepare([HomeHeroImage.assetName])
+    }
 
     var body: some View {
         ZStack {

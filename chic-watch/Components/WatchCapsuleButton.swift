@@ -18,25 +18,23 @@ struct WatchCapsuleButton: View {
     var body: some View {
         Button(action: action) {
             Text(title)
-                .font(.watchScaled(16, weight: .bold))
                 .foregroundStyle(AppColors.watchCapsuleButtonTitle)
-                .lineLimit(1)
                 // 글자가 버튼보다 길어지면 한 줄을 유지한 채 최대 80%까지 줄입니다.
-                .minimumScaleFactor(0.8)
+                .watchSingleLineStyle(16, weight: .bold)
                 .frame(maxWidth: .infinity)
-                .frame(height: WatchDesignSize.scaled(Metrics.buttonHeight))
+                .frame(height: WatchDesignSize.scaled(Layout.buttonHeight))
                 .background(AppColors.watchCapsuleButtonBackground, in: Capsule())
         }
         // 워치 기본 버튼 모양(회색 배경)을 없애고 위에서 그린 캡슐 모양만 보이게 합니다.
         .buttonStyle(.plain)
-        .padding(.horizontal, WatchDesignSize.scaled(Metrics.screenEdgeInset))
+        .padding(.horizontal, WatchDesignSize.scaled(Layout.screenEdgeInset))
     }
 }
 
-// MARK: - Metrics
+// MARK: - Layout
 
 /// Hi-Fi(46mm) 기준 수치입니다. 사용할 때 `WatchDesignSize.scaled(_:)`로 기기 크기에 맞춥니다.
-private enum Metrics {
+private enum Layout {
     static let buttonHeight: CGFloat = 52    // 버튼 높이
     static let screenEdgeInset: CGFloat = 15 // 화면 좌우 끝 ↔ 버튼 사이 여백
 }

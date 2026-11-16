@@ -136,6 +136,53 @@ extension EnvironmentValues {
     }
 }
 
+// MARK: - 정지 화면으로 볼지
+
+/// 애니메이션을 멈추고 정지 화면(Hi-Fi 지점)으로 보여 줄지 판단하는 값
+///
+/// 동작 줄이기(Reduce Motion)가 켜져 있으면 true 예요. DEBUG 빌드에서는 `-uiTestStill` 런치 아규먼트를 줘도 true 라서,
+/// 동작 줄이기와 같이 정지 화면으로 멈춰요 (Hi-Fi 대조용).
+///
+/// 화면이 이 판단을 따로 쓰지 않고 한 곳에서 하게 해 주는 `DynamicProperty` 예요. 루트 뷰에서 값을 내려 줄 필요 없이
+/// 뷰 안에서 바로 써요.
+///
+///     @MotionStill private var isStill: Bool
+///
+///     var body: some View {
+///         if isStill { content(restProgress) } else { ... }
+///     }
+@propertyWrapper
+struct MotionStill: DynamicProperty {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    init() {}
+
+    var wrappedValue: Bool {
+        #if DEBUG
+        return reduceMotion || Self.launchRequestsStill
+        #else
+        return reduceMotion
+        #endif
+    }
+
+    #if DEBUG
+    /// 런치 아규먼트는 앱이 켜진 뒤 바뀌지 않아서 한 번만 읽어요.
+    private static let launchRequestsStill = ProcessInfo.processInfo.arguments.contains("-uiTestStill")
+    #endif
+}
+
+// MARK: - 거의 투명
+
+/// 투명도 값 모음
+enum MotionOpacity {
+    /// "거의 투명": 눈에는 보이지 않지만 완전히 0은 아닌 값
+    ///
+    /// 투명도가 0이면 SwiftUI가 그리기를 건너뛰어서, 다시 켜지는 순간(이미지 디코딩 · 캔버스 준비 등) 처음 그리는 일이 몰려
+    /// 그 프레임이 늦게 나와요. 0.001은 화면 픽셀 값이 바뀌지 않으면서 그리기는 건너뛰지 않아요.
+    /// 숨겨 둔 쪽 · 꺼진 전파 · 미리 만들어 둔 화면에 0 대신 써요.
+    static let nearlyHidden: Double = 0.001
+}
+
 // MARK: - 반복 애니메이션 시계
 
 /// 반복 애니메이션용 시계: 화면에 나타난 순간부터 흐른 시간을 한 주기 안의 진행률(0 이상 1 미만)로 넘겨 줘요.
@@ -144,6 +191,9 @@ extension EnvironmentValues {
 /// - 경과 시간을 주기로 나눈 나머지를 쓰기 때문에 반복할 때 이음새가 튀지 않아요.
 /// - 동작 줄이기(Reduce Motion)가 켜져 있으면 시계를 멈추고 `restProgress`(Hi-Fi 정지 화면 지점)만 넘겨요.
 /// - DEBUG 빌드에서 `-uiTestStill` 런치 아규먼트를 주면 동작 줄이기와 같이 정지 화면으로 멈춰요 (Hi-Fi 대조용).
+/// - 가려져 멈춰 있다가(`loopAnimationsPaused`) 다시 움직이는 첫 프레임도 0 에서 시작해요. 멈춰 있는 동안 시작 시각을 아주 먼 미래로
+///   두기 때문에, 다시 움직이는 첫 프레임의 경과 시간이 `max(0, 음수) = 0` 이에요 (시작 시각을 `.now` 로 고치는 `onChange` 는
+///   그 프레임을 계산한 뒤에 불려서, 그것만으로는 옛 시각으로 계산된 한 프레임이 보일 수 있어요).
 ///
 ///     LoopTimeline(period: 1.4) { progress in
 ///         Spinner(progress: progress)
@@ -153,33 +203,36 @@ struct LoopTimeline<Content: View>: View {
     let period: TimeInterval
     /// 동작 줄이기에서 멈춰 둘 지점 (주기 대비 0 이상 1 미만). Hi-Fi 정지 화면과 같은 지점이에요.
     var restProgress: Double = 0
+    /// 화면을 다시 그리는 가장 짧은 간격(초). nil 이면 화면 주사율대로 그려요 (기본).
+    ///
+    /// 진행률이 칸 단위로만 바뀌는 그림처럼 매 프레임 그릴 필요가 없을 때 줄여요. `TimelineView(.animation(minimumInterval:))` 와 같아서
+    /// "이 간격보다 자주 그리지 않는다" 는 뜻이지 "이 간격마다 정확히 그린다" 는 뜻이 아니에요 (칸이 바뀌는 시점이 최대 한 번 그리는 간격만큼 늦어질 수 있어요).
+    var minimumInterval: TimeInterval? = nil
     @ViewBuilder let content: (_ progress: Double) -> Content
 
-    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @MotionStill private var isStill: Bool
     @Environment(\.loopAnimationsPaused) private var isPaused
-    @State private var startDate = Date.now
-
-    private var isStill: Bool {
-        #if DEBUG
-        return reduceMotion || ProcessInfo.processInfo.arguments.contains("-uiTestStill")
-        #else
-        return reduceMotion
-        #endif
-    }
+    /// 이 시각부터 흐른 시간이 진행률이에요. 시계가 멈춰 있는 동안(그리고 아직 시작하지 않았을 때)은 먼 미래라서 경과 시간이 0 이에요.
+    @State private var startDate = Date.distantFuture
 
     var body: some View {
         if isStill {
             content(restProgress)
         } else {
             // 멈춰 있을 때도 같은 TimelineView 를 써서, 다시 움직일 때 안쪽 뷰를 새로 만들지 않아요.
-            TimelineView(.animation(minimumInterval: nil, paused: isPaused)) { context in
+            TimelineView(.animation(minimumInterval: minimumInterval, paused: isPaused)) { context in
                 content(progress(at: context.date))
             }
-            .onAppear { startDate = .now }
+            .onAppear { startDate = Self.clockStart(paused: isPaused) }
             .onChange(of: isPaused) { _, paused in
-                if !paused { startDate = .now }
+                startDate = Self.clockStart(paused: paused)
             }
         }
+    }
+
+    /// 시계의 시작 시각: 멈춰 있으면 먼 미래(경과 0), 움직이기 시작하면 지금
+    private static func clockStart(paused: Bool) -> Date {
+        paused ? .distantFuture : .now
     }
 
     private func progress(at date: Date) -> Double {
@@ -218,17 +271,15 @@ struct RadioRevealTiming {
     static let machinePhone = RadioRevealTiming(period: 2.05, step: 0.25, fade: 0.15, offAt: 1.5, offLen: 0.2)
 
     /// 꺼진 요소의 투명도. 0이면 SwiftUI가 그리기를 건너뛰어 다시 켜질 때 준비가 몰려요. 0.001은 화면 픽셀 값이 바뀌지 않아요.
-    static let hiddenOpacity: Double = 0.001
+    static let hiddenOpacity: Double = MotionOpacity.nearlyHidden
 
     /// 동작 줄이기에서 멈춰 둘 지점: 모두 켜진 채 꺼지기 직전 (= Hi-Fi 정지 화면)
     var restProgress: Double { offAt / period - 0.001 }
 
     /// `index`번째(0부터) 요소의 투명도. `time` 은 한 주기 안의 시간(초)이에요.
     func opacity(index: Int, time: TimeInterval) -> Double {
-        let turnOn = Self.clamp01((time - step * Double(index)) / fade)
-        let turnOff = 1 - Self.clamp01((time - offAt) / offLen)
+        let turnOn = Easing.clamp01((time - step * Double(index)) / fade)
+        let turnOff = 1 - Easing.clamp01((time - offAt) / offLen)
         return turnOn * turnOff
     }
-
-    private static func clamp01(_ value: Double) -> Double { min(max(value, 0), 1) }
 }

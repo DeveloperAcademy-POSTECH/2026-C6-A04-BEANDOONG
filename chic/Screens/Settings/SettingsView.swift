@@ -36,7 +36,7 @@ struct SettingsView: View {
         VStack(spacing: 0) {
             // MARK: 상단 바
             TopNavigationHeader(title: String(localized: "설정"), isDark: true)
-                .padding(.top, Layout.topBarTop.v(scale))
+                .padding(.top, ScreenMetrics.topBarTop.v(scale))
 
             VStack(spacing: 0) {
             // MARK: 앱 아이콘 + 버전
@@ -224,7 +224,6 @@ private struct SettingsRow: View {
 
 private enum Layout {
     static let horizontalPadding: CGFloat = 20
-    static let topBarTop: CGFloat = 84           // 화면 위 ↔ 상단 바 (Hi-Fi 266: 글자 y0 86.5 − 2.5)
     static let iconSize: CGFloat = 98.5          // Hi-Fi 266: 152 ~ 250.5
     static let iconTop: CGFloat = 51             // 상단 바 아래(104) ↔ 아이콘 (Hi-Fi 266: y0 155)
     static let latestVersionTop: CGFloat = 20.5  // 아이콘 ↔ "최신 버전" (253.5 → 275.5, 글자 보정)
