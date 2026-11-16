@@ -110,9 +110,9 @@ struct SteamingFeedbackView: View {
         .chicAlert(
             isPresented: showsEndDialog,
             title: String(localized: "스티밍이 끝났나요?"),
-            message: String(localized: "스팀 소리가 감지되지 않아요\n연습을 마쳤다면 기록을 확인해 주세요"),
-            cancelTitle: String(localized: "계속 연습"),
-            confirmTitle: String(localized: "연습 종료"),
+            message: String(localized: "스팀 소리가 감지되지 않아요\n스티밍을 마쳤다면 기록을 확인해 주세요"),
+            cancelTitle: String(localized: "계속하기"),
+            confirmTitle: String(localized: "스티밍 종료"),
             onCancel: onContinue,
             onConfirm: onFinishAfterSilence
         )

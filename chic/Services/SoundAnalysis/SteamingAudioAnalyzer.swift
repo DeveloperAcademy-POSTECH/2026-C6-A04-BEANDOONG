@@ -48,7 +48,7 @@ nonisolated final class SteamingAudioAnalyzer: @unchecked Sendable {
             guard let self else { return }
             // 분석이 입력을 따라가지 못하면 샘플을 누락시키지 않고 오류로 종료합니다.
             guard self.pendingBuffer.wait(timeout: .now()) == .success else {
-                onError(String(localized: "실시간 소리 분석이 지연되어 연습을 종료했어요. 다시 시작해 주세요."))
+                onError(String(localized: "소리 분석이 지연되어 실시간 피드백을 종료했어요. 다시 시작해 주세요."))
                 return
             }
             let samples: [Float]? = buffer.withUnsafeAudioBufferList { list in

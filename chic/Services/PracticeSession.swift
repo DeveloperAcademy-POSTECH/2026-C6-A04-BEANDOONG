@@ -50,7 +50,7 @@ final class PracticeSession: ObservableObject {
             )
             setHistory(try store.records())
             historyStore = store
-        } catch { errorMessage = String(localized: "연습 기록 저장소를 열 수 없어요. 앱을 다시 실행해 주세요.") }
+        } catch { errorMessage = String(localized: "기록을 사용할 수 없어요. 앱을 다시 실행해 주세요.") }
         // WatchConnection이 워치 요청을 받으면 이 클로저를 실행합니다.
         // [weak self]는 두 객체가 서로를 계속 붙잡아 해제되지 않는 것을 방지합니다.
         connection.onCommand = { [weak self] request in
@@ -93,7 +93,7 @@ final class PracticeSession: ObservableObject {
             Task { @MainActor [weak self] in
                 guard let self, self.state.phase.isRunning else { return }
                 self.stop()
-                self.errorMessage = String(localized: "오디오 사용이 중단되어 연습을 종료했어요.")
+                self.errorMessage = String(localized: "오디오 사용이 중단되어 실시간 피드백을 종료했어요.")
             }
         }
     }
@@ -243,7 +243,7 @@ final class PracticeSession: ObservableObject {
                 }
                 publish()
             } catch {
-                errorMessage = String(localized: "연습 결과 저장에 실패했어요.")
+                errorMessage = String(localized: "스티밍 기록을 저장하지 못했어요.")
             }
             if state.sessionID == id, state.phase == .finished { result = completedResult }
         }

@@ -89,7 +89,7 @@ struct SteamingStopButton: View {
             }
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(String(localized: "연습 종료"))
+        .accessibilityLabel(String(localized: "스티밍 종료"))
     }
 }
 
@@ -120,6 +120,6 @@ struct SteamingEndButton: View {
             .background(Capsule().fill(AppColors.darkSecondaryButton.opacity(backgroundOpacity)))
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(String(localized: "연습 종료"))
+        .accessibilityLabel(String(localized: "스티밍 종료"))
     }
 }

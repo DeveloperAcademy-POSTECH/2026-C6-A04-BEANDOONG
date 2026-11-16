@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct ContentView: View {
+    private let onRestartSplash: () -> Void
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     /// 지금 홈을 보여 주는지. 저장값(`hasCompletedOnboarding`)으로 시작하고, 온보딩을 마칠 때 애니메이션과 함께 바꿔요.
     /// (@AppStorage 값 변경은 withAnimation 의 전환 애니메이션이 전달되지 않아서 화면 전환은 이 값으로 해요)
@@ -23,6 +24,10 @@ struct ContentView: View {
     /// 빈 채 쉬는 0.4초(`loopRestAction`)에 만들어요. 동작 줄이기에서는 움직임이 없어 넘김이 끝나자마자 만들어요.
     @State private var preparesHome = false
 
+    init(onRestartSplash: @escaping () -> Void = {}) {
+        self.onRestartSplash = onRestartSplash
+    }
+
     var body: some View {
         // 온보딩 → 홈: 온보딩은 살짝 작아지며 사라지고, 홈 요소가 차례로 떠오르며 나타나요.
         //
@@ -33,7 +38,8 @@ struct ContentView: View {
         // - 움직임(0.25초 ease-in, 온보딩 98% · 투명도, 홈 투명도)은 전과 같아요.
         ZStack {
             if showsHome || preparesHome {
-                HomeView(animatesEntrance: arrivesFromOnboarding, isEntranceActive: showsHome)
+                HomeView(animatesEntrance: arrivesFromOnboarding, isEntranceActive: showsHome,
+                         onResetOnboarding: resetOnboarding)
                     // 보이기 전 홈은 0이 아니라 거의 투명하게 둬요. 0이면 그리지 않아서 넘어가는 순간 처음 그리느라 버벅여요.
                     // 위에 불투명한 온보딩이 덮고 있어서 화면에는 보이지 않아요.
                     .opacity(showsHome ? 1 : MotionOpacity.nearlyHidden)
@@ -89,6 +95,16 @@ struct ContentView: View {
             // 다 걷힌 온보딩은 내려요 (보이지 않으니 애니메이션 없이)
             mountsOnboarding = false
         }
+    }
+
+    private func resetOnboarding() {
+        onRestartSplash()
+        hasCompletedOnboarding = false
+        step = .watch
+        arrivesFromOnboarding = true
+        mountsOnboarding = true
+        preparesHome = false
+        showsHome = false
     }
 }
 
