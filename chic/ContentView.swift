@@ -65,7 +65,7 @@ struct ContentView: View {
 
     /// 온보딩 1/5 → … → 5/5. 쪽이 바뀔 때의 넘김 애니메이션은 OnboardingView 가 해요.
     private var onboarding: some View {
-        OnboardingFlow(page: step, onNext: showNextStep, onComplete: completeOnboarding, onSwipe: swipeStep,
+        OnboardingView(page: step, onNext: showNextStep, onSkip: completeOnboarding, onSwipe: swipeStep,
                        onPageSettled: { page in if page == .review && reduceMotion { preparesHome = true } })
             .environment(\.loopRestAction, { preparesHome = true })
     }
@@ -105,33 +105,6 @@ struct ContentView: View {
         mountsOnboarding = true
         preparesHome = false
         showsHome = false
-    }
-}
-
-/// 온보딩 화면과 "건너뛰기" 동작
-///
-/// 건너뛰기는 온보딩을 마치자마자 연습을 시작해서 연습(`PracticeSession`) · 워치 연결(`WatchConnection`)이 필요해요.
-/// 이 두 객체는 연습 중 계속 바뀌는데, `ContentView` 가 직접 관찰하면 온보딩을 마친 뒤에도 연습 중 내내 다시 계산돼요.
-/// 그래서 관찰은 이 뷰만 해요. 온보딩이 내려가면(`mountsOnboarding` = false) 이 뷰도 같이 내려가서 관찰이 끝나요.
-/// 상태(쪽 · 홈 전환 · `preparesHome`)와 애니메이션은 모두 `ContentView` 에 그대로 있어요.
-private struct OnboardingFlow: View {
-    @EnvironmentObject private var practice: PracticeSession
-    @EnvironmentObject private var connection: WatchConnection
-    let page: OnboardingPage
-    let onNext: () -> Void
-    /// 온보딩을 마쳐요 (홈으로 넘어가는 애니메이션까지)
-    let onComplete: () -> Void
-    let onSwipe: (Int) -> Void
-    let onPageSettled: (OnboardingPage) -> Void
-
-    var body: some View {
-        OnboardingView(page: page, onNext: onNext, onSkip: skipToPractice, onSwipe: onSwipe, onPageSettled: onPageSettled)
-    }
-
-    /// 건너뛰기: 온보딩을 마치고 바로 소리 인식(연습)을 시작한다
-    private func skipToPractice() {
-        onComplete()
-        Task { await practice.start(usingWatch: connection.isReachable) }
     }
 }
 
