@@ -2607,19 +2607,19 @@
         }
       }
     },
-    "연습 시작하기" : {
+    "바로 시작할 수 있어요" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Start Practice"
+            "value" : "You can start right away"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "연습 시작하기"
+            "value" : "바로 시작할 수 있어요"
           }
         }
       }
