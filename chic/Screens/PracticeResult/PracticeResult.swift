@@ -56,8 +56,8 @@ enum DetectedSound: String, Codable, CaseIterable, Hashable {
     var title: String {
         switch self {
         case .normalAeration: String(localized: "정상 공기 주입")
-        case .overAeration: String(localized: "공기과다")
-        case .lackOfAir: String(localized: "공기 부족")
+        case .overAeration: String(localized: "버블링")
+        case .lackOfAir: String(localized: "스크래칭")
         case .rolling: String(localized: "롤링")
         }
     }

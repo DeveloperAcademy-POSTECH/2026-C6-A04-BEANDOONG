@@ -46,6 +46,6 @@ struct SteamingFeedbackView: View {
 }
 
 #Preview("공기 주입") { NavigationStack { SteamingFeedbackView(feedback: .aeration) } }
-#Preview("노즐 높음") { NavigationStack { SteamingFeedbackView(feedback: .bubble) } }
-#Preview("공기 부족") { NavigationStack { SteamingFeedbackView(feedback: .moreAir) } }
+#Preview("버블링") { NavigationStack { SteamingFeedbackView(feedback: .bubble) } }
+#Preview("스크래칭") { NavigationStack { SteamingFeedbackView(feedback: .moreAir) } }
 #Preview("롤링") { NavigationStack { SteamingFeedbackView(feedback: .milkFlow) } }
