@@ -468,19 +468,19 @@
         }
       }
     },
-    "iPhone에서 연습은 계속 진행돼요" : {
+    "iPhone에서는 소리 분석이 계속돼요" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Practice continues on your iPhone."
+            "value" : "Sound analysis continues on your iPhone."
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "iPhone에서 연습은 계속 진행돼요"
+            "value" : "iPhone에서는 소리 분석이 계속돼요"
           }
         }
       }
@@ -743,19 +743,19 @@
         }
       }
     },
-    "계속 연습" : {
+    "계속하기" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Keep Practicing"
+            "value" : "Continue"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "계속 연습"
+            "value" : "계속하기"
           }
         }
       }
@@ -2210,7 +2210,7 @@
         }
       }
     },
-    "스팀 소리가 감지되지 않아요\n연습을 마쳤다면 기록을 확인해 주세요" : {
+    "스팀 소리가 감지되지 않아요\n스티밍을 마쳤다면 기록을 확인해 주세요" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -2222,7 +2222,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "스팀 소리가 감지되지 않아요\n연습을 마쳤다면 기록을 확인해 주세요"
+            "value" : "스팀 소리가 감지되지 않아요\n스티밍을 마쳤다면 기록을 확인해 주세요"
           }
         }
       }
@@ -2250,19 +2250,19 @@
         }
       }
     },
-    "실시간 소리 분석이 지연되어 연습을 종료했어요. 다시 시작해 주세요." : {
+    "소리 분석이 지연되어 실시간 피드백을 종료했어요. 다시 시작해 주세요." : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Practice ended because sound analysis fell behind. Please start again."
+            "value" : "Sound analysis fell behind, so live feedback stopped. Please start again."
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "실시간 소리 분석이 지연되어 연습을 종료했어요. 다시 시작해 주세요."
+            "value" : "소리 분석이 지연되어 실시간 피드백을 종료했어요. 다시 시작해 주세요."
           }
         }
       }
@@ -2335,19 +2335,19 @@
         }
       }
     },
-    "애플 워치와 함께 스티밍 연습을 시작해요" : {
+    "애플 워치와 함께 스티밍을 시작해요" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Start steaming practice with Apple Watch"
+            "value" : "Start steaming with Apple Watch"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "애플 워치와 함께 스티밍 연습을 시작해요"
+            "value" : "애플 워치와 함께 스티밍을 시작해요"
           }
         }
       }
@@ -2369,19 +2369,19 @@
         }
       }
     },
-    "어떤 소리가 얼마나 감지됐는지 확인하고\n 다음 연습에 활용해 보세요" : {
+    "어떤 소리가 얼마나 감지됐는지 확인하고\n 다음 스티밍에 활용해 보세요" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "See which sounds we detected and\nfor how long, then try again."
+            "value" : "See which sounds we detected and\nfor how long, then use it next time."
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "어떤 소리가 얼마나 감지됐는지 확인하고\n 다음 연습에 활용해 보세요"
+            "value" : "어떤 소리가 얼마나 감지됐는지 확인하고\n 다음 스티밍에 활용해 보세요"
           }
         }
       }
@@ -2471,36 +2471,36 @@
         }
       }
     },
-    "연습 결과 로딩 중" : {
+    "결과를 준비하고 있어요" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Loading your results"
+            "value" : "Preparing your results"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "연습 결과 로딩 중"
+            "value" : "결과를 준비하고 있어요"
           }
         }
       }
     },
-    "연습 결과 저장에 실패했어요." : {
+    "스티밍 기록을 저장하지 못했어요." : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Couldn't save your practice results."
+            "value" : "Couldn't save your steaming record."
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "연습 결과 저장에 실패했어요."
+            "value" : "스티밍 기록을 저장하지 못했어요."
           }
         }
       }
@@ -2539,53 +2539,53 @@
         }
       }
     },
-    "연습 기록 저장소를 열 수 없어요. 앱을 다시 실행해 주세요." : {
+    "기록을 사용할 수 없어요. 앱을 다시 실행해 주세요." : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Couldn't open your practice history. Please restart the app."
+            "value" : "Couldn't access your records. Please restart the app."
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "연습 기록 저장소를 열 수 없어요. 앱을 다시 실행해 주세요."
+            "value" : "기록을 사용할 수 없어요. 앱을 다시 실행해 주세요."
           }
         }
       }
     },
-    "연습 기록을 확인해요" : {
+    "기록을 확인해요" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "View your practice history"
+            "value" : "View your records"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "연습 기록을 확인해요"
+            "value" : "기록을 확인해요"
           }
         }
       }
     },
-    "연습 내역이 없어요" : {
+    "아직 기록이 없어요" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "No practice sessions yet"
+            "value" : "No records yet"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "연습 내역이 없어요"
+            "value" : "아직 기록이 없어요"
           }
         }
       }
@@ -2641,19 +2641,36 @@
         }
       }
     },
-    "연습 종료" : {
+    "스티밍 안내" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "End Practice"
+            "value" : "Steaming Update"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "연습 종료"
+            "value" : "스티밍 안내"
+          }
+        }
+      }
+    },
+    "스티밍 종료" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "End Steaming"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "스티밍 종료"
           }
         }
       }
@@ -2692,19 +2709,19 @@
         }
       }
     },
-    "연습을 돌아보고\n부족했던 순간을 채워가요" : {
+    "스티밍을 돌아보고\n부족했던 순간을 채워가요" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Review your practice\nand keep improving"
+            "value" : "Review your steaming\nand keep improving"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "연습을 돌아보고\n부족했던 순간을 채워가요"
+            "value" : "스티밍을 돌아보고\n부족했던 순간을 채워가요"
           }
         }
       }
@@ -2777,19 +2794,19 @@
         }
       }
     },
-    "오디오 사용이 중단되어 연습을 종료했어요." : {
+    "오디오 사용이 중단되어 실시간 피드백을 종료했어요." : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Practice ended because audio was interrupted."
+            "value" : "Live feedback stopped because audio was interrupted."
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "오디오 사용이 중단되어 연습을 종료했어요."
+            "value" : "오디오 사용이 중단되어 실시간 피드백을 종료했어요."
           }
         }
       }
@@ -3273,19 +3290,19 @@
         }
       }
     },
-    "이번 연습을 함께 돌아봐요" : {
+    "이번 스티밍을 함께 돌아봐요" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Let's look back at your practice"
+            "value" : "Let's look back at this steaming session"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "이번 연습을 함께 돌아봐요"
+            "value" : "이번 스티밍을 함께 돌아봐요"
           }
         }
       }
@@ -3755,36 +3772,36 @@
     "처음부터 다시보기" : {
 
     },
-    "첫 연습 시작하기" : {
+    "첫 스티밍 시작하기" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Start Your First Session"
+            "value" : "Start Steaming"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "첫 연습 시작하기"
+            "value" : "첫 스티밍 시작하기"
           }
         }
       }
     },
-    "첫 연습을 통해\n기록을 쌓아볼까요?" : {
+    "첫 스티밍을 시작하고\n기록을 남겨볼까요?" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Start your first session\nand track your progress."
+            "value" : "Start your first steaming session\nand save your record."
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "첫 연습을 통해\n기록을 쌓아볼까요?"
+            "value" : "첫 스티밍을 시작하고\n기록을 남겨볼까요?"
           }
         }
       }

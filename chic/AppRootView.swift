@@ -70,7 +70,7 @@ struct AppRootView: View {
         // 다크 지정이 잠깐 비어 시스템 라이트 배경이 한 프레임 비치는 일을 막아요. 각 화면의 지정은 그대로 둬요.
         .preferredColorScheme(.dark)
         .task(id: splashCycle) { await hideSplashAfterDisplay() }
-        .alert(String(localized: "연습 안내"), isPresented: Binding(
+        .alert(String(localized: "스티밍 안내"), isPresented: Binding(
             get: { practice.errorMessage != nil && practice.state.phase == .idle },
             set: { if !$0 { practice.errorMessage = nil } }
         )) {

@@ -6,7 +6,7 @@ import SwiftUI
 ///     ┌ 상단 네비게이션 바: 히스토리
 ///     ├ 빈 상자 일러스트
 ///     ├ 타이틀 + 설명
-///     └ 하단 버튼: [첫 연습 시작하기]
+///     └ 하단 버튼: [첫 스티밍 시작하기]
 struct EmptyHistoryView: View {
     @Environment(\.designScale) private var scale
     let onStartPractice: () -> Void
@@ -24,16 +24,16 @@ struct EmptyHistoryView: View {
                 .padding(.top, Layout.illustrationTop.v(scale))
 
             // MARK: 타이틀 + 설명
-            DarkScreenTitle(String(localized: "연습 내역이 없어요"))
+            DarkScreenTitle(String(localized: "아직 기록이 없어요"))
                 .padding(.top, Layout.titleTop.v(scale))
 
-            DarkScreenSubtitle(String(localized: "첫 연습을 통해\n기록을 쌓아볼까요?"))
+            DarkScreenSubtitle(String(localized: "첫 스티밍을 시작하고\n기록을 남겨볼까요?"))
                 .padding(.top, Layout.subtitleTop.v(scale))
 
             Spacer(minLength: 0)
 
             // MARK: 하단 버튼
-            BottomPrimaryButton(title: String(localized: "첫 연습 시작하기"), action: onStartPractice)
+            BottomPrimaryButton(title: String(localized: "첫 스티밍 시작하기"), action: onStartPractice)
         }
         .ignoresSafeArea()
         .darkScreenBackgroundWithTopGlow()

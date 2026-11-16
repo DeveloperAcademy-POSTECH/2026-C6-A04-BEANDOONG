@@ -3,18 +3,18 @@ import SwiftUI
 /// 결과를 저장하고 준비하는 동안 표시합니다. ListeningView와 같은 스피너(LoadingSpinner)를 사용합니다.
 /// - 디자인: Hi-Fi 연습 결과 – 결과 로딩중 (iPhone 17 - 220)
 ///
-///     ┌ 타이틀 "연습 결과 로딩 중" + 설명
+///     ┌ 타이틀 "결과를 준비하고 있어요" + 설명
 ///     └ 로딩 스피너 (상단 바·정지 버튼 없이 소리 확인 중 화면과 같은 위치)
 struct PracticeResultLoadingView: View {
     @Environment(\.designScale) private var scale
     var body: some View {
         VStack(spacing: 0) {
-            Text(String(localized: "연습 결과 로딩 중"))
+            Text(String(localized: "결과를 준비하고 있어요"))
                 .font(.pretendard(.bold, size: 26))
                 .foregroundStyle(PracticeResultColors.primaryText)
                 .padding(.top, Layout.titleTop.v(scale))
 
-            DarkScreenSubtitle(String(localized: "이번 연습을 함께 돌아봐요"), color: PracticeResultColors.primaryText)
+            DarkScreenSubtitle(String(localized: "이번 스티밍을 함께 돌아봐요"), color: PracticeResultColors.primaryText)
                 .padding(.top, ScreenMetrics.subtitleTop.v(scale))
 
             LoadingSpinner()

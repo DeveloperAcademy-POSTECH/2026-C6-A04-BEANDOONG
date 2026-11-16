@@ -17,7 +17,7 @@ struct HomePracticeCard: View {
         Button(action: action) { content }
             .buttonStyle(HomeCardPressStyle(reduceMotion: reduceMotion))
             .accessibilityLabel(String(localized: "시작하기"))
-            .accessibilityHint(String(localized: "애플 워치와 함께 스티밍 연습을 시작해요"))
+            .accessibilityHint(String(localized: "애플 워치와 함께 스티밍을 시작해요"))
     }
 
     private var content: some View {
@@ -116,7 +116,7 @@ struct HomeBottomCards: View {
         }
         .buttonStyle(HomeCardPressStyle(reduceMotion: reduceMotion))
         .accessibilityLabel(String(localized: "기록 보기"))
-        .accessibilityHint(String(localized: "연습 기록을 확인해요"))
+        .accessibilityHint(String(localized: "기록을 확인해요"))
     }
 
     /// 기록 카드 폭: 메인 카드 폭에서 가이드 카드와 사이 간격을 뺀 나머지 (오른쪽 끝을 메인 카드와 맞춰요)
