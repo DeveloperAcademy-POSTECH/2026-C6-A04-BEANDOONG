@@ -516,6 +516,9 @@ h3 {
   transform: translateY(var(--portrait-y, 0)) scale(var(--portrait-scale, 1));
   transform-origin: top center;
 }
+.member-grid--team .portrait {
+  object-fit: contain;
+}
 .portrait--anne { --portrait-scale: 1.05; --portrait-y: 1%; }
 .portrait--zen { --portrait-scale: 1.12; --portrait-y: -4%; }
 .portrait--esther { --portrait-scale: 1.1; --portrait-y: -9%; }
