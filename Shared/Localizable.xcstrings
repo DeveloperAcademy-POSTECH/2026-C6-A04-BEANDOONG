@@ -2589,19 +2589,19 @@
         }
       }
     },
-    "기록 보러가기" : {
+    "기록" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "View history"
+            "value" : "History"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "기록 보러가기"
+            "value" : "기록"
           }
         }
       }
@@ -2691,19 +2691,19 @@
         }
       }
     },
-    "바로 시작할 수 있어요" : {
+    "스티밍 시작하기" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "You can start right away"
+            "value" : "Start Steaming"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "바로 시작할 수 있어요"
+            "value" : "스티밍 시작하기"
           }
         }
       }

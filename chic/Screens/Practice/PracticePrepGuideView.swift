@@ -7,7 +7,7 @@ import SwiftUI
 ///     ┌ 상단 바: < 스팀 준비
 ///     ├ 워치 캐러셀 + 점 4개
 ///     ├ 타이틀 + 설명
-///     └ 버튼 "바로 시작할 수 있어요" (어느 칸에서든 바로 소리 인식 대기로)
+///     └ 버튼 "스티밍 시작하기" (어느 칸에서든 바로 소리 인식 대기로)
 ///
 /// 4칸(정상 → 과다 → 부족 → 롤링)이 일정 시간마다 한 칸씩 옆으로 넘어가고, 롤링 다음에는 다시 정상으로 돌아간다.
 /// 칸은 원형으로 이어져 있어서 롤링 → 정상도 다른 칸과 같은 캐러셀 움직임이다 (2026-11-13: 쪽 넘김이 어색해 바꿈).
@@ -51,7 +51,7 @@ struct PracticePrepGuideView: View {
             .gesture(swipe)
 
             // MARK: 버튼
-            BottomPrimaryButton(title: String(localized: "바로 시작할 수 있어요"), action: startPractice)
+            BottomPrimaryButton(title: String(localized: "스티밍 시작하기"), action: startPractice)
         }
         .ignoresSafeArea()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -93,7 +93,7 @@ struct PracticePrepGuideView: View {
         autoCycle += 1
     }
 
-    /// "바로 시작할 수 있어요": 어느 칸에서든 안내를 마치고 바로 소리 인식(연습)을 시작한다
+    /// "스티밍 시작하기": 어느 칸에서든 안내를 마치고 바로 소리 인식(연습)을 시작한다
     private func startPractice() {
         Task { await practice.start(usingWatch: usesWatch) }
     }
