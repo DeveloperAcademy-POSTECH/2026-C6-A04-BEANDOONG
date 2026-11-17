@@ -8,6 +8,7 @@ final class PracticeRecordEntity {
     var startedAt: Date
     var endedAt: Date
     var dailyOrder: Int
+    var pausedDuration: TimeInterval?
     /// 이전 버전의 기록과 같은 저장 스키마를 유지합니다.
     var modelName: String?
     @Relationship(deleteRule: .cascade) var soundSegments: [PracticeSoundSegmentEntity]
@@ -16,12 +17,13 @@ final class PracticeRecordEntity {
         id = record.id
         startedAt = record.startedAt
         endedAt = record.endedAt
+        pausedDuration = record.pausedDuration
         self.dailyOrder = dailyOrder
         soundSegments = segments.map(PracticeSoundSegmentEntity.init)
     }
 
     var record: PracticeRecord {
-        PracticeRecord(id: id, startedAt: startedAt, endedAt: endedAt)
+        PracticeRecord(id: id, startedAt: startedAt, endedAt: endedAt, pausedDuration: pausedDuration)
     }
 
     var result: PracticeResult {
@@ -29,7 +31,7 @@ final class PracticeRecordEntity {
             practicedAt: startedAt,
             dailyOrder: dailyOrder,
             segments: soundSegments.compactMap(\.segment).sorted { $0.start < $1.start },
-            duration: max(0, endedAt.timeIntervalSince(startedAt))
+            duration: record.duration
         )
     }
 }

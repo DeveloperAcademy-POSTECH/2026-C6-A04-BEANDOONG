@@ -23,6 +23,18 @@ struct PracticeStateTests {
         state.records = [record]
         state.updatedAt = end
 
+        // 두 번의 잠금과 팝업 대기 시간을 빼고 같은 연습의 실제 시간만 합산합니다.
+        var paused = state
+        paused.endedAt = nil
+        paused.pausedAt = start.addingTimeInterval(10)
+        precondition(paused.duration(at: start.addingTimeInterval(40)) == 10)
+        paused.resume(at: start.addingTimeInterval(40))
+        paused.pausedAt = start.addingTimeInterval(45)
+        let snapshot = try JSONDecoder().decode(PracticeState.self, from: JSONEncoder().encode(paused.watchSnapshot))
+        precondition(snapshot.sessionID == id && snapshot.duration(at: end) == 15)
+        paused.resume(at: start.addingTimeInterval(50))
+        precondition(paused.duration(at: start.addingTimeInterval(55)) == 20)
+
         // 모든 상태의 전송과 기록 저장 과정에서 세션 ID·시간·기록이 유지되어야 합니다.
         for phase in PracticePhase.allCases {
             state.phase = phase

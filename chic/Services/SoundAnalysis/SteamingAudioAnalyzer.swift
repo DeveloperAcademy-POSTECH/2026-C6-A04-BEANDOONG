@@ -31,6 +31,7 @@ nonisolated final class SteamingAudioAnalyzer: @unchecked Sendable {
     func start(onResult: @escaping @Sendable (PracticePhase) -> Void,
                onSilence: @escaping @Sendable (TimeInterval) -> Void,
                onError: @escaping @Sendable (String) -> Void) throws {
+        queue.sync { isStopped = false }
         let input = engine.inputNode
         let format = input.outputFormat(forBus: 0)
         guard format.channelCount > 0, format.commonFormat == .pcmFormatFloat32,

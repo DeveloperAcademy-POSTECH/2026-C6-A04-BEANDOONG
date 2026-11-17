@@ -30,13 +30,23 @@ struct PracticeSessionView: View {
                 SteamingFeedbackView(
                     feedback: feedback,
                     aerationClock: practice.aerationClock,
-                    onStop: practice.stop,
-                    showsEndDialog: practice.endQuestion.isAsking,
-                    onContinue: practice.continueAfterSilence,
-                    onFinishAfterSilence: practice.finishAfterSilence
+                    onStop: practice.stop
                 )
             }
         }
+        .chicAlert(
+            isPresented: practice.endQuestion.isAsking,
+            title: practice.state.pausedAt == nil
+                ? String(localized: "스티밍이 끝났나요?") : String(localized: "연습을 이어갈까요?"),
+            message: practice.state.pausedAt == nil
+                ? String(localized: "스팀 소리가 감지되지 않아요\n스티밍을 마쳤다면 기록을 확인해 주세요")
+                : String(localized: "소리 감지를 잠시 멈췄어요. 계속하면 같은 연습에서 다시 감지해요."),
+            cancelTitle: String(localized: "계속하기"),
+            confirmTitle: String(localized: "스티밍 종료"),
+            cancelOnBackgroundTap: practice.state.pausedAt == nil,
+            onCancel: { Task { await practice.continuePractice() } },
+            onConfirm: practice.finishAfterSilence
+        )
         .onChange(of: connection.isReachable) { wasReachable, reachable in
             if reachable { showsDisconnection = false }
             if wasReachable && !reachable && practice.state.phase.isRunning && practice.state.isWatchEnabled {
