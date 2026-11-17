@@ -11,7 +11,6 @@ trap 'rm -rf "$work"' EXIT
 xcrun swiftc -D PRESENTATION_TESTS -module-cache-path "$work/cache" \
     "$root/Shared/PracticeState.swift" \
     "$root/Shared/ConnectionError.swift" \
-    "$root/chic/Services/SoundAnalysis/ChicModelSelection.swift" \
     "$root/chic/Services/AerationClock.swift" \
     "$root/chic/Services/MilkLevel.swift" \
     "$root/chic/Services/SmoothFollower.swift" \

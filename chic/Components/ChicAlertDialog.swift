@@ -106,6 +106,7 @@ private struct ChicAlertLayer: View {
     let cancelTitle: String
     let confirmTitle: String
     let confirmColor: Color
+    let cancelOnBackgroundTap: Bool
     let onCancel: () -> Void
     let onConfirm: () -> Void
 
@@ -114,7 +115,7 @@ private struct ChicAlertLayer: View {
             if isPresented {
                 Color.black.opacity(Layout.dimOpacity)
                     .ignoresSafeArea()
-                    .onTapGesture(perform: onCancel)
+                    .onTapGesture { if cancelOnBackgroundTap { onCancel() } }
                     .transition(.opacity)
                 ChicAlertDialog(
                     title: title, message: message,
@@ -155,6 +156,7 @@ extension View {
         cancelTitle: String,
         confirmTitle: String,
         confirmColor: Color = AppColors.alertBlue,
+        cancelOnBackgroundTap: Bool = true,
         onCancel: @escaping () -> Void,
         onConfirm: @escaping () -> Void
     ) -> some View {
@@ -163,7 +165,8 @@ extension View {
                 isPresented: isPresented,
                 title: title, message: message,
                 cancelTitle: cancelTitle, confirmTitle: confirmTitle,
-                confirmColor: confirmColor, onCancel: onCancel, onConfirm: onConfirm
+                confirmColor: confirmColor, cancelOnBackgroundTap: cancelOnBackgroundTap,
+                onCancel: onCancel, onConfirm: onConfirm
             )
         }
     }

@@ -17,13 +17,6 @@ struct SteamingFeedbackView: View {
     var aerationClock = AerationClock()
     /// 종료하기 버튼: 묻지 않고 바로 정지
     var onStop: () -> Void = {}
-    /// 스팀 소리가 끊겨 "스티밍이 끝났나요?"를 묻는 중인지 (연습 관리자가 정해요)
-    var showsEndDialog = false
-    /// 팝업의 '계속 연습'
-    var onContinue: () -> Void = {}
-    /// 팝업의 '연습 종료' (소리가 끊긴 시각으로 종료)
-    var onFinishAfterSilence: () -> Void = {}
-
     /// 수위·잔물결을 프레임마다 이어 가는 상태 (화면을 다시 그리게 하지 않는 참조 타입)
     @State private var pitcherMotion = PitcherMotion()
     /// 수위와 잔물결이 다 멈춰서 비커 그리기를 쉬는 중인 공기 주입 시계. 지금 시계와 같을 때만 쉬어요 (시계가 바뀌면 바로 다시 그려요).
@@ -53,7 +46,7 @@ struct SteamingFeedbackView: View {
                 TimelineView(.animation(minimumInterval: aerationClock.isRunning ? nil : 1.0 / 30, paused: isStill && !aerationClock.isRunning)) { context in
                     let frame = pitcherMotion.advance(
                         to: context.date,
-                        targetTop: MilkLevel.top(forAeration: aerationClock.seconds(at: context.date), model: aerationClock.model),
+                        targetTop: MilkLevel.top(forAeration: aerationClock.seconds(at: context.date)),
                         rippling: aerationClock.isRunning,
                         still: isStill
                     )
@@ -102,15 +95,6 @@ struct SteamingFeedbackView: View {
         }
         // 색이 바뀔 때 배경·기호·문구·점선 색·버튼 위치가 함께 부드럽게 바뀌어요.
         .animation(Layout.feedbackChange, value: feedback)
-        .chicAlert(
-            isPresented: showsEndDialog,
-            title: String(localized: "스티밍이 끝났나요?"),
-            message: String(localized: "스팀 소리가 감지되지 않아요\n스티밍을 마쳤다면 기록을 확인해 주세요"),
-            cancelTitle: String(localized: "계속하기"),
-            confirmTitle: String(localized: "스티밍 종료"),
-            onCancel: onContinue,
-            onConfirm: onFinishAfterSilence
-        )
         .preferredColorScheme(.dark)
     }
 
@@ -168,4 +152,3 @@ private enum Layout {
 #Preview("moreAir") { SteamingFeedbackView(feedback: .moreAir, aerationClock: AerationClock(accumulated: 3)) }
 #Preview("milkFlow") { SteamingFeedbackView(feedback: .milkFlow, aerationClock: AerationClock(accumulated: 3)) }
 #Preview("시작 (0초)") { SteamingFeedbackView(feedback: .aeration) }
-#Preview("소리 끊김") { SteamingFeedbackView(feedback: .aeration, showsEndDialog: true) }

@@ -361,10 +361,6 @@
 				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_TEAM = B5N39V8625;
 				ENABLE_PREVIEWS = YES;
-				EXCLUDED_SOURCE_FILE_NAMES = (
-					"$(inherited)",
-					"Delonghi*.mlmodel",
-				);
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = chic/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = chic;
@@ -405,10 +401,6 @@
 				CURRENT_PROJECT_VERSION = 7;
 				DEVELOPMENT_TEAM = B5N39V8625;
 				ENABLE_PREVIEWS = YES;
-				EXCLUDED_SOURCE_FILE_NAMES = (
-					"$(inherited)",
-					"Delonghi*.mlmodel",
-				);
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = chic/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = chic;

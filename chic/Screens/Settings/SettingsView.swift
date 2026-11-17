@@ -12,9 +12,6 @@ struct SettingsView: View {
     @Environment(\.openURL) private var openURL
     @State private var showsMailCompose = false
     @State private var showsNoMailAlert = false
-    #if DEVELOP
-    @AppStorage(ChicModelSelection.storageKey) private var steamingModel: ChicModelSelection = .standard
-    #endif
     /// App Store 최신 버전 확인 결과. 확인 전이거나 확인하지 못하면 nil (최신 버전 줄을 비워 둬요)
     @State private var storeVersion: AppVersion?
     /// 미리보기용: App Store 조회 대신 이 값을 최신 버전으로 써요 (예: "1.0.3")
@@ -115,29 +112,6 @@ struct SettingsView: View {
                 .padding(.top, Layout.watchSectionTitleTop.v(scale))
 
             VStack(spacing: 0) {
-                Menu {
-                    Picker("스티밍 모델", selection: $steamingModel) {
-                        Text("통합 모델").tag(ChicModelSelection.standard)
-                        Text("드롱기 아르떼 모델").tag(ChicModelSelection.home)
-                    }
-                } label: {
-                    SettingsRowLabel(
-                        symbol: "waveform",
-                        title: "스티밍 모델",
-                        detail: steamingModel == .standard
-                            ? String(localized: "통합 모델")
-                            : String(localized: "드롱기 아르떼 모델"),
-                        chevron: "chevron.up.chevron.down"
-                    )
-                }
-                .menuStyle(.borderlessButton)
-
-                Rectangle()
-                    .fill(AppColors.settingsDivider)
-                    .frame(height: 1)
-                    .padding(.leading, Layout.dividerLeading)
-                    .padding(.trailing, Layout.dividerTrailing)
-
                 SettingsRow(symbol: "arrow.counterclockwise", title: String(localized: "온보딩 다시 보기"),
                             action: onResetOnboarding)
 
@@ -252,7 +226,6 @@ private struct SettingsRow: View {
 private struct SettingsRowLabel: View {
     let symbol: String
     let title: String
-    var detail: String? = nil
     var chevron: String? = "chevron.right"
 
     var body: some View {
@@ -273,15 +246,6 @@ private struct SettingsRowLabel: View {
                 .padding(.leading, 18.5)
 
             Spacer(minLength: 0)
-
-            if let detail {
-                Text(detail)
-                    .font(.pretendard(.regular, size: 14))
-                    .foregroundStyle(AppColors.guideStepNumber)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.8)
-                    .padding(.trailing, 8)
-            }
 
             if let chevron {
                 Image(systemName: chevron)

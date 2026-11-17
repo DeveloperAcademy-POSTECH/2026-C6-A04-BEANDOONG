@@ -9,11 +9,8 @@ nonisolated struct AerationClock: Equatable {
     /// 지금 이어지고 있는 공기 주입 구간의 시작 시각. 공기 주입 중이 아니면 nil.
     private(set) var runningSince: Date?
 
-    let model: ChicModelSelection
-
     /// 처음 만들 때는 0초. 미리보기·UI 테스트에서는 이미 쌓인 시간을 넣어 수위를 고정해 볼 수 있어요.
-    init(accumulated: TimeInterval = 0, model: ChicModelSelection = .standard) {
-        self.model = model
+    init(accumulated: TimeInterval = 0) {
         self.accumulated = accumulated
     }
 
