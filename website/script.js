@@ -1,30 +1,100 @@
-const feedbackStates = {
-  aeration: { title: ['공기가 고르게', '들어가고 있어요'], description: '지금 상태를 유지해 주세요', image: 'IllustFeedbackAeration', alt: '공기가 고르게 주입되는 우유 일러스트' },
-  bubble: { title: ['큰 기포가', '생길 수 있어요'], description: '피처를 살짝 올려 노즐을 더 담가 주세요', image: 'IllustFeedbackBubble', alt: '큰 기포가 생기는 우유 일러스트' },
-  moreAir: { title: ['공기 주입이', '부족해요'], description: '피처를 살짝 내려 주세요', image: 'IllustFeedbackMoreAir', alt: '공기 주입이 부족한 우유 일러스트' },
-  milkFlow: { title: ['롤링이 안정적으로', '진행되고 있어요'], description: '우유가 한 방향으로 돌도록 유지해 주세요', image: 'IllustFeedbackMilkFlow', alt: '안정적으로 회전하는 우유 일러스트' },
-};
+const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
 
-const buttons = document.querySelectorAll('[data-state]');
-const phone = document.querySelector('.demo-phone');
-const title = document.querySelector('#feedback-title');
-const description = document.querySelector('#feedback-description');
-const illustration = document.querySelector('#feedback-image');
+// 각 미리보기는 선택 상태를 따로 유지하며 버튼, 키보드, 스와이프로 전환합니다.
+document.querySelectorAll("[data-carousel]").forEach((carousel) => {
+  const viewport = carousel.querySelector("[data-carousel-viewport]");
+  const track = carousel.querySelector("[data-carousel-track]");
+  const slides = [...carousel.querySelectorAll("[data-carousel-slide]")];
+  const buttons = [...carousel.querySelectorAll("[data-slide]")];
+  const caption = carousel.querySelector("[data-carousel-caption]");
+  let current = 0;
+  let pointerStart;
 
-buttons.forEach((button) => {
-  button.addEventListener('click', () => {
-    const state = button.dataset.state;
-    const feedback = feedbackStates[state];
-    if (!feedback) return;
-    buttons.forEach((item) => {
-      const selected = item === button;
-      item.classList.toggle('active', selected);
-      item.setAttribute('aria-pressed', String(selected));
+  // 화면과 설명, 보조 기술에 전달되는 선택 상태를 함께 바꿉니다.
+  function showSlide(index) {
+    current = (index + slides.length) % slides.length;
+    track.style.transform = `translateX(-${current * 100}%)`;
+    slides.forEach((slide, i) => {
+      slide.setAttribute("aria-hidden", String(i !== current));
+      slide.inert = i !== current;
+      buttons[i].setAttribute("aria-pressed", String(i === current));
     });
-    phone.dataset.feedback = state;
-    title.replaceChildren(feedback.title[0], document.createElement('br'), feedback.title[1]);
-    description.textContent = feedback.description;
-    illustration.src = `./assets/${feedback.image}.png`;
-    illustration.alt = feedback.alt;
+    caption.textContent = slides[current].dataset.caption;
+  }
+
+  buttons.forEach((button, i) => {
+    button.addEventListener("click", () => showSlide(i));
+    button.addEventListener("keydown", (event) => {
+      if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+      event.preventDefault();
+      showSlide(
+        event.key === "Home"
+          ? 0
+          : event.key === "End"
+            ? slides.length - 1
+            : i + (event.key === "ArrowRight" ? 1 : -1),
+      );
+      buttons[current].focus();
+    });
   });
+  viewport.addEventListener("pointerdown", (event) => {
+    if (!event.isPrimary || event.button !== 0) return;
+    pointerStart = { x: event.clientX, y: event.clientY };
+    viewport.setPointerCapture(event.pointerId);
+  });
+  viewport.addEventListener("pointerup", (event) => {
+    if (!pointerStart) return;
+    const dx = event.clientX - pointerStart.x;
+    const dy = event.clientY - pointerStart.y;
+    pointerStart = null;
+    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) showSlide(current + (dx < 0 ? 1 : -1));
+  });
+  viewport.addEventListener("pointercancel", () => {
+    pointerStart = null;
+  });
+});
+
+// 각 내용이 화면에 들어올 때 아래에서 부드럽게 나타나며, 동작 줄이기 설정을 존중합니다.
+const revealItems = document.querySelectorAll("[data-reveal]");
+if ("IntersectionObserver" in window && !reducedMotion.matches) {
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        entry.target.classList.add("is-visible");
+        observer.unobserve(entry.target);
+      });
+    },
+    { threshold: 0.12 },
+  );
+  revealItems.forEach((element) => {
+    element.classList.add("reveal", "reveal-pending");
+    observer.observe(element);
+  });
+  reducedMotion.addEventListener("change", () => {
+    if (!reducedMotion.matches) return;
+    observer.disconnect();
+    revealItems.forEach((element) => element.classList.add("is-visible"));
+  });
+}
+
+// 호버는 마우스에서만 열고, 터치와 키보드는 기본 버튼 동작으로 전환합니다.
+document.querySelectorAll(".problem-card").forEach((card) => {
+  const button = card.querySelector(".problem-toggle");
+  const panel = card.querySelector(".problem-panel");
+  function setOpen(open) {
+    button.setAttribute("aria-expanded", String(open));
+    panel.setAttribute("aria-hidden", String(!open));
+  }
+  card.addEventListener("pointerenter", (event) => {
+    if (event.pointerType === "mouse") setOpen(true);
+  });
+  card.addEventListener("pointerleave", (event) => {
+    if (event.pointerType === "mouse") setOpen(false);
+  });
+  button.addEventListener("click", () => setOpen(button.getAttribute("aria-expanded") !== "true"));
+  button.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") setOpen(false);
+  });
+  button.addEventListener("blur", () => setOpen(false));
 });

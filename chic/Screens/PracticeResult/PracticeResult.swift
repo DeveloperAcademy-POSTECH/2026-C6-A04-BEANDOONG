@@ -56,8 +56,8 @@ enum DetectedSound: String, Codable, CaseIterable, Hashable {
     var title: String {
         switch self {
         case .normalAeration: String(localized: "정상 공기 주입")
-        case .overAeration: String(localized: "공기과다")
-        case .lackOfAir: String(localized: "공기 부족")
+        case .overAeration: String(localized: "버블링")
+        case .lackOfAir: String(localized: "스크래칭")
         case .rolling: String(localized: "롤링")
         }
     }
@@ -104,7 +104,6 @@ struct PracticeResult: Hashable {
     let segments: [DetectedSegment]
     /// 소리를 확인 중이던 시간까지 포함한 실제 연습 길이입니다.
     var duration: TimeInterval? = nil
-    var model: ChicModelSelection = .standard
     /// 상태별 감지 시간을 별도로 지정할 때 사용 (nil 이면 segments 합계로 자동 계산)
     var customDetectedSeconds: [DetectedSound: Int]? = nil
     /// 타임라인 눈금 라벨을 별도로 지정할 때 사용 (nil 이면 timelineLength 로 자동 계산)

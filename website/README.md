@@ -1,6 +1,6 @@
-# chic 웹사이트 시안
+# chic 쇼케이스 웹사이트
 
-원본 웹사이트와 분리된 `website_remi` 시안입니다. React 없이 HTML·CSS·JavaScript로 구성되어 있습니다.
+GitHub Pages에 배포되는 `website/`의 정적 웹사이트입니다. React 없이 HTML·CSS·JavaScript로 구성되어 있습니다.
 
 ## 파일 구성
 
@@ -15,7 +15,7 @@
 프로젝트 최상위 폴더에서 실행합니다.
 
 ```sh
-npx --yes vite@6.4.1 website_remi --host 127.0.0.1 --port 8765 --strictPort
+npx --yes vite@6.4.1 website --host 127.0.0.1 --port 8765 --strictPort
 ```
 
 브라우저에서 <http://127.0.0.1:8765/>를 엽니다. CSS를 저장하면 스타일이 즉시 갱신되고, HTML·JavaScript를 저장하면 페이지가 자동으로 새로고침됩니다. 서버를 켠 동안 동작하며, 종료는 터미널에서 `Ctrl+C`입니다.
@@ -42,7 +42,7 @@ npx --yes vite@6.4.1 website_remi --host 127.0.0.1 --port 8765 --strictPort
 ## 상호작용 확인
 
 ```sh
-node website_remi/checks/carousel.test.cjs
+node website/checks/carousel.test.cjs
 ```
 
 두 캐러셀의 독립 전환, 선택 표시, 키보드 순환, 스와이프와 세로 스크롤 구분, 등장 효과와 동작 줄이기 설정을 확인합니다.
@@ -67,7 +67,7 @@ node website_remi/checks/carousel.test.cjs
 사진은 Pexels에서 웹용 크기로 내려받아 로컬에 보관하며 AI 생성이나 인물 합성은 하지 않았습니다.
 
 ```sh
-node website_remi/checks/problem-cards.test.cjs
+node website/checks/problem-cards.test.cjs
 ```
 
 ## 팀 배너

@@ -22,7 +22,7 @@ enum PracticeGuide: Equatable {
         let minimumWarningDuration: TimeInterval = 1
         let scratch = result.guideDuration(of: .lackOfAir) >= minimumWarningDuration
         let bubble = result.guideDuration(of: .overAeration) >= minimumWarningDuration
-        let range = result.model.aerationRange
+        let range = MilkLevel.lowerLineSeconds...MilkLevel.upperLineSeconds
         switch (air, scratch, bubble) {
         case (..<range.lowerBound, false, false): self = .short
         case (..<range.lowerBound, true, false): self = .shortScratch
@@ -61,7 +61,7 @@ enum PracticeGuide: Equatable {
         case .shortScratch:
             (String(localized: "공기 주입이\n조금 부족했어요"),
              String(localized: "우유가 부풀고 거품이 생겼나요?"),
-             String(localized: "스크레칭이 들렸을 때는 스티밍 전후의 우유 높이와 표면을 함께 보세요. 높이가 거의 그대로이고 거품도 잘 보이지 않는다면 다음엔 초반에 노즐 끝을 표면 가까이에 두세요."))
+             String(localized: "스크래칭이 들렸을 때는 스티밍 전후의 우유 높이와 표면을 함께 보세요. 높이가 거의 그대로이고 거품도 잘 보이지 않는다면 다음엔 초반에 노즐 끝을 표면 가까이에 두세요."))
         case .shortBubble:
             (String(localized: "짧은 순간에\n공기가 들어갔어요"),
              String(localized: "표면에 큰 기포가 남았나요?"),
@@ -77,7 +77,7 @@ enum PracticeGuide: Equatable {
         case .targetScratch:
             (String(localized: "공기 주입 시간을\n잘 맞췄어요"),
              String(localized: "우유 높이를 처음과 비교해 보세요"),
-             String(localized: "스크레칭이 들렸어도 우유가 원하는 만큼 부풀었다면 공기 주입 시간을 늘릴 필요는 없어요. 높이가 거의 그대로이고 거품도 적다면 다음엔 차가운 우유에 공기를 조금 더 넣어 보세요."))
+             String(localized: "스크래칭이 들렸어도 우유가 원하는 만큼 부풀었다면 공기 주입 시간을 늘릴 필요는 없어요. 높이가 거의 그대로이고 거품도 적다면 다음엔 차가운 우유에 공기를 조금 더 넣어 보세요."))
         case .targetBubble:
             (String(localized: "공기가 한꺼번에 들어간\n순간이 있었어요"),
              String(localized: "큰 기포가 눈에 띄나요?"),
@@ -93,7 +93,7 @@ enum PracticeGuide: Equatable {
         case .longScratch:
             (String(localized: "거품이 우유와 덜 섞여\n위에 남았을 수 있어요"),
              String(localized: "거품 두께를 직접 살펴보세요"),
-             String(localized: "스크레칭이 들렸더라도 컵에 따른 거품이 원하는 두께라면 공기를 더 넣을 필요는 없어요. 묽은 우유부터 나오고 피처에 두꺼운 거품이 남았다면 우유와 거품이 따로 층을 이룬 거예요."))
+             String(localized: "스크래칭이 들렸더라도 컵에 따른 거품이 원하는 두께라면 공기를 더 넣을 필요는 없어요. 묽은 우유부터 나오고 피처에 두꺼운 거품이 남았다면 우유와 거품이 따로 층을 이룬 거예요."))
         case .longBubble:
             (String(localized: "거품 사이에 큰 기포가\n남았을 수 있어요"),
              String(localized: "큰 기포와 거품 두께를 구분해 보세요"),
@@ -133,9 +133,9 @@ enum GuideMilkLevel {
     /// 우유 바닥 (Hi-Fi 260: 1258.5 − 1045.8)
     static let bottom: CGFloat = 212.7
 
-    static func top(forAeration seconds: TimeInterval, model: ChicModelSelection = .standard) -> CGFloat {
+    static func top(forAeration seconds: TimeInterval) -> CGFloat {
         let scale = (lowerLine - upperLine) / (MilkLevel.lowerLine - MilkLevel.upperLine)
-        let mapped = upperLine + (MilkLevel.top(forAeration: seconds, model: model) - MilkLevel.upperLine) * scale
+        let mapped = upperLine + (MilkLevel.top(forAeration: seconds) - MilkLevel.upperLine) * scale
         return min(bottom - 1, mapped)
     }
 }

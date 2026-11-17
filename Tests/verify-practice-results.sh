@@ -13,7 +13,6 @@ xcrun swiftc -D DEVELOP -module-cache-path "$work/cache" \
     "$root/chic/Screens/PracticeResult/PracticeResult.swift" \
     "$root/chic/Models/PracticeRecordEntity.swift" \
     "$root/chic/Services/PracticeTimeline.swift" \
-    "$root/chic/Services/SoundAnalysis/ChicModelSelection.swift" \
     "$root/chic/Services/AerationClock.swift" \
     "$root/chic/Services/MilkLevel.swift" \
     "$root/chic/Screens/PracticeResult/PracticeGuide.swift" \

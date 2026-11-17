@@ -1,6 +1,6 @@
 import Foundation
 
-/// 화면에 표시한 소리의 전환 시점을 기록합니다. 소리 확인 중인 구간은 미분류로 남깁니다.
+/// 결과용 소리 판정의 전환 시점을 기록합니다. 소리 확인 중인 구간은 미분류로 남깁니다.
 struct PracticeTimeline {
     private(set) var segments: [DetectedSegment] = []
     private var sound: DetectedSound?

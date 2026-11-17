@@ -6,7 +6,7 @@ import SwiftUI
 ///     ┌ 상단 행: chic 로고 · 워치 페어링 배지(연결 상태만 표시, 2026-11-13부터 누를 수 없음) · 설정
 ///     ├ 헤드라인 "다음 한 잔을 / 위한 작은 시작" + 설명
 ///     ├ 메인 연습 카드 (워치 + 피처 이미지, 좌하단 문구, 우하단 [시작하기 →]) — 누르면 (마이크 권한 →) 연습 준비 가이드 → 연습 시작
-///     └ 아래 행: 가이드 카드 (스티밍 액팅 가이드) · 기록 카드 ("기록 보러가기", 오른쪽 아래 기록 링)
+///     └ 아래 행: 가이드 카드 (스티밍 액팅 가이드) · 기록 카드 ("기록", 오른쪽 아래 기록 링)
 ///
 /// `animatesEntrance`를 켜면 화면이 나타날 때 로고 → 헤드라인 → 설명 → 메인 카드 → 아래 카드 행 순서로
 /// 아래에서 살짝 떠오르며 차례로 나타나요. (온보딩을 마치고 홈으로 넘어올 때)
@@ -14,6 +14,8 @@ struct HomeView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.designScale) private var scale
     @State private var path: [Destination] = []
+    /// 저장하지 않아서 앱을 다시 실행하면 실제 연습 모드로 시작합니다.
+    @State private var isPresentationMode = false
     /// 등장 애니메이션을 할지
     private let animatesEntrance: Bool
     /// 화면이 실제로 보이고 있는지 (기본: 보임). 온보딩 아래에 미리 만들어 둘 때 false 로 두면,
@@ -38,6 +40,7 @@ struct HomeView: View {
         case watchSetup     // 워치 연결 과정 (설정 > 워치 페어링 > 애플 워치 연결에서 진입)
         case history
         case settings
+        case presentationPractice
     }
 
     var body: some View {
@@ -67,7 +70,10 @@ struct HomeView: View {
                             HistoryView(onStartPractice: startPractice)
                         case .settings:
                             SettingsView(onWatchPairing: { path.append(.watchSetup) },
-                                         onResetOnboarding: onResetOnboarding)
+                                         onResetOnboarding: onResetOnboarding,
+                                         isPresentationMode: $isPresentationMode)
+                        case .presentationPractice:
+                            PresentationPracticeView()
                         }
                     }
                     .toolbar(.hidden, for: .navigationBar)
@@ -156,6 +162,10 @@ struct HomeView: View {
     }
 
     private func startPractice() {
+        if isPresentationMode {
+            path = [.presentationPractice]
+            return
+        }
         path = [MicrophonePermission.isGranted ? .prepGuide : .microphone]
     }
 

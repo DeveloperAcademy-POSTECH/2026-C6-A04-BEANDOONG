@@ -71,7 +71,7 @@ enum HomeHeroImage {
 
 // MARK: - 아래 행: 가이드 카드 · 기록 카드
 
-/// 메인 카드 아래 한 줄: "가이드" 카드와 "기록 보러가기" 카드
+/// 메인 카드 아래 한 줄: "가이드" 카드와 "기록" 카드
 struct HomeBottomCards: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.designScale) private var scale
@@ -102,10 +102,10 @@ struct HomeBottomCards: View {
         .accessibilityLabel(String(localized: "가이드"))
     }
 
-    /// "기록 보러가기" 카드 (오른쪽 아래에 기록 링 에셋이 카드 밖으로 잘려 걸쳐 있음)
+    /// "기록" 카드 (오른쪽 아래에 기록 링 에셋이 카드 밖으로 잘려 걸쳐 있음)
     private var recordCard: some View {
         Button(action: onShowHistory) {
-            bottomCardContent(title: String(localized: "기록 보러가기"), width: recordCardWidth) {
+            bottomCardContent(title: String(localized: "기록"), width: recordCardWidth) {
                 // 링 에셋을 시계 방향으로 60° 돌려 분홍 호가 12시 ~ 4시 쪽에 오게 해요 (Hi-Fi 311)
                 Image("IllustRecordRing")
                     .resizable()

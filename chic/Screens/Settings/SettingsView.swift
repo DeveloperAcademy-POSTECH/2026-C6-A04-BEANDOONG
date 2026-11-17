@@ -12,9 +12,6 @@ struct SettingsView: View {
     @Environment(\.openURL) private var openURL
     @State private var showsMailCompose = false
     @State private var showsNoMailAlert = false
-    #if DEVELOP
-    @AppStorage(ChicModelSelection.storageKey) private var steamingModel: ChicModelSelection = .standard
-    #endif
     /// App Store 최신 버전 확인 결과. 확인 전이거나 확인하지 못하면 nil (최신 버전 줄을 비워 둬요)
     @State private var storeVersion: AppVersion?
     /// 미리보기용: App Store 조회 대신 이 값을 최신 버전으로 써요 (예: "1.0.3")
@@ -22,12 +19,15 @@ struct SettingsView: View {
     /// "애플 워치 연결"을 눌렀을 때: 워치 연결 과정 화면으로 (경로는 홈이 관리해요)
     private let onWatchPairing: () -> Void
     private let onResetOnboarding: () -> Void
+    @Binding private var isPresentationMode: Bool
 
     init(storeVersionOverride: String? = nil, onWatchPairing: @escaping () -> Void = {},
-         onResetOnboarding: @escaping () -> Void = {}) {
+         onResetOnboarding: @escaping () -> Void = {},
+         isPresentationMode: Binding<Bool> = .constant(false)) {
         self.storeVersionOverride = storeVersionOverride
         self.onWatchPairing = onWatchPairing
         self.onResetOnboarding = onResetOnboarding
+        _isPresentationMode = isPresentationMode
     }
 
     /// 개인정보 처리방침 및 이용약관 (Notion 공개 페이지)
@@ -112,22 +112,8 @@ struct SettingsView: View {
                 .padding(.top, Layout.watchSectionTitleTop.v(scale))
 
             VStack(spacing: 0) {
-                Menu {
-                    Picker("스티밍 모델", selection: $steamingModel) {
-                        Text("통합 모델").tag(ChicModelSelection.standard)
-                        Text("드롱기 아르떼 모델").tag(ChicModelSelection.home)
-                    }
-                } label: {
-                    SettingsRowLabel(
-                        symbol: "waveform",
-                        title: "스티밍 모델",
-                        detail: steamingModel == .standard
-                            ? String(localized: "통합 모델")
-                            : String(localized: "드롱기 아르떼 모델"),
-                        chevron: "chevron.up.chevron.down"
-                    )
-                }
-                .menuStyle(.borderlessButton)
+                SettingsRow(symbol: "arrow.counterclockwise", title: String(localized: "온보딩 다시 보기"),
+                            action: onResetOnboarding)
 
                 Rectangle()
                     .fill(AppColors.settingsDivider)
@@ -135,8 +121,12 @@ struct SettingsView: View {
                     .padding(.leading, Layout.dividerLeading)
                     .padding(.trailing, Layout.dividerTrailing)
 
-                SettingsRow(symbol: "arrow.counterclockwise", title: String(localized: "온보딩 다시 보기"),
-                            action: onResetOnboarding)
+                Toggle(isOn: $isPresentationMode) {
+                    SettingsRowLabel(symbol: "play.rectangle", title: String(localized: "발표용 모드", table: "Presentation"), chevron: nil)
+                }
+                .toggleStyle(.switch)
+                .tint(AppColors.darkChipSelected)
+                .padding(.trailing, 19)
             }
             .settingsCard()
             .padding(.top, Layout.cardTop.v(scale))
@@ -236,8 +226,7 @@ private struct SettingsRow: View {
 private struct SettingsRowLabel: View {
     let symbol: String
     let title: String
-    var detail: String? = nil
-    var chevron: String = "chevron.right"
+    var chevron: String? = "chevron.right"
 
     var body: some View {
         HStack(spacing: 0) {
@@ -258,19 +247,12 @@ private struct SettingsRowLabel: View {
 
             Spacer(minLength: 0)
 
-            if let detail {
-                Text(detail)
-                    .font(.pretendard(.regular, size: 14))
-                    .foregroundStyle(AppColors.guideStepNumber)
-                    .lineLimit(1)
-                    .minimumScaleFactor(0.8)
-                    .padding(.trailing, 8)
+            if let chevron {
+                Image(systemName: chevron)
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(AppColors.settingsChevron)
+                    .padding(.trailing, 19)
             }
-
-            Image(systemName: chevron)
-                .font(.system(size: 16, weight: .semibold))
-                .foregroundStyle(AppColors.settingsChevron)
-                .padding(.trailing, 19)
         }
         .frame(height: 47)
         .contentShape(Rectangle())

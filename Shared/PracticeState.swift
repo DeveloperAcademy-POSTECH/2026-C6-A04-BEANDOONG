@@ -19,8 +19,8 @@ nonisolated enum PracticePhase: String, Codable, CaseIterable {
         case .idle: String(localized: "연결 확인")
         case .listening: String(localized: "소리 확인 중")
         case .aeration: String(localized: "공기 주입 소리")
-        case .bubble: String(localized: "큰 기포 주의")
-        case .moreAir: String(localized: "공기 부족")
+        case .bubble: String(localized: "버블링")
+        case .moreAir: String(localized: "스크래칭")
         case .milkFlow: String(localized: "롤링")
         case .finished: String(localized: "연습을 마쳤어요")
         }
@@ -31,7 +31,8 @@ nonisolated struct PracticeRecord: Codable, Identifiable, Equatable {
     let id: UUID
     let startedAt: Date
     let endedAt: Date
-    var duration: TimeInterval { endedAt.timeIntervalSince(startedAt) }
+    var pausedDuration: TimeInterval?
+    var duration: TimeInterval { max(0, endedAt.timeIntervalSince(startedAt) - (pausedDuration ?? 0)) }
 }
 
 nonisolated struct PracticeState: Codable, Equatable {
@@ -41,6 +42,8 @@ nonisolated struct PracticeState: Codable, Equatable {
     var sessionID: UUID?
     var startedAt: Date?
     var endedAt: Date?
+    var pausedAt: Date?
+    var pausedDuration: TimeInterval?
     var records: [PracticeRecord] = []
     var updatedAt: Date = .distantPast
 
@@ -58,10 +61,20 @@ nonisolated struct PracticeState: Codable, Equatable {
         return snapshot
     }
 
-    var duration: TimeInterval {
+    /// 잠금과 선택 대기 시간을 제외한 실제 연습 시간입니다.
+    func duration(at time: Date) -> TimeInterval {
         guard let startedAt else { return 0 }
-        return max(0, (endedAt ?? Date()).timeIntervalSince(startedAt))
+        return max(0, min(time, pausedAt ?? time).timeIntervalSince(startedAt) - (pausedDuration ?? 0))
     }
+
+    /// 마이크를 다시 켠 시각까지 한 번의 일시 정지 시간을 합산합니다.
+    mutating func resume(at time: Date) {
+        guard let pausedAt else { return }
+        pausedDuration = (pausedDuration ?? 0) + max(0, time.timeIntervalSince(pausedAt))
+        self.pausedAt = nil
+    }
+
+    var duration: TimeInterval { duration(at: endedAt ?? Date()) }
 
     var durationText: String {
         let seconds = Int(duration)

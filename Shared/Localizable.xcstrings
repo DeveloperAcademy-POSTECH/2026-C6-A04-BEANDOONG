@@ -1,64 +1,13 @@
 {
-  "sourceLanguage": "ko",
-  "strings": {
-    "통합 모델": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Unified model"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "통합 모델"
-          }
-        }
-      }
-    },
-    "스티밍 모델": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Steaming model"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "스티밍 모델"
-          }
-        }
-      }
-    },
-    "드롱기 아르떼 모델": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "De'Longhi Arte model"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "드롱기 아르떼 모델"
-          }
-        }
-      }
-    },
-    "\n\n\n---\n앱 버전: %@\n기기: %@ · iOS %@\n": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "\n\n\n---\nApp version: %@\nDevice: %@ · iOS %@\n"
+  "sourceLanguage" : "ko",
+  "strings" : {
+    "\n\n\n---\n앱 버전: %@\n기기: %@ · iOS %@\n" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "\n\n\n---\nApp version: %@\nDevice: %@ · iOS %@\n"
           }
         },
         "ko" : {
@@ -507,23 +456,6 @@
         }
       }
     },
-    "iPhone에서는 소리 분석이 계속돼요" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Sound analysis continues on your iPhone."
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "iPhone에서는 소리 분석이 계속돼요"
-          }
-        }
-      }
-    },
     "iPhone에서 연습을 시작하고 있어요. 잠시 기다려주세요." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -541,6 +473,23 @@
         }
       }
     },
+    "iPhone에서 연습을 이어가거나 종료해 주세요." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continue or end your practice on iPhone."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iPhone에서 연습을 이어가거나 종료해 주세요."
+          }
+        }
+      }
+    },
     "iPhone에서 워치 없이 연습 중이에요." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -554,6 +503,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "iPhone에서 워치 없이 연습 중이에요."
+          }
+        }
+      }
+    },
+    "iPhone에서는 소리 분석이 계속돼요" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sound analysis continues on your iPhone."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "iPhone에서는 소리 분석이 계속돼요"
           }
         }
       }
@@ -642,23 +608,6 @@
         }
       }
     },
-    "개발자 설정" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Developer settings"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "개발자 설정"
-          }
-        }
-      }
-    },
     "개발용 빌드" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -672,6 +621,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "개발용 빌드"
+          }
+        }
+      }
+    },
+    "개발자 설정" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Developer settings"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "개발자 설정"
           }
         }
       }
@@ -795,6 +761,23 @@
         }
       }
     },
+    "결과를 준비하고 있어요" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preparing your results"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "결과를 준비하고 있어요"
+          }
+        }
+      }
+    },
     "계속하기" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -812,40 +795,6 @@
         }
       }
     },
-    "공기 과다" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Too much air"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "공기 과다"
-          }
-        }
-      }
-    },
-    "공기 부족" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Too little air"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "공기 부족"
-          }
-        }
-      }
-    },
     "공기 주입" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -859,23 +808,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "공기 주입"
-          }
-        }
-      }
-    },
-    "공기 주입 부족" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Too little air"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "공기 주입 부족"
           }
         }
       }
@@ -1066,23 +998,6 @@
         }
       }
     },
-    "공기과다" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Too much air"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "공기과다"
-          }
-        }
-      }
-    },
     "공기를 조금\n오래 넣었어요" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1218,6 +1133,23 @@
         }
       }
     },
+    "기록" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "History"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "기록"
+          }
+        }
+      }
+    },
     "기록 보기" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1252,6 +1184,23 @@
         }
       }
     },
+    "기록을 사용할 수 없어요. 앱을 다시 실행해 주세요." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't access your records. Please restart the app."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "기록을 사용할 수 없어요. 앱을 다시 실행해 주세요."
+          }
+        }
+      }
+    },
     "기록을 삭제하지 못했어요." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1282,6 +1231,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "기록을 열어 소리의 변화를 비교해 보세요."
+          }
+        }
+      }
+    },
+    "기록을 확인해요" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "View your records"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "기록을 확인해요"
           }
         }
       }
@@ -1658,6 +1624,23 @@
         }
       }
     },
+    "바로 시작할 수 있어요" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You can start right away"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "바로 시작할 수 있어요"
+          }
+        }
+      }
+    },
     "방 삭제" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1845,6 +1828,23 @@
         }
       }
     },
+    "소리 감지를 잠시 멈췄어요. 계속하면 같은 연습에서 다시 감지해요." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sound detection is paused. Continue to listen again in this practice."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "소리 감지를 잠시 멈췄어요. 계속하면 같은 연습에서 다시 감지해요."
+          }
+        }
+      }
+    },
     "소리 분석 프레임을 맞출 수 없어요." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1892,6 +1892,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "소리 분석을 준비할 수 없어요."
+          }
+        }
+      }
+    },
+    "소리 분석이 지연되어 실시간 피드백을 종료했어요. 다시 시작해 주세요." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sound analysis fell behind, so live feedback stopped. Please start again."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "소리 분석이 지연되어 실시간 피드백을 종료했어요. 다시 시작해 주세요."
           }
         }
       }
@@ -2048,7 +2065,7 @@
         }
       }
     },
-    "스크레칭" : {
+    "스크래칭" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -2060,12 +2077,12 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "스크레칭"
+            "value" : "스크래칭"
           }
         }
       }
     },
-    "스크레칭이 들렸더라도 컵에 따른 거품이 원하는 두께라면 공기를 더 넣을 필요는 없어요. 묽은 우유부터 나오고 피처에 두꺼운 거품이 남았다면 우유와 거품이 따로 층을 이룬 거예요." : {
+    "스크래칭이 들렸더라도 컵에 따른 거품이 원하는 두께라면 공기를 더 넣을 필요는 없어요. 묽은 우유부터 나오고 피처에 두꺼운 거품이 남았다면 우유와 거품이 따로 층을 이룬 거예요." : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -2077,12 +2094,12 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "스크레칭이 들렸더라도 컵에 따른 거품이 원하는 두께라면 공기를 더 넣을 필요는 없어요. 묽은 우유부터 나오고 피처에 두꺼운 거품이 남았다면 우유와 거품이 따로 층을 이룬 거예요."
+            "value" : "스크래칭이 들렸더라도 컵에 따른 거품이 원하는 두께라면 공기를 더 넣을 필요는 없어요. 묽은 우유부터 나오고 피처에 두꺼운 거품이 남았다면 우유와 거품이 따로 층을 이룬 거예요."
           }
         }
       }
     },
-    "스크레칭이 들렸어도 우유가 원하는 만큼 부풀었다면 공기 주입 시간을 늘릴 필요는 없어요. 높이가 거의 그대로이고 거품도 적다면 다음엔 차가운 우유에 공기를 조금 더 넣어 보세요." : {
+    "스크래칭이 들렸어도 우유가 원하는 만큼 부풀었다면 공기 주입 시간을 늘릴 필요는 없어요. 높이가 거의 그대로이고 거품도 적다면 다음엔 차가운 우유에 공기를 조금 더 넣어 보세요." : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -2094,12 +2111,12 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "스크레칭이 들렸어도 우유가 원하는 만큼 부풀었다면 공기 주입 시간을 늘릴 필요는 없어요. 높이가 거의 그대로이고 거품도 적다면 다음엔 차가운 우유에 공기를 조금 더 넣어 보세요."
+            "value" : "스크래칭이 들렸어도 우유가 원하는 만큼 부풀었다면 공기 주입 시간을 늘릴 필요는 없어요. 높이가 거의 그대로이고 거품도 적다면 다음엔 차가운 우유에 공기를 조금 더 넣어 보세요."
           }
         }
       }
     },
-    "스크레칭이 들렸을 때는 스티밍 전후의 우유 높이와 표면을 함께 보세요. 높이가 거의 그대로이고 거품도 잘 보이지 않는다면 다음엔 초반에 노즐 끝을 표면 가까이에 두세요." : {
+    "스크래칭이 들렸을 때는 스티밍 전후의 우유 높이와 표면을 함께 보세요. 높이가 거의 그대로이고 거품도 잘 보이지 않는다면 다음엔 초반에 노즐 끝을 표면 가까이에 두세요." : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -2111,7 +2128,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "스크레칭이 들렸을 때는 스티밍 전후의 우유 높이와 표면을 함께 보세요. 높이가 거의 그대로이고 거품도 잘 보이지 않는다면 다음엔 초반에 노즐 끝을 표면 가까이에 두세요."
+            "value" : "스크래칭이 들렸을 때는 스티밍 전후의 우유 높이와 표면을 함께 보세요. 높이가 거의 그대로이고 거품도 잘 보이지 않는다면 다음엔 초반에 노즐 끝을 표면 가까이에 두세요."
           }
         }
       }
@@ -2167,6 +2184,23 @@
         }
       }
     },
+    "스티밍 기록을 저장하지 못했어요." : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Couldn't save your steaming record."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "스티밍 기록을 저장하지 못했어요."
+          }
+        }
+      }
+    },
     "스티밍 분석 모델을 찾을 수 없어요." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2197,6 +2231,40 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "스티밍 분석 모델의 입력 또는 출력이 올바르지 않아요."
+          }
+        }
+      }
+    },
+    "스티밍 시작하기" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start Steaming"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "스티밍 시작하기"
+          }
+        }
+      }
+    },
+    "스티밍 안내" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Steaming Update"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "스티밍 안내"
           }
         }
       }
@@ -2234,6 +2302,23 @@
         }
       }
     },
+    "스티밍 종료" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "End Steaming"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "스티밍 종료"
+          }
+        }
+      }
+    },
     "스티밍 중 공기주입 상태를\n색상과 문구로 상태를 알려드려요" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2264,6 +2349,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "스티밍 타이밍을\n딱 맞췄어요!"
+          }
+        }
+      }
+    },
+    "스티밍을 돌아보고\n부족했던 순간을 채워가요" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Review your steaming\nand keep improving"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "스티밍을 돌아보고\n부족했던 순간을 채워가요"
           }
         }
       }
@@ -2319,6 +2421,23 @@
         }
       }
     },
+    "스팀 가이드" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Steam Guide"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "스팀 가이드"
+          }
+        }
+      }
+    },
     "스팀 결과" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2349,6 +2468,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "스팀 소리가 감지되지 않아요\n스티밍을 마쳤다면 기록을 확인해 주세요"
+          }
+        }
+      }
+    },
+    "스팀 준비" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Get Ready to Steam"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "스팀 준비"
           }
         }
       }
@@ -2402,19 +2538,19 @@
         }
       }
     },
-    "소리 분석이 지연되어 실시간 피드백을 종료했어요. 다시 시작해 주세요." : {
+    "시작하기" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Sound analysis fell behind, so live feedback stopped. Please start again."
+            "value" : "Start"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "소리 분석이 지연되어 실시간 피드백을 종료했어요. 다시 시작해 주세요."
+            "value" : "시작하기"
           }
         }
       }
@@ -2432,6 +2568,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "아이폰과 워치로\n함께 확인해요"
+          }
+        }
+      }
+    },
+    "아직 기록이 없어요" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No records yet"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "아직 기록이 없어요"
           }
         }
       }
@@ -2606,74 +2759,6 @@
         }
       }
     },
-    "스팀 가이드" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Steam Guide"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "스팀 가이드"
-          }
-        }
-      }
-    },
-    "결과를 준비하고 있어요" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Preparing your results"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "결과를 준비하고 있어요"
-          }
-        }
-      }
-    },
-    "스티밍 기록을 저장하지 못했어요." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Couldn't save your steaming record."
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "스티밍 기록을 저장하지 못했어요."
-          }
-        }
-      }
-    },
-    "기록 보러가기" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "View history"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "기록 보러가기"
-          }
-        }
-      }
-    },
     "연습 기록 저장소를 열 수 없어 연습을 시작하지 못했어요. 앱을 다시 실행해 주세요." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2687,57 +2772,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "연습 기록 저장소를 열 수 없어 연습을 시작하지 못했어요. 앱을 다시 실행해 주세요."
-          }
-        }
-      }
-    },
-    "기록을 사용할 수 없어요. 앱을 다시 실행해 주세요." : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Couldn't access your records. Please restart the app."
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "기록을 사용할 수 없어요. 앱을 다시 실행해 주세요."
-          }
-        }
-      }
-    },
-    "기록을 확인해요" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "View your records"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "기록을 확인해요"
-          }
-        }
-      }
-    },
-    "아직 기록이 없어요" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "No records yet"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "아직 기록이 없어요"
           }
         }
       }
@@ -2759,23 +2793,6 @@
         }
       }
     },
-    "바로 시작할 수 있어요" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "You can start right away"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "바로 시작할 수 있어요"
-          }
-        }
-      }
-    },
     "연습 안내" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2793,57 +2810,6 @@
         }
       }
     },
-    "스티밍 안내" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Steaming Update"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "스티밍 안내"
-          }
-        }
-      }
-    },
-    "스티밍 종료" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "End Steaming"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "스티밍 종료"
-          }
-        }
-      }
-    },
-    "스팀 준비" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Get Ready to Steam"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "스팀 준비"
-          }
-        }
-      }
-    },
     "연습 준비하기" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2857,23 +2823,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "연습 준비하기"
-          }
-        }
-      }
-    },
-    "스티밍을 돌아보고\n부족했던 순간을 채워가요" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Review your steaming\nand keep improving"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "스티밍을 돌아보고\n부족했던 순간을 채워가요"
           }
         }
       }
@@ -2912,19 +2861,19 @@
         }
       }
     },
-    "시작하기" : {
+    "연습을 이어갈까요?" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "Start"
+            "value" : "Continue this practice?"
           }
         },
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "시작하기"
+            "value" : "연습을 이어갈까요?"
           }
         }
       }
@@ -2963,23 +2912,6 @@
         }
       }
     },
-    "올해" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Year"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "올해"
-          }
-        }
-      }
-    },
     "온보딩 다시 보기" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -2993,6 +2925,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "온보딩 다시 보기"
+          }
+        }
+      }
+    },
+    "올해" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Year"
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "올해"
           }
         }
       }
@@ -4082,23 +4031,6 @@
         }
       }
     },
-    "큰 기포 주의" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Watch for large bubbles"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "큰 기포 주의"
-          }
-        }
-      }
-    },
     "큰 기포가 눈에 띄나요?" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -4455,23 +4387,6 @@
         }
       }
     },
-    "한 잔의 시작, 작은 소리부터 함께해요" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Every great cup starts with a little sound."
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "한 잔의 시작, 작은 소리부터 함께해요"
-          }
-        }
-      }
-    },
     "한 잔" : {
       "comment" : "Highlighted word in the home headline.",
       "extractionState" : "manual",
@@ -4486,6 +4401,23 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "한 잔"
+          }
+        }
+      }
+    },
+    "한 잔의 시작, 작은 소리부터 함께해요" : {
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Every great cup starts with a little sound."
+          }
+        },
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "한 잔의 시작, 작은 소리부터 함께해요"
           }
         }
       }

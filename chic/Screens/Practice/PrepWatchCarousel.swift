@@ -201,8 +201,8 @@ enum PrepWatchState: Int, CaseIterable {
     var title: String {
         switch self {
         case .normal: String(localized: "정상 공기 주입")
-        case .over: String(localized: "공기 과다")
-        case .lack: String(localized: "공기 주입 부족")
+        case .over: String(localized: "버블링")
+        case .lack: String(localized: "스크래칭")
         case .rolling: String(localized: "롤링")
         }
     }
