@@ -26,9 +26,11 @@ import Foundation
         for _ in 0..<9 { precondition(sound.consume(0.86, state: .other) == nil) }
         precondition(sound.consume(0.86, state: .other) == .startSound)
         var home = ChicStartRule(forHome: true)
+        for _ in 0..<10 { precondition(home.consume(1, state: .other) == nil) }
         for _ in 0..<10 { precondition(home.consume(0.6999, state: .other) == nil) }
         for _ in 0..<3 { precondition(home.consume(0, state: .other) == nil) }
-        for _ in 0..<6 { precondition(home.consume(1, state: .other) == nil) }
+        for _ in 0..<7 { precondition(home.consume(1, state: .other) == nil) }
+        for _ in 0..<9 { precondition(home.consume(1, state: .other) == nil) }
         precondition(home.consume(1, state: .other) == .startSound)
         var standard = ChicStartRule()
         for _ in 0..<10 { precondition(standard.consume(0.70, state: .other) == nil) }
@@ -72,7 +74,7 @@ import Foundation
             for _ in 0..<100 { let repeated = try gate.consume([], state: .other); precondition(repeated == nil) }
         }
         let delayed = try ChicStartGate(url: url, delayStartSound: true)
-        for _ in 0..<10 {
+        for _ in 0..<20 {
             let reason = try delayed.consume(expected.highFeatures, state: .other)
             precondition(reason == nil && !delayed.isStarted)
         }

@@ -1,16 +1,16 @@
 [
   {
-    "frames": 25,
+    "frames": 21,
     "gate": "non_steam",
     "state": "other"
   },
   {
-    "frames": 1,
+    "frames": 3,
     "gate": "other",
     "state": "other"
   },
   {
-    "frames": 87,
+    "frames": 1,
     "gate": "non_steam",
     "state": "other"
   },
@@ -20,54 +20,29 @@
     "state": "other"
   },
   {
-    "frames": 56,
-    "gate": "air",
-    "state": "air"
+    "frames": 86,
+    "gate": "non_steam",
+    "state": "other"
   },
   {
-    "frames": 1,
+    "frames": 2,
     "gate": "other",
-    "state": "air"
+    "state": "other"
   },
   {
-    "frames": 1,
+    "frames": 55,
     "gate": "air",
     "state": "air"
   },
   {
     "frames": 2,
     "gate": "other",
-    "state": "air"
-  },
-  {
-    "frames": 1,
-    "gate": "air",
-    "state": "air"
-  },
-  {
-    "frames": 4,
-    "gate": "other",
-    "state": "other"
-  },
-  {
-    "frames": 1,
-    "gate": "sputter",
-    "state": "sputter"
-  },
-  {
-    "frames": 1,
-    "gate": "other",
     "state": "other"
   },
   {
     "frames": 1,
     "gate": "air",
     "state": "air"
-  },
-  {
-    "frames": 1,
-    "gate": "air",
-    "state": "sputter"
   },
   {
     "frames": 1,
@@ -80,67 +55,52 @@
     "state": "sputter"
   },
   {
-    "frames": 190,
+    "frames": 10,
+    "gate": "other",
+    "state": "other"
+  },
+  {
+    "frames": 1,
+    "gate": "other",
+    "state": "sputter"
+  },
+  {
+    "frames": 189,
     "gate": "sputter",
     "state": "sputter"
   },
   {
-    "frames": 120,
+    "frames": 61,
     "gate": "metallic",
     "state": "metallic"
   },
   {
     "frames": 1,
-    "gate": "other",
+    "gate": "metallic",
+    "state": "other"
+  },
+  {
+    "frames": 53,
+    "gate": "metallic",
     "state": "metallic"
   },
   {
-    "frames": 6,
-    "gate": "non_steam",
+    "frames": 1,
+    "gate": "metallic",
     "state": "other"
   },
   {
-    "frames": 4,
-    "gate": "air",
-    "state": "air"
+    "frames": 11,
+    "gate": "other",
+    "state": "other"
   },
   {
-    "frames": 14,
+    "frames": 18,
     "gate": "non_steam",
     "state": "other"
   },
   {
     "frames": 1,
-    "gate": "other",
-    "state": "other"
-  },
-  {
-    "frames": 2,
-    "gate": "non_steam",
-    "state": "other"
-  },
-  {
-    "frames": 105,
-    "gate": "other",
-    "state": "other"
-  },
-  {
-    "frames": 2,
-    "gate": "air",
-    "state": "other"
-  },
-  {
-    "frames": 1,
-    "gate": "air",
-    "state": "air"
-  },
-  {
-    "frames": 165,
-    "gate": "non_steam",
-    "state": "other"
-  },
-  {
-    "frames": 12,
     "gate": "other",
     "state": "other"
   },
@@ -150,7 +110,37 @@
     "state": "other"
   },
   {
+    "frames": 105,
+    "gate": "other",
+    "state": "other"
+  },
+  {
     "frames": 1,
+    "gate": "air",
+    "state": "other"
+  },
+  {
+    "frames": 2,
+    "gate": "air",
+    "state": "air"
+  },
+  {
+    "frames": 165,
+    "gate": "non_steam",
+    "state": "other"
+  },
+  {
+    "frames": 6,
+    "gate": "other",
+    "state": "other"
+  },
+  {
+    "frames": 3,
+    "gate": "non_steam",
+    "state": "other"
+  },
+  {
+    "frames": 3,
     "gate": "other",
     "state": "other"
   },
@@ -160,7 +150,7 @@
     "state": "other"
   },
   {
-    "frames": 2,
+    "frames": 6,
     "gate": "other",
     "state": "other"
   }

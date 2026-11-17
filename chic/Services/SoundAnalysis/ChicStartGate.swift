@@ -5,6 +5,8 @@ nonisolated struct ChicStartRule {
     enum Reason: String { case air, startSound }
     static let standardThreshold = 0.85
     private let threshold: Double
+    private let requiredSoundBlocks: Int
+    private var consecutiveSoundBlocks = 0
     private(set) var isStarted = false
     private(set) var meanScore: Double?
     private var sum = 0.0
@@ -12,6 +14,7 @@ nonisolated struct ChicStartRule {
     private var airFilter: ChicDisplayFilter
 
     init(forHome: Bool = false) {
+        requiredSoundBlocks = forHome ? 2 : 1
         threshold = forHome ? 0.70 : Self.standardThreshold
         airFilter = ChicDisplayFilter(forHome: forHome)
     }
@@ -26,7 +29,8 @@ nonisolated struct ChicStartRule {
         meanScore = sum / 10
         sum = 0
         frames = 0
-        guard air || meanScore! >= threshold else { return nil }
+        consecutiveSoundBlocks = meanScore! >= threshold ? consecutiveSoundBlocks + 1 : 0
+        guard air || consecutiveSoundBlocks >= requiredSoundBlocks else { return nil }
         isStarted = true
         return air ? .air : .startSound
     }
