@@ -21,10 +21,16 @@ struct SettingsView: View {
     private let storeVersionOverride: String?
     /// "애플 워치 연결"을 눌렀을 때: 워치 연결 과정 화면으로 (경로는 홈이 관리해요)
     private let onWatchPairing: () -> Void
+    private let onResetOnboarding: () -> Void
+    @Binding private var isPresentationMode: Bool
 
-    init(storeVersionOverride: String? = nil, onWatchPairing: @escaping () -> Void = {}) {
+    init(storeVersionOverride: String? = nil, onWatchPairing: @escaping () -> Void = {},
+         onResetOnboarding: @escaping () -> Void = {},
+         isPresentationMode: Binding<Bool> = .constant(false)) {
         self.storeVersionOverride = storeVersionOverride
         self.onWatchPairing = onWatchPairing
+        self.onResetOnboarding = onResetOnboarding
+        _isPresentationMode = isPresentationMode
     }
 
     /// 개인정보 처리방침 및 이용약관 (Notion 공개 페이지)
@@ -52,10 +58,22 @@ struct SettingsView: View {
                 .accessibilityHidden(latestVersionText == nil)
                 .padding(.top, Layout.latestVersionTop.v(scale))
 
-            Text(String(localized: "현재 버전 \(Self.currentVersion)"))
-                .font(.pretendard(.medium, size: 16))
-                .foregroundStyle(Color.white)
-                .padding(.top, Layout.currentVersionTop.v(scale))
+            HStack(spacing: 8) {
+                Text(String(localized: "현재 버전 \(Self.currentVersion)"))
+                    .font(.pretendard(.medium, size: 16))
+                    .foregroundStyle(Color.white)
+
+                #if DEVELOP
+                Text(verbatim: "DEV")
+                    .font(.pretendard(.bold, size: 10))
+                    .foregroundStyle(Color.white)
+                    .padding(.horizontal, 7)
+                    .padding(.vertical, 3)
+                    .background(AppColors.settingsIconTile, in: Capsule())
+                    .accessibilityLabel("개발용 빌드")
+                #endif
+            }
+            .padding(.top, Layout.currentVersionTop.v(scale))
 
             // MARK: 정보 및 지원
             Text(String(localized: "정보 및 지원"))
@@ -89,20 +107,55 @@ struct SettingsView: View {
                 .padding(.top, Layout.cardTop.v(scale))
 
             #if DEVELOP
-            LabeledContent {
-                Picker("스티밍 모델", selection: $steamingModel) {
-                    Text("기존 모델").tag(ChicModelSelection.standard)
-                    Text("홈 스티밍 모델").tag(ChicModelSelection.home)
+            // MARK: 개발자 설정
+            Text(String(localized: "개발자 설정"))
+                .font(.pretendard(.bold, size: 16))
+                .foregroundStyle(Color.white)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.top, Layout.watchSectionTitleTop.v(scale))
+
+            VStack(spacing: 0) {
+                Menu {
+                    Picker("스티밍 모델", selection: $steamingModel) {
+                        Text("통합 모델").tag(ChicModelSelection.standard)
+                        Text("드롱기 아르떼 모델").tag(ChicModelSelection.home)
+                    }
+                } label: {
+                    SettingsRowLabel(
+                        symbol: "waveform",
+                        title: "스티밍 모델",
+                        detail: steamingModel == .standard
+                            ? String(localized: "통합 모델")
+                            : String(localized: "드롱기 아르떼 모델"),
+                        chevron: "chevron.up.chevron.down"
+                    )
                 }
-                .pickerStyle(.menu)
-                .labelsHidden()
-            } label: {
-                Text("스티밍 모델")
+                .menuStyle(.borderlessButton)
+
+                Rectangle()
+                    .fill(AppColors.settingsDivider)
+                    .frame(height: 1)
+                    .padding(.leading, Layout.dividerLeading)
+                    .padding(.trailing, Layout.dividerTrailing)
+
+                SettingsRow(symbol: "arrow.counterclockwise", title: String(localized: "온보딩 다시 보기"),
+                            action: onResetOnboarding)
+
+                Rectangle()
+                    .fill(AppColors.settingsDivider)
+                    .frame(height: 1)
+                    .padding(.leading, Layout.dividerLeading)
+                    .padding(.trailing, Layout.dividerTrailing)
+
+                Toggle(isOn: $isPresentationMode) {
+                    SettingsRowLabel(symbol: "play.rectangle", title: String(localized: "발표용 모드", table: "Presentation"), chevron: nil)
+                }
+                .toggleStyle(.switch)
+                .tint(AppColors.darkChipSelected)
+                .padding(.trailing, 19)
             }
-            .foregroundStyle(.white)
-            .padding(.horizontal, 12)
             .settingsCard()
-            .padding(.top, Layout.watchSectionTitleTop.v(scale))
+            .padding(.top, Layout.cardTop.v(scale))
             #endif
 
             Spacer(minLength: 0)
@@ -190,33 +243,55 @@ private struct SettingsRow: View {
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: 0) {
-                Image(systemName: symbol)
-                    .font(.system(size: 14, weight: .regular))
+            SettingsRowLabel(symbol: symbol, title: title)
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+private struct SettingsRowLabel: View {
+    let symbol: String
+    let title: String
+    var detail: String? = nil
+    var chevron: String? = "chevron.right"
+
+    var body: some View {
+        HStack(spacing: 0) {
+            Image(systemName: symbol)
+                .font(.system(size: 14, weight: .regular))
+                .foregroundStyle(AppColors.guideStepNumber)
+                .frame(width: 26.5, height: 26.5)
+                .background(
+                    RoundedRectangle(cornerRadius: 6, style: .continuous)
+                        .fill(AppColors.settingsIconTile)
+                )
+                .padding(.leading, 11.5)
+
+            Text(title)
+                .font(.pretendard(.regular, size: 16))
+                .foregroundStyle(Color.white)
+                .padding(.leading, 18.5)
+
+            Spacer(minLength: 0)
+
+            if let detail {
+                Text(detail)
+                    .font(.pretendard(.regular, size: 14))
                     .foregroundStyle(AppColors.guideStepNumber)
-                    .frame(width: 26.5, height: 26.5)
-                    .background(
-                        RoundedRectangle(cornerRadius: 6, style: .continuous)
-                            .fill(AppColors.settingsIconTile)
-                    )
-                    .padding(.leading, 11.5)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
+                    .padding(.trailing, 8)
+            }
 
-                Text(title)
-                    .font(.pretendard(.regular, size: 16))
-                    .foregroundStyle(Color.white)
-                    .padding(.leading, 18.5)
-
-                Spacer(minLength: 0)
-
-                Image(systemName: "chevron.right")
+            if let chevron {
+                Image(systemName: chevron)
                     .font(.system(size: 16, weight: .semibold))
                     .foregroundStyle(AppColors.settingsChevron)
                     .padding(.trailing, 19)
             }
-            .frame(height: 47)
-            .contentShape(Rectangle())
         }
-        .buttonStyle(.plain)
+        .frame(height: 47)
+        .contentShape(Rectangle())
     }
 }
 

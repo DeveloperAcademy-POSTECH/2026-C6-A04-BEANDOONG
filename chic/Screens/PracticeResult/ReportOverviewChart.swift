@@ -8,11 +8,11 @@ struct ReportOverviewChart: View {
     @ScaledMetric(relativeTo: .body) private var labelFontSize: CGFloat = 12
     let result: PracticeResult
 
-    /// 줄 순서: 시안 304 · 307처럼 스크레칭이 버블링보다 위 (2026-11-14).
-    /// 이름과 소리의 짝은 앱 전체와 같아요: 스크레칭 = 공기 부족(보라), 버블링 = 공기 과다(주황).
+    /// 줄 순서: 시안 304 · 307처럼 스크래칭이 버블링보다 위 (2026-11-14).
+    /// 이름과 소리의 짝은 앱 전체와 같아요: 스크래칭 = 공기 부족(보라), 버블링 = 공기 과다(주황).
     /// 시안은 2번째 줄 막대가 주황이지만, 이름을 기준으로 맞춰서 앱에서는 보라 → 주황 순이에요.
     private static let rows: [(String, DetectedSound)] = [
-        (String(localized: "공기 주입"), .normalAeration), (String(localized: "스크레칭"), .lackOfAir), (String(localized: "버블링"), .overAeration), (String(localized: "롤링 소리"), .rolling)
+        (String(localized: "공기 주입"), .normalAeration), (String(localized: "스크래칭"), .lackOfAir), (String(localized: "버블링"), .overAeration), (String(localized: "롤링 소리"), .rolling)
     ]
 
     /// 번역된 이름의 실제 폭만큼 공간을 확보하고 막대·눈금의 시작점을 함께 옮깁니다.

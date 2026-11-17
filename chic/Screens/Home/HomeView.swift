@@ -4,9 +4,9 @@ import SwiftUI
 /// - 디자인: Hi-Fi iPhone 17 - 217(워치 미연결) · 311(워치 연결됨)
 ///
 ///     ┌ 상단 행: chic 로고 · 워치 페어링 배지(연결 상태만 표시, 2026-11-13부터 누를 수 없음) · 설정
-///     ├ 헤드라인 "다음 한잔을 / 위한 작은 연습" + 설명
-///     ├ 메인 연습 카드 (워치 + 피처 이미지, 좌하단 문구, 우하단 [연습하기 →]) — 누르면 (마이크 권한 →) 연습 준비 가이드 → 연습 시작
-///     └ 아래 행: 가이드 카드 (스티밍 액팅 가이드) · 기록 카드 ("연습 기록 보러가기", 오른쪽 아래 기록 링)
+///     ├ 헤드라인 "다음 한 잔을 / 위한 작은 시작" + 설명
+///     ├ 메인 연습 카드 (워치 + 피처 이미지, 좌하단 문구, 우하단 [시작하기 →]) — 누르면 (마이크 권한 →) 연습 준비 가이드 → 연습 시작
+///     └ 아래 행: 가이드 카드 (스티밍 액팅 가이드) · 기록 카드 ("기록", 오른쪽 아래 기록 링)
 ///
 /// `animatesEntrance`를 켜면 화면이 나타날 때 로고 → 헤드라인 → 설명 → 메인 카드 → 아래 카드 행 순서로
 /// 아래에서 살짝 떠오르며 차례로 나타나요. (온보딩을 마치고 홈으로 넘어올 때)
@@ -14,17 +14,22 @@ struct HomeView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.designScale) private var scale
     @State private var path: [Destination] = []
+    /// 저장하지 않아서 앱을 다시 실행하면 실제 연습 모드로 시작합니다.
+    @State private var isPresentationMode = false
     /// 등장 애니메이션을 할지
     private let animatesEntrance: Bool
     /// 화면이 실제로 보이고 있는지 (기본: 보임). 온보딩 아래에 미리 만들어 둘 때 false 로 두면,
     /// true 가 되는 순간 등장 애니메이션이 출발해요.
     private let isEntranceActive: Bool
+    private let onResetOnboarding: () -> Void
     /// 홈 요소가 다 나타났는지 (등장 애니메이션을 하지 않으면 처음부터 true)
     @State private var hasEntered: Bool
 
-    init(animatesEntrance: Bool = false, isEntranceActive: Bool = true) {
+    init(animatesEntrance: Bool = false, isEntranceActive: Bool = true,
+         onResetOnboarding: @escaping () -> Void = {}) {
         self.animatesEntrance = animatesEntrance
         self.isEntranceActive = isEntranceActive
+        self.onResetOnboarding = onResetOnboarding
         _hasEntered = State(initialValue: !animatesEntrance)
     }
 
@@ -35,6 +40,7 @@ struct HomeView: View {
         case watchSetup     // 워치 연결 과정 (설정 > 워치 페어링 > 애플 워치 연결에서 진입)
         case history
         case settings
+        case presentationPractice
     }
 
     var body: some View {
@@ -51,7 +57,7 @@ struct HomeView: View {
                                 path[path.count - 1] = .prepGuide
                             }
                         case .prepGuide:
-                            // 연습하기: 워치 연결 과정 없이 준비 가이드를 보여 주고 바로 연습을 시작합니다.
+                            // 시작하기: 워치 연결 과정 없이 준비 가이드를 보여 주고 바로 연습을 시작합니다.
                             PracticePrepGuideView()
                         case .steamingGuide:
                             SteamingGuideView()
@@ -63,7 +69,11 @@ struct HomeView: View {
                         case .history:
                             HistoryView(onStartPractice: startPractice)
                         case .settings:
-                            SettingsView(onWatchPairing: { path.append(.watchSetup) })
+                            SettingsView(onWatchPairing: { path.append(.watchSetup) },
+                                         onResetOnboarding: onResetOnboarding,
+                                         isPresentationMode: $isPresentationMode)
+                        case .presentationPractice:
+                            PresentationPracticeView()
                         }
                     }
                     .toolbar(.hidden, for: .navigationBar)
@@ -152,12 +162,16 @@ struct HomeView: View {
     }
 
     private func startPractice() {
+        if isPresentationMode {
+            path = [.presentationPractice]
+            return
+        }
         path = [MicrophonePermission.isGranted ? .prepGuide : .microphone]
     }
 
-    /// "다음 **한잔**을 / 위한 작은 연습" — '한잔'만 강조색
+    /// "다음 **한 잔**을 / 위한 작은 시작" — '한 잔'만 강조색
     private var headline: some View {
-        Text("다음 \(Text("한잔").foregroundStyle(AppColors.darkChipSelected))을\n위한 작은 연습")
+        Text("다음 \(Text("한 잔").foregroundStyle(AppColors.darkChipSelected))을\n위한 작은 시작")
             .foregroundStyle(Color.white)
             .lineSpacing(3.3)
             .font(.pretendard(.bold, size: 28))

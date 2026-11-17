@@ -67,7 +67,7 @@ struct PracticeSessionView: View {
         }
         .animation(.easeInOut(duration: 0.2), value: showsDisconnection)
         */
-        .alert(String(localized: "연습 안내"), isPresented: Binding(
+        .alert(String(localized: "스티밍 안내"), isPresented: Binding(
             get: { practice.errorMessage != nil },
             set: { if !$0 { practice.errorMessage = nil } }
         )) {
@@ -92,7 +92,7 @@ struct PracticeSessionView: View {
             VStack(alignment: .leading, spacing: 3) {
                 Text(String(localized: "워치 연결이 잠시 끊겼어요"))
                     .font(.pretendard(.semibold, size: 14))
-                Text(String(localized: "iPhone에서 연습은 계속 진행돼요"))
+                Text(String(localized: "iPhone에서는 소리 분석이 계속돼요"))
                     .font(.pretendard(.regular, size: 12))
                     .foregroundStyle(.white.opacity(0.85))
             }

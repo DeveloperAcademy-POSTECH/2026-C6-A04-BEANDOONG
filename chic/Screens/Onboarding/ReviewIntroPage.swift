@@ -18,8 +18,8 @@ struct ReviewIntroPage: View {
             illustrationTop: Layout.illustrationTop,
             titleTop: Layout.titleTop,
             subtitleTop: ScreenMetrics.compactSubtitleTop,
-            title: String(localized: "연습을 돌아보고\n부족했던 순간을 채워가요"),
-            subtitle: String(localized: "어떤 소리가 얼마나 감지됐는지 확인하고\n 다음 연습에 활용해 보세요") // 2행 앞 공백: Hi-Fi 237 2행이 가운데에서 약 2pt 오른쪽
+            title: String(localized: "스티밍을 돌아보고\n부족했던 순간을 채워가요"),
+            subtitle: String(localized: "어떤 소리가 얼마나 감지됐는지 확인하고\n 다음 스티밍에 활용해 보세요") // 2행 앞 공백: Hi-Fi 237 2행이 가운데에서 약 2pt 오른쪽
         ) {
             ReviewGraphIllustration()
         }

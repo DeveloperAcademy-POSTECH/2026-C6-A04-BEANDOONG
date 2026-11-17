@@ -11,8 +11,9 @@ import SwiftUI
 
 struct AppRootView: View {
     @EnvironmentObject private var practice: PracticeSession
-    /// 앱을 켠 직후 스플래시를 보여 주는 중인지
+    /// 앱을 켠 직후 또는 온보딩을 다시 시작할 때 스플래시를 보여 주는 중인지
     @State private var showsSplash = true
+    @State private var splashCycle = 0
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.designScale) private var scale
     /// 결과 화면을 닫는 중인지 (연습은 이미 끝나 `.idle`이지만, 결과 화면이 밀려 나가는 동안은 계속 보여요)
@@ -35,7 +36,7 @@ struct AppRootView: View {
 
     var body: some View {
         ZStack {
-            ContentView()
+            ContentView(onRestartSplash: replaySplash)
                 .opacity(practice.state.phase == .idle ? 1 : 0)
                 // 투명도는 바로 바꾸고(결과 화면이 밀려 나가는 동안 뒤에 홈이 이미 보이게), 아래 위치·어두움만 움직여요.
                 .animation(nil, value: practice.state.phase == .idle)
@@ -60,6 +61,7 @@ struct AppRootView: View {
             // 스플래시: 아래 화면은 미리 준비해 두고, 로고 애니메이션이 끝나면 걷어 내요.
             if showsSplash {
                 LaunchView()
+                    .id(splashCycle)
                     .transition(.opacity)
                     .zIndex(1)
             }
@@ -67,8 +69,8 @@ struct AppRootView: View {
         // 모든 화면이 다크라서 앱 전체를 다크로 고정해요. 화면을 바꿔 끼우는 순간(스플래시가 걷힐 때, 화면을 넣고 뺄 때)
         // 다크 지정이 잠깐 비어 시스템 라이트 배경이 한 프레임 비치는 일을 막아요. 각 화면의 지정은 그대로 둬요.
         .preferredColorScheme(.dark)
-        .task { await hideSplashAfterDisplay() }
-        .alert(String(localized: "연습 안내"), isPresented: Binding(
+        .task(id: splashCycle) { await hideSplashAfterDisplay() }
+        .alert(String(localized: "스티밍 안내"), isPresented: Binding(
             get: { practice.errorMessage != nil && practice.state.phase == .idle },
             set: { if !$0 { practice.errorMessage = nil } }
         )) {
@@ -79,6 +81,11 @@ struct AppRootView: View {
     }
 
     private static let designWidth = DesignScale.baseSize.width
+
+    private func replaySplash() {
+        showsSplash = true
+        splashCycle += 1
+    }
 
     /// 결과 화면의 뒤로가기: 연습 상태를 `.idle`로 돌리고, 결과 화면을 오른쪽으로 밀어내며 메인을 보여 줘요.
     private func closeSession() {
@@ -96,7 +103,12 @@ struct AppRootView: View {
     private func hideSplashAfterDisplay() async {
         // 로고 애니메이션과 같은 기준(첫 프레임이 그려진 뒤)에서 시간을 재요.
         await FrameClock.nextFrame()
-        try? await Task.sleep(for: .seconds(SplashTiming.displayDuration))
+        guard !Task.isCancelled else { return }
+        do {
+            try await Task.sleep(for: .seconds(SplashTiming.displayDuration))
+        } catch {
+            return
+        }
         withAnimation(.easeOut(duration: SplashTiming.fadeOutDuration)) {
             showsSplash = false
         }
