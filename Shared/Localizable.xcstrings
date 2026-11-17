@@ -812,40 +812,6 @@
         }
       }
     },
-    "공기 과다" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Too much air"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "공기 과다"
-          }
-        }
-      }
-    },
-    "공기 부족" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Too little air"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "공기 부족"
-          }
-        }
-      }
-    },
     "공기 주입" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -859,23 +825,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "공기 주입"
-          }
-        }
-      }
-    },
-    "공기 주입 부족" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Too little air"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "공기 주입 부족"
           }
         }
       }
@@ -1062,23 +1011,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "공기가 한꺼번에 들어간\n순간이 있었어요"
-          }
-        }
-      }
-    },
-    "공기과다" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Too much air"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "공기과다"
           }
         }
       }
@@ -2048,7 +1980,7 @@
         }
       }
     },
-    "스크레칭" : {
+    "스크래칭" : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -2060,12 +1992,12 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "스크레칭"
+            "value" : "스크래칭"
           }
         }
       }
     },
-    "스크레칭이 들렸더라도 컵에 따른 거품이 원하는 두께라면 공기를 더 넣을 필요는 없어요. 묽은 우유부터 나오고 피처에 두꺼운 거품이 남았다면 우유와 거품이 따로 층을 이룬 거예요." : {
+    "스크래칭이 들렸더라도 컵에 따른 거품이 원하는 두께라면 공기를 더 넣을 필요는 없어요. 묽은 우유부터 나오고 피처에 두꺼운 거품이 남았다면 우유와 거품이 따로 층을 이룬 거예요." : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -2077,12 +2009,12 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "스크레칭이 들렸더라도 컵에 따른 거품이 원하는 두께라면 공기를 더 넣을 필요는 없어요. 묽은 우유부터 나오고 피처에 두꺼운 거품이 남았다면 우유와 거품이 따로 층을 이룬 거예요."
+            "value" : "스크래칭이 들렸더라도 컵에 따른 거품이 원하는 두께라면 공기를 더 넣을 필요는 없어요. 묽은 우유부터 나오고 피처에 두꺼운 거품이 남았다면 우유와 거품이 따로 층을 이룬 거예요."
           }
         }
       }
     },
-    "스크레칭이 들렸어도 우유가 원하는 만큼 부풀었다면 공기 주입 시간을 늘릴 필요는 없어요. 높이가 거의 그대로이고 거품도 적다면 다음엔 차가운 우유에 공기를 조금 더 넣어 보세요." : {
+    "스크래칭이 들렸어도 우유가 원하는 만큼 부풀었다면 공기 주입 시간을 늘릴 필요는 없어요. 높이가 거의 그대로이고 거품도 적다면 다음엔 차가운 우유에 공기를 조금 더 넣어 보세요." : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -2094,12 +2026,12 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "스크레칭이 들렸어도 우유가 원하는 만큼 부풀었다면 공기 주입 시간을 늘릴 필요는 없어요. 높이가 거의 그대로이고 거품도 적다면 다음엔 차가운 우유에 공기를 조금 더 넣어 보세요."
+            "value" : "스크래칭이 들렸어도 우유가 원하는 만큼 부풀었다면 공기 주입 시간을 늘릴 필요는 없어요. 높이가 거의 그대로이고 거품도 적다면 다음엔 차가운 우유에 공기를 조금 더 넣어 보세요."
           }
         }
       }
     },
-    "스크레칭이 들렸을 때는 스티밍 전후의 우유 높이와 표면을 함께 보세요. 높이가 거의 그대로이고 거품도 잘 보이지 않는다면 다음엔 초반에 노즐 끝을 표면 가까이에 두세요." : {
+    "스크래칭이 들렸을 때는 스티밍 전후의 우유 높이와 표면을 함께 보세요. 높이가 거의 그대로이고 거품도 잘 보이지 않는다면 다음엔 초반에 노즐 끝을 표면 가까이에 두세요." : {
       "extractionState" : "manual",
       "localizations" : {
         "en" : {
@@ -2111,7 +2043,7 @@
         "ko" : {
           "stringUnit" : {
             "state" : "translated",
-            "value" : "스크레칭이 들렸을 때는 스티밍 전후의 우유 높이와 표면을 함께 보세요. 높이가 거의 그대로이고 거품도 잘 보이지 않는다면 다음엔 초반에 노즐 끝을 표면 가까이에 두세요."
+            "value" : "스크래칭이 들렸을 때는 스티밍 전후의 우유 높이와 표면을 함께 보세요. 높이가 거의 그대로이고 거품도 잘 보이지 않는다면 다음엔 초반에 노즐 끝을 표면 가까이에 두세요."
           }
         }
       }
@@ -4078,23 +4010,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "컵에 따를 때 묽은 우유가 먼저 나오고 거품이 피처에 덩어리로 남는다면, 우유와 거품이 덜 섞인 거예요. 다음엔 공기를 넣은 뒤 노즐 끝을 살짝 담가 우유 전체가 돌도록 해 보세요."
-          }
-        }
-      }
-    },
-    "큰 기포 주의" : {
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Watch for large bubbles"
-          }
-        },
-        "ko" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "큰 기포 주의"
           }
         }
       }
