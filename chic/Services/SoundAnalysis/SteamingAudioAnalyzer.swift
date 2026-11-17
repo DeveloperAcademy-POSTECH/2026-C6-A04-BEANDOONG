@@ -109,8 +109,8 @@ nonisolated final class SteamingAudioAnalyzer: @unchecked Sendable {
                             }
                         }
                         // 비스티밍 프레임으로 롤링 피드백을 새로 띄우지 않습니다.
-                        if self.selection != .standard && frame.gateLabel == "non_steam" && frame.startReason == nil { return }
-                        var display = self.displayFilter.consume(frame.state)
+                        let nonSteam = self.selection != .standard && frame.gateLabel == "non_steam" && frame.startReason == nil
+                        var display = self.displayFilter.consume(nonSteam ? nil : frame.state)
                         let finishedBlock = display != nil
                         #if DEVELOP
                         if self.selection == .home && frame.startReason == .startSound {

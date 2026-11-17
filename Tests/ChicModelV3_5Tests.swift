@@ -327,7 +327,7 @@ import Foundation
             precondition(index == expected.probabilities.count && error < 0.002)
         }
     }
-    /// 기록은 두 번째 공기 묶음에서 시작하고 실시간 표시는 세 번째부터 독립적으로 유지됩니다.
+    /// 기록과 실시간 모두 두 묶음에서 전환하고 실시간 유지 시간만 독립적으로 적용합니다.
     static func checkHomeLiveHold() {
         typealias State = ChicModelV3_5.State
         var base = ChicDisplayFilter(forHome: true)
@@ -339,23 +339,29 @@ import Foundation
             return (recorded, recorded.flatMap { live.update($0, confirmedBlocks: base.confirmedBlockCount, at: time) })
         }
         precondition(block(.air, 0) == (nil, nil))
-        precondition(block(.air, 0.1) == (.air, nil))
-        precondition(block(.other, 0.2) == (.air, nil))
-        precondition(block(.air, 0.3) == (.air, nil))
-        precondition(block(.air, 0.4) == (.air, nil))
-        precondition(block(.air, 0.5) == (.air, .air))
-        precondition(block(.air, 1.0) == (.air, .air))
-        _ = block(.sputter, 1.1)
-        precondition(block(.sputter, 1.2) == (.sputter, .air))
+        precondition(block(.other, 0.1) == (nil, nil))
+        precondition(block(.air, 0.2) == (nil, nil))
+        precondition(block(.air, 0.3) == (.air, .air))
+        precondition(block(.air, 0.9) == (.air, .air))
+        precondition(block(.sputter, 1.0) == (.air, .air))
+        precondition(block(.sputter, 1.1) == (.sputter, .air))
         precondition(block(.sputter, 1.5) == (.sputter, .sputter))
-        _ = block(.metallic, 1.6)
-        _ = block(.metallic, 1.7)
-        precondition(block(.metallic, 1.8) == (.metallic, .sputter))
+        precondition(block(.metallic, 1.6) == (.sputter, .sputter))
+        precondition(block(.metallic, 1.7) == (.metallic, .sputter))
         precondition(block(.metallic, 2.0) == (.metallic, .metallic))
-        _ = block(.other, 2.1)
+        precondition(block(.other, 2.1) == (.metallic, .metallic))
         precondition(block(.other, 2.2) == (.other, .metallic))
         precondition(block(.other, 2.5) == (.other, .other))
-        print("PASS independent home result, three-block air entry and renewable 0.5-second live holds")
+        #if DEVELOP
+        for work in [State.air, .metallic, .sputter] {
+            let decide = ChicModelV3_5.homeWorkState
+            precondition(decide(work, 0.749, work, 0.749) == .other)
+            precondition(decide(work, 0.75, .other, 0.649) == work)
+            precondition(decide(.other, 0.60, work, 0.75) == work)
+            precondition(decide(work, 0.90, .other, 0.65) == .other)
+        }
+        #endif
+        print("PASS two-block work decisions and renewable 0.5-second home feedback")
     }
 
     /// 집계 경계·동률·연속 판정 중단과 새 연습의 초기 상태를 확인합니다.
@@ -395,6 +401,12 @@ import Foundation
         var home = ChicDisplayFilter(forHome: true)
         for _ in 0..<19 { precondition(home.consume(.air) == nil) }
         precondition(home.consume(.air) == .air)
+        var interrupted = ChicDisplayFilter(forHome: true)
+        for state: State? in [.air, nil, .air] {
+            for _ in 0..<10 { precondition(interrupted.consume(state) == nil) }
+        }
+        for _ in 0..<9 { precondition(interrupted.consume(.air) == nil) }
+        precondition(interrupted.consume(.air) == .air)
         for work in [State.air, .sputter, .metallic] {
             var active = ChicDisplayFilter(forHome: true)
             active.activate()
@@ -406,14 +418,13 @@ import Foundation
             let steady = Array(repeating: work, count: 10)
             let rolling = Array(repeating: State.other, count: 10)
             let mixed = Array(repeating: State.other, count: 8) + [work, work]
-            _ = feed(steady + steady + steady)
-            precondition(feed(mixed + mixed) == work)
+            precondition(feed(steady) == nil)
             precondition(feed(steady) == work)
-            precondition(feed(mixed + mixed + mixed) == .other)
-            _ = feed(steady + steady + steady)
+            precondition(feed(mixed) == work)
+            precondition(feed(mixed) == .other)
+            precondition(feed(steady) == .other)
+            precondition(feed(steady) == work)
             precondition(feed(rolling + rolling) == .other)
-            _ = feed(steady + steady + steady)
-            _ = feed(mixed + mixed)
             let next: State = work == .air ? .sputter : .air
             precondition(feed(Array(repeating: next, count: 20)) == next)
         }

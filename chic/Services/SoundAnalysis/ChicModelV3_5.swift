@@ -131,6 +131,14 @@ nonisolated final class ChicModelV3_5 {
         return air > 0.5 ? .air : .other
     }
 
+    #if DEVELOP
+    /// 드롱기의 2차 판정을 우선하고, 보류된 경우 1차 작업음에도 같은 문턱을 적용합니다.
+    static func homeWorkState(primary: State, primaryScore: Double, secondary: State, secondaryScore: Double) -> State {
+        if secondaryScore >= (secondary == .other ? 0.65 : 0.75) { return secondary }
+        return primaryScore >= 0.75 ? primary : .other
+    }
+    #endif
+
     /// 선택한 모델의 분류기로 작업음 한 프레임을 판정합니다.
     private func classifyWork(_ x: [Double]) throws -> (State, String, Double?, WorkScores) {
         switch workModel {
@@ -157,7 +165,8 @@ nonisolated final class ChicModelV3_5 {
             let winner = refined.winner
             guard let state = State(rawValue: expert.labels[winner]) else { throw Failure.schema }
             let output = WorkScores(primary: primary, secondary: (candidate == .metallic ? "Metal" : "Air", refined))
-            return (refined.values[winner] >= 0.65 ? state : first, first.rawValue, scores[2], output)
+            let final = Self.homeWorkState(primary: first, primaryScore: best, secondary: state, secondaryScore: refined.values[winner])
+            return (final, first.rawValue, scores[2], output)
         #endif
         case let .standard(gate, air, rolling):
             let primary = try gate.prediction(x)
@@ -193,7 +202,7 @@ nonisolated final class ChicModelV3_5 {
             let (state, label, score, scores) = try classifyWork(x)
             frameCount += 1
             let updatesStartMean = frameCount.isMultiple(of: 10) && startGate?.isScoring == true
-            let startReason = try startGate?.consume(x, state: state)
+            let startReason = try startGate?.consume(x, state: label == "non_steam" ? nil : state)
             let audioTime = Double(2048 + (frameCount - 1) * 512) / sampleRate
             try onFrame(Frame(state: state, gateLabel: label, sputterScore: score, scores: scores, spectrum: spectrum,
                               audioTime: audioTime, newStartMean: updatesStartMean ? startProbability : nil, startReason: startReason))

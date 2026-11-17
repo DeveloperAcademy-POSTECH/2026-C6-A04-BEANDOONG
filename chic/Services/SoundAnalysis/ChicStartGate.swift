@@ -20,7 +20,7 @@ nonisolated struct ChicStartRule {
     }
 
     /// 공기주입은 시작음 점수와 관계없이 기존 10프레임 표시 기준으로 확인합니다.
-    mutating func consume(_ score: Double, state: ChicModelV3_5.State) -> Reason? {
+    mutating func consume(_ score: Double, state: ChicModelV3_5.State?) -> Reason? {
         guard !isStarted else { return nil }
         let air = airFilter.consume(state) == .air
         sum += score
@@ -54,7 +54,7 @@ nonisolated final class ChicStartGate {
     }
 
     /// 어느 경로로 시작했든 이후에는 특징 검사나 Core ML 호출을 하지 않습니다.
-    func consume(_ features: [Double], state: ChicModelV3_5.State) throws -> ChicStartRule.Reason? {
+    func consume(_ features: [Double], state: ChicModelV3_5.State?) throws -> ChicStartRule.Reason? {
         if remainingFrames > 0 {
             remainingFrames -= 1
             return remainingFrames == 0 ? .startSound : nil

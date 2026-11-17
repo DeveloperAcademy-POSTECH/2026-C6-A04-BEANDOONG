@@ -5,54 +5,214 @@
     "state": "other"
   },
   {
+    "frames": 27,
+    "gate": "other",
+    "state": "other"
+  },
+  {
+    "frames": 3,
+    "gate": "non_steam",
+    "state": "other"
+  },
+  {
+    "frames": 1,
+    "gate": "other",
+    "state": "other"
+  },
+  {
+    "frames": 61,
+    "gate": "non_steam",
+    "state": "other"
+  },
+  {
+    "frames": 1,
+    "gate": "other",
+    "state": "other"
+  },
+  {
+    "frames": 8,
+    "gate": "other",
+    "state": "air"
+  },
+  {
+    "frames": 53,
+    "gate": "air",
+    "state": "air"
+  },
+  {
+    "frames": 2,
+    "gate": "air",
+    "state": "other"
+  },
+  {
+    "frames": 2,
+    "gate": "other",
+    "state": "other"
+  },
+  {
+    "frames": 2,
+    "gate": "air",
+    "state": "other"
+  },
+  {
+    "frames": 6,
+    "gate": "other",
+    "state": "other"
+  },
+  {
+    "frames": 24,
+    "gate": "sputter",
+    "state": "sputter"
+  },
+  {
+    "frames": 2,
+    "gate": "sputter",
+    "state": "other"
+  },
+  {
+    "frames": 4,
+    "gate": "sputter",
+    "state": "sputter"
+  },
+  {
+    "frames": 2,
+    "gate": "sputter",
+    "state": "other"
+  },
+  {
+    "frames": 154,
+    "gate": "sputter",
+    "state": "sputter"
+  },
+  {
+    "frames": 3,
+    "gate": "sputter",
+    "state": "other"
+  },
+  {
+    "frames": 1,
+    "gate": "air",
+    "state": "other"
+  },
+  {
+    "frames": 2,
+    "gate": "sputter",
+    "state": "other"
+  },
+  {
+    "frames": 1,
+    "gate": "air",
+    "state": "other"
+  },
+  {
+    "frames": 95,
+    "gate": "metallic",
+    "state": "metallic"
+  },
+  {
+    "frames": 4,
+    "gate": "metallic",
+    "state": "other"
+  },
+  {
+    "frames": 1,
+    "gate": "metallic",
+    "state": "metallic"
+  },
+  {
+    "frames": 2,
+    "gate": "metallic",
+    "state": "other"
+  },
+  {
+    "frames": 2,
+    "gate": "metallic",
+    "state": "metallic"
+  },
+  {
+    "frames": 3,
+    "gate": "metallic",
+    "state": "other"
+  },
+  {
+    "frames": 4,
+    "gate": "metallic",
+    "state": "metallic"
+  },
+  {
     "frames": 3,
     "gate": "other",
     "state": "other"
   },
   {
-    "frames": 1,
+    "frames": 31,
     "gate": "non_steam",
     "state": "other"
   },
   {
-    "frames": 2,
+    "frames": 103,
     "gate": "other",
     "state": "other"
   },
   {
-    "frames": 86,
+    "frames": 5,
+    "gate": "air",
+    "state": "other"
+  },
+  {
+    "frames": 2,
     "gate": "non_steam",
     "state": "other"
   },
   {
-    "frames": 2,
-    "gate": "other",
-    "state": "other"
-  },
-  {
-    "frames": 55,
-    "gate": "air",
-    "state": "air"
-  },
-  {
-    "frames": 2,
-    "gate": "other",
-    "state": "other"
-  },
-  {
-    "frames": 1,
-    "gate": "air",
-    "state": "air"
-  },
-  {
     "frames": 1,
     "gate": "other",
     "state": "other"
   },
   {
+    "frames": 99,
+    "gate": "non_steam",
+    "state": "other"
+  },
+  {
+    "frames": 5,
+    "gate": "other",
+    "state": "other"
+  },
+  {
+    "frames": 3,
+    "gate": "non_steam",
+    "state": "other"
+  },
+  {
+    "frames": 1,
+    "gate": "other",
+    "state": "other"
+  },
+  {
     "frames": 2,
-    "gate": "air",
-    "state": "sputter"
+    "gate": "non_steam",
+    "state": "other"
+  },
+  {
+    "frames": 1,
+    "gate": "other",
+    "state": "other"
+  },
+  {
+    "frames": 14,
+    "gate": "non_steam",
+    "state": "other"
+  },
+  {
+    "frames": 1,
+    "gate": "other",
+    "state": "other"
+  },
+  {
+    "frames": 4,
+    "gate": "non_steam",
+    "state": "other"
   },
   {
     "frames": 10,
@@ -61,97 +221,17 @@
   },
   {
     "frames": 1,
-    "gate": "other",
-    "state": "sputter"
-  },
-  {
-    "frames": 189,
-    "gate": "sputter",
-    "state": "sputter"
-  },
-  {
-    "frames": 61,
-    "gate": "metallic",
-    "state": "metallic"
-  },
-  {
-    "frames": 1,
-    "gate": "metallic",
-    "state": "other"
-  },
-  {
-    "frames": 53,
-    "gate": "metallic",
-    "state": "metallic"
-  },
-  {
-    "frames": 1,
-    "gate": "metallic",
-    "state": "other"
-  },
-  {
-    "frames": 11,
-    "gate": "other",
-    "state": "other"
-  },
-  {
-    "frames": 18,
     "gate": "non_steam",
     "state": "other"
   },
   {
-    "frames": 1,
+    "frames": 30,
     "gate": "other",
     "state": "other"
   },
   {
-    "frames": 3,
+    "frames": 10,
     "gate": "non_steam",
-    "state": "other"
-  },
-  {
-    "frames": 105,
-    "gate": "other",
-    "state": "other"
-  },
-  {
-    "frames": 1,
-    "gate": "air",
-    "state": "other"
-  },
-  {
-    "frames": 2,
-    "gate": "air",
-    "state": "air"
-  },
-  {
-    "frames": 165,
-    "gate": "non_steam",
-    "state": "other"
-  },
-  {
-    "frames": 6,
-    "gate": "other",
-    "state": "other"
-  },
-  {
-    "frames": 3,
-    "gate": "non_steam",
-    "state": "other"
-  },
-  {
-    "frames": 3,
-    "gate": "other",
-    "state": "other"
-  },
-  {
-    "frames": 1,
-    "gate": "non_steam",
-    "state": "other"
-  },
-  {
-    "frames": 6,
-    "gate": "other",
     "state": "other"
   }
 ]

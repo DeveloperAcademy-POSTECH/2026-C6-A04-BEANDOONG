@@ -1,7 +1,7 @@
 /// 모델 판정 10개를 집계하고 같은 대표 판정이 연속될 때 표시를 바꿉니다.
 /// 분석 큐에서 한 세션 동안 유지하고 다음 연습은 새 인스턴스로 시작합니다.
 nonisolated struct ChicDisplayFilter {
-    private var frames: [ChicModelV3_5.State] = []
+    private var frames: [ChicModelV3_5.State?] = []
     private var candidate: ChicModelV3_5.State?
     private var consecutiveCount = 0
     private(set) var display: ChicModelV3_5.State?
@@ -17,8 +17,8 @@ nonisolated struct ChicDisplayFilter {
     /// 시작 게이트를 통과하면 첫 판정이 롤링이어도 피드백을 표시할 수 있습니다.
     mutating func activate() { startConfirmed = true }
 
-    /// 공기주입은 범용 1회·드롱기 2회, 롤링·파바박은 2회, 쇳소리는 3회 연속된 대표 판정을 확인합니다.
-    mutating func consume(_ state: ChicModelV3_5.State) -> ChicModelV3_5.State? {
+    /// 드롱기는 모든 소리에서 두 묶음 연속 같은 대표 판정을 확인합니다.
+    mutating func consume(_ state: ChicModelV3_5.State?) -> ChicModelV3_5.State? {
         frames.append(state)
         guard frames.count == 10 else { return nil }
         let counts = Dictionary(grouping: frames, by: { $0 }).mapValues(\.count)
@@ -27,15 +27,18 @@ nonisolated struct ChicDisplayFilter {
         let winner = frames.last { counts[$0] == maximum }!
         frames.removeAll(keepingCapacity: true)
 
+        // 비스티밍 우세 묶음은 피드백을 내지 않고 작업음의 연속 횟수를 끊습니다.
+        guard let winner else {
+            candidate = nil
+            consecutiveCount = 0
+            return nil
+        }
         consecutiveCount = winner == candidate ? min(consecutiveCount + 1, 3) : 1
         candidate = winner
         let required = switch winner {
         case .air: forHome ? 2 : 1
-        case .sputter: 2
-        case .other:
-            // 드롱기 연습 중 직전 작업음이 섞인 롤링은 세 번째 묶음까지 확인합니다.
-            if forHome, startConfirmed, let display, display != .other, counts[display] != nil { 3 } else { 2 }
-        case .metallic: 3
+        case .sputter, .other: 2
+        case .metallic: forHome ? 2 : 3
         }
         if consecutiveCount >= required && (winner != .other || display != nil || startConfirmed) {
             display = winner
@@ -52,7 +55,7 @@ nonisolated struct ChicLiveFeedbackHold {
     /// 유지 시간이 지난 뒤 도착한 첫 유효 판정으로 전환하거나 같은 작업음을 다시 유지합니다.
     mutating func update(_ state: ChicModelV3_5.State, confirmedBlocks: Int, at now: Double) -> ChicModelV3_5.State? {
         guard now >= holdUntil, confirmedBlocks > 0 else { return shown }
-        if state == .air, shown != .air, confirmedBlocks < 3 { return shown }
+        if state != .other, shown != state, confirmedBlocks < 2 { return shown }
         shown = state
         holdUntil = state == .other ? now : now + 0.5
         return shown
