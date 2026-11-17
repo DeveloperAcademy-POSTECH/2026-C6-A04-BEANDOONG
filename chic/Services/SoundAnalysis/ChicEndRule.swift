@@ -23,11 +23,6 @@ nonisolated struct ChicEndRule {
     /// 알린 뒤 소리가 다시 이어졌다고 보는 작업 점수의 연속 횟수 (약 0.3초)
     static let resumeCount = 3
 
-    private let selection: ChicModelSelection
-
-    /// 모델 선택에 따라 청소음과 소리 끊김의 사용 여부를 정합니다.
-    init(selection: ChicModelSelection = .standard) { self.selection = selection }
-
     private(set) var isActive = false
     /// 끝난 것 같다고 알린 뒤 아직 소리가 다시 이어지지 않았는지
     private(set) var isAsking = false
@@ -47,8 +42,8 @@ nonisolated struct ChicEndRule {
     /// 소멸은 낮은 작업 점수의 연속 횟수로만 확인합니다.
     mutating func consume(work: Double, end: Double, purge: Double) -> Reason? {
         guard isActive else { return nil }
-        purgeCount = selection == .standard && purge >= 0.5 ? purgeCount + 1 : 0
-        lowWorkCount = selection == .standard && work < 0.3 ? lowWorkCount + 1 : 0
+        purgeCount = purge >= 0.5 ? purgeCount + 1 : 0
+        lowWorkCount = work < 0.3 ? lowWorkCount + 1 : 0
         workCount = work >= 0.3 ? workCount + 1 : 0
         if isAsking, workCount >= Self.resumeCount {
             // 소리가 다시 이어졌어요. 그동안 쌓인 횟수로 바로 다시 묻지 않게 처음부터 셉니다.
@@ -58,7 +53,7 @@ nonisolated struct ChicEndRule {
         // 이미 물어본 동안에는 다시 알리지 않아요.
         guard !isAsking else { return nil }
         let reason: Reason?
-        if end >= 0.60 { reason = .endSound }
+        if end >= 0.6 { reason = .endSound }
         else if lowWorkCount >= Self.silenceCount { reason = .disappearance }
         else if purgeCount >= Self.cleaningCount { reason = .cleaning }
         else { reason = nil }

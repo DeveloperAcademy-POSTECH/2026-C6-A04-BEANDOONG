@@ -3,7 +3,7 @@
 //
 //  iPhone에서 연습 상태와 실시간 소리 분석을 관리하는 파일입니다.
 //  iPhone 버튼과 워치 요청이 같은 시작·종료·결과 확인 완료 로직을 사용하며, 분석 결과만 iPhone에 저장합니다.
-//  변경된 상태는 WatchConnection으로 전달합니다. 소리 분석 결과는 updateFeedback에 연결합니다.
+//  변경된 상태는 WatchConnection으로 전달합니다. 소리 분석 결과는 updateFeedback(_:)에 연결합니다.
 //
 
 import AVFAudio
@@ -27,7 +27,6 @@ final class PracticeSession: ObservableObject {
     /// 이번 연습에서 공기 주입(파랑) 화면이 떠 있던 누적 시간. 연습 화면의 비커 수위가 이 값을 따라가요. (iPhone에서만)
     @Published private(set) var aerationClock = AerationClock()
     private var historyStore: PracticeHistoryStore?
-    private var liveHold = ChicLiveFeedbackHold()
     private var timeline = PracticeTimeline()
     // 워치와 메시지를 주고받는 통신 담당입니다.
     let connection: WatchConnection
@@ -129,22 +128,17 @@ final class PracticeSession: ObservableObject {
         await audioTeardown?.value
         // 이전 연습과 구분되는 ID를 만듭니다.
         let id = UUID()
-        let onResult: @Sendable (ChicModelV3_5.State, Int, ChicAnalysisLog?) -> Void = { [weak self] recorded, liveBlocks, log in
+        let onResult: @Sendable (PracticePhase) -> Void = { [weak self] phase in
             Task { @MainActor [weak self] in
                 guard let self, self.state.sessionID == id else { return }
-                let previous = self.state.phase
-                self.updateFeedback(recorded, confirmedBlocks: liveBlocks)
-                if let log, previous != self.state.phase, !log.isStartFrame, !self.endQuestion.isAsking {
-                    log.write(.feedback(self.state.phase.title))
-                }
+                self.updateFeedback(phase)
             }
         }
-        let onSilence: @Sendable (TimeInterval, ChicEndRule.Reason, ChicAnalysisLog?) -> Void = { [weak self] elapsed, reason, log in
+        let onSilence: @Sendable (TimeInterval) -> Void = { [weak self] elapsed in
             Task { @MainActor [weak self] in
                 guard let self, self.state.sessionID == id, self.state.phase.isRunning else { return }
                 guard !self.endQuestion.isAsking else { return }
                 self.endQuestion.ask(endedAt: Date().addingTimeInterval(-elapsed))
-                log?.write(.end(reason))
             }
         }
         let onError: @Sendable (String) -> Void = { [weak self] message in
@@ -174,9 +168,8 @@ final class PracticeSession: ObservableObject {
         soundAnalyzer = analyzer
         // 분석 시작에 성공한 뒤에만 새 연습 상태로 바꿉니다. 이전 기록 목록은 유지합니다.
         state.isWatchEnabled = usingWatch
-        liveHold = ChicLiveFeedbackHold()
         timeline = PracticeTimeline()
-        aerationClock = AerationClock(model: analyzer.selection)
+        aerationClock = AerationClock()
         result = nil
         endQuestion.close()
         state.sessionID = id
@@ -205,7 +198,6 @@ final class PracticeSession: ObservableObject {
     }
 
     private func finish(endedAt requestedEnd: Date) {
-        let wasAsking = endQuestion.isAsking
         endQuestion.close()
         // 이미 종료된 연습이면 다시 저장하지 않습니다.
         guard state.phase.isRunning, let id = state.sessionID,
@@ -214,9 +206,6 @@ final class PracticeSession: ObservableObject {
         // 엔진 종료와 오디오 세션 비활성화는 오래 걸릴 수 있어 메인 스레드 밖에서 합니다.
         // 그사이 도착한 분석 결과는 updateFeedback 의 phase · sessionID 검사로 버려집니다.
         let analyzer = soundAnalyzer
-        if let analyzer, analyzer.selection != .standard, !wasAsking {
-            analyzer.logFinish(elapsed: endedAt.timeIntervalSince(startedAt))
-        }
         soundAnalyzer = nil
         audioTeardown = Self.tearDownAudio(analyzer)
         state.endedAt = endedAt
@@ -228,14 +217,14 @@ final class PracticeSession: ObservableObject {
         let dailyOrder = (history.filter { Calendar.current.isDate($0.startedAt, inSameDayAs: startedAt) }
             .map(\.dailyOrder).max() ?? 0) + 1
         let completedResult = PracticeResult(practicedAt: startedAt, dailyOrder: dailyOrder,
-                                              segments: segments, duration: record.duration, model: aerationClock.model)
+                                              segments: segments, duration: record.duration)
         publish()
         // 종료 상태를 먼저 표시해 로딩 화면을 연 뒤 저장합니다. 워치에서 닫아도 저장은 완료합니다.
         Task {
             await Task.yield()
             do {
                 guard let historyStore else { throw ConnectionError.localized("저장소를 열 수 없어요.") }
-                if let saved = try historyStore.save(record: record, dailyOrder: dailyOrder, segments: segments, model: completedResult.model) {
+                if let saved = try historyStore.save(record: record, dailyOrder: dailyOrder, segments: segments) {
                     // 새 기록만 목록에 끼워 넣습니다. 저장소를 다시 다 불러온 것(records(): 시작 시각 최신순)과 같은 목록이에요.
                     var updated = history
                     updated.insert(saved, at: updated.firstIndex { $0.startedAt < saved.startedAt } ?? updated.endIndex)
@@ -251,21 +240,15 @@ final class PracticeSession: ObservableObject {
         }
     }
 
-    /// 기존 판정은 타임라인에 기록하고 드롱기의 실시간 표시만 별도로 유지합니다.
-    private func updateFeedback(_ recorded: ChicModelV3_5.State, confirmedBlocks: Int) {
-        guard state.phase.isRunning else { return }
+    /// 소리가 바뀔 때 구간을 기록하고, 지속되는 공기주입은 워치에만 다시 보냅니다.
+    func updateFeedback(_ phase: PracticePhase) {
+        // 종료 후 늦게 도착한 분석 결과로 연습 화면이 다시 열리지 않게 합니다.
+        guard state.phase.isRunning, phase.isRunning else { return }
         let now = Date()
-        if let startedAt = state.startedAt {
-            timeline.update(phase: recorded.practicePhase, at: max(0, now.timeIntervalSince(startedAt)))
-        }
-        let phase: PracticePhase
-        if let analyzer = soundAnalyzer, analyzer.selection != .standard {
-            guard let live = liveHold.update(recorded, confirmedBlocks: confirmedBlocks, at: ProcessInfo.processInfo.systemUptime) else { return }
-            phase = live.practicePhase
-        } else {
-            phase = recorded.practicePhase
-        }
         if state.phase != phase {
+            if let startedAt = state.startedAt {
+                timeline.update(phase: phase, at: max(0, now.timeIntervalSince(startedAt)))
+            }
             if phase == .aeration { aerationClock.resume(at: now) } else { aerationClock.pause(at: now) }
             state.phase = phase
         } else {
@@ -343,17 +326,5 @@ final class PracticeSession: ObservableObject {
         var snapshot = state.watchSnapshot
         snapshot.updatedAt = now
         connection.publish(snapshot)
-    }
-}
-
-private extension ChicModelV3_5.State {
-    /// 소리 판정을 연습 결과와 화면에서 사용하는 단계로 바꿉니다.
-    var practicePhase: PracticePhase {
-        switch self {
-        case .air: .aeration
-        case .sputter: .bubble
-        case .metallic: .moreAir
-        case .other: .milkFlow
-        }
     }
 }

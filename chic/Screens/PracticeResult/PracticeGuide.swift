@@ -22,7 +22,7 @@ enum PracticeGuide: Equatable {
         let minimumWarningDuration: TimeInterval = 1
         let scratch = result.guideDuration(of: .lackOfAir) >= minimumWarningDuration
         let bubble = result.guideDuration(of: .overAeration) >= minimumWarningDuration
-        let range = result.model.aerationRange
+        let range = MilkLevel.lowerLineSeconds...MilkLevel.upperLineSeconds
         switch (air, scratch, bubble) {
         case (..<range.lowerBound, false, false): self = .short
         case (..<range.lowerBound, true, false): self = .shortScratch
@@ -133,9 +133,9 @@ enum GuideMilkLevel {
     /// 우유 바닥 (Hi-Fi 260: 1258.5 − 1045.8)
     static let bottom: CGFloat = 212.7
 
-    static func top(forAeration seconds: TimeInterval, model: ChicModelSelection = .standard) -> CGFloat {
+    static func top(forAeration seconds: TimeInterval) -> CGFloat {
         let scale = (lowerLine - upperLine) / (MilkLevel.lowerLine - MilkLevel.upperLine)
-        let mapped = upperLine + (MilkLevel.top(forAeration: seconds, model: model) - MilkLevel.upperLine) * scale
+        let mapped = upperLine + (MilkLevel.top(forAeration: seconds) - MilkLevel.upperLine) * scale
         return min(bottom - 1, mapped)
     }
 }

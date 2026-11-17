@@ -53,7 +53,7 @@ struct SteamingFeedbackView: View {
                 TimelineView(.animation(minimumInterval: aerationClock.isRunning ? nil : 1.0 / 30, paused: isStill && !aerationClock.isRunning)) { context in
                     let frame = pitcherMotion.advance(
                         to: context.date,
-                        targetTop: MilkLevel.top(forAeration: aerationClock.seconds(at: context.date), model: aerationClock.model),
+                        targetTop: MilkLevel.top(forAeration: aerationClock.seconds(at: context.date)),
                         rippling: aerationClock.isRunning,
                         still: isStill
                     )

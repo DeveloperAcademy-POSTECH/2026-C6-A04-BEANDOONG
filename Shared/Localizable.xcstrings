@@ -1,57 +1,6 @@
 {
   "sourceLanguage": "ko",
   "strings": {
-    "통합 모델": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Unified model"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "통합 모델"
-          }
-        }
-      }
-    },
-    "스티밍 모델": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Steaming model"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "스티밍 모델"
-          }
-        }
-      }
-    },
-    "드롱기 아르떼 모델": {
-      "extractionState": "manual",
-      "localizations": {
-        "en": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "De'Longhi Arte model"
-          }
-        },
-        "ko": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "드롱기 아르떼 모델"
-          }
-        }
-      }
-    },
     "\n\n\n---\n앱 버전: %@\n기기: %@ · iOS %@\n": {
       "extractionState": "manual",
       "localizations": {

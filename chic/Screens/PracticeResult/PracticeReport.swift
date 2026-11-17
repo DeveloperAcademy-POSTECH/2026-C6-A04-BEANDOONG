@@ -113,7 +113,7 @@ struct PracticeReportPage: View {
             .frame(height: ReportLayout.guideY.v(scale), alignment: .topLeading)
 
             ReportGuideSection(guide: PracticeGuide(result: result),
-                               milkTop: GuideMilkLevel.top(forAeration: result.guideDuration(of: .normalAeration), model: result.model))
+                               milkTop: GuideMilkLevel.top(forAeration: result.guideDuration(of: .normalAeration)))
 
             ReportFootnote()
                 .padding(.top, CGFloat(36).v(scale))
