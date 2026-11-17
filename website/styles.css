@@ -402,6 +402,52 @@ h3 {
   color: var(--muted);
   margin-top: var(--copy-space);
 }
+/* 앱 미리보기와 팀 소개 사이의 기술스택 */
+.tech-stack {
+  padding-top: 0;
+}
+.tech-title-logo {
+  display: inline-block;
+  width: 2.6em;
+  margin-right: 0.08em;
+  vertical-align: -0.08em;
+}
+.tech-eyebrow {
+  margin-bottom: 16px;
+  color: #187ca9;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+}
+.tech-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 24px;
+  margin: var(--content-space) 0 0;
+  padding: 0;
+  list-style: none;
+}
+.tech-card {
+  padding: 28px;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+}
+.tech-card h3 {
+  margin-bottom: 12px;
+  font-size: 22px;
+  line-height: 1.4;
+}
+.tech-card p {
+  color: var(--muted);
+  font-size: 16px;
+}
+.tech-card .tech-name {
+  margin-bottom: 16px;
+  color: #187ca9;
+  font-size: 14px;
+  font-weight: 500;
+}
+
 /* 팀 소개를 본문 끝에 자연스럽게 연결합니다. */
 .header a[aria-current="page"] {
   color: #287fa6;
@@ -1144,6 +1190,9 @@ footer .wordmark {
     padding-left: 6%;
     padding-right: 6%;
   }
+  .tech-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
   .preview-inner,
   .haptic-feedback,
   .results-preview {
@@ -1194,6 +1243,12 @@ footer .wordmark {
   }
   .section {
     padding: 90px 24px;
+  }
+  .tech-stack {
+    padding-top: 0;
+  }
+  .tech-grid {
+    grid-template-columns: 1fr;
   }
   .steaming-intro {
     grid-template-columns: 1fr;
