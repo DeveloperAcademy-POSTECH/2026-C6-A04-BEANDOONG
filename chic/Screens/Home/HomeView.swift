@@ -14,6 +14,8 @@ struct HomeView: View {
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.designScale) private var scale
     @State private var path: [Destination] = []
+    /// 저장하지 않아서 앱을 다시 실행하면 실제 연습 모드로 시작합니다.
+    @State private var isPresentationMode = false
     /// 등장 애니메이션을 할지
     private let animatesEntrance: Bool
     /// 화면이 실제로 보이고 있는지 (기본: 보임). 온보딩 아래에 미리 만들어 둘 때 false 로 두면,
@@ -38,6 +40,7 @@ struct HomeView: View {
         case watchSetup     // 워치 연결 과정 (설정 > 워치 페어링 > 애플 워치 연결에서 진입)
         case history
         case settings
+        case presentationPractice
     }
 
     var body: some View {
@@ -67,7 +70,10 @@ struct HomeView: View {
                             HistoryView(onStartPractice: startPractice)
                         case .settings:
                             SettingsView(onWatchPairing: { path.append(.watchSetup) },
-                                         onResetOnboarding: onResetOnboarding)
+                                         onResetOnboarding: onResetOnboarding,
+                                         isPresentationMode: $isPresentationMode)
+                        case .presentationPractice:
+                            PresentationPracticeView()
                         }
                     }
                     .toolbar(.hidden, for: .navigationBar)
@@ -156,6 +162,10 @@ struct HomeView: View {
     }
 
     private func startPractice() {
+        if isPresentationMode {
+            path = [.presentationPractice]
+            return
+        }
         path = [MicrophonePermission.isGranted ? .prepGuide : .microphone]
     }
 
