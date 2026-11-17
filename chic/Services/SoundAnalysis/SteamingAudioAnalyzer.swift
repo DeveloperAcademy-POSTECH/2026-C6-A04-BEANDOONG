@@ -34,7 +34,7 @@ nonisolated final class SteamingAudioAnalyzer: @unchecked Sendable {
     /// 오디오 세션은 연습 관리자가 활성화한 뒤 호출합니다.
     /// - onSilence: 연습이 끝난 것 같을 때 (소리 끊김 · 종료음 · 청소음, 끝난 것으로 볼 시각이 몇 초 전인지).
     ///   자동으로 끝내지 않고 분석을 계속해요. 종료 여부는 사용자에게 묻고, 묻는 창은 사용자가 답할 때까지 닫지 않아요.
-    func start(onResult: @escaping @Sendable (PracticePhase, ChicAnalysisLog?) -> Void,
+    func start(onResult: @escaping @Sendable (ChicModelV3_5.State, Int, ChicAnalysisLog?) -> Void,
                onSilence: @escaping @Sendable (TimeInterval, ChicEndRule.Reason, ChicAnalysisLog?) -> Void,
                onError: @escaping @Sendable (String) -> Void) throws {
         let input = engine.inputNode
@@ -65,7 +65,8 @@ nonisolated final class SteamingAudioAnalyzer: @unchecked Sendable {
                 defer { self.pendingBuffer.signal() }
                 guard !self.isStopped else { return }
                 do {
-                    var phase: PracticePhase?
+                    var recorded: ChicModelV3_5.State?
+                    var liveBlocks = 0
                     var phaseLog: ChicAnalysisLog?
                     var freshEndScores: ChicEndDetector.Scores?
                     var detectedEnd: (ChicEndRule.Reason, ChicAnalysisLog?)?
@@ -110,6 +111,7 @@ nonisolated final class SteamingAudioAnalyzer: @unchecked Sendable {
                         // 비스티밍 프레임으로 롤링 피드백을 새로 띄우지 않습니다.
                         if self.selection != .standard && frame.gateLabel == "non_steam" && frame.startReason == nil { return }
                         var display = self.displayFilter.consume(frame.state)
+                        let finishedBlock = display != nil
                         #if DEVELOP
                         if self.selection == .home && frame.startReason == .startSound {
                             display = self.displayFilter.display ?? .other
@@ -118,18 +120,19 @@ nonisolated final class SteamingAudioAnalyzer: @unchecked Sendable {
                         guard self.classifier.isStarted else { return }
                         if let display {
                             phaseLog = self.analysisLog
-                            switch self.selection.feedback(display, purge: purgeScore) {
-                            case .air: phase = .aeration
-                            case .sputter: phase = .bubble
-                            case .metallic: phase = .moreAir
-                            case .other: phase = .milkFlow
+                            let feedback = self.selection.feedback(display, purge: purgeScore)
+                            recorded = feedback
+                            if feedback != display || (feedback == .other && frame.startReason == .startSound) {
+                                liveBlocks = 1
+                            } else {
+                                liveBlocks = finishedBlock ? self.displayFilter.confirmedBlockCount : 0
                             }
                         }
                     }
                     if let (reason, log) = detectedEnd {
                         onSilence(Double(reason.lookbackCount) * Self.scoreInterval, reason, log)
                     }
-                    if let phase { onResult(phase, phaseLog) }
+                    if let recorded { onResult(recorded, liveBlocks, phaseLog) }
                 } catch {
                     self.isStopped = true
                     onError(error.localizedDescription)

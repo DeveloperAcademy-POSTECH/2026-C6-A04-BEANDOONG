@@ -5,6 +5,9 @@ nonisolated struct ChicDisplayFilter {
     private var candidate: ChicModelV3_5.State?
     private var consecutiveCount = 0
     private(set) var display: ChicModelV3_5.State?
+    /// 직전 표시를 유지한 경우에는 이번 묶음을 같은 소리의 재확인으로 세지 않습니다.
+    var confirmedBlockCount: Int { display == candidate ? consecutiveCount : 0 }
+
     private var startConfirmed = false
 
     private let forHome: Bool
@@ -38,5 +41,20 @@ nonisolated struct ChicDisplayFilter {
             display = winner
         }
         return display
+    }
+}
+
+/// 결과 기록과 독립적으로 드롱기의 실시간 작업음 피드백을 최소 0.5초 유지합니다.
+nonisolated struct ChicLiveFeedbackHold {
+    private var shown: ChicModelV3_5.State?
+    private var holdUntil = 0.0
+
+    /// 유지 시간이 지난 뒤 도착한 첫 유효 판정으로 전환하거나 같은 작업음을 다시 유지합니다.
+    mutating func update(_ state: ChicModelV3_5.State, confirmedBlocks: Int, at now: Double) -> ChicModelV3_5.State? {
+        guard now >= holdUntil, confirmedBlocks > 0 else { return shown }
+        if state == .air, shown != .air, confirmedBlocks < 3 { return shown }
+        shown = state
+        holdUntil = state == .other ? now : now + 0.5
+        return shown
     }
 }

@@ -327,6 +327,37 @@ import Foundation
             precondition(index == expected.probabilities.count && error < 0.002)
         }
     }
+    /// 기록은 두 번째 공기 묶음에서 시작하고 실시간 표시는 세 번째부터 독립적으로 유지됩니다.
+    static func checkHomeLiveHold() {
+        typealias State = ChicModelV3_5.State
+        var base = ChicDisplayFilter(forHome: true)
+        base.activate()
+        var live = ChicLiveFeedbackHold()
+        func block(_ state: State, _ time: Double) -> (State?, State?) {
+            var recorded: State?
+            for _ in 0..<10 { recorded = base.consume(state) }
+            return (recorded, recorded.flatMap { live.update($0, confirmedBlocks: base.confirmedBlockCount, at: time) })
+        }
+        precondition(block(.air, 0) == (nil, nil))
+        precondition(block(.air, 0.1) == (.air, nil))
+        precondition(block(.other, 0.2) == (.air, nil))
+        precondition(block(.air, 0.3) == (.air, nil))
+        precondition(block(.air, 0.4) == (.air, nil))
+        precondition(block(.air, 0.5) == (.air, .air))
+        precondition(block(.air, 1.0) == (.air, .air))
+        _ = block(.sputter, 1.1)
+        precondition(block(.sputter, 1.2) == (.sputter, .air))
+        precondition(block(.sputter, 1.5) == (.sputter, .sputter))
+        _ = block(.metallic, 1.6)
+        _ = block(.metallic, 1.7)
+        precondition(block(.metallic, 1.8) == (.metallic, .sputter))
+        precondition(block(.metallic, 2.0) == (.metallic, .metallic))
+        _ = block(.other, 2.1)
+        precondition(block(.other, 2.2) == (.other, .metallic))
+        precondition(block(.other, 2.5) == (.other, .other))
+        print("PASS independent home result, three-block air entry and renewable 0.5-second live holds")
+    }
+
     /// 집계 경계·동률·연속 판정 중단과 새 연습의 초기 상태를 확인합니다.
     static func checkDisplayFilter() {
         typealias State = ChicModelV3_5.State
@@ -443,6 +474,7 @@ import Foundation
         checkStartRule()
         checkAirRolling()
         checkDisplayFilter()
+        checkHomeLiveHold()
         checkEndRule()
         let args = CommandLine.arguments
         let dir = URL(fileURLWithPath: args[1])
