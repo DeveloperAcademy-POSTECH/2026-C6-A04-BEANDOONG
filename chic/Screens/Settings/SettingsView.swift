@@ -22,12 +22,15 @@ struct SettingsView: View {
     /// "애플 워치 연결"을 눌렀을 때: 워치 연결 과정 화면으로 (경로는 홈이 관리해요)
     private let onWatchPairing: () -> Void
     private let onResetOnboarding: () -> Void
+    @Binding private var isPresentationMode: Bool
 
     init(storeVersionOverride: String? = nil, onWatchPairing: @escaping () -> Void = {},
-         onResetOnboarding: @escaping () -> Void = {}) {
+         onResetOnboarding: @escaping () -> Void = {},
+         isPresentationMode: Binding<Bool> = .constant(false)) {
         self.storeVersionOverride = storeVersionOverride
         self.onWatchPairing = onWatchPairing
         self.onResetOnboarding = onResetOnboarding
+        _isPresentationMode = isPresentationMode
     }
 
     /// 개인정보 처리방침 및 이용약관 (Notion 공개 페이지)
@@ -137,6 +140,19 @@ struct SettingsView: View {
 
                 SettingsRow(symbol: "arrow.counterclockwise", title: String(localized: "온보딩 다시 보기"),
                             action: onResetOnboarding)
+
+                Rectangle()
+                    .fill(AppColors.settingsDivider)
+                    .frame(height: 1)
+                    .padding(.leading, Layout.dividerLeading)
+                    .padding(.trailing, Layout.dividerTrailing)
+
+                Toggle(isOn: $isPresentationMode) {
+                    SettingsRowLabel(symbol: "play.rectangle", title: String(localized: "발표용 모드", table: "Presentation"), chevron: nil)
+                }
+                .toggleStyle(.switch)
+                .tint(AppColors.darkChipSelected)
+                .padding(.trailing, 19)
             }
             .settingsCard()
             .padding(.top, Layout.cardTop.v(scale))
@@ -237,7 +253,7 @@ private struct SettingsRowLabel: View {
     let symbol: String
     let title: String
     var detail: String? = nil
-    var chevron: String = "chevron.right"
+    var chevron: String? = "chevron.right"
 
     var body: some View {
         HStack(spacing: 0) {
@@ -267,10 +283,12 @@ private struct SettingsRowLabel: View {
                     .padding(.trailing, 8)
             }
 
-            Image(systemName: chevron)
-                .font(.system(size: 16, weight: .semibold))
-                .foregroundStyle(AppColors.settingsChevron)
-                .padding(.trailing, 19)
+            if let chevron {
+                Image(systemName: chevron)
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(AppColors.settingsChevron)
+                    .padding(.trailing, 19)
+            }
         }
         .frame(height: 47)
         .contentShape(Rectangle())
