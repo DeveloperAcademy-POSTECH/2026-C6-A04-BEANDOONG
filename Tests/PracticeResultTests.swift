@@ -43,7 +43,7 @@ struct PracticeResultTests {
 
         let directory = FileManager.default.temporaryDirectory.appending(path: UUID().uuidString)
         defer { try? FileManager.default.removeItem(at: directory) }
-        let record = PracticeRecord(id: UUID(), startedAt: start, endedAt: start.addingTimeInterval(25))
+        let record = PracticeRecord(id: UUID(), startedAt: start, endedAt: start.addingTimeInterval(55), pausedDuration: 30)
         verifyRemovedSound(record: record, expected: result)
         try save(record: record, segments: timeline.segments, directory: directory)
         try verifyReload(record: record, expected: result, directory: directory)

@@ -40,6 +40,10 @@ struct WatchPracticeView: View {
         switch connection.state.phase {
         case .idle:
             StartRequestView(onStartTap: start)
+        case .listening where connection.state.pausedAt != nil:
+            Text(String(localized: "iPhone에서 연습을 이어가거나 종료해 주세요."))
+                .multilineTextAlignment(.center)
+                .watchCloseButton(onClose: stop)
         case .listening:
             SoundCheckingView(onCloseTap: stop)
         case .aeration:
