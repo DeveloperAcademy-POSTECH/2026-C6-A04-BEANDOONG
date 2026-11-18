@@ -54,7 +54,7 @@ nonisolated final class ChicEndDetector {
     convenience init(bundle: Bundle = .main) throws {
         guard let model = bundle.url(forResource: "ChicAudioFeatures", withExtension: "mlmodelc"),
               let classifier = bundle.url(forResource: "ChicEndV3_5", withExtension: "mlmodelc") else {
-            throw ChicModelV3_5.Failure.resource("ChicEndV3_5")
+            throw ChicModelV4.Failure.resource("ChicEndV3_5")
         }
         try self.init(modelURL: model, classifierURL: classifier)
     }
@@ -66,7 +66,7 @@ nonisolated final class ChicEndDetector {
         extractor = try MLModel(contentsOf: modelURL, configuration: config)
         guard extractor.modelDescription.inputDescriptionsByName["audioSamples"]?.type == .multiArray,
               extractor.modelDescription.outputDescriptionsByName["features"]?.type == .multiArray else {
-            throw ChicModelV3_5.Failure.schema
+            throw ChicModelV4.Failure.schema
         }
         let classifierConfig = MLModelConfiguration()
         classifierConfig.computeUnits = .cpuOnly
@@ -79,7 +79,7 @@ nonisolated final class ChicEndDetector {
               let output = description.outputDescriptionsByName["probabilities"]?.multiArrayConstraint,
               output.shape == [4], output.dataType == .double,
               let activity = description.outputDescriptionsByName["activityProbabilities"]?.multiArrayConstraint,
-              activity.shape == [4], activity.dataType == .double else { throw ChicModelV3_5.Failure.schema }
+              activity.shape == [4], activity.dataType == .double else { throw ChicModelV4.Failure.schema }
         classificationInput = try MLMultiArray(shape: [1845], dataType: .double)
         classificationProvider = try MLDictionaryFeatureProvider(dictionary: ["features": classificationInput])
         audioInput = try MLMultiArray(shape: [8000], dataType: .float32)
@@ -98,7 +98,7 @@ nonisolated final class ChicEndDetector {
 
     /// 학습의 61탭 인과적 FIR과 같은 위상으로 48 kHz 입력을 16 kHz로 줄입니다.
     func append(_ mono: [Float]) throws {
-        guard mono.allSatisfy(\.isFinite) else { throw ChicModelV3_5.Failure.input }
+        guard mono.allSatisfy(\.isFinite) else { throw ChicModelV4.Failure.input }
         samples48 += mono
         for value in mono {
             filterHistory[filterCursor] = Double(value)
@@ -117,7 +117,7 @@ nonisolated final class ChicEndDetector {
     /// 작업 분류에서 계산한 스펙트럼을 재사용하여 묶음 끝 시각에 맞춰 추론합니다.
     func consume(spectrum: [Double]) throws -> Scores? {
         guard spectrum.count == 1025, spectrum.allSatisfy({ $0.isFinite && $0 >= 0 }) else {
-            throw ChicModelV3_5.Failure.input
+            throw ChicModelV4.Failure.input
         }
         for i in 0..<1023 { powerSum[i] += Float(spectrum[i + 1] * powerScale) }
         rawFrameCount += 1
@@ -127,7 +127,7 @@ nonisolated final class ChicEndDetector {
         powerSum = [Float](repeating: 0, count: 1023)
         let end48 = 2048 + (rawFrameCount - 1) * 512
         let start48 = max(0, end48 - 5120)
-        guard start48 >= sampleBase48, end48 <= sampleBase48 + samples48.count else { throw ChicModelV3_5.Failure.alignment }
+        guard start48 >= sampleBase48, end48 <= sampleBase48 + samples48.count else { throw ChicModelV4.Failure.alignment }
         let energy = samples48[(start48 - sampleBase48)..<(end48 - sampleBase48)].reduce(0.0) { $0 + Double($1) * Double($1) } / Double(end48 - start48)
         let rmsDBFS = 10 * log10(max(energy, 1e-16))
         let referenceEnergy = energyHistory.isEmpty ? energy : energyHistory.reduce(0, +) / Double(energyHistory.count)
@@ -138,19 +138,19 @@ nonisolated final class ChicEndDetector {
         samples48.removeFirst(discard48)
         sampleBase48 += discard48
         let end16 = end48 / 3
-        guard end16 <= sampleBase16 + samples16.count else { throw ChicModelV3_5.Failure.alignment }
+        guard end16 <= sampleBase16 + samples16.count else { throw ChicModelV4.Failure.alignment }
         let input = audioInput.dataPointer.assumingMemoryBound(to: Float.self)
         for i in 0..<8000 {
             let index = end16 - 8000 + i
             if index < 0 { input[i] = 0 }
             else {
-                guard index >= sampleBase16 else { throw ChicModelV3_5.Failure.alignment }
+                guard index >= sampleBase16 else { throw ChicModelV4.Failure.alignment }
                 input[i] = samples16[index - sampleBase16]
             }
         }
         let result = try extractor.prediction(from: provider)
         guard let array = result.featureValue(for: "features")?.multiArrayValue, array.count == 512 else {
-            throw ChicModelV3_5.Failure.schema
+            throw ChicModelV4.Failure.schema
         }
         var embedding = (0..<512).map { array[$0].floatValue }
         let norm = max(sqrt(embedding.reduce(Float(0)) { $0 + $1 * $1 }), 1e-6)
@@ -164,20 +164,20 @@ nonisolated final class ChicEndDetector {
             }
         }
         features += spectralChanges(current)
-        guard features.count == 1845, features.allSatisfy(\.isFinite) else { throw ChicModelV3_5.Failure.input }
+        guard features.count == 1845, features.allSatisfy(\.isFinite) else { throw ChicModelV4.Failure.input }
         let values = classificationInput.dataPointer.assumingMemoryBound(to: Double.self)
         for i in features.indices { values[i] = features[i] }
         let prediction = try classifier.prediction(from: classificationProvider)
         guard let probabilities = prediction.featureValue(for: "probabilities")?.multiArrayValue,
               probabilities.count == 4,
               let activity = prediction.featureValue(for: "activityProbabilities")?.multiArrayValue,
-              activity.count == 4 else { throw ChicModelV3_5.Failure.schema }
+              activity.count == 4 else { throw ChicModelV4.Failure.schema }
         let p = (0..<4).map { probabilities[$0].doubleValue }
         let a = (0..<4).map { activity[$0].doubleValue }
         guard p.allSatisfy({ $0.isFinite && (0...1).contains($0) }),
               a.allSatisfy({ $0.isFinite && (0...1).contains($0) }),
               abs(p.reduce(0, +) - 1) < 1e-5,
-              abs(a.reduce(0, +) - 1) < 1e-5 else { throw ChicModelV3_5.Failure.schema }
+              abs(a.reduce(0, +) - 1) < 1e-5 else { throw ChicModelV4.Failure.schema }
         embeddings.append(embedding)
         if embeddings.count > 15 { embeddings.removeFirst() }
         bandHistory.append(current)

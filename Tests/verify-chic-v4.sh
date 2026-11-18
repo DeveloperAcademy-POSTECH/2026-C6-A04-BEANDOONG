@@ -13,5 +13,12 @@ for model in "$root"/chic/Models/*.mlmodel; do
 done
 xcrun swiftc -O -module-cache-path "$work/cache" \
     "$root"/chic/Services/SoundAnalysis/Chic*.swift \
-    "$root"/Tests/ChicModelV3_5Tests.swift -o "$work/check"
-"$work/check" "$root/Tests/Fixtures/ChicModelV3_5" "$work"
+    "$root"/Tests/ChicModelV4Tests.swift -o "$work/check"
+"$work/check" "$root/Tests/Fixtures/ChicModelV4" "$work"
+
+# 화면 유지 시간과 롤링 예외도 같은 검증 명령에서 확인합니다.
+xcrun swiftc -module-cache-path "$work/cache" \
+    "$root"/Shared/PracticeState.swift \
+    "$root"/chic/Services/PracticeFeedbackHold.swift \
+    "$root"/Tests/PracticeFeedbackHoldTests.swift -o "$work/hold-check"
+"$work/hold-check"

@@ -1,20 +1,20 @@
 {
-  "version": "3.5",
+  "version": "4.0",
   "frames": 817,
   "fixtureSHA256": "e427952cb487b0beba88ec10b2dcfc1ea394a7e3e07d8b120bf418fd15cabfa2",
-  "expectedSHA256": "07176175a7bd5631bf1e6a073308ff9b8e324838dd6337545fcd3c8a7b4ca583",
+  "expectedSHA256": "24b10bdd7ca3fa7cc7b598aff5555687bc7fff54f2503a4d173a363b64409a80",
   "models": {
-    "ChicModelV3_5Air.mlmodel": "07936ce75da06e3b0c45931945b51a798929c19b8d1904fd3ef46d476e3e4dec",
-    "ChicModelV3_5Gate.mlmodel": "59ab757682d1917ce50ff48370f36c0c0e21872eeb9ebf15fd3c1a3c72e066ea",
-    "ChicModelV3_5Metallic.mlmodel": "4fcb5fd688c791424fc7378e5862e5b8e36898f581092dc3fb39b6fd1a3757c0"
+    "ChicModelV4Air.mlmodel": "07936ce75da06e3b0c45931945b51a798929c19b8d1904fd3ef46d476e3e4dec",
+    "ChicModelV4Gate.mlmodel": "59ab757682d1917ce50ff48370f36c0c0e21872eeb9ebf15fd3c1a3c72e066ea",
+    "ChicModelV4Metallic.mlmodel": "4e08b4c6dd2264823fa73d9f5d1d6c15cd86363c525e25e4b89e82a5b6ac7ce8"
   },
   "reference": "Separate raw Core ML scorers; independent Python run-group display reference. Regression fixture, not a new accuracy validation set.",
   "resources": {
     "ChicAudioFeatures.mlmodel": "8ec2d0e5c6add578f16d3d8ade3c947b8e5a2c0e5531cdd6e807fa45d3ed89cb",
     "ChicEndV3_5.mlmodel": "46eb10799c0683e8b22fe67b72c6315a3a4bb5949f0a3395dbb0f77a3e69d8c4",
-    "ChicModelV3_5Air.mlmodel": "07936ce75da06e3b0c45931945b51a798929c19b8d1904fd3ef46d476e3e4dec",
-    "ChicModelV3_5Gate.mlmodel": "59ab757682d1917ce50ff48370f36c0c0e21872eeb9ebf15fd3c1a3c72e066ea",
-    "ChicModelV3_5Metallic.mlmodel": "4fcb5fd688c791424fc7378e5862e5b8e36898f581092dc3fb39b6fd1a3757c0",
+    "ChicModelV4Air.mlmodel": "07936ce75da06e3b0c45931945b51a798929c19b8d1904fd3ef46d476e3e4dec",
+    "ChicModelV4Gate.mlmodel": "59ab757682d1917ce50ff48370f36c0c0e21872eeb9ebf15fd3c1a3c72e066ea",
+    "ChicModelV4Metallic.mlmodel": "4e08b4c6dd2264823fa73d9f5d1d6c15cd86363c525e25e4b89e82a5b6ac7ce8",
     "ChicStartSoundV1.mlmodel": "67ce7d21c75104bf59ecc3b49cef21881a4918a4f153402a24161c7a04465fa0"
   },
   "endExpectedSHA256": "22ae91050c7939ef4c4d410b2e776679a4da7945b760e64ceb10c610a7f1b07b",
@@ -32,7 +32,7 @@
   ],
   "endRevision": "20261109-gain200-repair",
   "activityClassifier": "frozen gradient boosted trees, 100 rounds, depth 3",
-  "phaseRevision": "20261119-home20-rolling2x",
+  "phaseRevision": "20261119-v4-metallic-rolling-binary",
   "displayConsecutive": {
     "air": 2,
     "sputter": 1,
@@ -49,18 +49,19 @@
     "meanFrames": 10,
     "soundConsecutive": 1,
     "airConsecutive": 1,
-    "airThreshold": "existing phase air > 0.5, rolling/sputter precedence preserved",
+    "airThreshold": "phase air >= 0.60, rolling/sputter precedence preserved",
     "oneShot": true,
     "referenceSHA256": "7607f0e0e9cd89dfbabe69ef7cb11747094d82ee3bb19fb5ec85089ecd1afb10",
     "audioSHA256": "e4fb2e1df55d426420744ec612f459bd1c8a568c420d450afe6db0a075291f84",
-    "airReferenceSHA256": "ae52d2e8fe6178693bfe0483e0ea9dedfdbc1a0742726c07c2b52a2f1ec9de69",
+    "airReferenceSHA256": "554da32ab822e8cf8a4bbe1637ab69bf81ecbc93fcb400d67a723f6f0975549d",
     "airAudioSHA256": "f0b8f12d68dc9dfcc031b92de0b3ef524cf3d189432c42abb32c662eabc12d15",
     "soundReferenceSHA256": "73b77efe3e14b9c1269d8cabb75cff7d53c7bb9d8f2c6c92ec68da53ab02352c",
     "soundAudioSHA256": "38b9923bca2b220f221bf1337a61623bd9f28e9bc094145a6677d6e16cbc6940"
   },
   "phaseThresholds": {
-    "sputter": 0.5,
-    "metallic": 0.6
+    "sputter": 0.6,
+    "metallic": 0.7,
+    "air": 0.6
   },
   "displayFrames": 10,
   "displayIntervalSeconds": 0.10666666666666667,
@@ -74,10 +75,10 @@
     "rolling"
   ],
   "metallicClasses": [
-    "air",
     "metallic",
-    "sputter",
-    "other",
     "rolling"
-  ]
+  ],
+  "feedbackHoldMilliseconds": 750,
+  "comparisonBaseline": "64d49a2db551f8cc0a1f50fbdd113c5fc9df402d",
+  "feedbackHoldSeconds": 0.75
 }

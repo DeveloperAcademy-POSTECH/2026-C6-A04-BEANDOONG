@@ -12,7 +12,7 @@ nonisolated final class SteamingAudioAnalyzer: @unchecked Sendable {
     private let pendingBuffer = DispatchSemaphore(value: 8)
     private let input48k = ChicV2Input48k()
     private var displayFilter = ChicDisplayFilter()
-    private let classifier: ChicModelV3_5
+    private let classifier: ChicModelV4
     private let endDetector: ChicEndDetector
     private var endRule = ChicEndRule()
     private var isStopped = false
@@ -21,7 +21,7 @@ nonisolated final class SteamingAudioAnalyzer: @unchecked Sendable {
     private static let scoreInterval: TimeInterval = 10 * 512 / 48_000
 
     init() throws {
-        classifier = try ChicModelV3_5()
+        classifier = try ChicModelV4()
         endDetector = try ChicEndDetector()
     }
 

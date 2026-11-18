@@ -3,10 +3,10 @@
 nonisolated struct ChicDisplayFilter {
     private let frameCount: Int
     private let airConsecutive: Int
-    private var frames: [ChicModelV3_5.State] = []
-    private var candidate: ChicModelV3_5.State?
+    private var frames: [ChicModelV4.State] = []
+    private var candidate: ChicModelV4.State?
     private var consecutiveCount = 0
-    private var display: ChicModelV3_5.State?
+    private var display: ChicModelV4.State?
     private var startConfirmed = false
 
     /// 실시간 피드백은 10프레임·공기주입 2회, 자동 시작 확인은 10프레임·1회를 사용합니다.
@@ -20,7 +20,7 @@ nonisolated struct ChicDisplayFilter {
     mutating func activate() { startConfirmed = true }
 
     /// 기타를 롤링에 합산하고 롤링은 4묶음, 쇳소리는 2묶음, 파바박은 1묶음으로 확인합니다.
-    mutating func consume(_ state: ChicModelV3_5.State) -> ChicModelV3_5.State? {
+    mutating func consume(_ state: ChicModelV4.State) -> ChicModelV4.State? {
         frames.append(state == .other ? .rolling : state)
         guard frames.count == frameCount else { return nil }
         let counts = Dictionary(grouping: frames, by: { $0 }).mapValues(\.count)

@@ -3,7 +3,7 @@ import CoreML
 import Foundation
 
 /// 제공된 PCM과 예상 출력으로 두 단계 판정 및 입력 변환을 검증합니다.
-@main enum ChicModelV3_5Tests {
+@main enum ChicModelV4Tests {
     struct Expected: Decodable { let gate, state: String; let sputter: Double?; let display: String? }
     struct EndExpected: Decodable { let extraSilentSamples: Int; let probabilities: [[Double]]; let times: [Double] }
 
@@ -30,7 +30,7 @@ import Foundation
         precondition(average.consume(0, state: .other) == nil)
         for _ in 0..<9 { precondition(average.consume(0.86, state: .other) == nil) }
         precondition(average.consume(0.86, state: .other) == .startSound)
-        for state in [ChicModelV3_5.State.other, .rolling, .sputter, .metallic] {
+        for state in [ChicModelV4.State.other, .rolling, .sputter, .metallic] {
             var idle = ChicStartRule()
             for _ in 0..<40 { precondition(idle.consume(0, state: state) == nil) }
             precondition(!idle.isStarted)
@@ -53,7 +53,7 @@ import Foundation
     static func checkStartModel(_ expected: StartExpected, url: URL) throws {
         precondition(expected.highProbability > ChicStartRule.threshold)
         precondition(expected.lowProbability < ChicStartRule.threshold)
-        for (features, state, reason) in [(expected.highFeatures, ChicModelV3_5.State.other, ChicStartRule.Reason.startSound),
+        for (features, state, reason) in [(expected.highFeatures, ChicModelV4.State.other, ChicStartRule.Reason.startSound),
                                          (expected.lowFeatures, .air, .air)] {
             let gate = try ChicStartGate(url: url)
             for _ in 0..<9 { let result = try gate.consume(features, state: state); precondition(result == nil) }
@@ -81,9 +81,9 @@ import Foundation
             try file.read(into: buffer)
             let samples = Array(UnsafeBufferPointer(start: buffer.floatChannelData![0], count: Int(buffer.frameLength)))
             for chunks in [[4800], [1, 127, 513, 1024, 4097]] {
-                let stream = try ChicModelV3_5(gateURL: compiled.appendingPathComponent("ChicModelV3_5Gate.mlmodelc"),
-                    airURL: compiled.appendingPathComponent("ChicModelV3_5Air.mlmodelc"),
-                    rollingURL: compiled.appendingPathComponent("ChicModelV3_5Metallic.mlmodelc"), startURL: url)
+                let stream = try ChicModelV4(gateURL: compiled.appendingPathComponent("ChicModelV4Gate.mlmodelc"),
+                    airURL: compiled.appendingPathComponent("ChicModelV4Air.mlmodelc"),
+                    metallicURL: compiled.appendingPathComponent("ChicModelV4Metallic.mlmodelc"), startURL: url)
                 let end = try ChicEndDetector(modelURL: compiled.appendingPathComponent("ChicAudioFeatures.mlmodelc"), classifierURL: compiled.appendingPathComponent("ChicEndV3_5.mlmodelc"))
                 var display = ChicDisplayFilter(), endRule = ChicEndRule()
                 var offset = 0, chunk = 0, spectra = 0, frames = 0, starts = 0, endScores = 0
@@ -124,24 +124,24 @@ import Foundation
         }
     }
 
-    /// 롤링 우세·동률과 공기주입 0.5 초과 경계, 문턱 미달 판정의 롤링 합산을 확인합니다.
+    /// 롤링 우세·동률과 공기주입 0.60 이상 경계, 문턱 미달 판정의 롤링 합산을 확인합니다.
     static func checkAirRolling() {
-        precondition(ChicModelV3_5.airState(air: 0.2, sputter: 0.3, rolling: 0.5) == .rolling)
-        precondition(ChicModelV3_5.airState(air: 0.4, sputter: 0.2, rolling: 0.4) == .rolling)
-        precondition(ChicModelV3_5.airState(air: 0, sputter: 0.5, rolling: 0.5) == .rolling)
-        precondition(ChicModelV3_5.airState(air: 0.6, sputter: 0.1, rolling: 0.3) == .air)
-        precondition(ChicModelV3_5.airState(air: 0.2, sputter: 0.5, rolling: 0.3) == .sputter)
-        precondition(ChicModelV3_5.airState(air: 0.3, sputter: 0.499999, rolling: 0.200001) == .other)
-        precondition(ChicModelV3_5.airState(air: 0.35, sputter: 0.4, rolling: 0.25) == .other)
-        precondition(ChicModelV3_5.airState(air: 0.4, sputter: 0.35, rolling: 0.25) == .other)
-        precondition(ChicModelV3_5.airState(air: 0.5, sputter: 0.2, rolling: 0.3) == .other)
-        precondition(ChicModelV3_5.airState(air: 0.500001, sputter: 0.2, rolling: 0.299999) == .air)
-        precondition(ChicModelV3_5.airState(air: 0.499999, sputter: 0.2, rolling: 0.300001) == .other)
-        precondition(ChicModelV3_5.airState(air: 0.5, sputter: 0.5, rolling: 0) == .sputter)
+        precondition(ChicModelV4.airState(air: 0.2, sputter: 0.3, rolling: 0.5) == .rolling)
+        precondition(ChicModelV4.airState(air: 0.4, sputter: 0.2, rolling: 0.4) == .rolling)
+        precondition(ChicModelV4.airState(air: 0, sputter: 0.5, rolling: 0.5) == .rolling)
+        precondition(ChicModelV4.airState(air: 0.6, sputter: 0.1, rolling: 0.3) == .air)
+        precondition(ChicModelV4.airState(air: 0.2, sputter: 0.6, rolling: 0.2) == .sputter)
+        precondition(ChicModelV4.airState(air: 0.2, sputter: 0.599999, rolling: 0.200001) == .other)
+        precondition(ChicModelV4.airState(air: 0.35, sputter: 0.4, rolling: 0.25) == .other)
+        precondition(ChicModelV4.airState(air: 0.4, sputter: 0.35, rolling: 0.25) == .other)
+        precondition(ChicModelV4.airState(air: 0.5, sputter: 0.2, rolling: 0.3) == .other)
+        precondition(ChicModelV4.airState(air: 0.600001, sputter: 0.2, rolling: 0.199999) == .air)
+        precondition(ChicModelV4.airState(air: 0.599999, sputter: 0.2, rolling: 0.200001) == .other)
+        precondition(ChicModelV4.airState(air: 0.5, sputter: 0.5, rolling: 0) == .other)
         var display = ChicDisplayFilter()
         for _ in 0..<20 { _ = display.consume(.air) }
-        var result: ChicModelV3_5.State?
-        let belowThreshold = ChicModelV3_5.airState(air: 0.4, sputter: 0.35, rolling: 0.25)
+        var result: ChicModelV4.State?
+        let belowThreshold = ChicModelV4.airState(air: 0.4, sputter: 0.35, rolling: 0.25)
         for _ in 0..<3 {
             for _ in 0..<10 { result = display.consume(belowThreshold) }
             precondition(result == .air)
@@ -280,7 +280,7 @@ import Foundation
     }
     /// 집계 경계·동률·연속 판정 중단과 새 연습의 초기 상태를 확인합니다.
     static func checkDisplayFilter() {
-        typealias State = ChicModelV3_5.State
+        typealias State = ChicModelV4.State
         func check(_ candidates: [State], _ expected: [State?]) {
             precondition(candidates.count == expected.count)
             var filter = ChicDisplayFilter()
@@ -360,9 +360,9 @@ import Foundation
         try checkEndDetector(x, fixture: dir, compiled: compiled)
         try checkEndDetector(x, fixture: dir, compiled: compiled, gain: Float(pow(10.0, -24.0 / 20)), referenceName: "expected-end-low-gain.json")
         for chunks in [[4800], [1, 127, 513, 1024, 4097]] {
-            let stream = try ChicModelV3_5(gateURL: compiled.appendingPathComponent("ChicModelV3_5Gate.mlmodelc"),
-                                         airURL: compiled.appendingPathComponent("ChicModelV3_5Air.mlmodelc"),
-                                         rollingURL: compiled.appendingPathComponent("ChicModelV3_5Metallic.mlmodelc"))
+            let stream = try ChicModelV4(gateURL: compiled.appendingPathComponent("ChicModelV4Gate.mlmodelc"),
+                                         airURL: compiled.appendingPathComponent("ChicModelV4Air.mlmodelc"),
+                                         metallicURL: compiled.appendingPathComponent("ChicModelV4Metallic.mlmodelc"))
             var displayFilter = ChicDisplayFilter()
             var i=0, start=0, chunk=0
             while start<x.count {
