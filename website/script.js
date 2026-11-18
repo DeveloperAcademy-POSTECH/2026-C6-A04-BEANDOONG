@@ -7,29 +7,52 @@ document.querySelectorAll("[data-carousel]").forEach((carousel) => {
   const slides = [...carousel.querySelectorAll("[data-carousel-slide]")];
   const buttons = [...carousel.querySelectorAll("[data-slide]")];
   const caption = carousel.querySelector("[data-carousel-caption]");
-  const toggle = carousel.querySelector("[data-carousel-toggle]");
   let current = 0;
   let pointerStart;
-  let paused = reducedMotion.matches;
   let hovering = false;
   let focused = false;
   let timer;
+  let wrappedSlide;
+
+  // 경계에서는 실제 슬라이드를 옆에 놓고, 이동이 끝나면 같은 화면의 원래 좌표로 복귀합니다.
+  function finishWrap() {
+    if (!wrappedSlide) return;
+    track.style.transition = "none";
+    wrappedSlide.style.transform = "";
+    wrappedSlide = undefined;
+    track.style.transform = `translateX(-${current * 100}%)`;
+    void track.offsetWidth;
+    track.style.transition = "";
+  }
+  track.addEventListener("transitionend", (event) => {
+    if (event.target === track && event.propertyName === "transform") finishWrap();
+  });
 
   // 자동 재생 중에는 반복 알림을 끄고, 사용자가 읽거나 조작할 때 전환을 멈춥니다.
   function syncPlayback() {
     clearInterval(timer);
     timer = undefined;
-    if (toggle && !paused && !hovering && !focused && !pointerStart && !document.hidden) {
-      timer = setInterval(() => showSlide(current + 1), 5000);
+    if (!reducedMotion.matches && !hovering && !focused && !pointerStart && !document.hidden) {
+      timer = setInterval(() => showSlide(current + 1), 4000);
     }
     caption.setAttribute("aria-live", timer === undefined ? "polite" : "off");
-    if (toggle) toggle.textContent = translate(paused ? "자동 재생" : "일시 정지");
   }
 
   // 화면과 설명, 보조 기술에 전달되는 선택 상태를 함께 바꿉니다.
   function showSlide(index) {
-    current = (index + slides.length) % slides.length;
-    track.style.transform = `translateX(-${current * 100}%)`;
+    finishWrap();
+    const next = (index + slides.length) % slides.length;
+    let position = next;
+    if (!reducedMotion.matches && slides.length > 1) {
+      if (current === slides.length - 1 && next === 0) position = slides.length;
+      else if (current === 0 && next === slides.length - 1) position = -1;
+    }
+    if (position !== next) {
+      wrappedSlide = slides[next];
+      wrappedSlide.style.transform = `translateX(${(position - next) * 100}%)`;
+    }
+    current = next;
+    track.style.transform = `translateX(${-position * 100}%)`;
     slides.forEach((slide, i) => {
       slide.setAttribute("aria-hidden", String(i !== current));
       slide.inert = i !== current;
@@ -39,13 +62,16 @@ document.querySelectorAll("[data-carousel]").forEach((carousel) => {
   }
 
   buttons.forEach((button, i) => {
-    button.addEventListener("click", () => {
+    button.addEventListener("click", (event) => {
       showSlide(i);
+      // 포인터 선택은 자동 전환을 재개하고, 키보드 탐색의 일시 정지는 유지합니다.
+      if (event.detail > 0) hovering = focused = false;
       syncPlayback();
     });
     button.addEventListener("keydown", (event) => {
       if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
       event.preventDefault();
+      focused = true;
       showSlide(
         event.key === "Home"
           ? 0
@@ -93,18 +119,13 @@ document.querySelectorAll("[data-carousel]").forEach((carousel) => {
     focused = carousel.contains(event.relatedTarget);
     syncPlayback();
   });
-  toggle?.addEventListener("click", () => {
-    paused = !paused;
-    if (!paused) hovering = focused = false;
-    syncPlayback();
-  });
   document.addEventListener("visibilitychange", syncPlayback);
   document.addEventListener("site-language-change", () => {
     showSlide(current);
     syncPlayback();
   });
   reducedMotion.addEventListener("change", () => {
-    if (reducedMotion.matches) paused = true;
+    finishWrap();
     syncPlayback();
   });
   showSlide(0);

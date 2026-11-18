@@ -6,6 +6,7 @@ const path = require("node:path");
 // 두 캐러셀의 선택 상태와 접근성 동작을 브라우저 없이 확인합니다.
 function makeCarousel(count) {
   const slides = Array.from({ length: count }, (_, i) => ({
+    style: {},
     dataset: { caption: `설명 ${i}` },
     attributes: {},
     inert: i > 0,
@@ -34,28 +35,30 @@ function makeCarousel(count) {
     },
     setPointerCapture() {},
   };
-  const track = { style: {} };
-  const caption = { attributes: {}, setAttribute(key, value) { this.attributes[key] = value; } };
-  const toggle = {
-    handlers: {},
-    addEventListener(key, fn) { this.handlers[key] = fn; },
+  const track = {
+    style: {}, handlers: {},
+    addEventListener(type, fn) { this.handlers[type] = fn; },
+    get offsetWidth() {
+      assert.equal(this.style.transition, "none");
+      return 440;
+    },
+    endTransition() { this.handlers.transitionend({ target: this, propertyName: "transform" }); },
   };
+  const caption = { attributes: {}, setAttribute(key, value) { this.attributes[key] = value; } };
   return {
     slides,
     buttons,
     viewport,
     track,
     caption,
-    toggle,
     handlers: {},
     addEventListener(key, fn) { this.handlers[key] = fn; },
-    contains(target) { return buttons.includes(target) || target === toggle; },
+    contains(target) { return buttons.includes(target); },
     querySelector(selector) {
       return {
         "[data-carousel-viewport]": viewport,
         "[data-carousel-track]": track,
         "[data-carousel-caption]": caption,
-        "[data-carousel-toggle]": toggle,
       }[selector];
     },
     querySelectorAll(selector) {
@@ -114,7 +117,7 @@ for (const reduce of [false, true]) {
     document,
     translate: (copy) => language === "en" ? copy.replace("설명", "Caption") : copy,
     setInterval(callback, delay) {
-      assert.equal(delay, 5000);
+      assert.equal(delay, 4000);
       timers.set(++nextTimer, callback);
       return nextTimer;
     },
@@ -131,8 +134,16 @@ for (const reduce of [false, true]) {
     const tick = [...timers.values()][0];
     tick();
     assert.equal(state.caption.textContent, "설명 1");
-    tick(); tick(); tick();
+    tick(); tick();
+    assert.equal(state.track.style.transform, "translateX(-300%)");
+    tick();
     assert.equal(state.caption.textContent, "설명 0");
+    assert.equal(state.track.style.transform, "translateX(-400%)");
+    assert.equal(state.slides[0].style.transform, "translateX(400%)");
+    state.track.endTransition();
+    assert.equal(state.track.style.transform, "translateX(-0%)");
+    assert.equal(state.slides[0].style.transform, "");
+    assert.equal(state.track.style.transition, "");
     state.handlers.pointerenter({ pointerType: "mouse" });
     assert.equal(timers.size, 1);
     state.handlers.pointerleave({ pointerType: "mouse" });
@@ -143,19 +154,33 @@ for (const reduce of [false, true]) {
     assert.equal(timers.size, 1);
     state.handlers.focusout({ relatedTarget: null });
     assert.equal(timers.size, 2);
-    state.toggle.handlers.click();
-    assert.equal(timers.size, 1);
     document.hidden = true;
     document.dispatch("visibilitychange");
     assert.equal(timers.size, 0);
     document.hidden = false;
     document.dispatch("visibilitychange");
-    assert.equal(timers.size, 1);
-    state.toggle.handlers.click();
     assert.equal(timers.size, 2);
   }
-  state.buttons[3].handlers.click();
-  result.buttons[1].handlers.click();
+  // 실제 포인터 클릭 순서: 영역 진입 → 버튼 포커스 → 클릭. 선택 후에도 순환해야 합니다.
+  state.handlers.pointerenter({ pointerType: "mouse" });
+  state.handlers.focusin();
+  state.buttons[1].handlers.click({ detail: 1 });
+  assert.equal(state.caption.textContent, "설명 1");
+  assert.equal(timers.size, reduce ? 0 : 2);
+  state.handlers.pointerleave({ pointerType: "mouse" });
+  assert.equal(timers.size, reduce ? 0 : 2);
+  if (!reduce) {
+    [...timers.values()].at(-1)();
+    assert.equal(state.caption.textContent, "설명 2");
+  }
+  // 키보드 활성화는 포커스가 있는 동안 계속 멈춥니다.
+  state.handlers.focusin();
+  state.buttons[1].handlers.click({ detail: 0 });
+  assert.equal(timers.size, reduce ? 0 : 1);
+  state.handlers.focusout({ relatedTarget: null });
+  assert.equal(timers.size, reduce ? 0 : 2);
+  state.buttons[3].handlers.click({ detail: 1 });
+  result.buttons[1].handlers.click({ detail: 1 });
   assert.equal(state.caption.textContent, "설명 3");
   assert.equal(result.caption.textContent, "설명 1");
   assert.equal(result.track.style.transform, "translateX(-100%)");
@@ -168,8 +193,17 @@ for (const reduce of [false, true]) {
   assert.equal(result.caption.textContent, "설명 0");
   result.buttons[0].handlers.keydown({ key: "ArrowLeft", preventDefault() {} });
   assert.equal(result.caption.textContent, "설명 2");
+  if (!reduce) {
+    assert.equal(result.track.style.transform, "translateX(100%)");
+    assert.equal(result.slides[2].style.transform, "translateX(-300%)");
+    result.track.endTransition();
+    assert.equal(result.track.style.transform, "translateX(-200%)");
+    assert.equal(result.slides[2].style.transform, "");
+  }
   result.buttons[2].handlers.keydown({ key: "Home", preventDefault() {} });
   assert.equal(result.buttons[0].focused, true);
+  assert.equal(timers.size, reduce ? 0 : 1);
+  result.handlers.focusout({ relatedTarget: null });
   const down = { isPrimary: true, button: 0, clientX: 200, clientY: 200, pointerId: 1 };
   result.viewport.handlers.pointerdown(down);
   result.viewport.handlers.pointerup({ clientX: 100, clientY: 190 });
@@ -212,6 +246,7 @@ for (const reduce of [false, true]) {
     assert(classes.has("is-visible"));
     motion.matches = false;
     motion.change();
+    assert.equal(timers.size, 2);
     assert.equal(observer.item, reveal);
     observer.callback([{ target: reveal, isIntersecting: false }]);
     assert(!classes.has("is-visible"));
@@ -219,4 +254,4 @@ for (const reduce of [false, true]) {
     assert(classes.has("is-visible"));
   }
 }
-console.log("PASS: 자동 재생·정지, 키보드·스와이프, 언어 전환, 반복 등장, 동작 줄이기");
+console.log("PASS: 버튼 클릭 후 4초 자동 재개, 키보드 포커스 정지, 양방향 경계 순환, 키보드·스와이프, 언어 전환, 반복 등장, 동작 줄이기");

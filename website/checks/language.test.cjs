@@ -24,6 +24,7 @@ for (const storageUnavailable of [false, true]) {
     getAttribute(name) { return this.attributes[name]; },
     setAttribute(name, value) { this.attributes[name] = value; },
   };
+  const watch = { dataset: { srcKo: "watch-ko.svg", srcEn: "watch-en.svg" }, src: "watch-ko.svg" };
   const buttons = ["ko", "en"].map((language) => ({
     dataset: { language }, attributes: {}, handlers: {},
     setAttribute(name, value) { this.attributes[name] = value; },
@@ -37,7 +38,7 @@ for (const storageUnavailable of [false, true]) {
       let index = -1;
       return { nextNode() { this.currentNode = nodes[++index]; return this.currentNode; } };
     },
-    querySelectorAll(selector) { return selector === "[data-language]" ? buttons : [image]; },
+    querySelectorAll(selector) { return selector === "[data-language]" ? buttons : selector === "[data-src-ko][data-src-en]" ? [watch] : [image]; },
     dispatchEvent(event) { events.push(event.type); },
   };
   vm.runInNewContext(source, {
@@ -48,14 +49,17 @@ for (const storageUnavailable of [false, true]) {
     },
   });
   assert.equal(document.documentElement.lang, storageUnavailable ? "ko" : "en");
+  assert.equal(watch.src, storageUnavailable ? "watch-ko.svg" : "watch-en.svg");
   buttons[1].handlers.click();
   assert.equal(document.documentElement.lang, "en");
+  assert.equal(watch.src, "watch-en.svg");
   assert.equal(nodes[0].nodeValue, "\n  See your steaming ");
   assert.equal(nodes[1].nodeValue, "at a glance");
   assert.equal(image.attributes.alt, "Portrait of Anne");
   assert.equal(buttons[1].attributes["aria-pressed"], "true");
   buttons[0].handlers.click();
   assert.equal(document.documentElement.lang, "ko");
+  assert.equal(watch.src, "watch-ko.svg");
   assert.deepEqual(nodes.map((node) => node.nodeValue), originals);
   assert.equal(image.attributes.alt, "Anne 프로필 사진");
   assert.equal(buttons[1].attributes["aria-pressed"], "false");
@@ -63,4 +67,18 @@ for (const storageUnavailable of [false, true]) {
   if (!storageUnavailable) assert.equal(saved, "ko");
 }
 assert(html.indexOf('src="./language.js"') < html.indexOf('src="./script.js"'));
-console.log("PASS: 전체 번역 누락 검사, 한영 복원, 접근성 속성, 언어 저장, 저장소 차단");
+
+// 앱과 공통으로 쓰는 문구는 앱의 영문 카탈로그와 일치해야 합니다.
+const catalog = JSON.parse(fs.readFileSync(path.join(__dirname, "../../Shared/Localizable.xcstrings"), "utf8")).strings;
+const normalize = (copy) => copy.replace(/\\n/g, " ").replace(/\s+/g, " ").trim();
+for (const [korean, entry] of Object.entries(catalog)) {
+  const english = entry.localizations?.en?.stringUnit?.value;
+  if (english && dictionary[normalize(korean)]) {
+    assert.equal(dictionary[normalize(korean)], normalize(english), korean);
+  }
+}
+for (const match of html.matchAll(/data-src-(?:ko|en)="\.\/([^"]+)"/g)) {
+  assert(fs.statSync(path.join(__dirname, "..", match[1])).size > 0);
+}
+assert(!html.includes("data-carousel-toggle"));
+console.log("PASS: 번역 누락, 앱 번역 일치, 한영 복원, 워치 이미지 전환, 접근성 속성, 언어 저장, 저장소 차단");

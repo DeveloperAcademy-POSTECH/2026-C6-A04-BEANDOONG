@@ -136,7 +136,7 @@ h3 {
 .header nav a:hover {
   color: #187ca9;
 }
-/* 언어 선택은 상단 메뉴 옆에 두고 선택 상태를 글자와 밑줄로 구분합니다. */
+/* 언어 선택을 하나의 캡슐 안에 담고 포인트 컬러로 선택 상태를 표시합니다. */
 .header-actions {
   display: flex;
   align-items: center;
@@ -145,23 +145,25 @@ h3 {
 .language-switch {
   display: flex;
   align-items: center;
-  gap: 6px;
+  border-radius: 999px;
+  background: #d5dbe0;
   font-size: 12px;
-  color: var(--muted);
+  font-weight: 700;
+  color: #59636b;
 }
 .language-switch button {
   border: 0;
+  border-radius: 999px;
   background: transparent;
   color: inherit;
   min-height: 44px;
-  padding: 8px 4px;
+  min-width: 60px;
+  padding: 8px 16px;
   font: inherit;
 }
 .language-switch button[aria-pressed="true"] {
-  color: #187ca9;
-  font-weight: 700;
-  text-decoration: underline;
-  text-underline-offset: 5px;
+  background: var(--point);
+  color: var(--night);
 }
 .skip-link {
   position: fixed;
@@ -912,18 +914,6 @@ footer .wordmark {
   background: var(--night);
   color: var(--white);
   font-weight: 600;
-}
-.carousel-toggle {
-  display: block;
-  margin: 0 auto 8px;
-  min-height: 44px;
-  padding: 8px 16px;
-  border: 1px solid var(--line);
-  border-radius: 24px;
-  background: #fff;
-  color: var(--muted);
-  font: inherit;
-  font-size: 12px;
 }
 
 /* 영문 길이에 맞춰 앱 미리보기의 표와 안내 문구에 공간을 확보합니다. */
