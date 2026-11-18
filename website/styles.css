@@ -136,6 +136,35 @@ h3 {
 .header nav a:hover {
   color: #187ca9;
 }
+/* 언어 선택을 하나의 캡슐 안에 담고 포인트 컬러로 선택 상태를 표시합니다. */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+.language-switch {
+  display: flex;
+  align-items: center;
+  border-radius: 999px;
+  background: #d5dbe0;
+  font-size: 12px;
+  font-weight: 700;
+  color: #59636b;
+}
+.language-switch button {
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  min-height: 44px;
+  min-width: 60px;
+  padding: 8px 16px;
+  font: inherit;
+}
+.language-switch button[aria-pressed="true"] {
+  background: var(--point);
+  color: var(--night);
+}
 .skip-link {
   position: fixed;
   left: 15px;
@@ -564,12 +593,12 @@ h3 {
 }
 .portrait--anne { --portrait-scale: 1.05; --portrait-y: 1%; }
 .portrait--zen { --portrait-scale: 1.12; --portrait-y: -4%; }
-.portrait--esther { --portrait-scale: 1.1; --portrait-y: -9%; }
 .portrait--leeo { --portrait-scale: 1.02; --portrait-y: -2%; }
+/* 에스더와 세진의 최종 사진은 확대 없이 머리 위 여백을 확보합니다. */
+.portrait--esther,
 .portrait--sejin {
-  --portrait-scale: 1.1;
-  --portrait-y: -10%;
-  transform: translate(-3%, var(--portrait-y)) scale(var(--portrait-scale));
+  object-position: center 75%;
+  transform: none;
 }
 .portrait--senny { --portrait-scale: 1.12; --portrait-y: -6%; }
 .member h4 {
@@ -885,6 +914,25 @@ footer .wordmark {
   background: var(--night);
   color: var(--white);
   font-weight: 600;
+}
+
+/* 영문 길이에 맞춰 앱 미리보기의 표와 안내 문구에 공간을 확보합니다. */
+html[lang="en"] .result-table-row > span:first-child {
+  width: 66px;
+  font-size: 11px;
+}
+html[lang="en"] .result-table-row > img {
+  width: 204px;
+}
+html[lang="en"] .overview-ticks {
+  width: 204px;
+  margin-left: 77px;
+}
+html[lang="en"] .result-disclaimer {
+  white-space: normal;
+}
+html[lang="en"] .result-disclaimer > img {
+  flex-shrink: 0;
 }
 
 /* 스크롤에 따른 등장 효과 */
@@ -1221,6 +1269,9 @@ footer .wordmark {
     gap: 20px;
     font-size: 12px;
   }
+  .header-actions {
+    gap: 16px;
+  }
   .brand-hero {
     height: calc(88svh - 62px);
     min-height: 500px;
@@ -1424,6 +1475,32 @@ footer .wordmark {
 }
 
 @media (max-width: 480px) {
+  html {
+    scroll-padding-top: 116px;
+  }
+  .header {
+    height: auto;
+    min-height: 100px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    padding-block: 4px;
+  }
+  .header-actions {
+    display: contents;
+  }
+  .header nav {
+    grid-row: 2;
+    grid-column: 1 / -1;
+    justify-content: center;
+  }
+  .language-switch {
+    grid-row: 1;
+    grid-column: 2;
+  }
+  html[lang="en"] .state-tabs button {
+    padding-inline: 9px;
+    font-size: 11px;
+  }
   .member-grid {
     grid-template-columns: 1fr;
   }

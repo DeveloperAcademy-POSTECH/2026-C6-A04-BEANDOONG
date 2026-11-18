@@ -4,6 +4,7 @@ import SwiftUI
 struct PresentationPracticeView: View {
     @Environment(\.dismiss) private var dismiss
     @EnvironmentObject private var connection: WatchConnection
+    @Binding var startsFromWatch: Bool
     @State private var showsListening = false
     @State private var presentation: PresentationPractice?
     @State private var result: PracticeResult?
@@ -37,6 +38,10 @@ struct PresentationPracticeView: View {
             guard watchSync == nil else { return }
             watchSync = PresentationWatchSync(connection: connection, onStart: start,
                                               onStop: finish, onFinishReview: close)
+            if startsFromWatch {
+                startsFromWatch = false
+                start()
+            }
         }
         .onDisappear {
             steamSound.stop()
@@ -78,5 +83,28 @@ struct PresentationPracticeView: View {
         watchSync?.disconnect()
         watchSync = nil
         dismiss()
+    }
+}
+
+/// 발표 준비 화면을 열기 전에도 워치에서 발표를 시작할 수 있게 합니다.
+struct PresentationWatchStart: ViewModifier {
+    @EnvironmentObject private var practice: PracticeSession
+    @Binding var isEnabled: Bool
+    let onStart: () -> Void
+
+    func body(content: Content) -> some View {
+        content
+            .onChange(of: isEnabled, initial: true) { _, enabled in
+                guard enabled else {
+                    practice.onPresentationWatchStart = nil
+                    return
+                }
+                practice.onPresentationWatchStart = { [isEnabled = $isEnabled, onStart] in
+                    guard isEnabled.wrappedValue else { return false }
+                    onStart()
+                    return true
+                }
+            }
+            .onDisappear { practice.onPresentationWatchStart = nil }
     }
 }
