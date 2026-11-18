@@ -89,7 +89,8 @@ nonisolated final class SteamingAudioAnalyzer: @unchecked Sendable {
                             case .air: phase = .aeration
                             case .sputter: phase = .bubble
                             case .metallic: phase = .moreAir
-                            case .other: phase = .milkFlow
+                            case .rolling: phase = .milkFlow
+                            case .other: break
                             }
                         }
                     }

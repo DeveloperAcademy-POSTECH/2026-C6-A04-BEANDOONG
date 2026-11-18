@@ -2,19 +2,19 @@
   "version": "3.5",
   "frames": 817,
   "fixtureSHA256": "e427952cb487b0beba88ec10b2dcfc1ea394a7e3e07d8b120bf418fd15cabfa2",
-  "expectedSHA256": "6ec3a9ca09fc8e526dfa1873a4592e6d9a92ea13097b4a4561e20db14c847727",
+  "expectedSHA256": "44abcf44374435cd3b15baac791e6c20bae7423c440b50bbed980b4a1ac3968b",
   "models": {
     "ChicModelV3_5Air.mlmodel": "05f0d3fd96219c4e22059293a175c6eece7f5acd2e73b281cea13cf0fc0a5ea6",
-    "ChicModelV3_5Gate.mlmodel": "2ca6b159f43986472b4426197513bb8d9410b84d5f5b7cb9a44b812aed13ca03",
-    "ChicModelV3_5Metallic.mlmodel": "1dbe325ecafdc60e42abbbdabb6d7f4d2197203420446c7ebb59b77d84f7c709"
+    "ChicModelV3_5Gate.mlmodel": "945f3db4d0f817552a637de945b0012ef31bc8ae4f98ee20658e6f5755619bd8",
+    "ChicModelV3_5Metallic.mlmodel": "d98f324192d8d47e37f2d4a0b89ef9b0e691629b88a10dbd625c91626292042e"
   },
   "reference": "Separate raw Core ML scorers; independent Python run-group display reference. Regression fixture, not a new accuracy validation set.",
   "resources": {
     "ChicAudioFeatures.mlmodel": "8ec2d0e5c6add578f16d3d8ade3c947b8e5a2c0e5531cdd6e807fa45d3ed89cb",
     "ChicEndV3_5.mlmodel": "46eb10799c0683e8b22fe67b72c6315a3a4bb5949f0a3395dbb0f77a3e69d8c4",
     "ChicModelV3_5Air.mlmodel": "05f0d3fd96219c4e22059293a175c6eece7f5acd2e73b281cea13cf0fc0a5ea6",
-    "ChicModelV3_5Gate.mlmodel": "2ca6b159f43986472b4426197513bb8d9410b84d5f5b7cb9a44b812aed13ca03",
-    "ChicModelV3_5Metallic.mlmodel": "1dbe325ecafdc60e42abbbdabb6d7f4d2197203420446c7ebb59b77d84f7c709",
+    "ChicModelV3_5Gate.mlmodel": "945f3db4d0f817552a637de945b0012ef31bc8ae4f98ee20658e6f5755619bd8",
+    "ChicModelV3_5Metallic.mlmodel": "d98f324192d8d47e37f2d4a0b89ef9b0e691629b88a10dbd625c91626292042e",
     "ChicStartSoundV1.mlmodel": "67ce7d21c75104bf59ecc3b49cef21881a4918a4f153402a24161c7a04465fa0"
   },
   "endExpectedSHA256": "22ae91050c7939ef4c4d410b2e776679a4da7945b760e64ceb10c610a7f1b07b",
@@ -32,12 +32,12 @@
   ],
   "endRevision": "20261109-gain200-repair",
   "activityClassifier": "frozen gradient boosted trees, 100 rounds, depth 3",
-  "phaseRevision": "20261118-metallic060-sputter1-air2-metallic2",
+  "phaseRevision": "20261118-separated-rolling3-other-hold",
   "displayConsecutive": {
     "air": 2,
     "sputter": 1,
     "metallic": 2,
-    "other": 4
+    "rolling": 3
   },
   "startGate": {
     "logic": "existing air representative OR independent start sound",
@@ -51,11 +51,11 @@
     "airConsecutive": 1,
     "airThreshold": "existing phase air > 0.5, rolling/sputter precedence preserved",
     "oneShot": true,
-    "referenceSHA256": "f51c3ac856bcaca235e6d0265efbf475080827af79a722cb761862e009eaa268",
+    "referenceSHA256": "6621c808149734584e14ab18f417faade89c61b870d896808527b7e6b9bef690",
     "audioSHA256": "e4fb2e1df55d426420744ec612f459bd1c8a568c420d450afe6db0a075291f84",
-    "airReferenceSHA256": "47dc55146e20a2ee749e6848c4b051e2b049d3144beb16c6e88efa2fbc47c523",
+    "airReferenceSHA256": "9b0d88f30a53f1bb71391336666619ec47473bb6f81f0f4165e78d3154f474ff",
     "airAudioSHA256": "f0b8f12d68dc9dfcc031b92de0b3ef524cf3d189432c42abb32c662eabc12d15",
-    "soundReferenceSHA256": "0bc7ed7b13aa8d808bdf794e67052efa90f35e660551e849d6253784d8ac4459",
+    "soundReferenceSHA256": "5523538e7b610d99741825c6e98c09179e084ceb9b7445d3165d701b4e74ae49",
     "soundAudioSHA256": "38b9923bca2b220f221bf1337a61623bd9f28e9bc094145a6677d6e16cbc6940"
   },
   "phaseThresholds": {
@@ -63,5 +63,21 @@
     "metallic": 0.6
   },
   "displayFrames": 10,
-  "displayIntervalSeconds": 0.10666666666666667
+  "displayIntervalSeconds": 0.10666666666666667,
+  "otherPolicy": "Keep previous display until another state qualifies; reset consecutive candidate; no listening transition.",
+  "gateClasses": [
+    "air",
+    "metallic",
+    "sputter",
+    "other",
+    "breath_whistle",
+    "rolling"
+  ],
+  "metallicClasses": [
+    "air",
+    "metallic",
+    "sputter",
+    "other",
+    "rolling"
+  ]
 }

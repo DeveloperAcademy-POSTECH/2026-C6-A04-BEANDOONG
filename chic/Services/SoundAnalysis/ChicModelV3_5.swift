@@ -3,7 +3,7 @@ import Foundation
 
 /// 한 번의 연습에서 유지하며 직렬 분석 큐에서 두 단계 모델을 실행합니다.
 nonisolated final class ChicModelV3_5 {
-    enum State: String { case air, sputter, metallic, other }
+    enum State: String { case air, sputter, metallic, rolling, other }
     struct Frame {
         let state: State
         let gateLabel: String
@@ -77,16 +77,16 @@ nonisolated final class ChicModelV3_5 {
     }
     /// 테스트 또는 앱 번들에서 받은 세 모델로 연습별 분석 상태를 만듭니다.
     init(gateURL: URL, airURL: URL, rollingURL: URL, startURL: URL? = nil) throws {
-        gate = try Classifier(url: gateURL, labels: ["air","metallic","sputter","other","breath_whistle"])
+        gate = try Classifier(url: gateURL, labels: ["air","metallic","sputter","other","breath_whistle","rolling"])
         air = try Classifier(url: airURL, labels: ["air","sputter","rolling"])
-        rolling = try Classifier(url: rollingURL, labels: ["air","metallic","sputter","other"])
+        rolling = try Classifier(url: rollingURL, labels: ["air","metallic","sputter","other","rolling"])
         startGate = try startURL.map { try ChicStartGate(url: $0) }
         rawExtractor = try ChicV2FeatureExtractor()
     }
 
-    /// 롤링 우세를 우선하며 공기주입은 0.5 초과, 두 문턱 미달은 롤링으로 판정합니다.
+    /// 롤링 우세를 우선하며 공기주입은 0.5 초과, 두 문턱 미달은 기타 소리로 판정합니다.
     static func airState(air: Double, sputter: Double, rolling: Double) -> State {
-        if rolling >= air && rolling >= sputter { return .other }
+        if rolling >= air && rolling >= sputter { return .rolling }
         if sputter >= sputterThreshold { return .sputter }
         return air > 0.5 ? .air : .other
     }
@@ -106,9 +106,13 @@ nonisolated final class ChicModelV3_5 {
                 score = p[1]
                 state = Self.airState(air: p[0], sputter: p[1], rolling: p[2])
             case "breath_whistle": state = .other
-            case "metallic", "other":
+            case "metallic", "other", "rolling":
                 let p = try rolling.scores(x)
-                state = p[1] > p[0] && p[1] >= p[2] && p[1] >= p[3] && p[1] >= Self.metallicThreshold ? .metallic : .other
+                if p[1] > p[0] && p[1] >= p[2] && p[1] >= p[3] && p[1] >= p[4] && p[1] >= Self.metallicThreshold {
+                    state = .metallic
+                } else {
+                    state = p[4] > p[3] ? .rolling : .other
+                }
             default: throw Failure.schema
             }
             let startReason = try startGate?.consume(x, state: state)

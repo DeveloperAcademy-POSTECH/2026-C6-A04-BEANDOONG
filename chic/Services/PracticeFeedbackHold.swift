@@ -1,4 +1,4 @@
-/// 공기주입·버블링·스크래칭 화면이 표시된 뒤 최소 1초 동안 전환을 보류합니다.
+/// 공기주입·버블링·스크래칭 화면이 표시된 뒤 최소 0.5초 동안 전환을 보류합니다.
 nonisolated struct PracticeFeedbackHold {
     private var changedAt: ContinuousClock.Instant?
 
@@ -7,7 +7,7 @@ nonisolated struct PracticeFeedbackHold {
                                    at now: ContinuousClock.Instant = .now) -> Bool {
         guard current != next else { return true }
         if [.aeration, .bubble, .moreAir].contains(current),
-           let changedAt, changedAt.duration(to: now) < .seconds(1) {
+           let changedAt, changedAt.duration(to: now) < .milliseconds(500) {
             return false
         }
         changedAt = now
