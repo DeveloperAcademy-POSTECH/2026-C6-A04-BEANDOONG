@@ -2,7 +2,7 @@
   "version": "3.5",
   "frames": 817,
   "fixtureSHA256": "e427952cb487b0beba88ec10b2dcfc1ea394a7e3e07d8b120bf418fd15cabfa2",
-  "expectedSHA256": "8171d7a407a4415696f078e94e22cc34b113deabc3ce7859df86800bf7322478",
+  "expectedSHA256": "d0cde466aef12a4d4c010ae6d72fcee073be45e1f952dd4e808e0a44ea457663",
   "models": {
     "ChicModelV3_5Air.mlmodel": "05f0d3fd96219c4e22059293a175c6eece7f5acd2e73b281cea13cf0fc0a5ea6",
     "ChicModelV3_5Gate.mlmodel": "2ca6b159f43986472b4426197513bb8d9410b84d5f5b7cb9a44b812aed13ca03",
@@ -32,12 +32,12 @@
   ],
   "endRevision": "20261109-gain200-repair",
   "activityClassifier": "frozen gradient boosted trees, 100 rounds, depth 3",
-  "phaseRevision": "20261111-gate-air-sputter2",
+  "phaseRevision": "20261118-metallic060-sputter1-metallic2",
   "displayConsecutive": {
     "air": 1,
-    "other": 2,
-    "sputter": 2,
-    "metallic": 3
+    "sputter": 1,
+    "metallic": 2,
+    "other": 2
   },
   "startGate": {
     "logic": "existing air representative OR independent start sound",
@@ -57,5 +57,9 @@
     "airAudioSHA256": "f0b8f12d68dc9dfcc031b92de0b3ef524cf3d189432c42abb32c662eabc12d15",
     "soundReferenceSHA256": "0bc7ed7b13aa8d808bdf794e67052efa90f35e660551e849d6253784d8ac4459",
     "soundAudioSHA256": "38b9923bca2b220f221bf1337a61623bd9f28e9bc094145a6677d6e16cbc6940"
+  },
+  "phaseThresholds": {
+    "sputter": 0.5,
+    "metallic": 0.6
   }
 }

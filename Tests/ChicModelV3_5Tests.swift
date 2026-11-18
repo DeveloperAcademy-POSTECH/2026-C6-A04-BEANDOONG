@@ -131,6 +131,7 @@ import Foundation
         precondition(ChicModelV3_5.airState(air: 0, sputter: 0.5, rolling: 0.5) == .other)
         precondition(ChicModelV3_5.airState(air: 0.6, sputter: 0.1, rolling: 0.3) == .air)
         precondition(ChicModelV3_5.airState(air: 0.2, sputter: 0.5, rolling: 0.3) == .sputter)
+        precondition(ChicModelV3_5.airState(air: 0.3, sputter: 0.499999, rolling: 0.200001) == .other)
         precondition(ChicModelV3_5.airState(air: 0.35, sputter: 0.4, rolling: 0.25) == .other)
         precondition(ChicModelV3_5.airState(air: 0.4, sputter: 0.35, rolling: 0.25) == .other)
         precondition(ChicModelV3_5.airState(air: 0.5, sputter: 0.2, rolling: 0.3) == .other)
@@ -291,14 +292,15 @@ import Foundation
         check([.other, .other, .air, .other, .air, .air], [nil, nil, .air, .air, .air, .air])
         check([.air, .air, .other, .air, .other, .other], [.air, .air, .air, .air, .air, .other])
         check([.air, .air, .metallic, .metallic, .air, .metallic, .metallic, .metallic],
-              [.air, .air, .air, .air, .air, .air, .air, .metallic])
+              [.air, .air, .air, .metallic, .air, .air, .metallic, .metallic])
         check([.air, .air, .sputter, .sputter, .metallic, .sputter, .sputter, .sputter],
-              [.air, .air, .air, .sputter, .sputter, .sputter, .sputter, .sputter])
+              [.air, .air, .sputter, .sputter, .sputter, .sputter, .sputter, .sputter])
         check([.metallic, .metallic, .metallic, .sputter, .sputter, .sputter, .air, .air],
-              [nil, nil, .metallic, .metallic, .sputter, .sputter, .air, .air])
-        check([.air, .sputter, .air, .sputter], [.air, .air, .air, .air])
-        check([.air, .sputter, .other, .sputter, .sputter], [.air, .air, .air, .air, .sputter])
-        check([.sputter, .sputter], [nil, .sputter])
+              [nil, .metallic, .metallic, .sputter, .sputter, .sputter, .air, .air])
+        check([.air, .sputter, .air, .sputter], [.air, .sputter, .air, .sputter])
+        check([.air, .sputter, .other, .sputter, .sputter], [.air, .sputter, .sputter, .sputter, .sputter])
+        check([.sputter, .sputter], [.sputter, .sputter])
+        check([.metallic, .other, .metallic, .metallic], [nil, nil, nil, .metallic])
         check([.air, .other, .other, .air], [.air, .air, .other, .air])
 
         var filter = ChicDisplayFilter()

@@ -24,7 +24,7 @@ nonisolated final class ChicModelV3_5 {
         }
     }
     static let sputterThreshold = 0.5
-    static let metallicThreshold = 0.65
+    static let metallicThreshold = 0.60
     private static let columns = (0..<273).map { String(format: "f%03d", $0) }
     private let gate, air, rolling: Classifier
     private let startGate: ChicStartGate?

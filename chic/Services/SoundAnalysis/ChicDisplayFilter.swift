@@ -10,7 +10,7 @@ nonisolated struct ChicDisplayFilter {
     /// 시작 게이트를 통과하면 첫 판정이 롤링이어도 피드백을 표시할 수 있습니다.
     mutating func activate() { startConfirmed = true }
 
-    /// 공기주입은 1회, 롤링·파바박은 2회, 쇳소리는 3회 연속된 대표 판정을 확인합니다.
+    /// 공기주입·파바박은 1회, 롤링·쇳소리는 2회 연속된 대표 판정을 확인합니다.
     mutating func consume(_ state: ChicModelV3_5.State) -> ChicModelV3_5.State? {
         frames.append(state)
         guard frames.count == 10 else { return nil }
@@ -20,12 +20,11 @@ nonisolated struct ChicDisplayFilter {
         let winner = frames.last { counts[$0] == maximum }!
         frames.removeAll(keepingCapacity: true)
 
-        consecutiveCount = winner == candidate ? min(consecutiveCount + 1, 3) : 1
+        consecutiveCount = winner == candidate ? min(consecutiveCount + 1, 2) : 1
         candidate = winner
         let required = switch winner {
-        case .air: 1
-        case .other, .sputter: 2
-        case .metallic: 3
+        case .air, .sputter: 1
+        case .other, .metallic: 2
         }
         if consecutiveCount >= required && (winner != .other || display != nil || startConfirmed) {
             display = winner
