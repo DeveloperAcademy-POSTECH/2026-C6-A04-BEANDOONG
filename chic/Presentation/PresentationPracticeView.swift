@@ -8,6 +8,7 @@ struct PresentationPracticeView: View {
     @State private var presentation: PresentationPractice?
     @State private var result: PracticeResult?
     @State private var watchSync: PresentationWatchSync?
+    @State private var steamSound = PresentationSteamSound()
 
     var body: some View {
         ZStack {
@@ -38,12 +39,14 @@ struct PresentationPracticeView: View {
                                               onStop: finish, onFinishReview: close)
         }
         .onDisappear {
+            steamSound.stop()
             watchSync?.disconnect()
             watchSync = nil
         }
         .task(id: presentation != nil && result == nil) {
             guard result == nil else { return }
             while !Task.isCancelled, let current = presentation, !current.isComplete {
+                steamSound.play(current)
                 do { try await Task.sleep(for: .seconds(current.stepDuration)) }
                 catch { return }
                 guard !Task.isCancelled, result == nil else { return }
@@ -62,6 +65,7 @@ struct PresentationPracticeView: View {
     private func finish() {
         guard result == nil else { return }
         guard presentation != nil || showsListening else { return }
+        steamSound.stop()
         let completed = presentation?.finish()
             ?? PracticeResult(practicedAt: .now, dailyOrder: 1, segments: [], duration: 0)
         result = completed
@@ -70,6 +74,7 @@ struct PresentationPracticeView: View {
     }
 
     private func close() {
+        steamSound.stop()
         watchSync?.disconnect()
         watchSync = nil
         dismiss()
