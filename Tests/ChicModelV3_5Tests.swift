@@ -139,14 +139,14 @@ import Foundation
         precondition(ChicModelV3_5.airState(air: 0.499999, sputter: 0.2, rolling: 0.300001) == .other)
         precondition(ChicModelV3_5.airState(air: 0.5, sputter: 0.5, rolling: 0) == .sputter)
         var display = ChicDisplayFilter()
-        for _ in 0..<10 { _ = display.consume(.air) }
+        for _ in 0..<40 { _ = display.consume(.air) }
         var result: ChicModelV3_5.State?
         let belowThreshold = ChicModelV3_5.airState(air: 0.4, sputter: 0.35, rolling: 0.25)
-        for _ in 0..<10 { result = display.consume(belowThreshold) }
+        for _ in 0..<20 { result = display.consume(belowThreshold) }
         precondition(result == .air)
-        for _ in 0..<10 { result = display.consume(belowThreshold) }
+        for _ in 0..<20 { result = display.consume(belowThreshold) }
         precondition(result == .other)
-        for _ in 0..<10 { result = display.consume(ChicModelV3_5.airState(air: 0.2, sputter: 0.3, rolling: 0.5)) }
+        for _ in 0..<20 { result = display.consume(ChicModelV3_5.airState(air: 0.2, sputter: 0.3, rolling: 0.5)) }
         precondition(result == .other)
         print("PASS air >0.5 boundary, fallback to rolling, ties, warning threshold and rolling display transition")
     }
@@ -285,35 +285,36 @@ import Foundation
             precondition(candidates.count == expected.count)
             var filter = ChicDisplayFilter()
             for (candidate, result) in zip(candidates, expected) {
-                for _ in 0..<9 { precondition(filter.consume(candidate) == nil) }
+                for _ in 0..<19 { precondition(filter.consume(candidate) == nil) }
                 precondition(filter.consume(candidate) == result)
             }
         }
-        check([.other, .other, .air, .other, .air, .air], [nil, nil, .air, .air, .air, .air])
-        check([.air, .air, .other, .air, .other, .other], [.air, .air, .air, .air, .air, .other])
+        check([.other, .other, .air, .other, .air, .air], [nil, nil, nil, nil, nil, .air])
+        check([.air, .air, .other, .air, .other, .other], [nil, .air, .air, .air, .air, .other])
         check([.air, .air, .metallic, .metallic, .air, .metallic, .metallic, .metallic],
-              [.air, .air, .air, .metallic, .air, .air, .metallic, .metallic])
+              [nil, .air, .air, .metallic, .metallic, .metallic, .metallic, .metallic])
         check([.air, .air, .sputter, .sputter, .metallic, .sputter, .sputter, .sputter],
-              [.air, .air, .sputter, .sputter, .sputter, .sputter, .sputter, .sputter])
+              [nil, .air, .sputter, .sputter, .sputter, .sputter, .sputter, .sputter])
         check([.metallic, .metallic, .metallic, .sputter, .sputter, .sputter, .air, .air],
-              [nil, .metallic, .metallic, .sputter, .sputter, .sputter, .air, .air])
-        check([.air, .sputter, .air, .sputter], [.air, .sputter, .air, .sputter])
-        check([.air, .sputter, .other, .sputter, .sputter], [.air, .sputter, .sputter, .sputter, .sputter])
+              [nil, .metallic, .metallic, .sputter, .sputter, .sputter, .sputter, .air])
+        check([.air, .sputter, .air, .sputter], [nil, .sputter, .sputter, .sputter])
+        check([.air, .sputter, .other, .sputter, .sputter], [nil, .sputter, .sputter, .sputter, .sputter])
         check([.sputter, .sputter], [.sputter, .sputter])
         check([.metallic, .other, .metallic, .metallic], [nil, nil, nil, .metallic])
-        check([.air, .other, .other, .air], [.air, .air, .other, .air])
+        check([.air, .other, .other, .air], [nil, nil, nil, nil])
+        check([.air, .air, .other, .other, .air, .air], [nil, .air, .air, .other, .other, .air])
 
         var filter = ChicDisplayFilter()
-        let majority = Array(repeating: State.air, count: 6) + Array(repeating: State.metallic, count: 4)
+        let majority = Array(repeating: State.air, count: 11) + Array(repeating: State.metallic, count: 9)
         for state in majority.dropLast() { precondition(filter.consume(state) == nil) }
-        precondition(filter.consume(majority.last!) == .air)
-        let tied: [State] = [.air, .metallic, .air, .metallic, .metallic, .metallic, .air, .air, .sputter, .other]
+        precondition(filter.consume(majority.last!) == nil)
+        let tied = Array(repeating: State.metallic, count: 9) + Array(repeating: State.air, count: 9) + [.sputter, .other]
         for state in tied.dropLast() { precondition(filter.consume(state) == nil) }
         precondition(filter.consume(tied.last!) == .air)
         var fresh = ChicDisplayFilter()
-        for _ in 0..<9 { precondition(fresh.consume(.air) == nil) }
+        for _ in 0..<39 { precondition(fresh.consume(.air) == nil) }
         precondition(fresh.consume(.air) == .air)
-        print("PASS 10-frame mode, ties, strict consecutive runs and fresh session")
+        print("PASS 20-frame mode, ties, strict consecutive runs and fresh session")
     }
     /// 같은 소리를 서로 다른 버퍼 크기로 나눠도 결과가 같은지 확인합니다.
     static func main() throws {
