@@ -8,6 +8,20 @@
 
 `PresentationWatchSync`는 기존 `WatchConnection`으로 소리 확인·피드백·종료 상태를 전달합니다. 워치의 시작·종료·완료 명령도 발표용으로 연결합니다. 화면을 닫으면 이전 상태와 명령 처리를 복원하며, 발표 기록은 저장하거나 기존 기록에 추가하지 않습니다.
 
+## 발표용 소리
+
+`PresentationSteamSound`는 피드백 단계가 바뀌는 곳에서 소리를 재생합니다. 준비·소리 확인 화면은 무음이고, 초록 소리만 종료까지 반복합니다. iPhone·워치의 종료 또는 화면 닫기 시 재생과 오디오 세션을 정리합니다. 일반 연습의 마이크·분석 코드는 사용하지 않습니다.
+
+`Audio`의 WAV는 제공된 `chic-presentation-steaming.wav`(48kHz, 모노, 11.374초)의 파형과 기존 소리 분류 모델로 구간을 확인한 뒤 추출했습니다. 시작·끝 소리는 제외하고, 음높이를 유지하는 FFmpeg `atempo`로 화면 길이에 맞췄습니다. 각 파일 양 끝에는 클릭 방지용 3ms 페이드를 적용했습니다.
+
+| 파일 | 원본 구간(초, 근사) | 재생 길이 |
+| --- | --- | --- |
+| `PresentationAeration.wav` | 2.18–3.44 | 1.5초 |
+| `PresentationBubble.wav` | 3.44–4.91 | 1.5초 |
+| `PresentationMoreAir.wav` | 4.91–6.55 | 1.5초 |
+| `PresentationAerationLong.wav` | 6.55–8.50 | 2초 |
+| `PresentationRolling.wav` | 8.50–10.50 | 2초 반복 |
+
 ## 검증
 
 저장소 루트에서 실행합니다.
