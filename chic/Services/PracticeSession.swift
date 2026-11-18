@@ -36,6 +36,7 @@ final class PracticeSession: ObservableObject {
     // 마이크 권한이나 오디오 준비를 기다리는 동안 시작 요청(iPhone 버튼 · 워치)이 겹치지 않게 합니다.
     private var isStarting = false
     private var lastResumedAt: Date?
+    private var feedbackHold = PracticeFeedbackHold()
     private var foregroundID = UUID()
     private var backgroundObserver: AnyCancellable?
     // 직전 연습의 오디오 정리(엔진 종료 · 세션 비활성화) 작업입니다. 새 연습은 이 작업이 끝난 뒤 시작합니다.
@@ -318,6 +319,7 @@ final class PracticeSession: ObservableObject {
     func updateFeedback(_ phase: PracticePhase) {
         // 종료 후 늦게 도착한 분석 결과로 연습 화면이 다시 열리지 않게 합니다.
         guard state.phase.isRunning, state.pausedAt == nil, phase.isRunning else { return }
+        guard feedbackHold.allowsTransition(from: state.phase, to: phase) else { return }
         let now = Date()
         if state.phase != phase {
             timeline.update(phase: phase, at: state.duration(at: now))

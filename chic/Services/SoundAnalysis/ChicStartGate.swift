@@ -8,7 +8,7 @@ nonisolated struct ChicStartRule {
     private(set) var meanScore: Double?
     private var sum = 0.0
     private var frames = 0
-    private var airFilter = ChicDisplayFilter()
+    private var airFilter = ChicDisplayFilter(frameCount: 10, airConsecutive: 1)
 
     /// 공기주입은 시작음 점수와 관계없이 기존 10프레임 표시 기준으로 확인합니다.
     mutating func consume(_ score: Double, state: ChicModelV3_5.State) -> Reason? {

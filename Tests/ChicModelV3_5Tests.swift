@@ -30,7 +30,7 @@ import Foundation
         precondition(average.consume(0, state: .other) == nil)
         for _ in 0..<9 { precondition(average.consume(0.86, state: .other) == nil) }
         precondition(average.consume(0.86, state: .other) == .startSound)
-        for state in [ChicModelV3_5.State.other, .sputter, .metallic] {
+        for state in [ChicModelV3_5.State.other, .rolling, .sputter, .metallic] {
             var idle = ChicStartRule()
             for _ in 0..<40 { precondition(idle.consume(0, state: state) == nil) }
             precondition(!idle.isStarted)
@@ -124,13 +124,14 @@ import Foundation
         }
     }
 
-    /// 롤링 우세·동률과 공기주입 0.5 초과 경계, 문턱 미달 시 롤링 전환을 확인합니다.
+    /// 롤링 우세·동률과 공기주입 0.5 초과 경계, 문턱 미달 판정의 롤링 합산을 확인합니다.
     static func checkAirRolling() {
-        precondition(ChicModelV3_5.airState(air: 0.2, sputter: 0.3, rolling: 0.5) == .other)
-        precondition(ChicModelV3_5.airState(air: 0.4, sputter: 0.2, rolling: 0.4) == .other)
-        precondition(ChicModelV3_5.airState(air: 0, sputter: 0.5, rolling: 0.5) == .other)
+        precondition(ChicModelV3_5.airState(air: 0.2, sputter: 0.3, rolling: 0.5) == .rolling)
+        precondition(ChicModelV3_5.airState(air: 0.4, sputter: 0.2, rolling: 0.4) == .rolling)
+        precondition(ChicModelV3_5.airState(air: 0, sputter: 0.5, rolling: 0.5) == .rolling)
         precondition(ChicModelV3_5.airState(air: 0.6, sputter: 0.1, rolling: 0.3) == .air)
         precondition(ChicModelV3_5.airState(air: 0.2, sputter: 0.5, rolling: 0.3) == .sputter)
+        precondition(ChicModelV3_5.airState(air: 0.3, sputter: 0.499999, rolling: 0.200001) == .other)
         precondition(ChicModelV3_5.airState(air: 0.35, sputter: 0.4, rolling: 0.25) == .other)
         precondition(ChicModelV3_5.airState(air: 0.4, sputter: 0.35, rolling: 0.25) == .other)
         precondition(ChicModelV3_5.airState(air: 0.5, sputter: 0.2, rolling: 0.3) == .other)
@@ -138,16 +139,16 @@ import Foundation
         precondition(ChicModelV3_5.airState(air: 0.499999, sputter: 0.2, rolling: 0.300001) == .other)
         precondition(ChicModelV3_5.airState(air: 0.5, sputter: 0.5, rolling: 0) == .sputter)
         var display = ChicDisplayFilter()
-        for _ in 0..<10 { _ = display.consume(.air) }
+        for _ in 0..<20 { _ = display.consume(.air) }
         var result: ChicModelV3_5.State?
         let belowThreshold = ChicModelV3_5.airState(air: 0.4, sputter: 0.35, rolling: 0.25)
-        for _ in 0..<10 { result = display.consume(belowThreshold) }
-        precondition(result == .air)
-        for _ in 0..<10 { result = display.consume(belowThreshold) }
-        precondition(result == .other)
-        for _ in 0..<10 { result = display.consume(ChicModelV3_5.airState(air: 0.2, sputter: 0.3, rolling: 0.5)) }
-        precondition(result == .other)
-        print("PASS air >0.5 boundary, fallback to rolling, ties, warning threshold and rolling display transition")
+        for _ in 0..<3 {
+            for _ in 0..<10 { result = display.consume(belowThreshold) }
+            precondition(result == .air)
+        }
+        for _ in 0..<10 { result = display.consume(.rolling) }
+        precondition(result == .rolling)
+        print("PASS air threshold and ties, other and rolling switch after four combined blocks")
     }
 
     /// 고정 특징 벡터에서 독립 학습 모델과 Core ML 분류 점수를 비교합니다.
@@ -219,7 +220,7 @@ import Foundation
 
         // 끝난 것으로 볼 시각: 종료음은 지금, 소리 끊김은 20번 전, 청소음은 3번 전
         precondition(ChicEndRule.Reason.endSound.lookbackCount == 0)
-        precondition(ChicEndRule.Reason.disappearance.lookbackCount == ChicEndRule.silenceCount)
+        precondition(ChicEndRule.Reason.disappearance.lookbackCount == 20)
         precondition(ChicEndRule.Reason.cleaning.lookbackCount == ChicEndRule.cleaningCount)
 
         var priority = ChicEndRule(); priority.activate()
@@ -288,29 +289,56 @@ import Foundation
                 precondition(filter.consume(candidate) == result)
             }
         }
-        check([.other, .other, .air, .other, .air, .air], [nil, nil, .air, .air, .air, .air])
-        check([.air, .air, .other, .air, .other, .other], [.air, .air, .air, .air, .air, .other])
+        check([.other, .other, .air, .other, .air, .air], [nil, nil, nil, nil, nil, .air])
+        check([.air, .air, .other, .air, .other, .other], [nil, .air, .air, .air, .air, .air])
         check([.air, .air, .metallic, .metallic, .air, .metallic, .metallic, .metallic],
-              [.air, .air, .air, .air, .air, .air, .air, .metallic])
+              [nil, .air, .air, .metallic, .metallic, .metallic, .metallic, .metallic])
         check([.air, .air, .sputter, .sputter, .metallic, .sputter, .sputter, .sputter],
-              [.air, .air, .air, .sputter, .sputter, .sputter, .sputter, .sputter])
+              [nil, .air, .sputter, .sputter, .sputter, .sputter, .sputter, .sputter])
         check([.metallic, .metallic, .metallic, .sputter, .sputter, .sputter, .air, .air],
-              [nil, nil, .metallic, .metallic, .sputter, .sputter, .air, .air])
-        check([.air, .sputter, .air, .sputter], [.air, .air, .air, .air])
-        check([.air, .sputter, .other, .sputter, .sputter], [.air, .air, .air, .air, .sputter])
-        check([.sputter, .sputter], [nil, .sputter])
-        check([.air, .other, .other, .air], [.air, .air, .other, .air])
+              [nil, .metallic, .metallic, .sputter, .sputter, .sputter, .sputter, .air])
+        check([.air, .sputter, .air, .sputter], [nil, .sputter, .sputter, .sputter])
+        check([.air, .sputter, .other, .sputter, .sputter], [nil, .sputter, .sputter, .sputter, .sputter])
+        check([.sputter, .sputter], [.sputter, .sputter])
+        check([.metallic, .other, .metallic, .metallic], [nil, nil, nil, .metallic])
+        check([.air, .other, .other, .air], [nil, nil, nil, nil])
+        check([.air, .air, .other, .other, .air, .air], [nil, .air, .air, .air, .air, .air])
+        check([.air, .air, .other, .other, .other, .other, .other],
+              [nil, .air, .air, .air, .air, .rolling, .rolling])
+        check([.sputter, .other, .other, .other, .metallic, .other, .other, .other, .other],
+              [.sputter, .sputter, .sputter, .sputter, .sputter, .sputter, .sputter, .sputter, .rolling])
+        check([.metallic, .metallic, .other, .other, .air, .air],
+              [nil, .metallic, .metallic, .metallic, .metallic, .air])
+        check([.air, .air, .other, .other, .metallic, .metallic, .sputter],
+              [nil, .air, .air, .air, .air, .metallic, .sputter])
 
+        check([.rolling, .rolling, .other, .other, .rolling], [nil, nil, nil, nil, nil])
+        check([.air, .air, .rolling, .rolling, .other, .rolling, .rolling, .rolling],
+              [nil, .air, .air, .air, .air, .rolling, .rolling, .rolling])
+        check([.sputter, .rolling, .rolling, .metallic, .metallic, .rolling, .rolling, .rolling, .rolling],
+              [.sputter, .sputter, .sputter, .sputter, .metallic, .metallic, .metallic, .metallic, .rolling])
+        var combined = ChicDisplayFilter()
+        combined.activate()
+        let mixed = Array(repeating: State.rolling, count: 3)
+            + Array(repeating: State.other, count: 3) + Array(repeating: State.air, count: 4)
+        for block in 1...4 {
+            for state in mixed.dropLast() { precondition(combined.consume(state) == nil) }
+            precondition(combined.consume(mixed.last!) == (block == 4 ? .rolling : nil))
+        }
         var filter = ChicDisplayFilter()
         let majority = Array(repeating: State.air, count: 6) + Array(repeating: State.metallic, count: 4)
         for state in majority.dropLast() { precondition(filter.consume(state) == nil) }
-        precondition(filter.consume(majority.last!) == .air)
-        let tied: [State] = [.air, .metallic, .air, .metallic, .metallic, .metallic, .air, .air, .sputter, .other]
+        precondition(filter.consume(majority.last!) == nil)
+        let tied = Array(repeating: State.metallic, count: 4) + Array(repeating: State.air, count: 4) + [.sputter, .other]
         for state in tied.dropLast() { precondition(filter.consume(state) == nil) }
         precondition(filter.consume(tied.last!) == .air)
         var fresh = ChicDisplayFilter()
-        for _ in 0..<9 { precondition(fresh.consume(.air) == nil) }
+        for _ in 0..<19 { precondition(fresh.consume(.air) == nil) }
         precondition(fresh.consume(.air) == .air)
+        var started = ChicDisplayFilter()
+        started.activate()
+        for _ in 0..<39 { precondition(started.consume(.other) == nil) }
+        precondition(started.consume(.other) == .rolling)
         print("PASS 10-frame mode, ties, strict consecutive runs and fresh session")
     }
     /// 같은 소리를 서로 다른 버퍼 크기로 나눠도 결과가 같은지 확인합니다.
