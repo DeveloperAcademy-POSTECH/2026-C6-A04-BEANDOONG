@@ -1,4 +1,4 @@
-/// 모델 판정 20개(약 0.213초)를 집계하고 같은 대표 판정이 연속될 때 표시를 바꿉니다.
+/// 모델 판정 10개(약 0.107초)를 집계하고 같은 대표 판정이 연속될 때 표시를 바꿉니다.
 /// 분석 큐에서 한 세션 동안 유지하고 다음 연습은 새 인스턴스로 시작합니다.
 nonisolated struct ChicDisplayFilter {
     private let frameCount: Int
@@ -9,8 +9,8 @@ nonisolated struct ChicDisplayFilter {
     private var display: ChicModelV3_5.State?
     private var startConfirmed = false
 
-    /// 실시간 피드백은 20프레임·공기주입 2회, 자동 시작 확인은 10프레임·1회를 사용합니다.
-    init(frameCount: Int = 20, airConsecutive: Int = 2) {
+    /// 실시간 피드백은 10프레임·공기주입 2회, 자동 시작 확인은 10프레임·1회를 사용합니다.
+    init(frameCount: Int = 10, airConsecutive: Int = 2) {
         precondition(frameCount > 0 && (1...2).contains(airConsecutive))
         self.frameCount = frameCount
         self.airConsecutive = airConsecutive
@@ -19,7 +19,7 @@ nonisolated struct ChicDisplayFilter {
     /// 시작 게이트를 통과하면 첫 판정이 롤링이어도 피드백을 표시할 수 있습니다.
     mutating func activate() { startConfirmed = true }
 
-    /// 파바박은 1회, 롤링·쇳소리는 2회, 공기주입은 용도별 연속 횟수를 확인합니다.
+    /// 파바박은 1회, 쇳소리는 2회, 롤링·기타는 4회, 공기주입은 용도별 연속 횟수를 확인합니다.
     mutating func consume(_ state: ChicModelV3_5.State) -> ChicModelV3_5.State? {
         frames.append(state)
         guard frames.count == frameCount else { return nil }
@@ -29,12 +29,13 @@ nonisolated struct ChicDisplayFilter {
         let winner = frames.last { counts[$0] == maximum }!
         frames.removeAll(keepingCapacity: true)
 
-        consecutiveCount = winner == candidate ? min(consecutiveCount + 1, 2) : 1
+        consecutiveCount = winner == candidate ? min(consecutiveCount + 1, 4) : 1
         candidate = winner
         let required = switch winner {
         case .air: airConsecutive
         case .sputter: 1
-        case .other, .metallic: 2
+        case .metallic: 2
+        case .other: 4
         }
         if consecutiveCount >= required && (winner != .other || display != nil || startConfirmed) {
             display = winner

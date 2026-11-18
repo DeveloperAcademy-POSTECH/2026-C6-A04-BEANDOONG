@@ -2,7 +2,7 @@
   "version": "3.5",
   "frames": 817,
   "fixtureSHA256": "e427952cb487b0beba88ec10b2dcfc1ea394a7e3e07d8b120bf418fd15cabfa2",
-  "expectedSHA256": "e598b2b333bc44cc17a658f63e1aec831fa4cee8f3f404b059c9de468807727c",
+  "expectedSHA256": "6ec3a9ca09fc8e526dfa1873a4592e6d9a92ea13097b4a4561e20db14c847727",
   "models": {
     "ChicModelV3_5Air.mlmodel": "05f0d3fd96219c4e22059293a175c6eece7f5acd2e73b281cea13cf0fc0a5ea6",
     "ChicModelV3_5Gate.mlmodel": "2ca6b159f43986472b4426197513bb8d9410b84d5f5b7cb9a44b812aed13ca03",
@@ -37,7 +37,7 @@
     "air": 2,
     "sputter": 1,
     "metallic": 2,
-    "other": 2
+    "other": 4
   },
   "startGate": {
     "logic": "existing air representative OR independent start sound",
@@ -53,15 +53,15 @@
     "oneShot": true,
     "referenceSHA256": "f51c3ac856bcaca235e6d0265efbf475080827af79a722cb761862e009eaa268",
     "audioSHA256": "e4fb2e1df55d426420744ec612f459bd1c8a568c420d450afe6db0a075291f84",
-    "airReferenceSHA256": "44edff96e97f0fbafae0dcb3371ee88ae7e1ac1352b6988abe55b91e764dcf4c",
+    "airReferenceSHA256": "47dc55146e20a2ee749e6848c4b051e2b049d3144beb16c6e88efa2fbc47c523",
     "airAudioSHA256": "f0b8f12d68dc9dfcc031b92de0b3ef524cf3d189432c42abb32c662eabc12d15",
-    "soundReferenceSHA256": "b6ad572abc0badd96a52f66b9e3104c0e4531e5da9fc4efcae5504ddad0bc800",
+    "soundReferenceSHA256": "0bc7ed7b13aa8d808bdf794e67052efa90f35e660551e849d6253784d8ac4459",
     "soundAudioSHA256": "38b9923bca2b220f221bf1337a61623bd9f28e9bc094145a6677d6e16cbc6940"
   },
   "phaseThresholds": {
     "sputter": 0.5,
     "metallic": 0.6
   },
-  "displayFrames": 20,
-  "displayIntervalSeconds": 0.21333333333333335
+  "displayFrames": 10,
+  "displayIntervalSeconds": 0.10666666666666667
 }
