@@ -30,6 +30,7 @@ final class PracticeSession: ObservableObject {
     private var timeline = PracticeTimeline()
     // 워치와 메시지를 주고받는 통신 담당입니다.
     let connection: WatchConnection
+    var onPresentationWatchStart: (() -> Bool)?
     // 마이크 소리를 모델로 분석하는 담당이며 연습과 함께 시작·종료합니다.
     private var soundAnalyzer: SteamingAudioAnalyzer?
     // 마이크 권한이나 오디오 준비를 기다리는 동안 시작 요청(iPhone 버튼 · 워치)이 겹치지 않게 합니다.
@@ -67,6 +68,12 @@ final class PracticeSession: ObservableObject {
             case .start:
                 guard !self.isStarting else {
                     throw ConnectionError.localized("iPhone에서 연습을 시작하고 있어요. 잠시 기다려주세요.")
+                }
+                if self.state.phase == .idle, let startPresentation = self.onPresentationWatchStart {
+                    guard UIApplication.shared.applicationState == .active else {
+                        throw ConnectionError.localized(Self.openAppMessageKey)
+                    }
+                    if startPresentation() { return self.connection.state }
                 }
                 // 워치 요청에서는 권한 팝업을 띄우지 않고, iPhone에서 미리 허용했는지 확인합니다.
                 guard MicrophonePermission.isGranted else {

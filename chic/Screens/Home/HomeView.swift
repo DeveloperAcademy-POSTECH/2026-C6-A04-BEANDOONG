@@ -16,6 +16,7 @@ struct HomeView: View {
     @State private var path: [Destination] = []
     /// 저장하지 않아서 앱을 다시 실행하면 실제 연습 모드로 시작합니다.
     @State private var isPresentationMode = false
+    @State private var startsPresentationFromWatch = false
     /// 등장 애니메이션을 할지
     private let animatesEntrance: Bool
     /// 화면이 실제로 보이고 있는지 (기본: 보임). 온보딩 아래에 미리 만들어 둘 때 false 로 두면,
@@ -73,7 +74,7 @@ struct HomeView: View {
                                          onResetOnboarding: onResetOnboarding,
                                          isPresentationMode: $isPresentationMode)
                         case .presentationPractice:
-                            PresentationPracticeView()
+                            PresentationPracticeView(startsFromWatch: $startsPresentationFromWatch)
                         }
                     }
                     .toolbar(.hidden, for: .navigationBar)
@@ -83,6 +84,10 @@ struct HomeView: View {
         .onChange(of: isEntranceActive) { _, isActive in
             if isActive { enter() }
         }
+        .modifier(PresentationWatchStart(isEnabled: $isPresentationMode) {
+            startsPresentationFromWatch = true
+            path = [.presentationPractice]
+        })
         .clearsPathWhenPracticeFinishes($path)
     }
 
