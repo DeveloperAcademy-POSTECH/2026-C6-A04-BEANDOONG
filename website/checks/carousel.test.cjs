@@ -35,18 +35,27 @@ function makeCarousel(count) {
     setPointerCapture() {},
   };
   const track = { style: {} };
-  const caption = {};
+  const caption = { attributes: {}, setAttribute(key, value) { this.attributes[key] = value; } };
+  const toggle = {
+    handlers: {},
+    addEventListener(key, fn) { this.handlers[key] = fn; },
+  };
   return {
     slides,
     buttons,
     viewport,
     track,
     caption,
+    toggle,
+    handlers: {},
+    addEventListener(key, fn) { this.handlers[key] = fn; },
+    contains(target) { return buttons.includes(target) || target === toggle; },
     querySelector(selector) {
       return {
         "[data-carousel-viewport]": viewport,
         "[data-carousel-track]": track,
         "[data-carousel-caption]": caption,
+        "[data-carousel-toggle]": toggle,
       }[selector];
     },
     querySelectorAll(selector) {
@@ -63,13 +72,26 @@ for (const reduce of [false, true]) {
       add(...names) {
         names.forEach((name) => classes.add(name));
       },
+      toggle(name, active) { if (active) classes.add(name); else classes.delete(name); },
     },
   };
   const motion = {
     matches: reduce,
+    listeners: [],
     addEventListener(_, fn) {
-      this.change = fn;
+      this.listeners.push(fn);
     },
+    change() { this.listeners.forEach((fn) => fn()); },
+  };
+  const timers = new Map();
+  let nextTimer = 0;
+  let language = "ko";
+  const document = {
+    hidden: false,
+    handlers: {},
+    addEventListener(type, fn) { (this.handlers[type] ||= []).push(fn); },
+    dispatch(type) { this.handlers[type].forEach((fn) => fn()); },
+    querySelectorAll: (selector) => (selector === "[data-carousel]" ? carousels : selector === "[data-reveal]" ? [reveal] : []),
   };
   let observer;
   class Observer {
@@ -79,6 +101,7 @@ for (const reduce of [false, true]) {
     }
     observe(item) {
       this.item = item;
+      this.disconnected = false;
     }
     unobserve(item) {
       this.unobserved = item;
@@ -88,14 +111,49 @@ for (const reduce of [false, true]) {
     }
   }
   vm.runInNewContext(fs.readFileSync(path.join(__dirname, "../script.js"), "utf8"), {
-    document: {
-      querySelectorAll: (selector) => (selector === "[data-carousel]" ? carousels : selector === "[data-reveal]" ? [reveal] : []),
+    document,
+    translate: (copy) => language === "en" ? copy.replace("설명", "Caption") : copy,
+    setInterval(callback, delay) {
+      assert.equal(delay, 5000);
+      timers.set(++nextTimer, callback);
+      return nextTimer;
     },
+    clearInterval(id) { timers.delete(id); },
     matchMedia: () => motion,
     window: { IntersectionObserver: Observer },
     IntersectionObserver: Observer,
   });
   const [state, result] = carousels;
+  assert.equal(timers.size, reduce ? 0 : 2);
+  assert.equal(state.caption.attributes["aria-live"], reduce ? "polite" : "off");
+  if (!reduce) {
+    // 자동 전환과 마지막 화면 이후 순환을 확인합니다.
+    const tick = [...timers.values()][0];
+    tick();
+    assert.equal(state.caption.textContent, "설명 1");
+    tick(); tick(); tick();
+    assert.equal(state.caption.textContent, "설명 0");
+    state.handlers.pointerenter({ pointerType: "mouse" });
+    assert.equal(timers.size, 1);
+    state.handlers.pointerleave({ pointerType: "mouse" });
+    assert.equal(timers.size, 2);
+    state.handlers.focusin();
+    assert.equal(timers.size, 1);
+    state.handlers.focusout({ relatedTarget: state.buttons[0] });
+    assert.equal(timers.size, 1);
+    state.handlers.focusout({ relatedTarget: null });
+    assert.equal(timers.size, 2);
+    state.toggle.handlers.click();
+    assert.equal(timers.size, 1);
+    document.hidden = true;
+    document.dispatch("visibilitychange");
+    assert.equal(timers.size, 0);
+    document.hidden = false;
+    document.dispatch("visibilitychange");
+    assert.equal(timers.size, 1);
+    state.toggle.handlers.click();
+    assert.equal(timers.size, 2);
+  }
   state.buttons[3].handlers.click();
   result.buttons[1].handlers.click();
   assert.equal(state.caption.textContent, "설명 3");
@@ -124,18 +182,41 @@ for (const reduce of [false, true]) {
   result.viewport.handlers.pointerup({ clientX: 100, clientY: 190 });
   assert.equal(result.caption.textContent, "설명 1");
   assert.equal(state.caption.textContent, "설명 3");
+  // 언어를 전환해도 현재 슬라이드가 유지되고 이후 자동 전환에도 적용됩니다.
+  language = "en";
+  document.dispatch("site-language-change");
+  assert.equal(state.caption.textContent, "Caption 3");
+  assert.equal(result.caption.textContent, "Caption 1");
+  if (!reduce) {
+    [...timers.values()][0]();
+    assert.equal(state.caption.textContent, "Caption 0");
+  }
+  language = "ko";
+  document.dispatch("site-language-change");
   if (!reduce) {
     assert(classes.has("reveal-pending"));
     observer.callback([{ target: reveal, isIntersecting: false }]);
     assert(!classes.has("is-visible"));
     observer.callback([{ target: reveal, isIntersecting: true }]);
     assert(classes.has("is-visible"));
-    assert.equal(observer.unobserved, reveal);
+    observer.callback([{ target: reveal, isIntersecting: false }]);
+    assert(!classes.has("is-visible"));
+    observer.callback([{ target: reveal, isIntersecting: true }]);
+    assert(classes.has("is-visible"));
+    assert.equal(observer.unobserved, undefined);
     motion.matches = true;
     motion.change();
     assert(observer.disconnected);
+    assert.equal(timers.size, 0);
   } else {
-    assert.equal(classes.size, 0);
+    assert(classes.has("is-visible"));
+    motion.matches = false;
+    motion.change();
+    assert.equal(observer.item, reveal);
+    observer.callback([{ target: reveal, isIntersecting: false }]);
+    assert(!classes.has("is-visible"));
+    observer.callback([{ target: reveal, isIntersecting: true }]);
+    assert(classes.has("is-visible"));
   }
 }
-console.log("PASS: 독립 캐러셀, 키보드, 스와이프, 접근성, 등장 효과");
+console.log("PASS: 자동 재생·정지, 키보드·스와이프, 언어 전환, 반복 등장, 동작 줄이기");

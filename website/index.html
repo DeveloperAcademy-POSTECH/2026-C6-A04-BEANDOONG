@@ -17,6 +17,7 @@
     <title>chic — 소리를 넘어, 나만의 한 잔으로</title>
     <link rel="icon" href="./favicon.svg?v=2" type="image/svg+xml" />
     <link rel="stylesheet" href="./styles.css?v=3" />
+    <script src="./language.js" defer></script>
     <script src="./script.js" defer></script>
   </head>
   <body>
@@ -25,9 +26,16 @@
       <a class="wordmark" href="#top" aria-label="chic 처음으로"
         ><img src="./assets/chic-blue.svg" alt="chic"
       /></a>
-      <nav aria-label="주요 메뉴">
-        <a href="#story">이야기</a><a href="#app-preview">앱 미리보기</a><a href="#team">팀 소개</a>
-      </nav>
+      <div class="header-actions">
+        <nav aria-label="주요 메뉴">
+          <a href="#story">이야기</a><a href="#app-preview">앱 미리보기</a><a href="#team">팀 소개</a>
+        </nav>
+        <div class="language-switch" role="group" aria-label="언어 선택">
+          <button type="button" data-language="ko" lang="ko" aria-label="한국어" aria-pressed="true">KOR</button>
+          <span aria-hidden="true">|</span>
+          <button type="button" data-language="en" lang="en" aria-label="English" aria-pressed="false">ENG</button>
+        </div>
+      </div>
     </header>
     <main id="main">
       <section class="brand-hero" id="top" aria-labelledby="brand-title">
@@ -309,6 +317,7 @@
                 공기가 고르게 들어가고 있어요
               </p>
             </div>
+            <button class="carousel-toggle" type="button" data-carousel-toggle aria-controls="state-track">일시 정지</button>
             <div class="state-tabs" role="group" aria-label="스티밍 상태 선택">
               <button type="button" data-slide="0" aria-pressed="true" aria-controls="state-track">
                 공기 주입</button

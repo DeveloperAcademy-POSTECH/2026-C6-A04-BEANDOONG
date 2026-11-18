@@ -136,6 +136,33 @@ h3 {
 .header nav a:hover {
   color: #187ca9;
 }
+/* 언어 선택은 상단 메뉴 옆에 두고 선택 상태를 글자와 밑줄로 구분합니다. */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+.language-switch {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.language-switch button {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  min-height: 44px;
+  padding: 8px 4px;
+  font: inherit;
+}
+.language-switch button[aria-pressed="true"] {
+  color: #187ca9;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 5px;
+}
 .skip-link {
   position: fixed;
   left: 15px;
@@ -886,6 +913,37 @@ footer .wordmark {
   color: var(--white);
   font-weight: 600;
 }
+.carousel-toggle {
+  display: block;
+  margin: 0 auto 8px;
+  min-height: 44px;
+  padding: 8px 16px;
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  background: #fff;
+  color: var(--muted);
+  font: inherit;
+  font-size: 12px;
+}
+
+/* 영문 길이에 맞춰 앱 미리보기의 표와 안내 문구에 공간을 확보합니다. */
+html[lang="en"] .result-table-row > span:first-child {
+  width: 66px;
+  font-size: 11px;
+}
+html[lang="en"] .result-table-row > img {
+  width: 204px;
+}
+html[lang="en"] .overview-ticks {
+  width: 204px;
+  margin-left: 77px;
+}
+html[lang="en"] .result-disclaimer {
+  white-space: normal;
+}
+html[lang="en"] .result-disclaimer > img {
+  flex-shrink: 0;
+}
 
 /* 스크롤에 따른 등장 효과 */
 .reveal {
@@ -1221,6 +1279,9 @@ footer .wordmark {
     gap: 20px;
     font-size: 12px;
   }
+  .header-actions {
+    gap: 16px;
+  }
   .brand-hero {
     height: calc(88svh - 62px);
     min-height: 500px;
@@ -1424,6 +1485,32 @@ footer .wordmark {
 }
 
 @media (max-width: 480px) {
+  html {
+    scroll-padding-top: 116px;
+  }
+  .header {
+    height: auto;
+    min-height: 100px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    padding-block: 4px;
+  }
+  .header-actions {
+    display: contents;
+  }
+  .header nav {
+    grid-row: 2;
+    grid-column: 1 / -1;
+    justify-content: center;
+  }
+  .language-switch {
+    grid-row: 1;
+    grid-column: 2;
+  }
+  html[lang="en"] .state-tabs button {
+    padding-inline: 9px;
+    font-size: 11px;
+  }
   .member-grid {
     grid-template-columns: 1fr;
   }
