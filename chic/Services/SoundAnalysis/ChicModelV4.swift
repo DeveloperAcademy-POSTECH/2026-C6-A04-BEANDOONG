@@ -2,7 +2,7 @@ import CoreML
 import Foundation
 
 /// 한 번의 연습에서 유지하며 직렬 분석 큐에서 두 단계 모델을 실행합니다.
-nonisolated final class ChicModelV3_5 {
+nonisolated final class ChicModelV4 {
     enum State: String { case air, sputter, metallic, rolling, other }
     struct Frame {
         let state: State
@@ -23,10 +23,11 @@ nonisolated final class ChicModelV3_5 {
             }
         }
     }
-    static let sputterThreshold = 0.5
-    static let metallicThreshold = 0.60
+    static let airThreshold = 0.60
+    static let sputterThreshold = 0.60
+    static let metallicThreshold = 0.70
     private static let columns = (0..<273).map { String(format: "f%03d", $0) }
-    private let gate, air, rolling: Classifier
+    private let gate, air, metallic: Classifier
     private let startGate: ChicStartGate?
     var startProbability: Double? { startGate?.meanScore }
     var isStarted: Bool { startGate?.isStarted ?? true }
@@ -73,22 +74,22 @@ nonisolated final class ChicModelV3_5 {
             guard let u = bundle.url(forResource: name, withExtension: "mlmodelc") else { throw Failure.resource(name) }
             return u
         }
-        try self.init(gateURL: url("ChicModelV3_5Gate"), airURL: url("ChicModelV3_5Air"), rollingURL: url("ChicModelV3_5Metallic"), startURL: url("ChicStartSoundV1"))
+        try self.init(gateURL: url("ChicModelV4Gate"), airURL: url("ChicModelV4Air"), metallicURL: url("ChicModelV4Metallic"), startURL: url("ChicStartSoundV1"))
     }
     /// 테스트 또는 앱 번들에서 받은 세 모델로 연습별 분석 상태를 만듭니다.
-    init(gateURL: URL, airURL: URL, rollingURL: URL, startURL: URL? = nil) throws {
+    init(gateURL: URL, airURL: URL, metallicURL: URL, startURL: URL? = nil) throws {
         gate = try Classifier(url: gateURL, labels: ["air","metallic","sputter","other","breath_whistle","rolling"])
         air = try Classifier(url: airURL, labels: ["air","sputter","rolling"])
-        rolling = try Classifier(url: rollingURL, labels: ["air","metallic","sputter","other","rolling"])
+        metallic = try Classifier(url: metallicURL, labels: ["metallic","rolling"])
         startGate = try startURL.map { try ChicStartGate(url: $0) }
         rawExtractor = try ChicV2FeatureExtractor()
     }
 
-    /// 롤링 우세를 우선하며 공기주입은 0.5 초과, 두 문턱 미달은 기타 소리로 판정합니다.
+    /// 롤링 우세를 우선하며 공기주입은 0.60 이상, 두 문턱 미달은 기타 소리로 판정합니다.
     static func airState(air: Double, sputter: Double, rolling: Double) -> State {
         if rolling >= air && rolling >= sputter { return .rolling }
         if sputter >= sputterThreshold { return .sputter }
-        return air > 0.5 ? .air : .other
+        return air >= airThreshold ? .air : .other
     }
 
     /// 재학습과 동일한 원음 특징을 두 단계 분류와 종료 분석에 공유합니다.
@@ -105,14 +106,11 @@ nonisolated final class ChicModelV3_5 {
                 let p = try air.scores(x)
                 score = p[1]
                 state = Self.airState(air: p[0], sputter: p[1], rolling: p[2])
-            case "breath_whistle": state = .other
-            case "metallic", "other", "rolling":
-                let p = try rolling.scores(x)
-                if p[1] > p[0] && p[1] >= p[2] && p[1] >= p[3] && p[1] >= p[4] && p[1] >= Self.metallicThreshold {
-                    state = .metallic
-                } else {
-                    state = p[4] > p[3] ? .rolling : .other
-                }
+            case "metallic":
+                let probabilities = try metallic.scores(x)
+                state = probabilities[0] >= Self.metallicThreshold ? .metallic : .rolling
+            case "rolling": state = .rolling
+            case "other", "breath_whistle": state = .other
             default: throw Failure.schema
             }
             let startReason = try startGate?.consume(x, state: state)

@@ -1,20 +1,20 @@
 {
-  "version": "3.5",
+  "version": "4.0",
   "frames": 817,
   "fixtureSHA256": "e427952cb487b0beba88ec10b2dcfc1ea394a7e3e07d8b120bf418fd15cabfa2",
-  "expectedSHA256": "303f9b8a63b6267241db79f32ff990424a5e0da429f7dfa875fb68a3eacb18d9",
+  "expectedSHA256": "4254bea4bfaabdc63a65e9935229617e45cd6e22f74f77016f89cd90767f509a",
   "models": {
-    "ChicModelV3_5Air.mlmodel": "05f0d3fd96219c4e22059293a175c6eece7f5acd2e73b281cea13cf0fc0a5ea6",
-    "ChicModelV3_5Gate.mlmodel": "945f3db4d0f817552a637de945b0012ef31bc8ae4f98ee20658e6f5755619bd8",
-    "ChicModelV3_5Metallic.mlmodel": "d98f324192d8d47e37f2d4a0b89ef9b0e691629b88a10dbd625c91626292042e"
+    "ChicModelV4Air.mlmodel": "07936ce75da06e3b0c45931945b51a798929c19b8d1904fd3ef46d476e3e4dec",
+    "ChicModelV4Gate.mlmodel": "59ab757682d1917ce50ff48370f36c0c0e21872eeb9ebf15fd3c1a3c72e066ea",
+    "ChicModelV4Metallic.mlmodel": "4e08b4c6dd2264823fa73d9f5d1d6c15cd86363c525e25e4b89e82a5b6ac7ce8"
   },
   "reference": "Separate raw Core ML scorers; independent Python run-group display reference. Regression fixture, not a new accuracy validation set.",
   "resources": {
     "ChicAudioFeatures.mlmodel": "8ec2d0e5c6add578f16d3d8ade3c947b8e5a2c0e5531cdd6e807fa45d3ed89cb",
     "ChicEndV3_5.mlmodel": "46eb10799c0683e8b22fe67b72c6315a3a4bb5949f0a3395dbb0f77a3e69d8c4",
-    "ChicModelV3_5Air.mlmodel": "05f0d3fd96219c4e22059293a175c6eece7f5acd2e73b281cea13cf0fc0a5ea6",
-    "ChicModelV3_5Gate.mlmodel": "945f3db4d0f817552a637de945b0012ef31bc8ae4f98ee20658e6f5755619bd8",
-    "ChicModelV3_5Metallic.mlmodel": "d98f324192d8d47e37f2d4a0b89ef9b0e691629b88a10dbd625c91626292042e",
+    "ChicModelV4Air.mlmodel": "07936ce75da06e3b0c45931945b51a798929c19b8d1904fd3ef46d476e3e4dec",
+    "ChicModelV4Gate.mlmodel": "59ab757682d1917ce50ff48370f36c0c0e21872eeb9ebf15fd3c1a3c72e066ea",
+    "ChicModelV4Metallic.mlmodel": "4e08b4c6dd2264823fa73d9f5d1d6c15cd86363c525e25e4b89e82a5b6ac7ce8",
     "ChicStartSoundV1.mlmodel": "67ce7d21c75104bf59ecc3b49cef21881a4918a4f153402a24161c7a04465fa0"
   },
   "endExpectedSHA256": "22ae91050c7939ef4c4d410b2e776679a4da7945b760e64ceb10c610a7f1b07b",
@@ -32,7 +32,7 @@
   ],
   "endRevision": "20261109-gain200-repair",
   "activityClassifier": "frozen gradient boosted trees, 100 rounds, depth 3",
-  "phaseRevision": "20261118-combined-other-rolling4",
+  "phaseRevision": "20261119-v4-metallic-rolling-binary",
   "displayConsecutive": {
     "air": 2,
     "sputter": 1,
@@ -49,18 +49,19 @@
     "meanFrames": 10,
     "soundConsecutive": 1,
     "airConsecutive": 1,
-    "airThreshold": "existing phase air > 0.5, rolling/sputter precedence preserved",
+    "airThreshold": "phase air >= 0.60, rolling/sputter precedence preserved",
     "oneShot": true,
-    "referenceSHA256": "6621c808149734584e14ab18f417faade89c61b870d896808527b7e6b9bef690",
+    "referenceSHA256": "7607f0e0e9cd89dfbabe69ef7cb11747094d82ee3bb19fb5ec85089ecd1afb10",
     "audioSHA256": "e4fb2e1df55d426420744ec612f459bd1c8a568c420d450afe6db0a075291f84",
-    "airReferenceSHA256": "9b0d88f30a53f1bb71391336666619ec47473bb6f81f0f4165e78d3154f474ff",
+    "airReferenceSHA256": "554da32ab822e8cf8a4bbe1637ab69bf81ecbc93fcb400d67a723f6f0975549d",
     "airAudioSHA256": "f0b8f12d68dc9dfcc031b92de0b3ef524cf3d189432c42abb32c662eabc12d15",
-    "soundReferenceSHA256": "1f36a1887d4bef42adbd56cc84b3cf07b5db97052d02911a44734299371161e8",
+    "soundReferenceSHA256": "73b77efe3e14b9c1269d8cabb75cff7d53c7bb9d8f2c6c92ec68da53ab02352c",
     "soundAudioSHA256": "38b9923bca2b220f221bf1337a61623bd9f28e9bc094145a6677d6e16cbc6940"
   },
   "phaseThresholds": {
-    "sputter": 0.5,
-    "metallic": 0.6
+    "sputter": 0.6,
+    "metallic": 0.7,
+    "air": 0.6
   },
   "displayFrames": 10,
   "displayIntervalSeconds": 0.10666666666666667,
@@ -74,10 +75,11 @@
     "rolling"
   ],
   "metallicClasses": [
-    "air",
     "metallic",
-    "sputter",
-    "other",
     "rolling"
-  ]
+  ],
+  "feedbackHoldMilliseconds": 500,
+  "comparisonBaseline": "64d49a2db551f8cc0a1f50fbdd113c5fc9df402d",
+  "feedbackHoldSeconds": 0.5,
+  "displayCandidatePolicy": "Emit only qualifying completed windows; do not reuse a previous confirmed state."
 }

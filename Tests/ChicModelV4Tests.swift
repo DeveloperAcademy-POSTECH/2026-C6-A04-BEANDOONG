@@ -3,7 +3,7 @@ import CoreML
 import Foundation
 
 /// 제공된 PCM과 예상 출력으로 두 단계 판정 및 입력 변환을 검증합니다.
-@main enum ChicModelV3_5Tests {
+@main enum ChicModelV4Tests {
     struct Expected: Decodable { let gate, state: String; let sputter: Double?; let display: String? }
     struct EndExpected: Decodable { let extraSilentSamples: Int; let probabilities: [[Double]]; let times: [Double] }
 
@@ -30,7 +30,7 @@ import Foundation
         precondition(average.consume(0, state: .other) == nil)
         for _ in 0..<9 { precondition(average.consume(0.86, state: .other) == nil) }
         precondition(average.consume(0.86, state: .other) == .startSound)
-        for state in [ChicModelV3_5.State.other, .rolling, .sputter, .metallic] {
+        for state in [ChicModelV4.State.other, .rolling, .sputter, .metallic] {
             var idle = ChicStartRule()
             for _ in 0..<40 { precondition(idle.consume(0, state: state) == nil) }
             precondition(!idle.isStarted)
@@ -53,7 +53,7 @@ import Foundation
     static func checkStartModel(_ expected: StartExpected, url: URL) throws {
         precondition(expected.highProbability > ChicStartRule.threshold)
         precondition(expected.lowProbability < ChicStartRule.threshold)
-        for (features, state, reason) in [(expected.highFeatures, ChicModelV3_5.State.other, ChicStartRule.Reason.startSound),
+        for (features, state, reason) in [(expected.highFeatures, ChicModelV4.State.other, ChicStartRule.Reason.startSound),
                                          (expected.lowFeatures, .air, .air)] {
             let gate = try ChicStartGate(url: url)
             for _ in 0..<9 { let result = try gate.consume(features, state: state); precondition(result == nil) }
@@ -81,9 +81,9 @@ import Foundation
             try file.read(into: buffer)
             let samples = Array(UnsafeBufferPointer(start: buffer.floatChannelData![0], count: Int(buffer.frameLength)))
             for chunks in [[4800], [1, 127, 513, 1024, 4097]] {
-                let stream = try ChicModelV3_5(gateURL: compiled.appendingPathComponent("ChicModelV3_5Gate.mlmodelc"),
-                    airURL: compiled.appendingPathComponent("ChicModelV3_5Air.mlmodelc"),
-                    rollingURL: compiled.appendingPathComponent("ChicModelV3_5Metallic.mlmodelc"), startURL: url)
+                let stream = try ChicModelV4(gateURL: compiled.appendingPathComponent("ChicModelV4Gate.mlmodelc"),
+                    airURL: compiled.appendingPathComponent("ChicModelV4Air.mlmodelc"),
+                    metallicURL: compiled.appendingPathComponent("ChicModelV4Metallic.mlmodelc"), startURL: url)
                 let end = try ChicEndDetector(modelURL: compiled.appendingPathComponent("ChicAudioFeatures.mlmodelc"), classifierURL: compiled.appendingPathComponent("ChicEndV3_5.mlmodelc"))
                 var display = ChicDisplayFilter(), endRule = ChicEndRule()
                 var offset = 0, chunk = 0, spectra = 0, frames = 0, starts = 0, endScores = 0
@@ -124,27 +124,27 @@ import Foundation
         }
     }
 
-    /// 롤링 우세·동률과 공기주입 0.5 초과 경계, 문턱 미달 판정의 롤링 합산을 확인합니다.
+    /// 롤링 우세·동률과 공기주입 0.60 이상 경계, 문턱 미달 판정의 롤링 합산을 확인합니다.
     static func checkAirRolling() {
-        precondition(ChicModelV3_5.airState(air: 0.2, sputter: 0.3, rolling: 0.5) == .rolling)
-        precondition(ChicModelV3_5.airState(air: 0.4, sputter: 0.2, rolling: 0.4) == .rolling)
-        precondition(ChicModelV3_5.airState(air: 0, sputter: 0.5, rolling: 0.5) == .rolling)
-        precondition(ChicModelV3_5.airState(air: 0.6, sputter: 0.1, rolling: 0.3) == .air)
-        precondition(ChicModelV3_5.airState(air: 0.2, sputter: 0.5, rolling: 0.3) == .sputter)
-        precondition(ChicModelV3_5.airState(air: 0.3, sputter: 0.499999, rolling: 0.200001) == .other)
-        precondition(ChicModelV3_5.airState(air: 0.35, sputter: 0.4, rolling: 0.25) == .other)
-        precondition(ChicModelV3_5.airState(air: 0.4, sputter: 0.35, rolling: 0.25) == .other)
-        precondition(ChicModelV3_5.airState(air: 0.5, sputter: 0.2, rolling: 0.3) == .other)
-        precondition(ChicModelV3_5.airState(air: 0.500001, sputter: 0.2, rolling: 0.299999) == .air)
-        precondition(ChicModelV3_5.airState(air: 0.499999, sputter: 0.2, rolling: 0.300001) == .other)
-        precondition(ChicModelV3_5.airState(air: 0.5, sputter: 0.5, rolling: 0) == .sputter)
+        precondition(ChicModelV4.airState(air: 0.2, sputter: 0.3, rolling: 0.5) == .rolling)
+        precondition(ChicModelV4.airState(air: 0.4, sputter: 0.2, rolling: 0.4) == .rolling)
+        precondition(ChicModelV4.airState(air: 0, sputter: 0.5, rolling: 0.5) == .rolling)
+        precondition(ChicModelV4.airState(air: 0.6, sputter: 0.1, rolling: 0.3) == .air)
+        precondition(ChicModelV4.airState(air: 0.2, sputter: 0.6, rolling: 0.2) == .sputter)
+        precondition(ChicModelV4.airState(air: 0.2, sputter: 0.599999, rolling: 0.200001) == .other)
+        precondition(ChicModelV4.airState(air: 0.35, sputter: 0.4, rolling: 0.25) == .other)
+        precondition(ChicModelV4.airState(air: 0.4, sputter: 0.35, rolling: 0.25) == .other)
+        precondition(ChicModelV4.airState(air: 0.5, sputter: 0.2, rolling: 0.3) == .other)
+        precondition(ChicModelV4.airState(air: 0.600001, sputter: 0.2, rolling: 0.199999) == .air)
+        precondition(ChicModelV4.airState(air: 0.599999, sputter: 0.2, rolling: 0.200001) == .other)
+        precondition(ChicModelV4.airState(air: 0.5, sputter: 0.5, rolling: 0) == .other)
         var display = ChicDisplayFilter()
         for _ in 0..<20 { _ = display.consume(.air) }
-        var result: ChicModelV3_5.State?
-        let belowThreshold = ChicModelV3_5.airState(air: 0.4, sputter: 0.35, rolling: 0.25)
+        var result: ChicModelV4.State?
+        let belowThreshold = ChicModelV4.airState(air: 0.4, sputter: 0.35, rolling: 0.25)
         for _ in 0..<3 {
             for _ in 0..<10 { result = display.consume(belowThreshold) }
-            precondition(result == .air)
+            precondition(result == nil)
         }
         for _ in 0..<10 { result = display.consume(.rolling) }
         precondition(result == .rolling)
@@ -280,43 +280,56 @@ import Foundation
     }
     /// 집계 경계·동률·연속 판정 중단과 새 연습의 초기 상태를 확인합니다.
     static func checkDisplayFilter() {
-        typealias State = ChicModelV3_5.State
+        typealias State = ChicModelV4.State
         func check(_ candidates: [State], _ expected: [State?]) {
             precondition(candidates.count == expected.count)
             var filter = ChicDisplayFilter()
             for (candidate, result) in zip(candidates, expected) {
-                for _ in 0..<9 { precondition(filter.consume(candidate) == nil) }
+                for _ in 0..<9 {
+                    precondition(filter.consume(candidate) == nil)
+                    precondition(!filter.didCompleteWindow)
+                }
                 precondition(filter.consume(candidate) == result)
+                precondition(filter.didCompleteWindow)
             }
         }
-        check([.other, .other, .air, .other, .air, .air], [nil, nil, nil, nil, nil, .air])
-        check([.air, .air, .other, .air, .other, .other], [nil, .air, .air, .air, .air, .air])
+        check([.other, .other, .air, .other, .air, .air],
+              [nil, nil, nil, nil, nil, .air])
+        check([.air, .air, .other, .air, .other, .other],
+              [nil, .air, nil, nil, nil, nil])
         check([.air, .air, .metallic, .metallic, .air, .metallic, .metallic, .metallic],
-              [nil, .air, .air, .metallic, .metallic, .metallic, .metallic, .metallic])
+              [nil, .air, nil, .metallic, nil, nil, .metallic, .metallic])
         check([.air, .air, .sputter, .sputter, .metallic, .sputter, .sputter, .sputter],
-              [nil, .air, .sputter, .sputter, .sputter, .sputter, .sputter, .sputter])
+              [nil, .air, .sputter, .sputter, nil, .sputter, .sputter, .sputter])
         check([.metallic, .metallic, .metallic, .sputter, .sputter, .sputter, .air, .air],
-              [nil, .metallic, .metallic, .sputter, .sputter, .sputter, .sputter, .air])
-        check([.air, .sputter, .air, .sputter], [nil, .sputter, .sputter, .sputter])
-        check([.air, .sputter, .other, .sputter, .sputter], [nil, .sputter, .sputter, .sputter, .sputter])
-        check([.sputter, .sputter], [.sputter, .sputter])
-        check([.metallic, .other, .metallic, .metallic], [nil, nil, nil, .metallic])
-        check([.air, .other, .other, .air], [nil, nil, nil, nil])
-        check([.air, .air, .other, .other, .air, .air], [nil, .air, .air, .air, .air, .air])
+              [nil, .metallic, .metallic, .sputter, .sputter, .sputter, nil, .air])
+        check([.air, .sputter, .air, .sputter],
+              [nil, .sputter, nil, .sputter])
+        check([.air, .sputter, .other, .sputter, .sputter],
+              [nil, .sputter, nil, .sputter, .sputter])
+        check([.sputter, .sputter],
+              [.sputter, .sputter])
+        check([.metallic, .other, .metallic, .metallic],
+              [nil, nil, nil, .metallic])
+        check([.air, .other, .other, .air],
+              [nil, nil, nil, nil])
+        check([.air, .air, .other, .other, .air, .air],
+              [nil, .air, nil, nil, nil, .air])
         check([.air, .air, .other, .other, .other, .other, .other],
-              [nil, .air, .air, .air, .air, .rolling, .rolling])
+              [nil, .air, nil, nil, nil, .rolling, .rolling])
         check([.sputter, .other, .other, .other, .metallic, .other, .other, .other, .other],
-              [.sputter, .sputter, .sputter, .sputter, .sputter, .sputter, .sputter, .sputter, .rolling])
+              [.sputter, nil, nil, nil, nil, nil, nil, nil, .rolling])
         check([.metallic, .metallic, .other, .other, .air, .air],
-              [nil, .metallic, .metallic, .metallic, .metallic, .air])
+              [nil, .metallic, nil, nil, nil, .air])
         check([.air, .air, .other, .other, .metallic, .metallic, .sputter],
-              [nil, .air, .air, .air, .air, .metallic, .sputter])
+              [nil, .air, nil, nil, nil, .metallic, .sputter])
 
-        check([.rolling, .rolling, .other, .other, .rolling], [nil, nil, nil, nil, nil])
+        check([.rolling, .rolling, .other, .other, .rolling],
+              [nil, nil, nil, nil, nil])
         check([.air, .air, .rolling, .rolling, .other, .rolling, .rolling, .rolling],
-              [nil, .air, .air, .air, .air, .rolling, .rolling, .rolling])
+              [nil, .air, nil, nil, nil, .rolling, .rolling, .rolling])
         check([.sputter, .rolling, .rolling, .metallic, .metallic, .rolling, .rolling, .rolling, .rolling],
-              [.sputter, .sputter, .sputter, .sputter, .metallic, .metallic, .metallic, .metallic, .rolling])
+              [.sputter, nil, nil, nil, .metallic, nil, nil, nil, .rolling])
         var combined = ChicDisplayFilter()
         combined.activate()
         let mixed = Array(repeating: State.rolling, count: 3)
@@ -341,11 +354,62 @@ import Foundation
         precondition(started.consume(.other) == .rolling)
         print("PASS 10-frame mode, ties, strict consecutive runs and fresh session")
     }
+    /// 유지 중 확정됐다가 사라진 후보를 재전달하지 않고 새 연속 판정만 반영하는지 확인합니다.
+    static func checkFeedbackFreshness() {
+        var filter = ChicDisplayFilter(), hold = PracticeFeedbackHold()
+        let start = ContinuousClock.now
+        var current = PracticePhase.listening
+        func block(_ state: ChicModelV4.State, at milliseconds: Int64) {
+            var result: ChicModelV4.State?
+            for _ in 0..<10 { result = filter.consume(state) }
+            let phase: PracticePhase?
+            switch result {
+            case .air: phase = .aeration
+            case .metallic: phase = .moreAir
+            case .sputter: phase = .bubble
+            case .rolling: phase = .milkFlow
+            default: phase = nil
+            }
+            if let phase, hold.allowsTransition(from: current, to: phase,
+                                               at: start.advanced(by: .milliseconds(milliseconds))) {
+                current = phase
+            }
+        }
+        block(.air, at: -100); block(.air, at: 0)
+        block(.metallic, at: 100); block(.metallic, at: 200)
+        precondition(current == .aeration)
+        block(.rolling, at: 300); block(.rolling, at: 400); block(.rolling, at: 500)
+        precondition(current == .aeration)
+        block(.rolling, at: 600)
+        precondition(current == .milkFlow)
+        block(.metallic, at: 700)
+        precondition(current == .milkFlow)
+        block(.metallic, at: 800)
+        precondition(current == .moreAir)
+        block(.metallic, at: 900)
+        block(.sputter, at: 1200)
+        precondition(current == .moreAir)
+        block(.sputter, at: 1300)
+        precondition(current == .bubble)
+
+        // 한 버퍼에 여러 구간이 들어와도 마지막 완료 구간이 미확정이면 앞선 후보를 지웁니다.
+        var batched = ChicDisplayFilter()
+        var pending: ChicModelV4.State?
+        for state in Array(repeating: ChicModelV4.State.sputter, count: 10)
+            + Array(repeating: .rolling, count: 10) + Array(repeating: .sputter, count: 5) {
+            let result = batched.consume(state)
+            if batched.didCompleteWindow { pending = result }
+        }
+        precondition(pending == nil)
+        print("PASS expired candidate is not replayed after hold; latest completed window invalidates earlier candidate")
+    }
+
     /// 같은 소리를 서로 다른 버퍼 크기로 나눠도 결과가 같은지 확인합니다.
     static func main() throws {
         checkStartRule()
         checkAirRolling()
         checkDisplayFilter()
+        checkFeedbackFreshness()
         checkEndRule()
         let args = CommandLine.arguments
         let dir = URL(fileURLWithPath: args[1])
@@ -360,9 +424,9 @@ import Foundation
         try checkEndDetector(x, fixture: dir, compiled: compiled)
         try checkEndDetector(x, fixture: dir, compiled: compiled, gain: Float(pow(10.0, -24.0 / 20)), referenceName: "expected-end-low-gain.json")
         for chunks in [[4800], [1, 127, 513, 1024, 4097]] {
-            let stream = try ChicModelV3_5(gateURL: compiled.appendingPathComponent("ChicModelV3_5Gate.mlmodelc"),
-                                         airURL: compiled.appendingPathComponent("ChicModelV3_5Air.mlmodelc"),
-                                         rollingURL: compiled.appendingPathComponent("ChicModelV3_5Metallic.mlmodelc"))
+            let stream = try ChicModelV4(gateURL: compiled.appendingPathComponent("ChicModelV4Gate.mlmodelc"),
+                                         airURL: compiled.appendingPathComponent("ChicModelV4Air.mlmodelc"),
+                                         metallicURL: compiled.appendingPathComponent("ChicModelV4Metallic.mlmodelc"))
             var displayFilter = ChicDisplayFilter()
             var i=0, start=0, chunk=0
             while start<x.count {
