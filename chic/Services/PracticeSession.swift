@@ -33,6 +33,10 @@ final class PracticeSession: ObservableObject {
     var onPresentationWatchStart: (() -> Bool)?
     // 마이크 소리를 모델로 분석하는 담당이며 연습과 함께 시작·종료합니다.
     private var soundAnalyzer: SteamingAudioAnalyzer?
+    #if DEVELOP
+    private var activeIPadID: UUID?
+    private var iPadConnection: IPadPracticeConnection?
+    #endif
     // 마이크 권한이나 오디오 준비를 기다리는 동안 시작 요청(iPhone 버튼 · 워치)이 겹치지 않게 합니다.
     private var isStarting = false
     private var lastResumedAt: Date?
@@ -48,6 +52,10 @@ final class PracticeSession: ObservableObject {
     /// 여기서는 마이크 분석을 시작하지 않습니다.
     init(connection: WatchConnection) {
         self.connection = connection
+        #if DEVELOP
+        IPadPracticeMode.saveBuildConnectionID()
+        IPadPracticeMode.saveLaunchConnectionID(from: ProcessInfo.processInfo.arguments)
+        #endif
         // 기존 JSON 기록을 이전한 뒤 SwiftData에서 불러옵니다.
         do {
             let store = try PracticeHistoryStore(
@@ -83,7 +91,7 @@ final class PracticeSession: ObservableObject {
                 // 오디오를 준비하는 동안 iPhone 버튼이 같은 시작을 겹쳐 요청하지 않게 합니다.
                 self.isStarting = true
                 defer { self.isStarting = false }
-                try await self.startAnalysis() // iPhone 버튼과 같은 시작 함수를 사용합니다.
+                try await self.startSession() // iPhone 버튼과 같은 시작 함수를 사용합니다.
             case .stop:
                 // 이전 연습의 종료 요청이 새 연습에 적용되지 않도록 확인합니다.
                 try self.ensureCurrentSession(request)
@@ -107,7 +115,7 @@ final class PracticeSession: ObservableObject {
         interruptionObserver = NotificationCenter.default.publisher(for: AVAudioSession.didBecomeInactiveNotification)
             .receive(on: DispatchQueue.main)
             .sink { [weak self] _ in
-                guard let self, self.state.phase.isRunning, self.state.pausedAt == nil else { return }
+                guard let self, self.soundAnalyzer != nil, self.state.phase.isRunning, self.state.pausedAt == nil else { return }
                 if UIApplication.shared.applicationState != .active {
                     self.pauseForBackground()
                 } else {
@@ -128,14 +136,12 @@ final class PracticeSession: ObservableObject {
             return
         }
         guard foregroundID == requestForeground else { return }
-        do { try await startAnalysis(usingWatch: usingWatch) }
+        do { try await startSession(usingWatch: usingWatch) }
         catch { errorMessage = error.localizedDescription }
     }
 
-    /// 두 기기의 시작 요청이 함께 사용하는 실시간 분석 처리입니다. 소리 원본은 저장하지 않습니다.
-    /// 무거운 일(모델 로드 · 오디오 세션 활성화 · 엔진 시작)은 메인 스레드 밖에서 하고, 상태 변경은 성공한 뒤 여기서 합니다.
-    /// 그래서 시작 버튼을 누른 뒤에도 화면이 멈추지 않아요. 시작 순서와 결과는 전과 같습니다.
-    private func startAnalysis(usingWatch: Bool = true) async throws {
+    /// iPhone과 워치의 시작 요청에서 같은 연습 상태를 열고 피드백 입력을 연결합니다.
+    private func startSession(usingWatch: Bool = true) async throws {
         // 어느 기기에서 요청하든 이미 연습 중이라면 중복 분석을 시작하지 않습니다.
         guard !state.phase.isRunning else { return }
         guard historyStore != nil else {
@@ -145,15 +151,30 @@ final class PracticeSession: ObservableObject {
         guard UIApplication.shared.applicationState == .active else {
             throw ConnectionError.localized(Self.openAppMessageKey)
         }
+        let id = UUID()
+        #if DEVELOP
+        if IPadPracticeMode.isEnabled {
+            guard let connectionID = IPadPracticeMode.connectionID else {
+                throw ConnectionError.localized("개발자 설정에 chicPad의 연결 UUID를 입력해 주세요.")
+            }
+            activeIPadID = connectionID
+            beginSession(id: id, usingWatch: usingWatch)
+            connectToIPad(connectionID, sessionID: id)
+            return
+        }
+        #endif
         // 직전 연습의 오디오 정리가 끝나야 새 세션을 켭니다. (늦게 끝난 setActive(false)가 새로 켠 세션을 끄지 않게)
         let requestForeground = foregroundID
         await audioTeardown?.value
-        let id = UUID()
         let analyzer = try await Task.detached(priority: .userInitiated) { try SteamingAudioAnalyzer() }.value
         try await activateAudio(analyzer, id: id, foreground: requestForeground)
         try validateActivation(analyzer, foreground: requestForeground)
         soundAnalyzer = analyzer
-        // 분석 시작에 성공한 뒤에만 새 연습 상태로 바꿉니다. 이전 기록 목록은 유지합니다.
+        beginSession(id: id, usingWatch: usingWatch)
+    }
+
+    /// 입력 방식과 관계없이 같은 상태와 시간으로 연습을 시작합니다.
+    private func beginSession(id: UUID, usingWatch: Bool) {
         state.isWatchEnabled = usingWatch
         timeline = PracticeTimeline()
         aerationClock = AerationClock()
@@ -168,6 +189,25 @@ final class PracticeSession: ObservableObject {
         state.phase = .listening
         publish()
     }
+
+    #if DEVELOP
+    /// 같은 연습의 BLE 상태만 기존 피드백과 기록에 반영합니다.
+    private func connectToIPad(_ connectionID: UUID, sessionID: UUID) {
+        iPadConnection = IPadPracticeConnection(connectionID: connectionID) { [weak self] phase in
+            guard let self, self.state.sessionID == sessionID, self.state.phase.isRunning,
+                  self.state.pausedAt == nil else { return }
+            if phase == .listening, self.state.phase != .listening {
+                self.endQuestion.ask(endedAt: Date())
+            }
+            self.updateFeedback(phase, appliesSoundHold: false)
+        } onIssue: { [weak self] message in
+            guard let self, self.state.sessionID == sessionID, self.state.phase.isRunning,
+                  self.state.pausedAt == nil else { return }
+            self.updateFeedback(.listening, appliesSoundHold: false)
+            self.errorMessage = message
+        }
+    }
+    #endif
 
     /// 처음 시작하거나 같은 분석기를 재개할 때 마이크 입력과 콜백을 연결합니다.
     private func activateAudio(_ analyzer: SteamingAudioAnalyzer, id: UUID, foreground requestForeground: UUID) async throws {
@@ -219,16 +259,20 @@ final class PracticeSession: ObservableObject {
         }
     }
 
-    /// 잠금 또는 앱 전환 시 마이크를 끄고, 응답을 기다리는 동안 시간을 고정합니다.
+    /// 잠금 또는 앱 전환 시 피드백 입력을 멈추고 연습 시간을 고정합니다.
     private func pauseForBackground() {
-        guard state.phase.isRunning, state.pausedAt == nil, let soundAnalyzer else { return }
+        guard state.phase.isRunning, state.pausedAt == nil else { return }
         let now = Date()
         state.pausedAt = now
         timeline.finish(at: state.duration(at: now))
         aerationClock.pause(at: now)
         state.phase = .listening
         endQuestion.ask(endedAt: now)
-        audioTeardown = Self.tearDownAudio(soundAnalyzer)
+        if let soundAnalyzer { audioTeardown = Self.tearDownAudio(soundAnalyzer) }
+        #if DEVELOP
+        iPadConnection?.stop()
+        iPadConnection = nil
+        #endif
         publish(at: now)
     }
 
@@ -242,7 +286,16 @@ final class PracticeSession: ObservableObject {
     /// 스팀 소리가 다시 이어진 뒤 또 끝난 것 같으면 다시 묻습니다.
     func continuePractice() async {
         guard state.pausedAt != nil else { endQuestion.close(); return }
-        guard !isStarting, let id = state.sessionID, let analyzer = soundAnalyzer else { return }
+        guard !isStarting, let id = state.sessionID else { return }
+        #if DEVELOP
+        if let activeIPadID {
+            guard UIApplication.shared.applicationState == .active else { return }
+            resumeSession()
+            connectToIPad(activeIPadID, sessionID: id)
+            return
+        }
+        #endif
+        guard let analyzer = soundAnalyzer else { return }
         isStarting = true
         defer { isStarting = false }
         let foreground = foregroundID
@@ -255,14 +308,19 @@ final class PracticeSession: ObservableObject {
                 audioTeardown = Self.tearDownAudio(analyzer)
                 return
             }
-            let now = Date()
-            state.resume(at: now)
-            lastResumedAt = now
-            endQuestion.close()
-            publish(at: now)
+            resumeSession()
         } catch {
             if state.phase.isRunning, foreground == foregroundID { errorMessage = error.localizedDescription }
         }
+    }
+
+    /// 일시 정지 시간을 제외하고 같은 연습을 이어갑니다.
+    private func resumeSession() {
+        let now = Date()
+        state.resume(at: now)
+        lastResumedAt = now
+        endQuestion.close()
+        publish(at: now)
     }
 
     /// "스티밍이 끝났나요?"에서 '연습 종료': 처음 물어본 시각(끝난 것 같은 시각)을 종료 시각으로 기록합니다.
@@ -281,7 +339,12 @@ final class PracticeSession: ObservableObject {
         // 그사이 도착한 분석 결과는 updateFeedback 의 phase · sessionID 검사로 버려집니다.
         let analyzer = soundAnalyzer
         soundAnalyzer = nil
-        if state.pausedAt == nil { audioTeardown = Self.tearDownAudio(analyzer) }
+        if state.pausedAt == nil, let analyzer { audioTeardown = Self.tearDownAudio(analyzer) }
+        #if DEVELOP
+        iPadConnection?.stop()
+        iPadConnection = nil
+        activeIPadID = nil
+        #endif
         state.pausedAt = nil
         state.endedAt = endedAt
         aerationClock.pause(at: endedAt)
@@ -315,11 +378,11 @@ final class PracticeSession: ObservableObject {
         }
     }
 
-    /// 소리가 바뀔 때 구간을 기록하고, 지속되는 공기주입은 워치에만 다시 보냅니다.
-    func updateFeedback(_ phase: PracticePhase) {
+    /// 피드백이 바뀔 때 구간을 기록하고, 지속되는 공기주입은 워치에만 다시 보냅니다.
+    func updateFeedback(_ phase: PracticePhase, appliesSoundHold: Bool = true) {
         // 종료 후 늦게 도착한 분석 결과로 연습 화면이 다시 열리지 않게 합니다.
         guard state.phase.isRunning, state.pausedAt == nil, phase.isRunning else { return }
-        guard feedbackHold.allowsTransition(from: state.phase, to: phase) else { return }
+        guard !appliesSoundHold || feedbackHold.allowsTransition(from: state.phase, to: phase) else { return }
         let now = Date()
         if state.phase != phase {
             timeline.update(phase: phase, at: state.duration(at: now))

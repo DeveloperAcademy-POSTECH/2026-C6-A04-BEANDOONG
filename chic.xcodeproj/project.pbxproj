@@ -124,6 +124,7 @@
 				936A3CD1307802AD00F6FB73 /* Frameworks */,
 				936A3CD2307802AD00F6FB73 /* Resources */,
 				A1000000000000000000000C /* Embed Watch Content */,
+				A231066CB4BE406088957C0A /* iPad 연결 설정 적용 */,
 			);
 			buildRules = (
 			);
@@ -208,6 +209,36 @@
 			);
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		A231066CB4BE406088957C0A /* iPad 연결 설정 적용 */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			inputPaths = (
+				"$(PROJECT_FILE_PATH)/xcuserdata/DemoIPadPairings.plist",
+			);
+			name = "iPad 연결 설정 적용";
+			outputPaths = (
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/iPadPairingPreset.txt",
+			);
+			shellPath = /bin/sh;
+			shellScript = (
+				"set -e",
+				"output=\"$SCRIPT_OUTPUT_FILE_0\"",
+				"case \"$CONFIGURATION:$PLATFORM_NAME\" in",
+				"    Debug-Develop:iphoneos|Release-Develop:iphoneos) ;;",
+				"    *) /bin/rm -f \"$output\"; exit 0 ;;",
+				"esac",
+				"pairings=\"$SCRIPT_INPUT_FILE_0\"",
+				"if [ -z \"$TARGET_DEVICE_IDENTIFIER\" ] || [ ! -f \"$pairings\" ] || ! connection_id=$(/usr/bin/plutil -extract \"$TARGET_DEVICE_IDENTIFIER\" raw -expect string -o - \"$pairings\" 2>/dev/null); then",
+				"    /bin/rm -f \"$output\"",
+				"    exit 0",
+				"fi",
+				"printf '%s\\n%s\\n' \"$connection_id\" \"$(/usr/bin/uuidgen)\" > \"$output\"",
+				"",
+			);
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		936A3CD0307802AD00F6FB73 /* Sources */ = {
@@ -549,6 +580,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = chic;
 				"INFOPLIST_KEY_CFBundleDisplayName[config=Debug-Develop]" = "chic-develop";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "chicPad에서 스티밍 피드백을 받기 위해 Bluetooth를 사용합니다.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "우유 스티밍 소리를 실시간으로 분석해 연습 피드백을 제공하기 위해 마이크를 사용합니다.";
 				INFOPLIST_KEY_NSMotionUsageDescription = "휴대폰 기울기에 따라 설정 화면 앱 아이콘의 빛 반사 효과를 표현합니다.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -676,6 +708,7 @@
 				INFOPLIST_KEY_CFBundleDisplayName = chic;
 				"INFOPLIST_KEY_CFBundleDisplayName[config=Release-Develop]" = "chic-develop";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_NSBluetoothAlwaysUsageDescription = "chicPad에서 스티밍 피드백을 받기 위해 Bluetooth를 사용합니다.";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "우유 스티밍 소리를 실시간으로 분석해 연습 피드백을 제공하기 위해 마이크를 사용합니다.";
 				INFOPLIST_KEY_NSMotionUsageDescription = "휴대폰 기울기에 따라 설정 화면 앱 아이콘의 빛 반사 효과를 표현합니다.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -708,6 +741,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				"CODE_SIGN_IDENTITY[sdk=watchos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 9;
