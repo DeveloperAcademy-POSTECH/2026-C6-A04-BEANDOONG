@@ -17,6 +17,7 @@
     <title>chic — 소리를 넘어, 나만의 한 잔으로</title>
     <link rel="icon" href="./favicon.svg?v=2" type="image/svg+xml" />
     <link rel="stylesheet" href="./styles.css?v=3" />
+    <script src="./language.js" defer></script>
     <script src="./script.js" defer></script>
   </head>
   <body>
@@ -25,9 +26,15 @@
       <a class="wordmark" href="#top" aria-label="chic 처음으로"
         ><img src="./assets/chic-blue.svg" alt="chic"
       /></a>
-      <nav aria-label="주요 메뉴">
-        <a href="#story">이야기</a><a href="#app-preview">앱 미리보기</a><a href="#team">팀 소개</a>
-      </nav>
+      <div class="header-actions">
+        <nav aria-label="주요 메뉴">
+          <a href="#story">이야기</a><a href="#app-preview">앱 미리보기</a><a href="#team">팀 소개</a>
+        </nav>
+        <div class="language-switch" role="group" aria-label="언어 선택">
+          <button type="button" data-language="ko" lang="ko" aria-label="한국어" aria-pressed="true">KOR</button>
+          <button type="button" data-language="en" lang="en" aria-label="English" aria-pressed="false">ENG</button>
+        </div>
+      </div>
     </header>
     <main id="main">
       <section class="brand-hero" id="top" aria-labelledby="brand-title">
@@ -348,6 +355,8 @@
           </div>
           <img
             src="./assets/watch-feedback-transparent.svg"
+            data-src-ko="./assets/watch-feedback-transparent.svg"
+            data-src-en="./assets/watch-feedback-en.svg"
             alt="공기 주입, 롤링, 버블링, 스크래칭을 안내하는 네 가지 Apple Watch 화면"
             loading="lazy"
           />
@@ -525,10 +534,10 @@
         <div class="team-scene">
         <div class="team-photo">
           <img
-            src="./assets/team-background.png"
+            src="./assets/team-background.final.jpeg"
             alt="노트북 앞에 모여 함께 이야기하는 빈둥빈둥 팀"
-            width="4000"
-            height="3000"
+            width="1707"
+            height="1280"
             loading="lazy"
           />
         </div>
@@ -564,34 +573,34 @@
           <h3 id="members-title">팀원</h3>
           <div class="member-grid">
             <article class="member">
-              <div class="portrait-frame"><img class="portrait portrait--anne" src="./assets/portraits/anne.white.jpeg" alt="Anne 프로필 사진" width="2470" height="3293" loading="lazy" /></div>
+              <div class="portrait-frame"><img class="portrait portrait--anne" src="./assets/portraits/anne.final.jpeg" alt="Anne 프로필 사진" width="1923" height="2564" loading="lazy" /></div>
               <h4>Anne(조은아) <span class="member-role">Designer</span></h4>
               <p class="member-bio"><!-- 소개 입력 --></p>
             </article>
             <article class="member">
-              <div class="portrait-frame"><img class="portrait" src="./assets/portraits/maple.white.jpeg" alt="Maple 프로필 사진" width="2468" height="3291" loading="lazy" /></div>
+              <div class="portrait-frame"><img class="portrait" src="./assets/portraits/maple.final.jpeg" alt="Maple 프로필 사진" width="1923" height="2564" loading="lazy" /></div>
               <h4>Maple(최서진) <span class="member-role">Project Manager</span></h4>
               <p class="member-bio"></p>
             </article>
             <article class="member">
-              <div class="portrait-frame"><img class="portrait portrait--zen" src="./assets/portraits/zen.white.jpeg" alt="Zen 프로필 사진" width="3000" height="4000" loading="lazy" /></div>
+              <div class="portrait-frame"><img class="portrait portrait--zen" src="./assets/portraits/zen.final.jpeg" alt="Zen 프로필 사진" width="1923" height="2564" loading="lazy" /></div>
               <h4>Zen(김유진) <span class="member-role">Designer</span></h4>
               <p class="member-bio"><!-- 소개 입력 --></p>
             </article>
 
 
             <article class="member">
-              <div class="portrait-frame"><img class="portrait" src="./assets/portraits/remi.white.jpeg" alt="Remi 프로필 사진" width="2650" height="3533" loading="lazy" /></div>
+              <div class="portrait-frame"><img class="portrait" src="./assets/portraits/remi.final.jpeg" alt="Remi 프로필 사진" width="1923" height="2564" loading="lazy" /></div>
               <h4>Remi(정필규) <span class="member-role">Developer</span></h4>
               <p class="member-bio"><!-- 소개 입력 --></p>
             </article>
             <article class="member">
-              <div class="portrait-frame"><img class="portrait portrait--esther" src="./assets/portraits/esther.white.jpeg" alt="Esther 프로필 사진" width="3000" height="4000" loading="lazy" /></div>
+              <div class="portrait-frame"><img class="portrait portrait--esther" src="./assets/portraits/esther.final.jpeg" alt="Esther 프로필 사진" width="1923" height="2564" loading="lazy" /></div>
               <h4>Esther(정에스더) <span class="member-role">Developer</span></h4>
               <p class="member-bio"><!-- 소개 입력 --></p>
             </article>
             <article class="member">
-              <div class="portrait-frame"><img class="portrait" src="./assets/portraits/craig.white.jpeg" alt="Craig 프로필 사진" width="2900" height="3866" loading="lazy" /></div>
+              <div class="portrait-frame"><img class="portrait" src="./assets/portraits/craig.final.jpeg" alt="Craig 프로필 사진" width="1923" height="2564" loading="lazy" /></div>
               <h4>Craig(김정훈) <span class="member-role">Developer</span></h4>
               <p class="member-bio"><!-- 소개 입력 --></p>
             </article>
@@ -603,17 +612,17 @@
           <h3 id="mentors-title">멘토</h3>
           <div class="member-grid">
             <article class="member">
-              <div class="portrait-frame"><img class="portrait portrait--leeo" src="./assets/portraits/leeo.white.jpeg" alt="리이오 프로필 사진" width="2663" height="3551" loading="lazy" /></div>
+              <div class="portrait-frame"><img class="portrait portrait--leeo" src="./assets/portraits/leeo.final.jpeg" alt="리이오 프로필 사진" width="1923" height="2564" loading="lazy" /></div>
               <h4>Leeo <span class="member-role">Tech Mentor</span></h4>
               <p class="member-bio"><!-- 소개 입력 --></p>
             </article>
             <article class="member">
-              <div class="portrait-frame"><img class="portrait portrait--sejin" src="./assets/portraits/sejin.white.jpeg" alt="세진 프로필 사진" width="2139" height="2852" loading="lazy" /></div>
+              <div class="portrait-frame"><img class="portrait portrait--sejin" src="./assets/portraits/sejin.final.jpeg" alt="세진 프로필 사진" width="1923" height="2564" loading="lazy" /></div>
               <h4>Sejin <span class="member-role">IT Mentor</span></h4>
               <p class="member-bio"></p>
             </article>
             <article class="member">
-              <div class="portrait-frame"><img class="portrait portrait--senny" src="./assets/portraits/seni.white.jpeg" alt="세니 프로필 사진" width="2646" height="3528" loading="lazy" /></div>
+              <div class="portrait-frame"><img class="portrait portrait--senny" src="./assets/portraits/seni.final.jpeg" alt="세니 프로필 사진" width="1923" height="2564" loading="lazy" /></div>
               <h4>Senny <span class="member-role">Design Mentor</span></h4>
               <p class="member-bio"><!-- 소개 입력 --></p>
             </article>
