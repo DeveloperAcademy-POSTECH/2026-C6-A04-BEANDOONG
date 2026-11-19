@@ -13,6 +13,8 @@ for model in "$root"/chic/Models/*.mlmodel; do
 done
 xcrun swiftc -O -module-cache-path "$work/cache" \
     "$root"/chic/Services/SoundAnalysis/Chic*.swift \
+    "$root"/Shared/PracticeState.swift \
+    "$root"/chic/Services/PracticeFeedbackHold.swift \
     "$root"/Tests/ChicModelV4Tests.swift -o "$work/check"
 "$work/check" "$root/Tests/Fixtures/ChicModelV4" "$work"
 

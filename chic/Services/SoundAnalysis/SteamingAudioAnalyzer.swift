@@ -83,7 +83,9 @@ nonisolated final class SteamingAudioAnalyzer: @unchecked Sendable {
                             self.logger.notice("자동 시작 reason=\(reason.rawValue, privacy: .public) startSound=\(String(describing: self.classifier.startProbability)); 시작음 모델 추론 중단")
                         }
                         let display = self.displayFilter.consume(frame.state)
-                        guard self.classifier.isStarted else { return }
+                        guard self.classifier.isStarted, self.displayFilter.didCompleteWindow else { return }
+                        // 같은 버퍼 안에서도 최신 완료 구간이 미확정이면 앞선 후보를 폐기합니다.
+                        phase = nil
                         if let display {
                             switch display {
                             case .air: phase = .aeration

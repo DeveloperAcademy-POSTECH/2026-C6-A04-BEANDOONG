@@ -144,7 +144,7 @@ import Foundation
         let belowThreshold = ChicModelV4.airState(air: 0.4, sputter: 0.35, rolling: 0.25)
         for _ in 0..<3 {
             for _ in 0..<10 { result = display.consume(belowThreshold) }
-            precondition(result == .air)
+            precondition(result == nil)
         }
         for _ in 0..<10 { result = display.consume(.rolling) }
         precondition(result == .rolling)
@@ -285,38 +285,51 @@ import Foundation
             precondition(candidates.count == expected.count)
             var filter = ChicDisplayFilter()
             for (candidate, result) in zip(candidates, expected) {
-                for _ in 0..<9 { precondition(filter.consume(candidate) == nil) }
+                for _ in 0..<9 {
+                    precondition(filter.consume(candidate) == nil)
+                    precondition(!filter.didCompleteWindow)
+                }
                 precondition(filter.consume(candidate) == result)
+                precondition(filter.didCompleteWindow)
             }
         }
-        check([.other, .other, .air, .other, .air, .air], [nil, nil, nil, nil, nil, .air])
-        check([.air, .air, .other, .air, .other, .other], [nil, .air, .air, .air, .air, .air])
+        check([.other, .other, .air, .other, .air, .air],
+              [nil, nil, nil, nil, nil, .air])
+        check([.air, .air, .other, .air, .other, .other],
+              [nil, .air, nil, nil, nil, nil])
         check([.air, .air, .metallic, .metallic, .air, .metallic, .metallic, .metallic],
-              [nil, .air, .air, .metallic, .metallic, .metallic, .metallic, .metallic])
+              [nil, .air, nil, .metallic, nil, nil, .metallic, .metallic])
         check([.air, .air, .sputter, .sputter, .metallic, .sputter, .sputter, .sputter],
-              [nil, .air, .sputter, .sputter, .sputter, .sputter, .sputter, .sputter])
+              [nil, .air, .sputter, .sputter, nil, .sputter, .sputter, .sputter])
         check([.metallic, .metallic, .metallic, .sputter, .sputter, .sputter, .air, .air],
-              [nil, .metallic, .metallic, .sputter, .sputter, .sputter, .sputter, .air])
-        check([.air, .sputter, .air, .sputter], [nil, .sputter, .sputter, .sputter])
-        check([.air, .sputter, .other, .sputter, .sputter], [nil, .sputter, .sputter, .sputter, .sputter])
-        check([.sputter, .sputter], [.sputter, .sputter])
-        check([.metallic, .other, .metallic, .metallic], [nil, nil, nil, .metallic])
-        check([.air, .other, .other, .air], [nil, nil, nil, nil])
-        check([.air, .air, .other, .other, .air, .air], [nil, .air, .air, .air, .air, .air])
+              [nil, .metallic, .metallic, .sputter, .sputter, .sputter, nil, .air])
+        check([.air, .sputter, .air, .sputter],
+              [nil, .sputter, nil, .sputter])
+        check([.air, .sputter, .other, .sputter, .sputter],
+              [nil, .sputter, nil, .sputter, .sputter])
+        check([.sputter, .sputter],
+              [.sputter, .sputter])
+        check([.metallic, .other, .metallic, .metallic],
+              [nil, nil, nil, .metallic])
+        check([.air, .other, .other, .air],
+              [nil, nil, nil, nil])
+        check([.air, .air, .other, .other, .air, .air],
+              [nil, .air, nil, nil, nil, .air])
         check([.air, .air, .other, .other, .other, .other, .other],
-              [nil, .air, .air, .air, .air, .rolling, .rolling])
+              [nil, .air, nil, nil, nil, .rolling, .rolling])
         check([.sputter, .other, .other, .other, .metallic, .other, .other, .other, .other],
-              [.sputter, .sputter, .sputter, .sputter, .sputter, .sputter, .sputter, .sputter, .rolling])
+              [.sputter, nil, nil, nil, nil, nil, nil, nil, .rolling])
         check([.metallic, .metallic, .other, .other, .air, .air],
-              [nil, .metallic, .metallic, .metallic, .metallic, .air])
+              [nil, .metallic, nil, nil, nil, .air])
         check([.air, .air, .other, .other, .metallic, .metallic, .sputter],
-              [nil, .air, .air, .air, .air, .metallic, .sputter])
+              [nil, .air, nil, nil, nil, .metallic, .sputter])
 
-        check([.rolling, .rolling, .other, .other, .rolling], [nil, nil, nil, nil, nil])
+        check([.rolling, .rolling, .other, .other, .rolling],
+              [nil, nil, nil, nil, nil])
         check([.air, .air, .rolling, .rolling, .other, .rolling, .rolling, .rolling],
-              [nil, .air, .air, .air, .air, .rolling, .rolling, .rolling])
+              [nil, .air, nil, nil, nil, .rolling, .rolling, .rolling])
         check([.sputter, .rolling, .rolling, .metallic, .metallic, .rolling, .rolling, .rolling, .rolling],
-              [.sputter, .sputter, .sputter, .sputter, .metallic, .metallic, .metallic, .metallic, .rolling])
+              [.sputter, nil, nil, nil, .metallic, nil, nil, nil, .rolling])
         var combined = ChicDisplayFilter()
         combined.activate()
         let mixed = Array(repeating: State.rolling, count: 3)
@@ -341,11 +354,62 @@ import Foundation
         precondition(started.consume(.other) == .rolling)
         print("PASS 10-frame mode, ties, strict consecutive runs and fresh session")
     }
+    /// 유지 중 확정됐다가 사라진 후보를 재전달하지 않고 새 연속 판정만 반영하는지 확인합니다.
+    static func checkFeedbackFreshness() {
+        var filter = ChicDisplayFilter(), hold = PracticeFeedbackHold()
+        let start = ContinuousClock.now
+        var current = PracticePhase.listening
+        func block(_ state: ChicModelV4.State, at milliseconds: Int64) {
+            var result: ChicModelV4.State?
+            for _ in 0..<10 { result = filter.consume(state) }
+            let phase: PracticePhase?
+            switch result {
+            case .air: phase = .aeration
+            case .metallic: phase = .moreAir
+            case .sputter: phase = .bubble
+            case .rolling: phase = .milkFlow
+            default: phase = nil
+            }
+            if let phase, hold.allowsTransition(from: current, to: phase,
+                                               at: start.advanced(by: .milliseconds(milliseconds))) {
+                current = phase
+            }
+        }
+        block(.air, at: -100); block(.air, at: 0)
+        block(.metallic, at: 100); block(.metallic, at: 200)
+        precondition(current == .aeration)
+        block(.rolling, at: 300); block(.rolling, at: 400); block(.rolling, at: 500)
+        precondition(current == .aeration)
+        block(.rolling, at: 600)
+        precondition(current == .milkFlow)
+        block(.metallic, at: 700)
+        precondition(current == .milkFlow)
+        block(.metallic, at: 800)
+        precondition(current == .moreAir)
+        block(.metallic, at: 900)
+        block(.sputter, at: 1200)
+        precondition(current == .moreAir)
+        block(.sputter, at: 1300)
+        precondition(current == .bubble)
+
+        // 한 버퍼에 여러 구간이 들어와도 마지막 완료 구간이 미확정이면 앞선 후보를 지웁니다.
+        var batched = ChicDisplayFilter()
+        var pending: ChicModelV4.State?
+        for state in Array(repeating: ChicModelV4.State.sputter, count: 10)
+            + Array(repeating: .rolling, count: 10) + Array(repeating: .sputter, count: 5) {
+            let result = batched.consume(state)
+            if batched.didCompleteWindow { pending = result }
+        }
+        precondition(pending == nil)
+        print("PASS expired candidate is not replayed after hold; latest completed window invalidates earlier candidate")
+    }
+
     /// 같은 소리를 서로 다른 버퍼 크기로 나눠도 결과가 같은지 확인합니다.
     static func main() throws {
         checkStartRule()
         checkAirRolling()
         checkDisplayFilter()
+        checkFeedbackFreshness()
         checkEndRule()
         let args = CommandLine.arguments
         let dir = URL(fileURLWithPath: args[1])

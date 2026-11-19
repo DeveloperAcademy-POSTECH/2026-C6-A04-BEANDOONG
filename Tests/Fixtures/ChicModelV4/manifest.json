@@ -2,7 +2,7 @@
   "version": "4.0",
   "frames": 817,
   "fixtureSHA256": "e427952cb487b0beba88ec10b2dcfc1ea394a7e3e07d8b120bf418fd15cabfa2",
-  "expectedSHA256": "24b10bdd7ca3fa7cc7b598aff5555687bc7fff54f2503a4d173a363b64409a80",
+  "expectedSHA256": "4254bea4bfaabdc63a65e9935229617e45cd6e22f74f77016f89cd90767f509a",
   "models": {
     "ChicModelV4Air.mlmodel": "07936ce75da06e3b0c45931945b51a798929c19b8d1904fd3ef46d476e3e4dec",
     "ChicModelV4Gate.mlmodel": "59ab757682d1917ce50ff48370f36c0c0e21872eeb9ebf15fd3c1a3c72e066ea",
@@ -78,7 +78,8 @@
     "metallic",
     "rolling"
   ],
-  "feedbackHoldMilliseconds": 750,
+  "feedbackHoldMilliseconds": 500,
   "comparisonBaseline": "64d49a2db551f8cc0a1f50fbdd113c5fc9df402d",
-  "feedbackHoldSeconds": 0.75
+  "feedbackHoldSeconds": 0.5,
+  "displayCandidatePolicy": "Emit only qualifying completed windows; do not reuse a previous confirmed state."
 }
