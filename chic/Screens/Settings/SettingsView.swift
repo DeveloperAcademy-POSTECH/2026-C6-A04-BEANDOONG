@@ -12,6 +12,10 @@ struct SettingsView: View {
     @Environment(\.openURL) private var openURL
     @State private var showsMailCompose = false
     @State private var showsNoMailAlert = false
+    #if DEVELOP
+    @AppStorage(IPadPracticeMode.enabledKey) private var isIPadPracticeEnabled = false
+    @AppStorage(IPadPracticeMode.connectionIDKey) private var iPadConnectionID = ""
+    #endif
     /// App Store 최신 버전 확인 결과. 확인 전이거나 확인하지 못하면 nil (최신 버전 줄을 비워 둬요)
     @State private var storeVersion: AppVersion?
     /// 미리보기용: App Store 조회 대신 이 값을 최신 버전으로 써요 (예: "1.0.3")
@@ -41,7 +45,8 @@ struct SettingsView: View {
             TopNavigationHeader(title: String(localized: "설정"), isDark: true)
                 .padding(.top, ScreenMetrics.topBarTop.v(scale))
 
-            VStack(spacing: 0) {
+            settingsLayout {
+                VStack(spacing: 0) {
             // MARK: 앱 아이콘 + 버전
             SettingsAppIcon()
                 .designScaled(width: Layout.iconSize, height: Layout.iconSize, scale)
@@ -127,16 +132,47 @@ struct SettingsView: View {
                 .toggleStyle(.switch)
                 .tint(AppColors.darkChipSelected)
                 .padding(.trailing, 19)
+                .onChange(of: isPresentationMode) { _, enabled in
+                    if enabled { isIPadPracticeEnabled = false }
+                }
+
+                Rectangle()
+                    .fill(AppColors.settingsDivider)
+                    .frame(height: 1)
+                    .padding(.leading, Layout.dividerLeading)
+                    .padding(.trailing, Layout.dividerTrailing)
+
+                Toggle(isOn: $isIPadPracticeEnabled) {
+                    SettingsRowLabel(symbol: "ipad", title: String(localized: "iPad 연동 모드"), chevron: nil)
+                }
+                .toggleStyle(.switch)
+                .tint(AppColors.darkChipSelected)
+                .padding(.trailing, 19)
+                .onChange(of: isIPadPracticeEnabled) { _, enabled in
+                    if enabled { isPresentationMode = false }
+                }
+
+                if isIPadPracticeEnabled {
+                    TextField("iPad 연결 UUID", text: $iPadConnectionID, axis: .vertical)
+                        .font(.system(.footnote, design: .monospaced))
+                        .lineLimit(2...)
+                        .keyboardType(.asciiCapable)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .padding(.horizontal, 19)
+                        .frame(minHeight: 44)
+                }
             }
             .settingsCard()
             .padding(.top, Layout.cardTop.v(scale))
             #endif
 
-            Spacer(minLength: 0)
+                Spacer(minLength: 0)
+                }
+                .padding(.horizontal, Layout.horizontalPadding.h(scale))
             }
-            .padding(.horizontal, Layout.horizontalPadding.h(scale))
         }
-        .ignoresSafeArea()
+        .ignoresSafeArea(.container)
         .darkScreenBackground()
         .chicAlert(
             isPresented: showsNoMailAlert,
@@ -155,6 +191,19 @@ struct SettingsView: View {
             MailComposeView(recipient: Self.contactEmail, subject: String(localized: "[chic] 문의"), body: Self.mailBody)
                 .ignoresSafeArea()
         }
+    }
+
+    /// 개발자 설정의 UUID 입력란을 키보드가 가리지 않게 합니다.
+    @ViewBuilder
+    private func settingsLayout<Content: View>(@ViewBuilder content: () -> Content) -> some View {
+        #if DEVELOP
+        ScrollView(content: content)
+            .defaultScrollAnchor(.bottom, for: .sizeChanges)
+            .scrollBounceBehavior(.basedOnSize)
+            .scrollDismissesKeyboard(.interactively)
+        #else
+        content()
+        #endif
     }
 
     /// 최신 버전 줄의 문구. App Store 버전이 지금 버전보다 높으면 그 버전을, 아니면 "최신 버전 사용중".

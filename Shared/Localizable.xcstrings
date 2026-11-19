@@ -422,6 +422,21 @@
         }
       }
     },
+    "iPad 연결 UUID" : {
+
+    },
+    "iPad 연결이 끊겼어요. 다시 연결을 시도합니다." : {
+
+    },
+    "iPad 연동 모드" : {
+
+    },
+    "iPad를 연결하려면 Bluetooth를 켜 주세요." : {
+
+    },
+    "iPad에 연결하지 못했어요. chicPad가 열려 있고 연결 UUID가 맞는지 확인해 주세요." : {
+
+    },
     "iPhone 앱을 열어주세요." : {
       "extractionState" : "manual",
       "localizations" : {
@@ -1810,6 +1825,9 @@
           }
         }
       }
+    },
+    "설정에서 chic의 Bluetooth 접근을 허용해 주세요." : {
+
     },
     "설정에서 마이크 권한을 허용해주세요." : {
       "extractionState" : "manual",
@@ -3352,6 +3370,9 @@
           }
         }
       }
+    },
+    "이 기기는 Bluetooth LE를 지원하지 않아요." : {
+
     },
     "이미 받았거나 오래된 판정" : {
       "extractionState" : "manual",
